@@ -1,0 +1,2012 @@
+[
+    {
+        "key": "living-room-sofa-1-seater-sofa",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "1 Seater Sofa",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 0
+    },
+    {
+        "key": "living-room-sofa-2-seater-sofa",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "2 Seater Sofa",
+        "sizeTag": "XL",
+        "price": 324,
+        "isActive": true,
+        "sortOrder": 1
+    },
+    {
+        "key": "living-room-sofa-3-seater-sofa",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "3 Seater Sofa",
+        "sizeTag": "XXL",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 2
+    },
+    {
+        "key": "living-room-sofa-4-seater-sofa",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "4 Seater Sofa",
+        "sizeTag": "XXL",
+        "price": 396,
+        "isActive": true,
+        "sortOrder": 3
+    },
+    {
+        "key": "living-room-sofa-5-seater-sofa-l-shape",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "5 Seater Sofa – L Shape",
+        "sizeTag": "XXXL",
+        "price": 432,
+        "isActive": true,
+        "sortOrder": 4
+    },
+    {
+        "key": "living-room-sofa-7-seater-sofa-l-shape",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "7 Seater Sofa – L Shape",
+        "sizeTag": "XXXL",
+        "price": 468,
+        "isActive": true,
+        "sortOrder": 5
+    },
+    {
+        "key": "living-room-sofa-sofa-cum-bed",
+        "section": "Living Room",
+        "group": "Sofa",
+        "name": "Sofa Cum Bed",
+        "sizeTag": "XXL",
+        "price": 396,
+        "isActive": true,
+        "sortOrder": 6
+    },
+    {
+        "key": "living-room-dining-dining-chair",
+        "section": "Living Room",
+        "group": "Dining",
+        "name": "Dining Chair",
+        "sizeTag": "M",
+        "price": 86,
+        "isActive": true,
+        "sortOrder": 7
+    },
+    {
+        "key": "living-room-dining-dining-table-4-seater",
+        "section": "Living Room",
+        "group": "Dining",
+        "name": "Dining Table – 4 Seater",
+        "sizeTag": "XL",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 8
+    },
+    {
+        "key": "living-room-dining-dining-table-6-seater",
+        "section": "Living Room",
+        "group": "Dining",
+        "name": "Dining Table – 6 Seater",
+        "sizeTag": "XXL",
+        "price": 432,
+        "isActive": true,
+        "sortOrder": 9
+    },
+    {
+        "key": "living-room-dining-dining-table-8-seater",
+        "section": "Living Room",
+        "group": "Dining",
+        "name": "Dining Table – 8 Seater",
+        "sizeTag": "XXXL",
+        "price": 576,
+        "isActive": true,
+        "sortOrder": 10
+    },
+    {
+        "key": "living-room-television-music-tv-upto-28",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "TV Upto 28\"",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 11
+    },
+    {
+        "key": "living-room-television-music-lcd-led-tv-29-42",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "LCD / LED TV 29\" – 42\"",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 12
+    },
+    {
+        "key": "living-room-television-music-lcd-led-tv-42-50",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "LCD / LED TV 42\" – 50\"",
+        "sizeTag": "XL",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 13
+    },
+    {
+        "key": "living-room-television-music-lcd-led-tv-52-65",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "LCD / LED TV 52\" – 65\"",
+        "sizeTag": "XXL",
+        "price": 432,
+        "isActive": true,
+        "sortOrder": 14
+    },
+    {
+        "key": "living-room-television-music-lcd-led-tv-65-above",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "LCD / LED TV 65\" & Above",
+        "sizeTag": "XXXL",
+        "price": 432,
+        "isActive": true,
+        "sortOrder": 15
+    },
+    {
+        "key": "living-room-television-music-regular-tv-old-model",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "Regular TV (Old Model)",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 16
+    },
+    {
+        "key": "living-room-television-music-tv-stand-trolley",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "TV Stand / Trolley",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 17
+    },
+    {
+        "key": "living-room-television-music-home-theater",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "Home Theater",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 18
+    },
+    {
+        "key": "living-room-television-music-music-video-system",
+        "section": "Living Room",
+        "group": "Television / Music",
+        "name": "Music / Video System",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 19
+    },
+    {
+        "key": "living-room-table-center-table",
+        "section": "Living Room",
+        "group": "Table",
+        "name": "Center Table",
+        "sizeTag": "M",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 20
+    },
+    {
+        "key": "living-room-table-coffee-table-large",
+        "section": "Living Room",
+        "group": "Table",
+        "name": "Coffee Table Large",
+        "sizeTag": "M",
+        "price": 260,
+        "isActive": true,
+        "sortOrder": 21
+    },
+    {
+        "key": "living-room-table-coffee-table-small",
+        "section": "Living Room",
+        "group": "Table",
+        "name": "Coffee Table Small",
+        "sizeTag": "S",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 22
+    },
+    {
+        "key": "living-room-table-folding-table",
+        "section": "Living Room",
+        "group": "Table",
+        "name": "Folding Table",
+        "sizeTag": "S",
+        "price": 130,
+        "isActive": true,
+        "sortOrder": 23
+    },
+    {
+        "key": "living-room-chair-arm-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Arm Chair",
+        "sizeTag": "L",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 24
+    },
+    {
+        "key": "living-room-chair-bean-bag-pouffe",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Bean Bag / Pouffe",
+        "sizeTag": "M",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 25
+    },
+    {
+        "key": "living-room-chair-folding-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Folding Chair",
+        "sizeTag": "S",
+        "price": 90,
+        "isActive": true,
+        "sortOrder": 26
+    },
+    {
+        "key": "living-room-chair-plastic-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Plastic Chair",
+        "sizeTag": "S",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 27
+    },
+    {
+        "key": "living-room-chair-rocking-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Rocking Chair",
+        "sizeTag": "M",
+        "price": 150,
+        "isActive": true,
+        "sortOrder": 28
+    },
+    {
+        "key": "living-room-chair-settee",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Settee",
+        "sizeTag": "L",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 29
+    },
+    {
+        "key": "living-room-chair-stool",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Stool",
+        "sizeTag": "XS",
+        "price": 70,
+        "isActive": true,
+        "sortOrder": 30
+    },
+    {
+        "key": "living-room-chair-study-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Study Chair",
+        "sizeTag": "M",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 31
+    },
+    {
+        "key": "living-room-chair-wooden-chair",
+        "section": "Living Room",
+        "group": "Chair",
+        "name": "Wooden Chair",
+        "sizeTag": "M",
+        "price": 140,
+        "isActive": true,
+        "sortOrder": 32
+    },
+    {
+        "key": "living-room-air-conditioner-split-air-conditioner-ac",
+        "section": "Living Room",
+        "group": "Air Conditioner",
+        "name": "Split Air Conditioner (AC)",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 33
+    },
+    {
+        "key": "living-room-air-conditioner-window-air-conditioner-ac",
+        "section": "Living Room",
+        "group": "Air Conditioner",
+        "name": "Window Air Conditioner (AC)",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 34
+    },
+    {
+        "key": "living-room-cabinet-storage-cabinet-storage",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Cabinet / Storage",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 35
+    },
+    {
+        "key": "living-room-cabinet-storage-book-shelf-small",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Book Shelf Small",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 36
+    },
+    {
+        "key": "living-room-cabinet-storage-book-shelf-medium",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Book Shelf Medium",
+        "sizeTag": "L",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 37
+    },
+    {
+        "key": "living-room-cabinet-storage-book-shelf-large",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Book Shelf Large",
+        "sizeTag": "XL",
+        "price": 300,
+        "isActive": true,
+        "sortOrder": 38
+    },
+    {
+        "key": "living-room-cabinet-storage-chest-of-drawers-small",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Chest of Drawers Small",
+        "sizeTag": "M",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 39
+    },
+    {
+        "key": "living-room-cabinet-storage-chest-of-drawers-medium",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Chest of Drawers Medium",
+        "sizeTag": "L",
+        "price": 260,
+        "isActive": true,
+        "sortOrder": 40
+    },
+    {
+        "key": "living-room-cabinet-storage-chest-of-drawers-large",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Chest of Drawers Large",
+        "sizeTag": "XL",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 41
+    },
+    {
+        "key": "living-room-cabinet-storage-display-cabinet-small",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Display Cabinet Small",
+        "sizeTag": "L",
+        "price": 250,
+        "isActive": true,
+        "sortOrder": 42
+    },
+    {
+        "key": "living-room-cabinet-storage-display-cabinet-large",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Display Cabinet Large",
+        "sizeTag": "XL",
+        "price": 340,
+        "isActive": true,
+        "sortOrder": 43
+    },
+    {
+        "key": "living-room-cabinet-storage-tv-table",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "TV Table",
+        "sizeTag": "M",
+        "price": 220,
+        "isActive": true,
+        "sortOrder": 44
+    },
+    {
+        "key": "living-room-cabinet-storage-wall-shelf",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Wall Shelf",
+        "sizeTag": "S",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 45
+    },
+    {
+        "key": "living-room-cabinet-storage-plastic-cupboard",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Plastic Cupboard",
+        "sizeTag": "L",
+        "price": 260,
+        "isActive": true,
+        "sortOrder": 46
+    },
+    {
+        "key": "living-room-cabinet-storage-shoe-rack-metal",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Shoe Rack Metal",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 47
+    },
+    {
+        "key": "living-room-cabinet-storage-shoe-rack-wooden",
+        "section": "Living Room",
+        "group": "Cabinet & Storage",
+        "name": "Shoe Rack Wooden",
+        "sizeTag": "M",
+        "price": 220,
+        "isActive": true,
+        "sortOrder": 48
+    },
+    {
+        "key": "living-room-fan-ceiling-fan",
+        "section": "Living Room",
+        "group": "Fan",
+        "name": "Ceiling Fan",
+        "sizeTag": "S",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 49
+    },
+    {
+        "key": "living-room-fan-table-fan",
+        "section": "Living Room",
+        "group": "Fan",
+        "name": "Table Fan",
+        "sizeTag": "S",
+        "price": 100,
+        "isActive": true,
+        "sortOrder": 50
+    },
+    {
+        "key": "living-room-bar-furniture-bar-cabinet",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Bar Cabinet",
+        "sizeTag": "L",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 51
+    },
+    {
+        "key": "living-room-bar-furniture-bar-cabinet-large",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Bar Cabinet Large",
+        "sizeTag": "XL",
+        "price": 300,
+        "isActive": true,
+        "sortOrder": 52
+    },
+    {
+        "key": "living-room-bar-furniture-bar-chair-stool",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Bar Chair / Stool",
+        "sizeTag": "S",
+        "price": 100,
+        "isActive": true,
+        "sortOrder": 53
+    },
+    {
+        "key": "living-room-bar-furniture-bar-trolley",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Bar Trolley",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 54
+    },
+    {
+        "key": "living-room-bar-furniture-bar-unit",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Bar Unit",
+        "sizeTag": "XL",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 55
+    },
+    {
+        "key": "living-room-bar-furniture-wine-rack",
+        "section": "Living Room",
+        "group": "Bar Furniture",
+        "name": "Wine Rack",
+        "sizeTag": "M",
+        "price": 150,
+        "isActive": true,
+        "sortOrder": 56
+    },
+    {
+        "key": "living-room-decorative-item-decorative-item",
+        "section": "Living Room",
+        "group": "Decorative Item",
+        "name": "Decorative Item",
+        "sizeTag": "S",
+        "price": 86,
+        "isActive": true,
+        "sortOrder": 57
+    },
+    {
+        "key": "living-room-decorative-item-lamp",
+        "section": "Living Room",
+        "group": "Decorative Item",
+        "name": "Lamp",
+        "sizeTag": "XS",
+        "price": 72,
+        "isActive": true,
+        "sortOrder": 58
+    },
+    {
+        "key": "living-room-air-cooler-air-cooler",
+        "section": "Living Room",
+        "group": "Air Cooler",
+        "name": "Air Cooler",
+        "sizeTag": "L",
+        "price": 260,
+        "isActive": true,
+        "sortOrder": 59
+    },
+    {
+        "key": "living-room-air-purifier-air-purifier",
+        "section": "Living Room",
+        "group": "Air Purifier",
+        "name": "Air Purifier",
+        "sizeTag": "M",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 60
+    },
+    {
+        "key": "bedroom-bed-single-bed-simple-frame",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Single Bed (Simple Frame)",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 61
+    },
+    {
+        "key": "bedroom-bed-single-bed-box-drawer-storage",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Single Bed (Box / Drawer Storage)",
+        "sizeTag": "XL",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 62
+    },
+    {
+        "key": "bedroom-bed-single-bed-hydraulic-storage",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Single Bed (Hydraulic Storage)",
+        "sizeTag": "XXL",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 63
+    },
+    {
+        "key": "bedroom-bed-double-bed-simple-frame",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Double Bed (Simple Frame)",
+        "sizeTag": "XXL",
+        "price": 324,
+        "isActive": true,
+        "sortOrder": 64
+    },
+    {
+        "key": "bedroom-bed-double-bed-box-drawer-storage",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Double Bed (Box / Drawer Storage)",
+        "sizeTag": "XXXL",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 65
+    },
+    {
+        "key": "bedroom-bed-double-bed-hydraulic-storage",
+        "section": "Bedroom",
+        "group": "Bed",
+        "name": "Double Bed (Hydraulic Storage)",
+        "sizeTag": "4XL",
+        "price": 390,
+        "isActive": true,
+        "sortOrder": 66
+    },
+    {
+        "key": "bedroom-mattress-mattress-single-foldable",
+        "section": "Bedroom",
+        "group": "Mattress",
+        "name": "Mattress Single Foldable",
+        "sizeTag": "M",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 67
+    },
+    {
+        "key": "bedroom-mattress-mattress-single-non-foldable",
+        "section": "Bedroom",
+        "group": "Mattress",
+        "name": "Mattress Single Non Foldable",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 68
+    },
+    {
+        "key": "bedroom-mattress-mattress-double-foldable",
+        "section": "Bedroom",
+        "group": "Mattress",
+        "name": "Mattress Double Foldable",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 69
+    },
+    {
+        "key": "bedroom-mattress-mattress-double-non-foldable",
+        "section": "Bedroom",
+        "group": "Mattress",
+        "name": "Mattress Double Non Foldable",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 70
+    },
+    {
+        "key": "bedroom-table-bed-side-table",
+        "section": "Bedroom",
+        "group": "Table",
+        "name": "Bed Side Table",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 71
+    },
+    {
+        "key": "bedroom-table-study-computer-table",
+        "section": "Bedroom",
+        "group": "Table",
+        "name": "Study / Computer Table",
+        "sizeTag": "L",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 72
+    },
+    {
+        "key": "bedroom-table-center-table",
+        "section": "Bedroom",
+        "group": "Table",
+        "name": "Center Table",
+        "sizeTag": "M",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 73
+    },
+    {
+        "key": "bedroom-chair-office-chair",
+        "section": "Bedroom",
+        "group": "Chair",
+        "name": "Office Chair",
+        "sizeTag": "M",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 74
+    },
+    {
+        "key": "bedroom-chair-rocking-chair",
+        "section": "Bedroom",
+        "group": "Chair",
+        "name": "Rocking Chair",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 75
+    },
+    {
+        "key": "bedroom-chair-arm-chair",
+        "section": "Bedroom",
+        "group": "Chair",
+        "name": "Arm Chair",
+        "sizeTag": "L",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 76
+    },
+    {
+        "key": "bedroom-chair-bean-bag-pouffe",
+        "section": "Bedroom",
+        "group": "Chair",
+        "name": "Bean Bag / Pouffe",
+        "sizeTag": "M",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 77
+    },
+    {
+        "key": "bedroom-air-conditioner-split-air-conditioner-ac",
+        "section": "Bedroom",
+        "group": "Air Conditioner",
+        "name": "Split Air Conditioner (AC)",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 78
+    },
+    {
+        "key": "bedroom-air-conditioner-window-air-conditioner-ac",
+        "section": "Bedroom",
+        "group": "Air Conditioner",
+        "name": "Window Air Conditioner (AC)",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 79
+    },
+    {
+        "key": "bedroom-air-conditioner-air-cooler",
+        "section": "Bedroom",
+        "group": "Air Conditioner",
+        "name": "Air Cooler",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 80
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-wooden-wardrobe-up-to-5-5-ft",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Wooden Wardrobe (Up to 5.5 ft)",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 81
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-wooden-wardrobe-6-ft",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Wooden Wardrobe (6 ft)",
+        "sizeTag": "XL",
+        "price": 324,
+        "isActive": true,
+        "sortOrder": 82
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-wooden-wardrobe-6-5-8-ft-sliding",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Wooden Wardrobe (6.5–8 ft / Sliding)",
+        "sizeTag": "XXL",
+        "price": 396,
+        "isActive": true,
+        "sortOrder": 83
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-steel-almirah-up-to-5-5-ft",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Steel Almirah (Up to 5.5 ft)",
+        "sizeTag": "L",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 84
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-steel-almirah-6-ft",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Steel Almirah (6 ft)",
+        "sizeTag": "XL",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 85
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-steel-almirah-6-5-ft",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Steel Almirah (6.5+ ft)",
+        "sizeTag": "XXL",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 86
+    },
+    {
+        "key": "bedroom-almirah-wardrobe-wooden-wardrobe-6-7-ft-dismantale",
+        "section": "Bedroom",
+        "group": "Almirah / Wardrobe",
+        "name": "Wooden Wardrobe (6–7 ft) Dismantale",
+        "sizeTag": "XL",
+        "price": 324,
+        "isActive": true,
+        "sortOrder": 87
+    },
+    {
+        "key": "bedroom-appliances-air-purifier",
+        "section": "Bedroom",
+        "group": "Appliances",
+        "name": "Air Purifier",
+        "sizeTag": "M",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 88
+    },
+    {
+        "key": "bedroom-appliances-garment-steamer",
+        "section": "Bedroom",
+        "group": "Appliances",
+        "name": "Garment Steamer",
+        "sizeTag": "S",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 89
+    },
+    {
+        "key": "bedroom-dressing-table-dressing-table",
+        "section": "Bedroom",
+        "group": "Dressing Table",
+        "name": "Dressing Table",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 90
+    },
+    {
+        "key": "bedroom-mandir-mandir-small",
+        "section": "Bedroom",
+        "group": "Mandir",
+        "name": "Mandir (Small)",
+        "sizeTag": "S",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 91
+    },
+    {
+        "key": "bedroom-mandir-mandir-medium",
+        "section": "Bedroom",
+        "group": "Mandir",
+        "name": "Mandir (Medium)",
+        "sizeTag": "M",
+        "price": 300,
+        "isActive": true,
+        "sortOrder": 92
+    },
+    {
+        "key": "bedroom-mandir-mandir-large",
+        "section": "Bedroom",
+        "group": "Mandir",
+        "name": "Mandir (Large)",
+        "sizeTag": "L",
+        "price": 350,
+        "isActive": true,
+        "sortOrder": 93
+    },
+    {
+        "key": "bedroom-mandir-religious-items",
+        "section": "Bedroom",
+        "group": "Mandir",
+        "name": "Religious Items",
+        "sizeTag": "M",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 94
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-up-to-80l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (Up to 80L)",
+        "sizeTag": "M",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 95
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-81l-200l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (81L – 200L)",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 96
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-201l-350l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (201L – 350L)",
+        "sizeTag": "XL",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 97
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-351l-450l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (351L – 450L)",
+        "sizeTag": "XXL",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 98
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-451l-600l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (451L – 600L)",
+        "sizeTag": "XXXL",
+        "price": 432,
+        "isActive": true,
+        "sortOrder": 99
+    },
+    {
+        "key": "kitchen-refrigerator-fridge-above-600l",
+        "section": "Kitchen",
+        "group": "Refrigerator",
+        "name": "Fridge (Above 600L)",
+        "sizeTag": "XXXL",
+        "price": 480,
+        "isActive": true,
+        "sortOrder": 100
+    },
+    {
+        "key": "kitchen-kitchen-items-gas-stove-hob",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Gas Stove / Hob",
+        "sizeTag": "S",
+        "price": 86,
+        "isActive": true,
+        "sortOrder": 101
+    },
+    {
+        "key": "kitchen-kitchen-items-lpg-gas-cylinder",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "LPG Gas Cylinder",
+        "sizeTag": "M",
+        "price": 72,
+        "isActive": true,
+        "sortOrder": 102
+    },
+    {
+        "key": "kitchen-kitchen-items-kitchen-metal-rack",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Kitchen Metal Rack",
+        "sizeTag": "L",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 103
+    },
+    {
+        "key": "kitchen-kitchen-items-kitchen-cabinet-storage",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Kitchen Cabinet / Storage",
+        "sizeTag": "XL",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 104
+    },
+    {
+        "key": "kitchen-kitchen-items-water-drum",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Water Drum",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 105
+    },
+    {
+        "key": "kitchen-kitchen-items-exhaust-fan",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Exhaust Fan",
+        "sizeTag": "S",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 106
+    },
+    {
+        "key": "kitchen-kitchen-items-chimney",
+        "section": "Kitchen",
+        "group": "Kitchen Items",
+        "name": "Chimney",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 107
+    },
+    {
+        "key": "kitchen-appliances-microwave-oven-otg",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Microwave Oven / OTG",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 108
+    },
+    {
+        "key": "kitchen-appliances-dish-washer",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Dish Washer",
+        "sizeTag": "L",
+        "price": 288,
+        "isActive": true,
+        "sortOrder": 109
+    },
+    {
+        "key": "kitchen-appliances-water-purifier",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Water Purifier",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 110
+    },
+    {
+        "key": "kitchen-appliances-mixer-grinder",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Mixer Grinder",
+        "sizeTag": "S",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 111
+    },
+    {
+        "key": "kitchen-appliances-wet-grinder",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Wet Grinder",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 112
+    },
+    {
+        "key": "kitchen-appliances-food-processor",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Food Processor",
+        "sizeTag": "S",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 113
+    },
+    {
+        "key": "kitchen-appliances-cooking-range",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Cooking Range",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 114
+    },
+    {
+        "key": "kitchen-appliances-domestic-flour-mill-atta-chakki",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Domestic Flour Mill / Atta Chakki",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 115
+    },
+    {
+        "key": "kitchen-appliances-air-fryer",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Air Fryer",
+        "sizeTag": "S",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 116
+    },
+    {
+        "key": "kitchen-appliances-electric-tandoor",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Electric Tandoor",
+        "sizeTag": "S",
+        "price": 108,
+        "isActive": true,
+        "sortOrder": 117
+    },
+    {
+        "key": "kitchen-appliances-hood-chimney",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Hood Chimney",
+        "sizeTag": "L",
+        "price": 252,
+        "isActive": true,
+        "sortOrder": 118
+    },
+    {
+        "key": "kitchen-appliances-barbeque-grill-small",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Barbeque Grill Small",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 119
+    },
+    {
+        "key": "kitchen-appliances-barbeque-grill-large",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Barbeque Grill Large",
+        "sizeTag": "L",
+        "price": 216,
+        "isActive": true,
+        "sortOrder": 120
+    },
+    {
+        "key": "kitchen-appliances-pressure-cooker-set",
+        "section": "Kitchen",
+        "group": "Appliances",
+        "name": "Pressure Cooker Set",
+        "sizeTag": "S",
+        "price": 86,
+        "isActive": true,
+        "sortOrder": 121
+    },
+    {
+        "key": "kitchen-furniture-storage-kitchen-rack",
+        "section": "Kitchen",
+        "group": "Furniture & Storage",
+        "name": "Kitchen Rack",
+        "sizeTag": "L",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 122
+    },
+    {
+        "key": "kitchen-furniture-storage-serving-trolley",
+        "section": "Kitchen",
+        "group": "Furniture & Storage",
+        "name": "Serving Trolley",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 123
+    },
+    {
+        "key": "kitchen-furniture-storage-side-table",
+        "section": "Kitchen",
+        "group": "Furniture & Storage",
+        "name": "Side Table",
+        "sizeTag": "M",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 124
+    },
+    {
+        "key": "other-self-cartoon-boxes-2ft-x-1-5ft-x-1-5ft-carton-box",
+        "section": "Other",
+        "group": "Self Cartoon Boxes (2ft x 1.5ft x 1.5ft)",
+        "name": "Carton Box ",
+        "sizeTag": "S",
+        "price": 96,
+        "isActive": true,
+        "sortOrder": 125
+    },
+    {
+        "key": "other-self-cartoon-boxes-2ft-x-1-5ft-x-1-5ft-large-carton",
+        "section": "Other",
+        "group": "Self Cartoon Boxes (2ft x 1.5ft x 1.5ft)",
+        "name": "Large Carton",
+        "sizeTag": "M",
+        "price": 0,
+        "isActive": true,
+        "sortOrder": 126
+    },
+    {
+        "key": "other-self-cartoon-boxes-2ft-x-1-5ft-x-1-5ft-medium-carton",
+        "section": "Other",
+        "group": "Self Cartoon Boxes (2ft x 1.5ft x 1.5ft)",
+        "name": "Medium Carton",
+        "sizeTag": "S",
+        "price": 0,
+        "isActive": true,
+        "sortOrder": 127
+    },
+    {
+        "key": "other-self-cartoon-boxes-2ft-x-1-5ft-x-1-5ft-small-carton",
+        "section": "Other",
+        "group": "Self Cartoon Boxes (2ft x 1.5ft x 1.5ft)",
+        "name": "Small Carton",
+        "sizeTag": "XS",
+        "price": 0,
+        "isActive": true,
+        "sortOrder": 128
+    },
+    {
+        "key": "other-tithi-carton-box-1-5ft-x-1-5ft-x-2ft-tithi-carton-box-1-5ft-x-1-5ft-x-2ft",
+        "section": "Other",
+        "group": "TITHI Carton Box (1.5ft x 1.5ft x 2ft)",
+        "name": "TITHI Carton Box (1.5ft x 1.5ft x 2ft)",
+        "sizeTag": "S",
+        "price": 96,
+        "isActive": true,
+        "sortOrder": 129
+    },
+    {
+        "key": "other-tithi-gunny-bag-gunny-bag",
+        "section": "Other",
+        "group": "TITHI Gunny Bag",
+        "name": "Gunny Bag",
+        "sizeTag": "XS",
+        "price": 40,
+        "isActive": true,
+        "sortOrder": 130
+    },
+    {
+        "key": "other-washing-machine-washing-machine-6-9-kg",
+        "section": "Other",
+        "group": "Washing Machine",
+        "name": "Washing Machine < 6.9 Kg",
+        "sizeTag": "L",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 131
+    },
+    {
+        "key": "other-washing-machine-washing-machine-7-7-9-kg",
+        "section": "Other",
+        "group": "Washing Machine",
+        "name": "Washing Machine 7 – 7.9 Kg",
+        "sizeTag": "XL",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 132
+    },
+    {
+        "key": "other-washing-machine-washing-machine-8-kg-above",
+        "section": "Other",
+        "group": "Washing Machine",
+        "name": "Washing Machine 8 Kg & Above",
+        "sizeTag": "XXL",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 133
+    },
+    {
+        "key": "other-bathroom-utility-bucket",
+        "section": "Other",
+        "group": "Bathroom Utility",
+        "name": "Bucket",
+        "sizeTag": "XS",
+        "price": 32,
+        "isActive": true,
+        "sortOrder": 134
+    },
+    {
+        "key": "other-bathroom-utility-tub",
+        "section": "Other",
+        "group": "Bathroom Utility",
+        "name": "Tub",
+        "sizeTag": "S",
+        "price": 64,
+        "isActive": true,
+        "sortOrder": 135
+    },
+    {
+        "key": "other-bathroom-utility-bath-tub",
+        "section": "Other",
+        "group": "Bathroom Utility",
+        "name": "Bath Tub",
+        "sizeTag": "XL",
+        "price": 480,
+        "isActive": true,
+        "sortOrder": 136
+    },
+    {
+        "key": "other-bathroom-utility-geyser",
+        "section": "Other",
+        "group": "Bathroom Utility",
+        "name": "Geyser",
+        "sizeTag": "M",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 137
+    },
+    {
+        "key": "other-bathroom-utility-mirror-large",
+        "section": "Other",
+        "group": "Bathroom Utility",
+        "name": "Mirror (Large)",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 138
+    },
+    {
+        "key": "other-home-utility-inverter-ups",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Inverter / UPS",
+        "sizeTag": "L",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 139
+    },
+    {
+        "key": "other-home-utility-inverter-with-battery",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Inverter – With Battery",
+        "sizeTag": "XL",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 140
+    },
+    {
+        "key": "other-home-utility-clothes-stand",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Clothes Stand",
+        "sizeTag": "S",
+        "price": 144,
+        "isActive": true,
+        "sortOrder": 141
+    },
+    {
+        "key": "other-home-utility-foldable-clothes-dryer",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Foldable Clothes Dryer",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 142
+    },
+    {
+        "key": "other-home-utility-iron-board",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Iron Board",
+        "sizeTag": "S",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 143
+    },
+    {
+        "key": "other-home-utility-storage-laundry-basket",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Storage / Laundry Basket",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 144
+    },
+    {
+        "key": "other-home-utility-vacuum-cleaner",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Vacuum Cleaner",
+        "sizeTag": "S",
+        "price": 280,
+        "isActive": true,
+        "sortOrder": 145
+    },
+    {
+        "key": "other-home-utility-ladder-step-ladder",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Ladder / Step Ladder",
+        "sizeTag": "M",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 146
+    },
+    {
+        "key": "other-home-utility-sewing-machine",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Sewing Machine",
+        "sizeTag": "M",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 147
+    },
+    {
+        "key": "other-home-utility-computer-system",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Computer System",
+        "sizeTag": "L",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 148
+    },
+    {
+        "key": "other-home-utility-printer",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Printer",
+        "sizeTag": "L",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 149
+    },
+    {
+        "key": "other-home-utility-speaker",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Speaker",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 150
+    },
+    {
+        "key": "other-home-utility-dish-antenna",
+        "section": "Other",
+        "group": "Home Utility",
+        "name": "Dish Antenna",
+        "sizeTag": "M",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 151
+    },
+    {
+        "key": "other-vehicle-bicycle-adult",
+        "section": "Other",
+        "group": "Vehicle",
+        "name": "Bicycle – Adult",
+        "sizeTag": "L",
+        "price": 560,
+        "isActive": true,
+        "sortOrder": 152
+    },
+    {
+        "key": "other-vehicle-bicycle-kids",
+        "section": "Other",
+        "group": "Vehicle",
+        "name": "Bicycle – Kids",
+        "sizeTag": "M",
+        "price": 560,
+        "isActive": true,
+        "sortOrder": 153
+    },
+    {
+        "key": "other-vehicle-scooter",
+        "section": "Other",
+        "group": "Vehicle",
+        "name": "Scooter",
+        "sizeTag": "XXXL",
+        "price": 1200,
+        "isActive": true,
+        "sortOrder": 154
+    },
+    {
+        "key": "other-vehicle-bike",
+        "section": "Other",
+        "group": "Vehicle",
+        "name": "Bike",
+        "sizeTag": "XXXL",
+        "price": 1600,
+        "isActive": true,
+        "sortOrder": 155
+    },
+    {
+        "key": "other-musicle-instruments-piano",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Piano",
+        "sizeTag": "XXL",
+        "price": 960,
+        "isActive": true,
+        "sortOrder": 156
+    },
+    {
+        "key": "other-musicle-instruments-grand-piano",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Grand Piano",
+        "sizeTag": "XXXL",
+        "price": 1200,
+        "isActive": true,
+        "sortOrder": 157
+    },
+    {
+        "key": "other-musicle-instruments-guitar",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Guitar",
+        "sizeTag": "L",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 158
+    },
+    {
+        "key": "other-musicle-instruments-harmonium",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Harmonium",
+        "sizeTag": "M",
+        "price": 300,
+        "isActive": true,
+        "sortOrder": 159
+    },
+    {
+        "key": "other-musicle-instruments-synthesizer",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Synthesizer",
+        "sizeTag": "M",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 160
+    },
+    {
+        "key": "other-musicle-instruments-electronic-keyboard",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Electronic Keyboard",
+        "sizeTag": "M",
+        "price": 360,
+        "isActive": true,
+        "sortOrder": 161
+    },
+    {
+        "key": "other-musicle-instruments-tabla",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Tabla",
+        "sizeTag": "S",
+        "price": 180,
+        "isActive": true,
+        "sortOrder": 162
+    },
+    {
+        "key": "other-musicle-instruments-drum-set-5-piece",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Drum Set (5 Piece)",
+        "sizeTag": "XXXL",
+        "price": 800,
+        "isActive": true,
+        "sortOrder": 163
+    },
+    {
+        "key": "other-musicle-instruments-foosball",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Foosball",
+        "sizeTag": "XL",
+        "price": 1600,
+        "isActive": true,
+        "sortOrder": 164
+    },
+    {
+        "key": "other-musicle-instruments-pool-snooker",
+        "section": "Other",
+        "group": "Musicle Instruments",
+        "name": "Pool / Snooker",
+        "sizeTag": "XXL",
+        "price": 2000,
+        "isActive": true,
+        "sortOrder": 165
+    },
+    {
+        "key": "other-plants-pots-small-plant-1-ft-below",
+        "section": "Other",
+        "group": "Plants & Pots",
+        "name": "Small Plant (1 ft & below)",
+        "sizeTag": "XS",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 166
+    },
+    {
+        "key": "other-plants-pots-medium-plant-2-5-ft",
+        "section": "Other",
+        "group": "Plants & Pots",
+        "name": "Medium Plant (2 – 5 ft)",
+        "sizeTag": "S",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 167
+    },
+    {
+        "key": "other-plants-pots-large-plant-6-ft-above",
+        "section": "Other",
+        "group": "Plants & Pots",
+        "name": "Large Plant (6 ft & above)",
+        "sizeTag": "L",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 168
+    },
+    {
+        "key": "other-plants-pots-small-pots",
+        "section": "Other",
+        "group": "Plants & Pots",
+        "name": "Small Pots",
+        "sizeTag": "S",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 169
+    },
+    {
+        "key": "other-plants-pots-big-pots",
+        "section": "Other",
+        "group": "Plants & Pots",
+        "name": "Big Pots",
+        "sizeTag": "M",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 170
+    },
+    {
+        "key": "other-suitcase-trolley-cabin-small-suitcase-up-to-55-cm",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Cabin / Small Suitcase (Up to 55 cm)",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 171
+    },
+    {
+        "key": "other-suitcase-trolley-suitcase-small-7-kg",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Suitcase Small (7 Kg)",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 172
+    },
+    {
+        "key": "other-suitcase-trolley-suitcase-medium-15-kg",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Suitcase Medium (15 Kg)",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 173
+    },
+    {
+        "key": "other-suitcase-trolley-suitcase-large-25-kg",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Suitcase Large (25 Kg)",
+        "sizeTag": "L",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 174
+    },
+    {
+        "key": "other-suitcase-trolley-medium-suitcase-56-69-cm",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Medium Suitcase (56 – 69 cm)",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 175
+    },
+    {
+        "key": "other-suitcase-trolley-large-suitcase-70-cm-above",
+        "section": "Other",
+        "group": "Suitcase / Trolley",
+        "name": "Large Suitcase (70 cm & above)",
+        "sizeTag": "L",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 176
+    },
+    {
+        "key": "other-decorative-items-aquarium-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Aquarium Large",
+        "sizeTag": "XL",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 177
+    },
+    {
+        "key": "other-decorative-items-carpet-rolled",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Carpet (Rolled)",
+        "sizeTag": "M",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 178
+    },
+    {
+        "key": "other-decorative-items-indoor-fountain-small",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Indoor Fountain Small",
+        "sizeTag": "M",
+        "price": 200,
+        "isActive": true,
+        "sortOrder": 179
+    },
+    {
+        "key": "other-decorative-items-indoor-fountain-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Indoor Fountain Large",
+        "sizeTag": "XL",
+        "price": 400,
+        "isActive": true,
+        "sortOrder": 180
+    },
+    {
+        "key": "other-decorative-items-mirror",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Mirror",
+        "sizeTag": "S",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 181
+    },
+    {
+        "key": "other-decorative-items-painting-photo-small",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Painting / Photo Small",
+        "sizeTag": "XS",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 182
+    },
+    {
+        "key": "other-decorative-items-painting-photo-medium",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Painting / Photo Medium",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 183
+    },
+    {
+        "key": "other-decorative-items-painting-photo-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Painting / Photo Large",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 184
+    },
+    {
+        "key": "other-decorative-items-pooja-lamp",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Pooja Lamp",
+        "sizeTag": "XS",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 185
+    },
+    {
+        "key": "other-decorative-items-statue-small",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Statue Small",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 186
+    },
+    {
+        "key": "other-decorative-items-statue-medium",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Statue Medium",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 187
+    },
+    {
+        "key": "other-decorative-items-statue-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Statue Large",
+        "sizeTag": "L",
+        "price": 320,
+        "isActive": true,
+        "sortOrder": 188
+    },
+    {
+        "key": "other-decorative-items-vase-small",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Vase Small",
+        "sizeTag": "XS",
+        "price": 80,
+        "isActive": true,
+        "sortOrder": 189
+    },
+    {
+        "key": "other-decorative-items-vase-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Vase Large",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 190
+    },
+    {
+        "key": "other-decorative-items-wall-frames-medium",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Wall Frames Medium",
+        "sizeTag": "S",
+        "price": 160,
+        "isActive": true,
+        "sortOrder": 191
+    },
+    {
+        "key": "other-decorative-items-wall-frames-large",
+        "section": "Other",
+        "group": "Decorative Items",
+        "name": "Wall Frames Large",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 192
+    },
+    {
+        "key": "other-kids-vehicle-kids-three-wheeler",
+        "section": "Other",
+        "group": "Kids Vehicle",
+        "name": "Kids Three Wheeler",
+        "sizeTag": "M",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 193
+    },
+    {
+        "key": "other-kids-vehicle-kids-four-wheeler",
+        "section": "Other",
+        "group": "Kids Vehicle",
+        "name": "Kids Four Wheeler",
+        "sizeTag": "L",
+        "price": 240,
+        "isActive": true,
+        "sortOrder": 194
+    },
+    {
+        "key": "other-gym-equipment-exercise-cycle",
+        "section": "Other",
+        "group": "Gym Equipment",
+        "name": "Exercise Cycle",
+        "sizeTag": "L",
+        "price": 800,
+        "isActive": true,
+        "sortOrder": 195
+    },
+    {
+        "key": "other-gym-equipment-treadmill",
+        "section": "Other",
+        "group": "Gym Equipment",
+        "name": "Treadmill",
+        "sizeTag": "XXL",
+        "price": 1200,
+        "isActive": true,
+        "sortOrder": 196
+    },
+    {
+        "key": "other-gym-equipment-treadmill-foldable",
+        "section": "Other",
+        "group": "Gym Equipment",
+        "name": "Treadmill – Foldable",
+        "sizeTag": "XL",
+        "price": 1000,
+        "isActive": true,
+        "sortOrder": 197
+    },
+    {
+        "key": "other-gym-equipment-dumble",
+        "section": "Other",
+        "group": "Gym Equipment",
+        "name": "Dumble",
+        "sizeTag": "M",
+        "price": 120,
+        "isActive": true,
+        "sortOrder": 198
+    },
+    {
+        "key": "other-swing-baby-adult-swing-baby",
+        "section": "Other",
+        "group": "Swing (Baby / Adult)",
+        "name": "Swing (Baby)",
+        "sizeTag": "L",
+        "price": 0,
+        "isActive": false,
+        "sortOrder": 199
+    },
+    {
+        "key": "other-swing-baby-adult-swing-adult",
+        "section": "Other",
+        "group": "Swing (Baby / Adult)",
+        "name": "Swing (Adult)",
+        "sizeTag": "XL",
+        "price": 0,
+        "isActive": false,
+        "sortOrder": 200
+    }
+]

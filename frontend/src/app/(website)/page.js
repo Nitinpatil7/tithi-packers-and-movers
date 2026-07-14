@@ -1,0 +1,55 @@
+export const metadata = {
+  title: 'Tithi Packers and Movers | #1 Shifting Service in Surat',
+  description: 'Book local shifting, intercity moving, business relocation, and ordinary services (packing, unpacking, loading, unloading) in Surat, Gujarat. Get a free quote in 2 hours.',
+  alternates: {
+    canonical: 'https://tithipacking.com',
+  },
+};
+
+import React from 'react';
+import HeroSection from '@/components/home/HeroSection';
+import BasePricePackagesSection from '@/components/home/BasePricePackagesSection';
+import ServicesSection from '@/components/home/ServicesSection';
+import HowItWorksSection from '@/components/home/HowItWorksSection';
+import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
+import ServiceDetailSection from '@/components/home/ServiceDetailSection';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
+import CoverageMapSection from '@/components/home/RealisticCoverageMapSection';
+import FAQSection from '@/components/home/FAQSection';
+import CTABannerSection from '@/components/home/CTABannerSection';
+
+export default function Home() {
+  return (
+    <div className="flex flex-col w-full overflow-hidden bg-bg-page text-text-primary">
+      {/* 1. HeroSection */}
+      <HeroSection />
+
+      {/* 2. ServicesSection */}
+      <ServicesSection />
+
+      {/* 3. HowItWorksSection */}
+      <HowItWorksSection />
+
+      {/* 4. WhyChooseUsSection */}
+      <WhyChooseUsSection />
+
+      {/* 5. BasePricePackagesSection */}
+      <BasePricePackagesSection />
+
+      {/* 6. ServiceDetailSection */}
+      <ServiceDetailSection />
+
+      {/* 7. TestimonialsSection */}
+      <TestimonialsSection />
+
+      {/* 8. CoverageMapSection */}
+      <CoverageMapSection />
+
+      {/* 9. FAQSection */}
+      <FAQSection />
+
+      {/* 10. CTABannerSection */}
+      <CTABannerSection />
+    </div>
+  );
+}
