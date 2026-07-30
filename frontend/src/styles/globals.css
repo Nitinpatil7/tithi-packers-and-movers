@@ -690,9 +690,9 @@ input:focus, select:focus, textarea:focus {
 
 .loader-theme-bg {
   background:
-    radial-gradient(circle at 28% 24%, rgba(255,255,255,.18) 0 2px, transparent 3px),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.12) 0 1px, transparent 1px 20px),
-    linear-gradient(135deg, #ff4f1f 0%, #f97316 54%, #e84314 100%);
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.46) 0 2px, transparent 3px),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.26) 0 1px, transparent 1px 22px),
+    linear-gradient(135deg, #e0f2fe 0%, #38bdf8 48%, #0ea5e9 100%);
   animation: loaderBackdropFlow 18s linear infinite;
 }
 

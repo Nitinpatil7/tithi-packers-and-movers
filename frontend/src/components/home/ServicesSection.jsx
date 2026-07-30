@@ -88,9 +88,9 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="section-texture-warm py-20 md:py-32 relative overflow-hidden">
+    <section id="services" className="section-texture py-16 md:py-28 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(249,115,22,.10),transparent)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(14,165,233,.10),transparent)]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -135,7 +135,7 @@ export default function ServicesSection() {
               <motion.div key={service.id} variants={cardVariants}>
                 <Link href={service.path} className="block group h-full">
                   <motion.div
-                    className="service-hover-card min-h-[420px] rounded-3xl border border-orange-100/80 bg-white/90 p-6 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:p-8 hover:border-orange-200 hover:shadow-sky-lg focus-within:border-orange-300 active:-translate-y-1 active:shadow-md"
+                    className="service-hover-card min-h-[420px] rounded-3xl border border-sky-100 bg-white/92 p-6 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:p-8 hover:border-sky-200 hover:shadow-sky-lg focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
                     whileHover={{ y: -8 }}
                     whileTap={{ scale: 0.985, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -143,7 +143,7 @@ export default function ServicesSection() {
                     <div className="flex flex-col gap-6 relative z-10">
                       {/* Icon + arrow */}
                       <div className="flex items-start justify-between">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-orange-500 group-hover:text-white group-focus-within:bg-orange-500 group-focus-within:text-white" style={{ backgroundColor: service.softBg }}>
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white group-focus-within:bg-primary group-focus-within:text-white" style={{ backgroundColor: service.softBg }}>
                           <Icon className="h-8 w-8 transition-colors" strokeWidth={1.7} />
                         </div>
                         <div
@@ -155,7 +155,7 @@ export default function ServicesSection() {
                       </div>
 
                       <div className="flex flex-col gap-3">
-                        <h3 className="text-xl font-black text-text-primary transition-colors group-hover:text-orange-600 group-focus-within:text-orange-600">
+                        <h3 className="text-xl font-black text-text-primary transition-colors group-hover:text-primary group-focus-within:text-primary">
                           {serviceTitleById[service.id] || service.title}
                         </h3>
                         <p className="text-sm text-text-secondary leading-relaxed font-medium">
@@ -167,7 +167,7 @@ export default function ServicesSection() {
                       <div className="flex flex-col gap-2">
                         {service.features.map((feat) => (
                           <div key={feat} className="flex items-center gap-2 rounded-xl bg-white/70 px-2 py-1.5 ring-1 ring-orange-100/70 transition group-hover:ring-orange-200">
-                            <CheckCircle className="w-4 h-4 shrink-0 text-orange-500" />
+                            <CheckCircle className="w-4 h-4 shrink-0 text-primary" />
                             <span className="text-sm font-semibold text-text-secondary">{feat}</span>
                           </div>
                         ))}

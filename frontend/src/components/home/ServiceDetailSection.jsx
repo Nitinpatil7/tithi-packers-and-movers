@@ -139,16 +139,16 @@ export default function ServiceDetailSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className={`relative rounded-[28px] border border-white/10 bg-white/95 p-5 shadow-[0_24px_70px_rgba(0,0,0,.22)] sm:p-7 md:p-8`}
+            className="relative rounded-[28px] border border-white/12 bg-white/10 p-5 shadow-[0_24px_70px_rgba(0,0,0,.22)] backdrop-blur-sm sm:p-7 md:p-8"
           >
             <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-12 lg:items-center lg:gap-8">
               
               {/* Left Column Description */}
               <div className="flex flex-col gap-5 lg:col-span-7 lg:gap-6">
-                <h3 className="text-xl font-black leading-tight text-text-primary sm:text-2xl">
+                <h3 className="text-xl font-black leading-tight text-white sm:text-2xl">
                   {current.name} {t.inclusionsTitle || 'Inclusions'}
                 </h3>
-                <p className="text-sm font-medium leading-7 text-text-secondary sm:text-base">
+                <p className="text-sm font-medium leading-7 text-white/78 sm:text-base">
                   {current.text}
                 </p>
 
@@ -172,13 +172,13 @@ export default function ServiceDetailSection() {
               </div>
 
               {/* Right Column Inclusions Checklist */}
-              <div className="flex flex-col gap-4 rounded-2xl border border-orange-100 bg-white/85 p-4 lg:col-span-5">
-                <h4 className="text-[11px] font-black uppercase tracking-widest text-orange-600">
+              <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/10 p-4 lg:col-span-5">
+                <h4 className="text-[11px] font-black uppercase tracking-widest text-orange-300">
                   {t.whatIsIncluded || 'What is included'}
                 </h4>
                 <ul className="flex flex-col gap-3">
                   {current.included.map((inc) => (
-                    <li key={inc} className="theme-fill-card group flex gap-3 rounded-2xl bg-white/90 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-bg-border/70 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-500 hover:shadow-xs active:scale-[.99]">
+                    <li key={inc} className="theme-fill-card group flex gap-3 rounded-2xl bg-white/95 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-500 hover:shadow-xs active:scale-[.99]">
                       <CheckCircle2 className={`w-5 h-5 shrink-0 ${
                         activeTab === 'local' ? 'text-service-local' :
                         activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-packing'

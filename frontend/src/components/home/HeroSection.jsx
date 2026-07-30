@@ -140,12 +140,12 @@ export default function HeroSection() {
           {/* Stats Bar */}
           <motion.div
             variants={itemVariants}
-            className="grid w-full grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:grid-cols-4 sm:gap-0 sm:pt-6"
+            className="grid w-full grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:gap-3 sm:pt-6"
           >
             {stats.map((stat, i) => (
               <div
                 key={stat.label}
-                className={`group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-3 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:items-start lg:bg-transparent lg:px-3 lg:py-4 lg:text-left lg:ring-0 ${i > 0 ? 'sm:border-l sm:border-bg-border' : ''}`}
+                className="group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-3 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:px-4 lg:py-4"
               >
                 <div className="mb-2 grid h-8 w-8 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-white sm:h-9 sm:w-9">{React.createElement(stat.icon, { className: 'h-4 w-4 sm:h-[18px] sm:w-[18px]', strokeWidth: 1.8 })}</div>
                 <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-3xl" style={{ fontFamily: 'var(--font-heading)' }}>
