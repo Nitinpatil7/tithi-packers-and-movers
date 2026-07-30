@@ -199,49 +199,81 @@ export default function WhyChooseUsSection() {
           </motion.div>
 
           <div className="lg:hidden">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Explore trust points</span>
-              <motion.span
-                className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
-                animate={prefersReducedMotion ? undefined : { x: [0, 5, 0] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                Swipe <ArrowRight className="h-3 w-3" />
-              </motion.span>
-            </div>
-            <div className="scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
-              {benefits.map((benefit, idx) => {
-              const Icon = benefit.icon;
-              const isActive = activeBenefit === idx;
-              return (
-                <motion.button
-                  key={benefit.title}
-                  type="button"
-                  data-active={isActive ? 'true' : 'false'}
-                  onClick={() => setActiveBenefit(idx)}
-                  className={`why-tab-card group min-h-[176px] w-[82vw] max-w-[360px] shrink-0 snap-center rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-sky-300 ring-1 ring-sky-100' : 'border-sky-100'}`}
-                  whileTap={{ scale: 0.985, y: -3 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="icon-surface h-11 w-11 rounded-xl" data-active={isActive ? 'true' : undefined}>
-                      <Icon className="h-5 w-5" strokeWidth={1.7} />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-primary' : 'text-text-primary'}`} style={{ fontFamily: 'var(--font-heading)' }}>
-                        {benefit.title}
-                      </h3>
-                      <p className="mt-1 line-clamp-3 text-xs font-medium leading-5 text-text-secondary">
-                        {benefit.desc}
-                      </p>
-                      <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-primary">
-                        Tap to feature <ArrowRight className="h-3 w-3" />
+            <div className="relative overflow-hidden rounded-[30px] border border-sky-100 bg-white/85 p-4 shadow-[0_22px_60px_rgba(3,105,161,.12)] backdrop-blur-sm sm:p-5">
+              <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
+              <motion.div
+                className="why-3d-orbit pointer-events-none absolute -right-10 top-12 h-36 w-36 rounded-full opacity-70 sm:right-4 sm:h-44 sm:w-44"
+                animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative z-10 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Trust carousel</p>
+                  <h3 className="mt-1 text-lg font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                    Tap through proof cards
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={previousBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95" aria-label="Previous trust point">
+                    <ChevronLeft className="h-4.5 w-4.5" />
+                  </button>
+                  <button type="button" onClick={nextBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95" aria-label="Next trust point">
+                    <ChevronRight className="h-4.5 w-4.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="trust-carousel-stage relative z-10 mt-5 h-[300px] overflow-hidden sm:h-[320px]">
+                {benefits.map((benefit, idx) => {
+                  const Icon = benefit.icon;
+                  const rawOffset = (idx - activeBenefit + benefits.length) % benefits.length;
+                  const offset = rawOffset > benefits.length / 2 ? rawOffset - benefits.length : rawOffset;
+                  const visible = Math.abs(offset) <= 1;
+                  return (
+                    <motion.button
+                      key={benefit.title}
+                      type="button"
+                      onClick={() => selectBenefit(idx)}
+                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[238px] w-[82vw] max-w-[350px] flex-col rounded-[26px] border bg-white/95 p-4 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100'}`}
+                      animate={{
+                        x: `calc(-50% + ${offset * 72}px)`,
+                        y: Math.abs(offset) * 22,
+                        rotateY: offset * -12,
+                        rotateZ: offset * -1.2,
+                        scale: offset === 0 ? 1 : 0.88,
+                        opacity: visible ? (offset === 0 ? 1 : 0.46) : 0,
+                        zIndex: 10 - Math.abs(offset),
+                      }}
+                      whileTap={{ scale: offset === 0 ? 0.985 : 0.9 }}
+                      transition={{ type: 'spring', stiffness: 130, damping: 26, mass: 0.85 }}
+                      style={{ pointerEvents: visible ? 'auto' : 'none' }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="icon-surface h-12 w-12 rounded-2xl" data-active={offset === 0 ? 'true' : undefined}>
+                          <Icon className="h-5 w-5" strokeWidth={1.7} />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-base font-black leading-snug text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                            {benefit.title}
+                          </h4>
+                          <p className="mt-2 line-clamp-5 text-sm font-medium leading-6 text-text-secondary">
+                            {benefit.desc}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[10px] font-black uppercase tracking-wider text-primary">
+                        {offset === 0 ? 'Shown in feature card' : 'Tap to feature'} <ArrowRight className="h-3 w-3" />
                       </span>
-                    </div>
-                  </div>
-                </motion.button>
-              );
-            })}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <div className="relative z-10 mt-2 flex justify-center gap-2" aria-label="Trust point mobile carousel progress">
+                {benefits.map((benefit, index) => (
+                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} aria-label={`Show ${benefit.title}`} />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -291,7 +323,7 @@ export default function WhyChooseUsSection() {
                         zIndex: 10 - Math.abs(offset),
                       }}
                       whileHover={offset === 0 ? { y: -4, scale: 1.02 } : { scale: 0.9 }}
-                      transition={{ type: 'spring', stiffness: 210, damping: 24 }}
+                      transition={{ type: 'spring', stiffness: 135, damping: 28, mass: 0.85 }}
                       style={{ pointerEvents: visible ? 'auto' : 'none' }}
                     >
                       <div className="flex items-start gap-3">
