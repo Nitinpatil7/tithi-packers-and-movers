@@ -28,7 +28,7 @@ export default function TestimonialsSection() {
   useEffect(() => { if (activeIndex >= testimonials.length) setActiveIndex(0); }, [activeIndex, testimonials.length]);
   useEffect(() => {
     if (paused || testimonials.length < 2) return;
-    const timer = window.setInterval(() => setActiveIndex((index) => (index + 1) % testimonials.length), 5000);
+    const timer = window.setInterval(() => setActiveIndex((index) => (index + 1) % testimonials.length), 2800);
     return () => window.clearInterval(timer);
   }, [paused, testimonials.length]);
   useEffect(() => {

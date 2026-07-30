@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck } from 'lucide-react';
+import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -14,10 +14,10 @@ export default function WhyChooseUsSection() {
   const { data: site = {} } = useSiteSetting();
 
   const stats = [
-    { value: String(site.stats?.successfulMoves ?? 0), suffix: '+', label: t.happyRelocations || 'Happy Relocations', icon: Home },
-    { value: String(site.stats?.citiesCovered ?? 0), suffix: '+', label: t.citiesReached || 'Cities Reached', icon: Map },
-    { value: String(site.stats?.yearsExperience ?? 0), suffix: '+', label: t.yearsOfService || 'Years of Service', icon: Star },
-    { value: String(site.stats?.customerSatisfaction ?? 0), suffix: '%', label: t.safetyRating || 'Safety Rating', icon: ShieldCheck },
+    { value: String(site.stats?.successfulMoves ?? 0), suffix: '+', label: t.happyRelocations || 'Happy Relocations', icon: Home, bg: '#E0F2FE' },
+    { value: String(site.stats?.citiesCovered ?? 0), suffix: '+', label: t.citiesReached || 'Cities Reached', icon: Map, bg: '#FFF7ED' },
+    { value: String(site.stats?.yearsExperience ?? 0), suffix: '+', label: t.yearsOfService || 'Years of Service', icon: Star, bg: '#ECFDF5' },
+    { value: String(site.stats?.customerSatisfaction ?? 0), suffix: '%', label: t.safetyRating || 'Safety Rating', icon: ShieldCheck, bg: '#F0F9FF' },
   ];
 
   const benefits = [
@@ -65,8 +65,12 @@ export default function WhyChooseUsSection() {
     },
   ];
 
+  const [activeBenefit, setActiveBenefit] = useState(0);
+  const active = benefits[activeBenefit] || benefits[0];
+  const ActiveIcon = active.icon;
+
   return (
-    <section className="section-texture py-20 md:py-32 relative overflow-hidden">
+    <section className="motion-check-bg section-texture py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
 
@@ -94,7 +98,7 @@ export default function WhyChooseUsSection() {
         </motion.div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16 md:mb-20">
+        <div className="mb-10 grid grid-cols-4 gap-2 md:mb-14 md:gap-5">
           {stats.map((stat, idx) => {
             const StatIcon = stat.icon;
             return (
@@ -106,24 +110,24 @@ export default function WhyChooseUsSection() {
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
               <motion.div
-                className="group bg-white/90 border border-sky-100 rounded-3xl p-5 md:p-7 text-center shadow-card hover:border-orange-200 hover:shadow-md transition-all cursor-default active:scale-[.99]"
+                className="group rounded-2xl border border-sky-100 bg-white/90 px-1.5 py-3 text-center shadow-card transition-all hover:border-orange-200 hover:shadow-md active:scale-[.99] md:rounded-3xl md:p-6"
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.99 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 ring-4 ring-sky-50 transition-all group-hover:bg-orange-500 group-hover:text-white group-hover:rotate-3"
+                  className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-xl text-2xl ring-4 ring-sky-50 transition-all group-hover:bg-orange-500 group-hover:text-white group-hover:rotate-3 md:mb-4 md:h-14 md:w-14 md:rounded-2xl"
                   style={{ backgroundColor: stat.bg }}
                 >
-                  <StatIcon className="h-6 w-6 text-primary" strokeWidth={1.7} />
+                  <StatIcon className="h-4 w-4 text-primary transition-colors group-hover:text-white md:h-6 md:w-6" strokeWidth={1.7} />
                 </div>
                 <div
-                  className="text-4xl md:text-5xl font-black mb-2"
+                  className="mb-1 text-xl font-black leading-none md:mb-2 md:text-5xl"
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-sm text-text-secondary font-semibold uppercase tracking-wider">
+                <div className="text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-secondary md:text-sm md:tracking-wider">
                   {stat.label}
                 </div>
               </motion.div>
@@ -131,10 +135,46 @@ export default function WhyChooseUsSection() {
           })}
         </div>
 
-        {/* Benefits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {benefits.map((benefit, idx) => {
+        {/* Benefits Tabs */}
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+          <motion.div
+            key={active.title}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="rounded-3xl border border-orange-100 bg-white/92 p-6 shadow-card md:p-8"
+          >
+            <div className="flex items-start gap-4">
+              <motion.div
+                className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-primary shadow-sm ring-4 ring-orange-50"
+                style={{ backgroundColor: active.bg }}
+                animate={{ rotate: [0, -2, 2, 0], y: [0, -3, 0] }}
+                transition={{ duration: 3.3, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <ActiveIcon className="h-7 w-7" strokeWidth={1.7} />
+              </motion.div>
+              <div>
+                <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                  {active.title}
+                </h3>
+                <p className="mt-3 text-sm font-medium leading-7 text-text-secondary md:text-base">
+                  {active.desc}
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {['Verified crew', 'Move support'].map((label) => (
+                <div key={label} className="rounded-2xl border border-sky-100 bg-sky-50/70 px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-primary">
+                  {label}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {benefits.map((benefit, idx) => {
             const Icon = benefit.icon;
+            const isActive = activeBenefit === idx;
             return (
               <motion.div
                 key={benefit.title}
@@ -143,32 +183,36 @@ export default function WhyChooseUsSection() {
                 viewport={{ once: true, margin: '-80px' }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
               >
-                <motion.div
-                className="group bg-white/86 border border-sky-100 rounded-2xl p-6 flex flex-col gap-4 h-full hover:border-orange-200 hover:bg-bg-white hover:shadow-md transition-all duration-300 active:scale-[.99]"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.99 }}
+                <motion.button
+                  type="button"
+                  data-active={isActive ? 'true' : 'false'}
+                  onClick={() => setActiveBenefit(idx)}
+                  className={`why-tab-card group h-full w-full rounded-2xl border p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-orange-200 bg-orange-50/80 shadow-md' : 'border-sky-100 bg-white/88 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-3">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-xs transition-all group-hover:-translate-y-1 group-hover:bg-orange-500 group-hover:text-white"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs transition-all group-hover:-translate-y-1 group-hover:bg-orange-500 group-hover:text-white"
                       style={{ backgroundColor: benefit.bg }}
                     >
-                      <Icon className="h-6 w-6 text-primary" strokeWidth={1.7} />
+                      <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-white" strokeWidth={1.7} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-text-primary mb-2 transition-colors group-hover:text-orange-600" style={{ fontFamily: 'var(--font-heading)' }}>
+                      <h3 className="text-sm font-black leading-snug text-text-primary transition-colors group-hover:text-orange-600 md:text-base" style={{ fontFamily: 'var(--font-heading)' }}>
                         {benefit.title}
                       </h3>
-                      <p className="text-sm text-text-secondary leading-relaxed font-medium">
+                      <p className="mt-1 hidden text-xs font-medium leading-5 text-text-secondary sm:line-clamp-2 sm:block">
                         {benefit.desc}
                       </p>
                     </div>
                   </div>
-                </motion.div>
+                </motion.button>
               </motion.div>
             );
           })}
+          </div>
         </div>
       </div>
     </section>

@@ -140,18 +140,18 @@ export default function HeroSection() {
           {/* Stats Bar */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-0 pt-6 border-t-2 border-bg-border w-full"
+            className="grid w-full grid-cols-4 gap-2 border-t-2 border-bg-border pt-4 sm:gap-0 sm:pt-6"
           >
             {stats.map((stat, i) => (
               <div
                 key={stat.label}
-                className={`flex flex-col items-center lg:items-start py-4 px-3 ${i > 0 ? 'border-l border-bg-border' : ''}`}
+                className={`group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-1.5 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:items-start lg:bg-transparent lg:px-3 lg:py-4 lg:text-left lg:ring-0 ${i > 0 ? 'sm:border-l sm:border-bg-border' : ''}`}
               >
-                <div className="mb-2 grid h-9 w-9 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary hover:text-white">{React.createElement(stat.icon, { className: 'h-[18px] w-[18px]', strokeWidth: 1.8 })}</div>
-                <span className="text-2xl md:text-3xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                <div className="mb-2 grid h-8 w-8 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-white sm:h-9 sm:w-9">{React.createElement(stat.icon, { className: 'h-4 w-4 sm:h-[18px] sm:w-[18px]', strokeWidth: 1.8 })}</div>
+                <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-3xl" style={{ fontFamily: 'var(--font-heading)' }}>
                   <AnimatedCounter value={String(stat.value)} suffix={stat.suffix} />
                 </span>
-                <span className="text-xs text-text-tertiary font-semibold mt-0.5 uppercase tracking-wider">{stat.label}</span>
+                <span className="mt-1 text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-tertiary sm:text-xs sm:tracking-wider">{stat.label}</span>
               </div>
             ))}
           </motion.div>
@@ -311,27 +311,28 @@ export default function HeroSection() {
       {/* Service Quick-links bar */}
       <div className="w-full mt-12 lg:mt-16 relative z-10">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 pb-10 max-w-4xl mx-auto">
-            {services.map((service) => (
+          <div className="grid grid-cols-3 gap-2 pb-8 sm:gap-4 sm:pb-10 max-w-4xl mx-auto">
+            {services.map((service, idx) => (
               <Link key={service.name} href={service.path}>
                 <motion.div
                   whileHover={{ y: -4, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-bg-border shadow-card hover:shadow-lg hover:border-primary/25 group cursor-pointer transition-all duration-300"
+                  animate={{ y: [0, idx % 2 === 0 ? -2 : 2, 0] }}
+                  transition={{ y: { duration: 4.2 + idx * 0.35, repeat: Infinity, ease: 'easeInOut' }, scale: { type: 'spring', stiffness: 300, damping: 20 } }}
+                  className="hero-service-card group flex min-h-[116px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[156px] sm:gap-3 sm:p-5"
                   style={{ '--hover-color': service.color }}
                 >
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg]"
-                    style={{ backgroundColor: service.bg }}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-orange-500 sm:h-12 sm:w-12"
+                    style={{ backgroundColor: service.bg, color: service.color }}
                   >
-                    {React.createElement(service.icon, { className: 'h-6 w-6', strokeWidth: 1.8, style: { color: service.color } })}
+                    {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-white sm:h-6 sm:w-6', strokeWidth: 1.8 })}
                   </div>
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-sm font-bold text-text-primary group-hover:text-primary transition-colors text-center leading-tight">
+                    <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">
                       {service.name}
                     </span>
-                    <span className="text-xs text-text-tertiary font-medium">{t.bookNow || 'Book Now'} →</span>
+                    <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{t.bookNow || 'Book Now'} →</span>
                   </div>
                 </motion.div>
               </Link>

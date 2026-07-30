@@ -39,7 +39,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="section-topography py-20 md:py-32 relative overflow-hidden">
+    <section className="motion-check-bg section-topography py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,9 +72,12 @@ export default function HowItWorksSection() {
             {/* Animated dash */}
             <div className="absolute top-0 left-0 right-0 h-full overflow-hidden">
               <div className="process-flow-light h-full w-1/3 bg-gradient-to-r from-transparent via-white to-transparent" />
+              <div className="process-route-spark absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-orange-400 shadow-[0_0_18px_rgba(249,115,22,.55)]" />
             </div>
           </div>
-          <div className="md:hidden process-connector absolute left-8 top-16 bottom-16 w-1 rounded-full z-0" />
+          <div className="md:hidden process-connector absolute left-8 top-16 bottom-16 w-1 rounded-full z-0">
+            <div className="process-flow-light h-20 w-full bg-gradient-to-b from-transparent via-white to-transparent" />
+          </div>
 
           {steps.map((step, idx) => {
             const Icon = step.icon;
@@ -94,7 +97,11 @@ export default function HowItWorksSection() {
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
                   {/* Step number + icon */}
-                  <div className="relative mx-auto w-fit md:mb-6">
+                  <motion.div
+                    className="process-step-aura relative mx-auto w-fit md:mb-6"
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 3.4 + idx * 0.3, repeat: Infinity, ease: 'easeInOut' }}
+                  >
                     <div
                       className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm ring-4 ring-white transition-all duration-300 group-hover:rotate-3 group-hover:bg-orange-500 group-hover:text-white"
                       style={{ backgroundColor: step.bg }}
@@ -107,7 +114,7 @@ export default function HowItWorksSection() {
                     >
                       {step.num}
                     </div>
-                  </div>
+                  </motion.div>
 
                   <div className="min-w-0 md:w-full">
                     <h3 className="text-lg md:text-xl font-black text-text-primary mb-2 md:mb-3" style={{ fontFamily: 'var(--font-heading)' }}>

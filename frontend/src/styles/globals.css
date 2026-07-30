@@ -563,6 +563,28 @@ input:focus, select:focus, textarea:focus {
   100% { transform: translateX(120%); opacity: 0; }
 }
 
+@keyframes bgDrift {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 44px 0, 22px 22px, 0 0; }
+}
+
+@keyframes serviceShine {
+  0% { transform: translateX(-120%); opacity: 0; }
+  35%, 65% { opacity: .72; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+@keyframes stepRingPulse {
+  0%, 100% { transform: scale(.92); opacity: .24; }
+  50% { transform: scale(1.16); opacity: .54; }
+}
+
+@keyframes sparkRun {
+  0% { transform: translateX(-12%); opacity: 0; }
+  20%, 70% { opacity: 1; }
+  100% { transform: translateX(112%); opacity: 0; }
+}
+
 .animate-pulse-glow {
   animation: pulseGlow 8s infinite ease-in-out;
 }
@@ -594,18 +616,93 @@ input:focus, select:focus, textarea:focus {
     linear-gradient(135deg, rgba(240, 249, 255, .92) 0%, rgba(255, 255, 255, .96) 48%, rgba(255, 247, 237, .55) 100%),
     radial-gradient(circle at 1px 1px, rgba(14, 165, 233, .11) 1px, transparent 0);
   background-size: auto, 26px 26px;
+  animation: bgDrift 34s linear infinite;
 }
 
 .section-texture-warm {
   background:
     linear-gradient(145deg, rgba(255, 247, 237, .7) 0%, rgba(255, 255, 255, .96) 42%, rgba(224, 242, 254, .82) 100%),
     linear-gradient(120deg, rgba(249, 115, 22, .08) 0 1px, transparent 1px 18px);
+  animation: bgDrift 38s linear infinite;
 }
 
 .section-topography {
   background:
     linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,249,255,.9)),
     repeating-linear-gradient(135deg, rgba(14,165,233,.075) 0 1px, transparent 1px 16px);
+  animation: bgDrift 30s linear infinite;
+}
+
+.motion-check-bg {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.94), rgba(240,249,255,.88)),
+    repeating-linear-gradient(45deg, rgba(14,165,233,.075) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(-45deg, rgba(249,115,22,.055) 0 1px, transparent 1px 18px);
+  animation: bgDrift 28s linear infinite;
+}
+
+.hero-service-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-service-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  transform: translateX(-120%);
+  animation: serviceShine 5s ease-in-out infinite;
+}
+
+.hero-service-card:hover::after,
+.hero-service-card:focus-within::after,
+.hero-service-card:active::after {
+  animation-duration: 1.45s;
+}
+
+.process-step-aura {
+  position: relative;
+}
+
+.process-step-aura::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(249, 115, 22, .28);
+  border-radius: 24px;
+  animation: stepRingPulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.process-route-spark {
+  animation: sparkRun 3.2s ease-in-out infinite;
+}
+
+.why-tab-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.why-tab-card::before {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  top: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f97316, #0ea5e9);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s ease;
+}
+
+.why-tab-card:hover::before,
+.why-tab-card:focus-visible::before,
+.why-tab-card[data-active="true"]::before {
+  transform: scaleX(1);
 }
 
 .service-hover-card {
