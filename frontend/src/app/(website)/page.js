@@ -7,6 +7,7 @@ export const metadata = {
 };
 
 import React from 'react';
+import Image from 'next/image';
 import HeroSection from '@/components/home/HeroSection';
 import BasePricePackagesSection from '@/components/home/BasePricePackagesSection';
 import ServicesSection from '@/components/home/ServicesSection';
@@ -23,6 +24,19 @@ export default function Home() {
     <div className="flex flex-col w-full overflow-hidden bg-bg-page text-text-primary">
       {/* 1. HeroSection */}
       <HeroSection />
+
+      <div className="relative z-20 -mt-10 -mb-7 flex justify-center px-4 lg:hidden">
+        <div className="hero-front-truck-bridge pointer-events-none relative h-36 w-full max-w-[430px] overflow-hidden sm:h-44">
+          <Image
+            src="/front_truck.png"
+            alt=""
+            width={560}
+            height={320}
+            priority
+            className="absolute left-1/2 top-1/2 w-[92%] max-w-[400px] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_22px_28px_rgba(15,23,42,0.20)]"
+          />
+        </div>
+      </div>
 
       {/* 2. ServicesSection */}
       <ServicesSection />

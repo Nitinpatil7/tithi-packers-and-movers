@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -31,8 +32,9 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="section-texture py-20 md:py-32 relative overflow-hidden">
+    <section id="faq" className="dotted-light-bg py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
+      <Image src="/back_truck.png" alt="" width={360} height={240} className="pointer-events-none absolute -left-24 top-10 z-0 hidden w-[260px] opacity-90 drop-shadow-[0_22px_34px_rgba(15,23,42,.2)] md:block" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -44,13 +46,13 @@ export default function FAQSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="section-label">
-            <HelpCircle className="w-3.5 h-3.5" />
+          <span className="section-label bg-white/90">
+            <HelpCircle className="w-3.5 h-3.5 text-orange-500" />
             {language === 'gu' ? 'પ્રશ્નો' : language === 'hi' ? 'एफएक्यू' : 'FAQs'}
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-text-primary mt-2">
-            {t.faqTitle || 'Frequently Asked '}{' '}
-            <span className="gradient-text">{t.faqTitleHighlight || 'Questions'}</span>
+          <h2 className="text-display-md md:text-display-lg font-black text-[#063642] mt-2">
+            Answers to your{' '}
+            <span className="text-orange-500">moving questions</span>
           </h2>
           <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium">
             {t.faqSubhead || 'Find answers about packing materials, quote valuations, transit safety, and more.'}
@@ -101,7 +103,7 @@ export default function FAQSection() {
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isOpen
                     ? 'border-orange-200 bg-white shadow-md'
-                    : 'border-bg-border bg-white/90 hover:border-orange-200 hover:shadow-xs active:border-orange-200'
+                    : 'border-bg-border bg-white/95 hover:border-orange-200 hover:shadow-xs active:border-orange-200'
                 }`}
               >
                 {/* Accordion Trigger */}

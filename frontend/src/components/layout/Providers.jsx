@@ -104,7 +104,7 @@ export default function Providers({ children }) {
 
   if (!mounted) {
     return (
-      <div className="flex min-h-screen w-full flex-col bg-[#ff4f1f] text-white">
+      <div className="loader-theme-bg flex min-h-screen w-full flex-col text-white">
         <div className="h-16 w-full border-b border-white/10 bg-white/5" />
         <main className="grid flex-1 place-items-center px-4">
           <div className="flex flex-col items-center gap-3 text-center">

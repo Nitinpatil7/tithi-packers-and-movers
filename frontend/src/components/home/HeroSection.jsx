@@ -158,7 +158,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Right Column: Truck SVG */}
-        <div className="hero-truck-wrap group pointer-events-none absolute -right-24 bottom-24 z-[5] flex w-[280px] items-center justify-center sm:-right-10 sm:bottom-20 sm:w-[340px] lg:pointer-events-auto lg:relative lg:bottom-auto lg:right-auto lg:z-auto lg:col-span-5 lg:w-auto">
+        <div className="hero-truck-wrap group hidden lg:pointer-events-auto lg:relative lg:col-span-5 lg:flex lg:w-auto lg:items-center lg:justify-center">
           <motion.div
             initial={{ opacity: 0, x: 90 }}
             animate={{ opacity: 1, y: [0, -5, 0], x: [0, 2, 0] }}

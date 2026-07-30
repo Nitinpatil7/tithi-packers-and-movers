@@ -39,8 +39,8 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="motion-check-bg section-topography py-20 md:py-32 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
+    <section className="theme-dark-flow py-20 md:py-32 relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -52,21 +52,21 @@ export default function HowItWorksSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="section-label">
+          <span className="section-label border-white/10 bg-white/10 text-white">
             <ArrowRight className="w-3.5 h-3.5" />
             {t.processLabel || 'Simple Process'}
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-text-primary mt-2">
+          <h2 className="text-display-md md:text-display-lg font-black text-white mt-2">
             {t.processTitle || 'Book Your Move in '}{' '}
-            <span className="gradient-text">{t.processTitleHighlight || '3 Simple Steps'}</span>
+            <span className="text-orange-500">{t.processTitleHighlight || '3 Simple Steps'}</span>
           </h2>
-          <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium">
+          <p className="text-lg text-white/72 max-w-xl leading-relaxed font-medium">
             {t.processSubhead || 'No long phone calls or back-and-forth negotiations. Start your stress-free move right now.'}
           </p>
         </motion.div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7 relative">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-7 relative">
           {/* Desktop connecting line */}
           <div className="hidden md:block process-connector absolute top-[64px] left-[calc(16.67%+32px)] right-[calc(16.67%+32px)] h-1 rounded-full z-0">
             {/* Animated dash */}
@@ -91,7 +91,7 @@ export default function HowItWorksSection() {
                 transition={{ duration: 0.5, delay: idx * 0.18 }}
               >
                 <motion.div
-                  className="group grid w-full grid-cols-[64px_1fr] gap-4 rounded-3xl border border-sky-100 bg-white/90 p-5 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-md active:scale-[.99] md:flex md:flex-col md:items-center md:p-8"
+                  className="group grid w-full grid-cols-[96px_1fr] gap-4 rounded-3xl border border-white/10 bg-transparent p-0 text-white transition-all duration-300 active:scale-[.99] md:flex md:flex-col md:items-center md:p-4"
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -103,24 +103,22 @@ export default function HowItWorksSection() {
                     transition={{ duration: 3.4 + idx * 0.3, repeat: Infinity, ease: 'easeInOut' }}
                   >
                     <div
-                      className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm ring-4 ring-white transition-all duration-300 group-hover:rotate-3 group-hover:bg-orange-500 group-hover:text-white"
-                      style={{ backgroundColor: step.bg }}
+                      className="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center text-4xl bg-orange-500 text-white shadow-[0_18px_45px_rgba(249,81,30,.28)] ring-1 ring-white/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_24px_60px_rgba(249,81,30,.42)]"
                     >
-                      <Icon className="h-7 w-7 transition-colors" strokeWidth={1.7} />
+                      <Icon className="h-9 w-9 md:h-11 md:w-11 transition-colors" strokeWidth={1.7} />
                     </div>
                     <div
-                      className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md ring-2 ring-white"
-                      style={{ backgroundColor: step.color }}
+                      className="absolute -bottom-3 left-1/2 w-10 h-10 -translate-x-1/2 rounded-full flex items-center justify-center bg-white text-orange-500 text-sm font-black shadow-md ring-2 ring-white"
                     >
                       {step.num}
                     </div>
                   </motion.div>
 
                   <div className="min-w-0 md:w-full">
-                    <h3 className="text-lg md:text-xl font-black text-text-primary mb-2 md:mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <h3 className="text-lg md:text-xl font-black text-white mb-2 md:mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                       {step.title}
                     </h3>
-                    <p className="text-sm text-text-secondary leading-relaxed font-medium">
+                    <p className="text-sm text-white/78 leading-relaxed font-medium">
                       {step.desc}
                     </p>
 

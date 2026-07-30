@@ -70,9 +70,9 @@ export default function WhyChooseUsSection() {
   const ActiveIcon = active.icon;
 
   return (
-    <section className="motion-check-bg section-texture py-20 md:py-32 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
+    <section className="theme-dark-flow py-20 md:py-32 relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-orange-400/30 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -88,11 +88,11 @@ export default function WhyChooseUsSection() {
             <Star className="w-3.5 h-3.5" />
             {language === 'gu' ? 'શા માટે પસંદ કરો' : language === 'hi' ? 'हमें क्यों चुनें' : 'Why Choose Us'}
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-text-primary mt-2">
+          <h2 className="text-display-md md:text-display-lg font-black text-white mt-2">
             {t.whyTitle || 'Why Surat Families '}{' '}
-            <span className="gradient-text">{t.whyTitleHighlight || 'Trust Tithi'}</span>
+            <span className="text-orange-500">{t.whyTitleHighlight || 'Trust Tithi'}</span>
           </h2>
-          <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium">
+          <p className="text-lg text-white/72 max-w-xl leading-relaxed font-medium">
             {t.whySubhead || 'Delivering consistency, safety, and modern convenience to home movers across Gujarat and India.'}
           </p>
         </motion.div>
@@ -110,7 +110,7 @@ export default function WhyChooseUsSection() {
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
               <motion.div
-                className="group rounded-2xl border border-sky-100 bg-white/90 px-1.5 py-3 text-center shadow-card transition-all hover:border-orange-200 hover:shadow-md active:scale-[.99] md:rounded-3xl md:p-6"
+                className="theme-fill-card group rounded-2xl border border-white/10 bg-white/95 px-1.5 py-3 text-center shadow-card transition-all hover:border-orange-500 active:scale-[.99] md:rounded-3xl md:p-6"
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.99 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -122,12 +122,12 @@ export default function WhyChooseUsSection() {
                   <StatIcon className="h-4 w-4 text-primary transition-colors group-hover:text-white md:h-6 md:w-6" strokeWidth={1.7} />
                 </div>
                 <div
-                  className="mb-1 text-xl font-black leading-none md:mb-2 md:text-5xl"
+                  className="mb-1 text-xl font-black leading-none transition-colors group-hover:text-white md:mb-2 md:text-5xl"
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-secondary md:text-sm md:tracking-wider">
+                <div className="text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-secondary transition-colors group-hover:text-white/85 md:text-sm md:tracking-wider">
                   {stat.label}
                 </div>
               </motion.div>
@@ -142,7 +142,7 @@ export default function WhyChooseUsSection() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
-            className="rounded-3xl border border-orange-100 bg-white/92 p-6 shadow-card md:p-8"
+            className="rounded-3xl border border-white/10 bg-white/95 p-6 shadow-[0_22px_60px_rgba(0,0,0,.18)] md:p-8"
           >
             <div className="flex items-start gap-4">
               <motion.div
@@ -187,7 +187,7 @@ export default function WhyChooseUsSection() {
                   type="button"
                   data-active={isActive ? 'true' : 'false'}
                   onClick={() => setActiveBenefit(idx)}
-                  className={`why-tab-card group h-full w-full rounded-2xl border p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-orange-200 bg-orange-50/80 shadow-md' : 'border-sky-100 bg-white/88 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
+                  className={`theme-fill-card why-tab-card group h-full w-full rounded-2xl border p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-orange-500 bg-orange-500 text-white shadow-md' : 'border-white/10 bg-white/95 hover:border-orange-500'}`}
                   whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -200,10 +200,10 @@ export default function WhyChooseUsSection() {
                       <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-white" strokeWidth={1.7} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-black leading-snug text-text-primary transition-colors group-hover:text-orange-600 md:text-base" style={{ fontFamily: 'var(--font-heading)' }}>
+                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-white' : 'text-text-primary group-hover:text-white'}`} style={{ fontFamily: 'var(--font-heading)' }}>
                         {benefit.title}
                       </h3>
-                      <p className="mt-1 hidden text-xs font-medium leading-5 text-text-secondary sm:line-clamp-2 sm:block">
+                      <p className={`mt-1 hidden text-xs font-medium leading-5 transition-colors sm:line-clamp-2 sm:block ${isActive ? 'text-white/85' : 'text-text-secondary group-hover:text-white/85'}`}>
                         {benefit.desc}
                       </p>
                     </div>

@@ -575,6 +575,16 @@ input:focus, select:focus, textarea:focus {
   100% { transform: translateX(112%); opacity: 0; }
 }
 
+@keyframes loaderBackdropFlow {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 80px 0, -80px 80px, 0 0; }
+}
+
+@keyframes bridgeTruckFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
 .animate-pulse-glow {
   animation: pulseGlow 8s infinite ease-in-out;
 }
@@ -629,6 +639,61 @@ input:focus, select:focus, textarea:focus {
     repeating-linear-gradient(45deg, rgba(14,165,233,.075) 0 1px, transparent 1px 18px),
     repeating-linear-gradient(-45deg, rgba(249,115,22,.055) 0 1px, transparent 1px 18px);
   animation: bgDrift 28s linear infinite;
+}
+
+.theme-dark-flow {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, .06), transparent 26%),
+    repeating-radial-gradient(ellipse at 42% 42%, rgba(255, 255, 255, .045) 0 1px, transparent 1px 22px),
+    linear-gradient(135deg, #062f39 0%, #07333d 45%, #03262e 100%);
+}
+
+.dotted-light-bg {
+  background:
+    radial-gradient(circle at 16px 16px, rgba(6, 54, 66, .08) 1.5px, transparent 2px),
+    linear-gradient(180deg, #ffffff 0%, #fbfdff 54%, #f7fbfc 100%);
+  background-size: 18px 18px, auto;
+}
+
+.theme-fill-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.theme-fill-card::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 0;
+  height: 0;
+  background: #ff4f1f;
+  transition: height .38s cubic-bezier(.2, .8, .2, 1);
+}
+
+.theme-fill-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.theme-fill-card:hover::after,
+.theme-fill-card:focus-within::after,
+.theme-fill-card:active::after,
+.theme-fill-card[data-active="true"]::after {
+  height: 100%;
+}
+
+.hero-front-truck-bridge {
+  animation: bridgeTruckFloat 4.5s ease-in-out infinite;
+}
+
+.loader-theme-bg {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.18) 0 2px, transparent 3px),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.12) 0 1px, transparent 1px 20px),
+    linear-gradient(135deg, #ff4f1f 0%, #f97316 54%, #e84314 100%);
+  animation: loaderBackdropFlow 18s linear infinite;
 }
 
 .hero-service-card {
