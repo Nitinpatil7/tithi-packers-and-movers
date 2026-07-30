@@ -1,13 +1,12 @@
 // src/components/layout/Providers.jsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { enableQueryPersistence, queryClient } from '@/lib/queryClient';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import Spinner from '@/components/ui/Spinner';
 import Toast from '@/components/ui/Toast';
 import { useThemeStore } from '@/store/themeStore';
 import { useLanguageStore } from '@/store/languageStore';
@@ -16,35 +15,49 @@ import { useBookingStore } from '@/store/bookingStore';
 export default function Providers({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
   const { initializeTheme } = useThemeStore();
   const { initializeLanguage } = useLanguageStore();
 
   useEffect(() => {
-    let active = true;
-    const boot = async () => {
-      initializeTheme();
-      initializeLanguage();
-      const cleanupPersistence = enableQueryPersistence();
+    initializeTheme();
+    initializeLanguage();
+  }, [initializeTheme, initializeLanguage]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let cleanupPersistence = () => {};
+    let idleId;
+    let timer;
+
+    const hydrateDeferredState = () => {
+      if (cancelled) return;
+      cleanupPersistence = enableQueryPersistence();
+
+      const isAdminRoute = window.location.pathname.startsWith('/admin');
+      if (isAdminRoute) return;
+
       try {
-        await useBookingStore.persist.rehydrate();
+        void useBookingStore.persist.rehydrate().catch(() => {
+          useBookingStore.persist.clearStorage();
+        });
       } catch {
         useBookingStore.persist.clearStorage();
       }
-      if (active) setMounted(true);
-      return cleanupPersistence;
     };
 
-    let cleanupPersistence = () => {};
-    void boot().then((cleanup) => {
-      cleanupPersistence = cleanup || cleanupPersistence;
-    });
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(hydrateDeferredState, { timeout: 900 });
+    } else if (typeof window !== 'undefined') {
+      timer = window.setTimeout(hydrateDeferredState, 0);
+    }
 
     return () => {
-      active = false;
+      cancelled = true;
+      if (idleId) window.cancelIdleCallback(idleId);
+      if (timer) window.clearTimeout(timer);
       cleanupPersistence();
     };
-  }, [initializeTheme, initializeLanguage]);
+  }, []);
 
   useEffect(() => {
     // Warm the three main booking routes as soon as the browser is idle so
@@ -102,20 +115,6 @@ export default function Providers({ children }) {
       socket?.disconnect();
     };
   }, []);
-
-  if (!mounted) {
-    return (
-      <div className="loader-theme-bg flex min-h-screen w-full flex-col text-text-primary">
-        <div className="h-16 w-full border-b border-orange-100 bg-white/30" />
-        <main className="grid flex-1 place-items-center px-4">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <Spinner size="lg" />
-            <p className="text-sm font-bold text-orange-600">Loading...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
