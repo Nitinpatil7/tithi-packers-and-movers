@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { formatCurrency, getServiceLabel } from '@/lib/utils';
+import { getTruckImageSrc } from '@/lib/truckVisuals';
+import { ItemIcon } from '@/lib/itemIcons';
 
 const SERVICE_LABELS = {
   'local': 'Local Shifting',
@@ -48,6 +50,20 @@ function DataRow({ label, value }) {
     <div className="flex flex-col gap-0.5">
       <span className="text-xs text-text-tertiary font-bold uppercase tracking-wider">{label}</span>
       <span className="text-base font-bold text-text-primary">{value || '—'}</span>
+    </div>
+  );
+}
+
+function TruckSummary({ truck, charge }) {
+  if (!truck?.name) return null;
+  const capacity = truck.capacityKg ? `${Number(truck.capacityKg).toLocaleString('en-IN')} kg` : truck.capacityLabel || 'Capacity not set';
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-bg-border bg-bg-white p-3">
+      <img src={getTruckImageSrc(truck)} alt={truck.name} className="h-16 w-20 shrink-0 rounded-xl object-cover" onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }} />
+      <div className="min-w-0">
+        <span className="block truncate text-sm font-black text-text-primary">{truck.name}</span>
+        <span className="text-xs font-bold text-text-tertiary">{capacity}{charge > 0 ? ` · ${formatCurrency(charge)}` : ''}</span>
+      </div>
     </div>
   );
 }
@@ -103,10 +119,10 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
   const allowanceText = (pricingBreakdown.freeItemAllowance || []).map((item) => `${item.sizeKey}: ${item.quantity}`).join(' · ');
   const itemBreakdown = pricingBreakdown.itemBreakdown || {};
   const rawSelectedTruck = pricingBreakdown.selectedTruck || {};
-  const truckLabel = rawSelectedTruck?.name
-    ? `${rawSelectedTruck.name}${rawSelectedTruck.capacityKg ? ` - ${Number(rawSelectedTruck.capacityKg).toLocaleString('en-IN')} kg` : ''}`
+  const selectedTruck = rawSelectedTruck?.name ? rawSelectedTruck : {};
+  const truckLabel = selectedTruck?.name
+    ? `${selectedTruck.name}${selectedTruck.capacityKg ? ` - ${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : ''}`
     : '';
-  const selectedTruck = truckLabel ? { ...rawSelectedTruck, name: truckLabel, capacityKg: 0 } : {};
   const employeeRate = pricingBreakdown.employeeRate || {};
   const hourlyRate = pricingBreakdown.hourlyRate || {};
   const activeDistanceSlab = (pricingBreakdown.distanceSlabs || []).find((slab) => Number(distance) >= Number(slab.fromKm || 0) && (slab.toKm === null || slab.toKm === undefined || slab.toKm === '' || Number(distance) <= Number(slab.toKm)));
@@ -158,7 +174,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         {/* Schedule */}
         <ReviewCard icon={Calendar} iconBg="#BAE6FD" iconColor="#0284C7" title="Schedule">
           <DataRow label="Service" value={SERVICE_LABELS[serviceType] || serviceType} />
-          {truckLabel && <DataRow label="Selected truck" value={truckLabel} />}
+          {truckLabel && <TruckSummary truck={selectedTruck} charge={truckTotal} />}
           <div className="grid grid-cols-1 gap-3 border-t border-bg-border pt-3">
             <DataRow label="Date" value={formattedDate} />
             <DataRow label="Time Slot" value={TIME_SLOT_LABELS[timeSlot] || timeSlot} />
@@ -179,7 +195,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
           {isLabour && hoursCount > 0 && (
             <DataRow label="Duration" value={`${hoursCount} hour${hoursCount > 1 ? 's' : ''}`} />
           )}
-          {isLabour && selectedTruck?.name && <DataRow label="Truck selected" value={`${selectedTruck.name}${selectedTruck.capacityKg ? ` · ${selectedTruck.capacityKg} kg` : ''}${truckTotal > 0 ? ` · ${formatCurrency(truckTotal)}` : ''}`} />}
+          {isLabour && selectedTruck?.name && <TruckSummary truck={selectedTruck} charge={truckTotal} />}
           {isLabour && employeeRate?.employees && <DataRow label="Employee package" value={employeeRate.label || `${employeeRate.employees} employee(s)`} />}
           {isLabour && (hourlyRate?.hours || hourlyRate?.price) && <DataRow label="Hourly package" value={`${hourlyRate.label || `${hoursCount} hour`}${hourlyRate.price ? ` · ${formatCurrency(hourlyRate.price)} per employee` : ''}`} />}
           <DataRow label="Labour Cost" value={formatCurrency(employeeTotal)} />
@@ -190,7 +206,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         <ReviewCard icon={Truck} iconBg="#E0F2FE" iconColor="#0EA5E9" title="Porter Quote Details">
           <DataRow label="Distance" value={distanceCharge > 0 ? `${distance} km · ${formatCurrency(distanceCharge)}` : 'Distance charge not applied'} />
           {activeDistanceSlab && <DataRow label="Distance range" value={`${activeDistanceSlab.label || `${activeDistanceSlab.fromKm}-${activeDistanceSlab.toKm || '+'} km`} · ${activeDistanceSlab.isFree ? 'Free' : `${formatCurrency(activeDistanceSlab.ratePerKm)} / km`}`} />}
-          <DataRow label="Truck" value={selectedTruck?.name ? `${selectedTruck.name}${truckTotal > 0 ? ` · ${formatCurrency(truckTotal)}` : ''}` : 'Not selected'} />
+          {selectedTruck?.name ? <TruckSummary truck={selectedTruck} charge={truckTotal} /> : <DataRow label="Truck" value="Not selected" />}
           <DataRow label="Employees + hours" value={`${employeeCount || 0} employee(s) · ${hoursCount || 0} hour(s)`} />
         </ReviewCard>
       )}
@@ -207,8 +223,11 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
             {items.length > 0 ? (
               <div className="max-h-[180px] overflow-y-auto flex flex-col gap-2 pr-1">
                 {items.map((item) => (
-                  <div key={item.name} className="flex justify-between items-center py-2 border-b border-bg-border last:border-0">
-                    <div className="flex flex-col text-left">
+                  <div key={item.name} className="flex items-center justify-between gap-3 py-2 border-b border-bg-border last:border-0">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+                      <ItemIcon icon={item.icon} className="h-4 w-4" />
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-col text-left">
                       <span className="text-sm font-semibold text-text-secondary">{item.name}</span>
                       <span className="text-[10px] text-text-tertiary uppercase font-bold">Size: {item.tag}</span>
                     </div>

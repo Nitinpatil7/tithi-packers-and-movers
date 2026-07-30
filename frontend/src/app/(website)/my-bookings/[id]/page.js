@@ -12,6 +12,7 @@ import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate, g
 import { ArrowLeft, MapPin, Truck, Box, Sparkles, DollarSign, CalendarDays, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useLanguageStore } from '@/store/languageStore';
+import { getTruckImageSrc } from '@/lib/truckVisuals';
 
 const DETAIL_TRANSLATIONS = {
   en: {
@@ -160,6 +161,9 @@ export default function CustomerBookingDetailPage() {
   if (!booking) return null;
 
   const grandTotal = booking.totalAmount || booking.pricing?.totalAmount || ((booking.manualQuote || 0) + (booking.addOnTotal || 0));
+  const selectedTruck = booking.pricing?.breakdown?.selectedTruck || {};
+  const truckName = selectedTruck.name || booking.truckType?.replace?.(/[_-]/g, ' ');
+  const truckCapacity = selectedTruck.capacityKg ? `${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : selectedTruck.capacityLabel || '';
   const currentStatus = normalizeStatus(booking.status);
   const trackingStages = [
     { key: 'pending', label: t.stages.pending || 'Pending' },
@@ -280,10 +284,16 @@ export default function CustomerBookingDetailPage() {
                 <span className="text-text-tertiary block">{t.shiftingCategory}</span>
                 <span className="text-text-primary font-bold">{getLocalizedServiceLabel(booking.serviceType)}</span>
               </div>
-              {booking.truckType && (
+              {(booking.truckType || selectedTruck.name) && (
                 <div>
                   <span className="text-text-tertiary block">{t.vehicleAllocated}</span>
-                  <span className="text-text-primary font-semibold capitalize">{booking.truckType.replace('-', ' ')}</span>
+                  <div className="mt-1 flex items-center gap-3 rounded-xl border border-bg-border bg-bg-section p-2">
+                    <img src={getTruckImageSrc(selectedTruck)} alt={truckName || 'Vehicle'} className="h-14 w-16 shrink-0 rounded-lg object-cover" onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-text-primary font-semibold capitalize">{truckName || 'Vehicle'}</span>
+                      <span className="text-[11px] font-semibold text-text-tertiary">{truckCapacity || 'Capacity not set'}</span>
+                    </span>
+                  </div>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-2 border-t border-bg-border/40 pt-2.5">

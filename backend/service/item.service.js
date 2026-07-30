@@ -75,6 +75,7 @@ const normalizeItemPayload = async (payload, current = null) => {
   update.categoryId = group.categoryId._id;
   update.section = group.categoryId.name;
   if (update.sizes !== undefined) update.sizes = await normalizeVariants(update.sizes);
+  if (update.icon !== undefined) update.icon = String(update.icon || "").trim();
   if (!current && update.sizes === undefined) throw new ApiError(400, "sizes is required");
   if (!current) update.key = await uniqueSlug(Item, update.key || `${update.section}-${update.group}-${update.name}`);
   else if (update.key !== undefined) update.key = await uniqueSlug(Item, update.key, current._id);

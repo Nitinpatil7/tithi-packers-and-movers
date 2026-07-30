@@ -142,6 +142,7 @@ const normalizePayload = (payload = {}) => {
     normalized.labourPricing.trucks = sortByOrder(normalized.labourPricing.trucks).map((truck) => ({
       ...truck,
       key: slug(truck.key || truck.name),
+      image: String(truck.image || "").trim(),
       capacityKg: Number(truck.capacityKg) || 0,
       price: truck.isFree ? 0 : Number(truck.price) || 0,
       isActive: true,

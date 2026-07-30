@@ -30,6 +30,7 @@ const itemSchema = new mongoose.Schema(
     },
     group: { type: String, required: true, trim: true, index: true },
     name: { type: String, required: true, trim: true, index: true },
+    icon: { type: String, trim: true, default: "" },
     sizes: { type: [itemSizeVariantSchema], required: true, default: [] },
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0 },

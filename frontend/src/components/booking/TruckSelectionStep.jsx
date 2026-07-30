@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import TruckGuideModal from './TruckGuideModal';
 import { TRUCK_OPTIONS } from '@/data/truckOptions';
 import { cn } from '@/lib/utils';
+import { getTruckImageSrc } from '@/lib/truckVisuals';
 
 const normalizeTruckOption = (truck = {}) => {
   const capacityKg = Number(truck.capacityKg || 0);
@@ -14,6 +15,7 @@ const normalizeTruckOption = (truck = {}) => {
     id: truck.key || truck.id,
     name: truck.name || 'Truck',
     capacityKg,
+    image: truck.image || '',
     bestFor: capacityKg ? `${capacityKg.toLocaleString('en-IN')} kg capacity` : truck.capacityLabel || truck.bestFor || 'Capacity not set',
     example: truck.example || '',
     price: Number(truck.price || 0) > 0 ? `Rs ${Number(truck.price).toLocaleString('en-IN')}` : '',
@@ -32,7 +34,8 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
       setError('Please select a truck size to continue.');
       return;
     }
-    onSubmit({ selectedTruck, truckType: selectedTruck });
+    const selectedTruckData = options.find((truck) => truck.id === selectedTruck) || null;
+    onSubmit({ selectedTruck, truckType: selectedTruck, selectedTruckData });
   };
 
   return (
@@ -70,7 +73,12 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
                   : 'border-bg-border bg-white hover:border-primary/30 hover:bg-bg-section shadow-xs'
               )}
             >
-              <Truck className="mt-0.5 h-8 w-8 shrink-0 text-primary" strokeWidth={1.6} />
+              <img
+                src={getTruckImageSrc(truck)}
+                alt={truck.name}
+                className="h-20 w-24 shrink-0 rounded-xl border border-bg-border bg-bg-section object-cover"
+                onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }}
+              />
               <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className={cn('text-base font-black', isSelected ? 'text-primary' : 'text-text-primary')} style={{ fontFamily: 'var(--font-heading)' }}>

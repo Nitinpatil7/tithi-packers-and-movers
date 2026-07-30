@@ -91,6 +91,11 @@ const ItemSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    icon: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     quantity: {
       type: Number,
       default: 1,

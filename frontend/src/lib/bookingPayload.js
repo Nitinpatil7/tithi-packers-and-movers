@@ -63,6 +63,7 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
       itemkey: item.itemkey || item.key,
       category: item.category || item.section,
       name: item.name,
+      icon: item.icon || '',
       sizeTag: item.sizeTag || item.tag || item.sizeKey,
       quantity: Number(item.quantity || 0),
       unitPrice,

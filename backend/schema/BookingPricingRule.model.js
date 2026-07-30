@@ -53,6 +53,7 @@ const truckRateSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     capacityLabel: { type: String, trim: true, default: "" },
     capacityKg: { type: Number, min: 0, default: 0 },
+    image: { type: String, trim: true, default: "" },
     price: { type: Number, required: true, min: 0, default: 0 },
     isFree: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
