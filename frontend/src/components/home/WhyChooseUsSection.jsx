@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -69,6 +69,9 @@ export default function WhyChooseUsSection() {
   const [activeBenefit, setActiveBenefit] = useState(0);
   const active = benefits[activeBenefit] || benefits[0];
   const ActiveIcon = active.icon;
+  const selectBenefit = (index) => setActiveBenefit((index + benefits.length) % benefits.length);
+  const previousBenefit = () => selectBenefit(activeBenefit - 1);
+  const nextBenefit = () => selectBenefit(activeBenefit + 1);
 
   return (
     <section className="why-choice-bg py-20 md:py-32 relative overflow-hidden">
@@ -242,50 +245,82 @@ export default function WhyChooseUsSection() {
             </div>
           </div>
 
-          <div className="hidden grid-cols-2 gap-3 lg:grid">
-            {benefits.map((benefit, idx) => {
-            const Icon = benefit.icon;
-            const isActive = activeBenefit === idx;
-            return (
+          <div className="hidden lg:block">
+            <div className="relative min-h-[430px] overflow-hidden rounded-[32px] border border-sky-100 bg-white/85 p-5 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm">
+              <div className="pointer-events-none absolute inset-0 services-panel-route opacity-60" />
               <motion.div
-                key={benefit.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
-              >
-                <motion.button
-                  type="button"
-                  data-active={isActive ? 'true' : 'false'}
-                  onClick={() => setActiveBenefit(idx)}
-                  className={`why-tab-card group h-full w-full rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-sky-300 ring-1 ring-sky-100' : 'border-sky-100 hover:border-sky-300 hover:bg-bg-white hover:shadow-md'}`}
-                  whileHover={{ y: -5, scale: 1.015 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className="icon-surface h-11 w-11 rounded-xl"
-                      data-active={isActive ? 'true' : undefined}
+                className="why-3d-orbit pointer-events-none absolute right-10 top-16 h-56 w-56 rounded-full"
+                animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+                transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative z-10 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Interactive trust points</p>
+                  <h3 className="mt-1 text-xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                    Rotate and select a proof card
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={previousBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95" aria-label="Previous trust point">
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button type="button" onClick={nextBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95" aria-label="Next trust point">
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="trust-carousel-stage relative z-10 mt-8 h-[310px]">
+                {benefits.map((benefit, idx) => {
+                  const Icon = benefit.icon;
+                  const rawOffset = (idx - activeBenefit + benefits.length) % benefits.length;
+                  const offset = rawOffset > benefits.length / 2 ? rawOffset - benefits.length : rawOffset;
+                  const visible = Math.abs(offset) <= 2;
+                  return (
+                    <motion.button
+                      key={benefit.title}
+                      type="button"
+                      onClick={() => selectBenefit(idx)}
+                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[230px] w-[310px] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
+                      animate={{
+                        x: `${-50 + offset * 24}%`,
+                        y: Math.abs(offset) * 18,
+                        rotateY: offset * -18,
+                        scale: offset === 0 ? 1 : 0.86,
+                        opacity: visible ? (offset === 0 ? 1 : 0.58) : 0,
+                        zIndex: 10 - Math.abs(offset),
+                      }}
+                      whileHover={offset === 0 ? { y: -4, scale: 1.02 } : { scale: 0.9 }}
+                      transition={{ type: 'spring', stiffness: 210, damping: 24 }}
+                      style={{ pointerEvents: visible ? 'auto' : 'none' }}
                     >
-                      <Icon className="h-5 w-5" strokeWidth={1.7} />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-primary' : 'text-text-primary group-hover:text-primary'}`} style={{ fontFamily: 'var(--font-heading)' }}>
-                        {benefit.title}
-                      </h3>
-                      <p className={`mt-1 line-clamp-2 text-xs font-medium leading-5 text-text-secondary transition-all duration-300 sm:line-clamp-2 ${isActive ? 'opacity-100' : 'opacity-90 sm:opacity-75 sm:group-hover:opacity-100'}`}>
-                        {benefit.desc}
-                      </p>
-                      <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-primary opacity-80 transition-all group-hover:translate-x-1 group-hover:opacity-100">
-                        Detail <ArrowRight className="h-3 w-3" />
+                      <div className="flex items-start gap-3">
+                        <div className="icon-surface h-12 w-12 rounded-2xl" data-active={offset === 0 ? 'true' : undefined}>
+                          <Icon className="h-5.5 w-5.5" strokeWidth={1.7} />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-base font-black leading-snug text-text-primary group-hover:text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                            {benefit.title}
+                          </h4>
+                          <p className="mt-2 line-clamp-4 text-sm font-medium leading-6 text-text-secondary">
+                            {benefit.desc}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="mt-auto inline-flex items-center gap-1 pt-5 text-[10px] font-black uppercase tracking-wider text-primary">
+                        {offset === 0 ? 'Featured now' : 'Select card'} <ArrowRight className="h-3 w-3" />
                       </span>
-                    </div>
-                  </div>
-                </motion.button>
-              </motion.div>
-            );
-          })}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <div className="relative z-10 mt-3 flex justify-center gap-2" aria-label="Trust point carousel progress">
+                {benefits.map((benefit, index) => (
+                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary' : 'w-2 bg-sky-200 hover:bg-sky-300'}`} aria-label={`Show ${benefit.title}`} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

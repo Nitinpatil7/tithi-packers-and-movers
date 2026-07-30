@@ -843,6 +843,15 @@ input:focus, select:focus, textarea:focus {
   box-shadow: inset 0 0 34px rgba(14, 165, 233, .08);
 }
 
+.trust-carousel-stage {
+  perspective: 1100px;
+}
+
+.trust-card-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
 .booking-flow-bg {
   background:
     radial-gradient(circle at 18% 10%, rgba(14, 165, 233, .12), transparent 26%),
