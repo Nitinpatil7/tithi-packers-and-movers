@@ -88,7 +88,7 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="services-sky-bg pt-24 pb-16 md:py-28 relative overflow-hidden">
+    <section id="services" className="services-sky-bg pt-20 pb-14 md:py-24 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(14,165,233,.10),transparent)]" />
 
@@ -96,7 +96,7 @@ export default function ServicesSection() {
 
         {/* Section Header */}
         <motion.div
-          className="flex flex-col items-center text-center mb-16 md:mb-20 gap-4"
+          className="flex flex-col items-center text-center mb-12 md:mb-14 gap-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -135,25 +135,25 @@ export default function ServicesSection() {
               <motion.div key={service.id} variants={cardVariants}>
                 <Link href={service.path} className="block group h-full">
                   <motion.div
-                    className="service-hover-card min-h-[420px] rounded-3xl border border-sky-100 bg-white/95 p-6 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:p-8 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
+                    className="service-hover-card min-h-[350px] rounded-3xl border border-sky-100 bg-white/95 p-5 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:min-h-[370px] sm:p-6 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
                     whileHover={{ y: -8 }}
                     whileTap={{ scale: 0.985, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   >
-                    <div className="flex flex-col gap-6 relative z-10">
+                    <div className="flex flex-col gap-5 relative z-10">
                       {/* Icon + arrow */}
                       <div className="flex items-start justify-between">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white group-focus-within:bg-primary group-focus-within:text-white">
-                          <Icon className="h-8 w-8 transition-colors" strokeWidth={1.7} />
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm ring-1 ring-primary/10 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-[#063642]/90 group-hover:text-white group-hover:ring-white/30 group-hover:shadow-[0_18px_34px_rgba(6,54,66,.26),0_0_0_7px_rgba(14,165,233,.10)] group-hover:backdrop-blur-md group-focus-within:bg-[#063642]/90 group-focus-within:text-white group-focus-within:ring-white/30 sm:h-[60px] sm:w-[60px]">
+                          <Icon className="h-7 w-7 transition-colors duration-300 group-hover:text-white group-focus-within:text-white" strokeWidth={2} />
                         </div>
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-primary group-hover:text-white"
+                          className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-primary group-hover:text-white"
                         >
                           <ArrowRight className="w-5 h-5" />
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2.5">
                         <h3 className="text-xl font-black text-text-primary transition-colors group-hover:text-primary group-focus-within:text-primary">
                           {serviceTitleById[service.id] || service.title}
                         </h3>
@@ -163,18 +163,18 @@ export default function ServicesSection() {
                       </div>
 
                       {/* Feature checklist */}
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1.5">
                         {service.features.map((feat) => (
                           <div key={feat} className="flex items-center gap-2 rounded-xl bg-white/70 px-2 py-1.5 ring-1 ring-orange-100/70 transition group-hover:ring-orange-200">
-                            <CheckCircle className="w-4 h-4 shrink-0 text-primary" />
-                            <span className="text-sm font-semibold text-text-secondary">{feat}</span>
+                            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-primary" />
+                            <span className="text-xs font-semibold text-text-secondary sm:text-sm">{feat}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {/* CTA row */}
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-bg-border relative z-10">
+                    <div className="flex items-center justify-between mt-6 pt-5 border-t border-bg-border relative z-10">
                       <span
                         className="text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 group-hover:gap-2.5 transition-all"
                         style={{ color: service.color }}

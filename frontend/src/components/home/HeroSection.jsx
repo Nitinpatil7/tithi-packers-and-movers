@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShieldCheck, Truck, Star, ArrowRight, Clock, MapPin, Package, CheckCircle, House, MapPinned, Headphones, Building2, HardHat } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import { useLanguageStore } from '@/store/languageStore';
@@ -47,17 +48,17 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-24 sm:pt-28 md:pt-36 pb-0 overflow-hidden">
+    <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-20 sm:pt-24 md:pt-24 pb-0 overflow-hidden">
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-20 h-px bg-gradient-to-r from-transparent via-service-local/20 to-transparent pointer-events-none" />
 
       {/* Dot pattern */}
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-        {/* Left Column */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex flex-col items-center gap-5 md:gap-6">
+        {/* Main Content Row */}
         <motion.div
-          className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left gap-5 md:gap-8"
+          className="flex w-full max-w-5xl flex-col items-center text-center gap-4 md:gap-5"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -84,7 +85,7 @@ export default function HeroSection() {
           {/* Headline */}
           <motion.h1
             variants={itemVariants}
-            className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.0] text-text-primary"
+            className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.0] text-text-primary"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             {t.heroTitle1 || 'Trusted Packers & '}{' '}
@@ -96,7 +97,7 @@ export default function HeroSection() {
           {/* Subheadline */}
           <motion.p
             variants={itemVariants}
-            className="text-lg md:text-xl text-text-secondary max-w-xl leading-relaxed font-medium"
+            className="text-base md:text-lg text-text-secondary max-w-2xl leading-relaxed font-medium"
           >
             {t.heroSubheadline || (
               <>
@@ -107,7 +108,7 @@ export default function HeroSection() {
           </motion.p>
 
           {/* Trust badges */}
-          <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start gap-3">
+          <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3">
             {trustBadges.map(({ text, icon: Icon }) => (
               <div
                 key={text}
@@ -140,7 +141,7 @@ export default function HeroSection() {
           {/* Stats Bar */}
           <motion.div
             variants={itemVariants}
-            className="grid w-full grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:gap-3 sm:pt-6"
+            className="grid w-full max-w-3xl grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:gap-3 sm:pt-5"
           >
             {stats.map((stat, i) => (
               <div
@@ -148,7 +149,7 @@ export default function HeroSection() {
                 className="group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-3 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:px-4 lg:py-4"
               >
                 <div className="mb-2 grid h-8 w-8 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-white sm:h-9 sm:w-9">{React.createElement(stat.icon, { className: 'h-4 w-4 sm:h-[18px] sm:w-[18px]', strokeWidth: 1.8 })}</div>
-                <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-3xl" style={{ fontFamily: 'var(--font-heading)' }}>
+                <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-2xl" style={{ fontFamily: 'var(--font-heading)' }}>
                   <AnimatedCounter value={String(stat.value)} suffix={stat.suffix} />
                 </span>
                 <span className="mt-1 text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-tertiary sm:text-xs sm:tracking-wider">{stat.label}</span>
@@ -157,19 +158,27 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        {/* Right Column: Truck SVG */}
-        <div className="hero-truck-wrap group hidden lg:pointer-events-auto lg:relative lg:col-span-5 lg:flex lg:w-auto lg:items-center lg:justify-center">
+        {/* Retired side truck column */}
+        <div className="hidden">
           <motion.div
-            initial={{ opacity: 0, x: 90 }}
-            animate={{ opacity: 1, y: [0, -5, 0], x: [0, 2, 0] }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-full relative transition-transform duration-500 group-hover:scale-[1.025]"
+            initial={false}
+            animate={false}
+            className="relative w-full max-w-[420px] transition-transform duration-500 group-hover:scale-[1.018] xl:max-w-[480px]"
           >
-            <div className="absolute inset-x-8 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-8 bottom-5 h-8 rounded-full bg-slate-900/10 blur-xl pointer-events-none" />
+            <Image
+              src="/truck.png"
+              alt="Tithi Packers and Movers truck"
+              width={720}
+              height={520}
+              sizes="(min-width: 1280px) 480px, 420px"
+              className="relative z-10 h-auto w-full object-contain drop-shadow-[0_24px_35px_rgba(15,23,42,0.22)]"
+            />
 
             <svg
               viewBox="0 0 520 380"
-              className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+              aria-hidden="true"
+              className="hidden w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -289,7 +298,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.8, type: 'spring', stiffness: 80 }}
-            className="absolute top-10 right-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[160px]"
+            className="hidden absolute top-10 right-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[160px]"
           >
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-sm">✓</span>
@@ -308,7 +317,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.1, type: 'spring', stiffness: 80 }}
-            className="absolute bottom-24 left-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[150px]"
+            className="hidden absolute bottom-24 left-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[150px]"
           >
             <div className="text-xs text-text-tertiary mb-1 font-semibold uppercase tracking-wider">{t.trackingCardTitle || 'Live Tracking'}</div>
             <div className="flex items-center gap-2">
@@ -320,18 +329,17 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Service Quick-links bar */}
-      <div className="w-full mt-12 lg:mt-16 relative z-10">
+      {/* Service Quick-links row */}
+      <div className="w-full mt-5 md:mt-6 relative z-10">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-2 pb-8 sm:gap-4 sm:pb-10 max-w-4xl mx-auto">
-            {services.map((service, idx) => (
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-4xl mx-auto">
+            {services.map((service) => (
               <Link key={service.name} href={service.path}>
                 <motion.div
                   whileHover={{ y: -4, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  animate={{ y: [0, idx % 2 === 0 ? -2 : 2, 0] }}
-                  transition={{ y: { duration: 4.2 + idx * 0.35, repeat: Infinity, ease: 'easeInOut' }, scale: { type: 'spring', stiffness: 300, damping: 20 } }}
-                  className="hero-service-card group flex min-h-[116px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[156px] sm:gap-3 sm:p-5"
+                  transition={{ scale: { type: 'spring', stiffness: 300, damping: 20 } }}
+                  className="hero-service-card group flex min-h-[96px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[126px] sm:gap-3 sm:p-4"
                   style={{ '--hover-color': service.color }}
                 >
                   <div
@@ -350,6 +358,22 @@ export default function HeroSection() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Static Truck Row */}
+      <div className="hero-truck-wrap pointer-events-none relative z-10 mt-3 flex w-full justify-center px-4 md:mt-4">
+        <div className="relative w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
+          <div className="absolute inset-x-12 bottom-4 h-7 rounded-full bg-slate-900/10 blur-xl" />
+          <Image
+            src="/truck.png"
+            alt="Tithi Packers and Movers truck"
+            width={900}
+            height={650}
+            priority
+            sizes="(min-width: 1024px) 620px, (min-width: 640px) 520px, 420px"
+            className="relative z-10 h-auto w-full object-contain drop-shadow-[0_18px_26px_rgba(15,23,42,0.18)]"
+          />
         </div>
       </div>
     </section>

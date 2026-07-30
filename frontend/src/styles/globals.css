@@ -157,7 +157,7 @@
 
 /* Hero vehicle stays free-floating; only its rendering adapts to the active theme. */
 .hero-truck-wrap {
-  transform: scale(1.1);
+  transform: none;
   transform-origin: center;
 }
 
@@ -170,7 +170,7 @@
 }
 
 .dark .hero-truck-wrap {
-  transform: scale(1.02);
+  transform: none;
 }
 
 .dark .hero-truck-wrap svg {
