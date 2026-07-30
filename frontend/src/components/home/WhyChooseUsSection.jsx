@@ -72,6 +72,10 @@ export default function WhyChooseUsSection() {
   const selectBenefit = (index) => setActiveBenefit((index + benefits.length) % benefits.length);
   const previousBenefit = () => selectBenefit(activeBenefit - 1);
   const nextBenefit = () => selectBenefit(activeBenefit + 1);
+  const desktopPeekX = (offset) => {
+    if (offset === 0) return '-50%';
+    return `calc(-50% ${offset > 0 ? '+' : '-'} clamp(250px, 28vw, 330px))`;
+  };
 
   return (
     <section className="why-choice-bg py-20 md:py-32 relative overflow-hidden">
@@ -302,24 +306,24 @@ export default function WhyChooseUsSection() {
                 </div>
               </div>
 
-              <div className="trust-carousel-stage relative z-10 mt-8 h-[310px]">
+              <div className="trust-carousel-stage relative z-10 mt-8 h-[318px] overflow-hidden">
                 {benefits.map((benefit, idx) => {
                   const Icon = benefit.icon;
                   const rawOffset = (idx - activeBenefit + benefits.length) % benefits.length;
                   const offset = rawOffset > benefits.length / 2 ? rawOffset - benefits.length : rawOffset;
-                  const visible = Math.abs(offset) <= 2;
+                  const visible = Math.abs(offset) <= 1;
                   return (
                     <motion.button
                       key={benefit.title}
                       type="button"
                       onClick={() => selectBenefit(idx)}
-                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[230px] w-[310px] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
+                      className={`trust-card-3d group absolute left-1/2 top-4 flex min-h-[242px] w-[min(72%,430px)] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
                       animate={{
-                        x: `${-50 + offset * 24}%`,
-                        y: Math.abs(offset) * 18,
-                        rotateY: offset * -18,
-                        scale: offset === 0 ? 1 : 0.86,
-                        opacity: visible ? (offset === 0 ? 1 : 0.58) : 0,
+                        x: desktopPeekX(offset),
+                        y: Math.abs(offset) * 22,
+                        rotateY: offset * -14,
+                        scale: offset === 0 ? 1 : 0.9,
+                        opacity: visible ? (offset === 0 ? 1 : 0.62) : 0,
                         zIndex: 10 - Math.abs(offset),
                       }}
                       whileHover={offset === 0 ? { y: -4, scale: 1.02 } : { scale: 0.9 }}
