@@ -28,7 +28,13 @@ export function enableQueryPersistence() {
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
       try {
-        const clientState = dehydrate(queryClient, { shouldDehydrateQuery: (query) => query.state.status === 'success' && query.queryKey[0] !== 'admin' });
+        const clientState = dehydrate(queryClient, {
+          shouldDehydrateQuery: (query) => (
+            query.state.status === 'success'
+            && query.queryKey[0] !== 'admin'
+            && query.queryKey[0] !== 'site-setting'
+          ),
+        });
         window.localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), clientState }));
       } catch { /* Storage limits are non-fatal. */ }
     }, 250);

@@ -1,6 +1,5 @@
 // src/components/ui/Card.jsx
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function Card({
@@ -26,15 +25,13 @@ export default function Card({
 
   if (animate) {
     return (
-      <motion.div
-        className={baseClass}
+      <div
+        className={cn(baseClass, onClick && 'hover:-translate-y-1 hover:scale-[1.01]')}
         onClick={onClick}
-        whileHover={onClick ? { y: -4, scale: 1.01 } : undefined}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         {...props}
       >
         {children}
-      </motion.div>
+      </div>
     );
   }
 

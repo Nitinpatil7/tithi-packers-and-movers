@@ -5,8 +5,6 @@ import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { enableQueryPersistence, queryClient } from '@/lib/queryClient';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import Toast from '@/components/ui/Toast';
 import { useThemeStore } from '@/store/themeStore';
 import { useLanguageStore } from '@/store/languageStore';
@@ -121,16 +119,10 @@ export default function Providers({ children }) {
       {/* Toast Alert overlay */}
       <Toast />
 
-      {/* Main sticky navigation */}
-      <Navbar />
-
       {/* Children pages */}
       <div className="flex-1 w-full">
         {children}
       </div>
-
-      {/* Main footer */}
-      <Footer />
     </QueryClientProvider>
   );
 }
