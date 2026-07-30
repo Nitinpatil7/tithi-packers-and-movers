@@ -156,6 +156,19 @@ export default function WhyChooseUsSection() {
           >
             <div className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full bg-orange-100/60" />
             <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
+            <div className="pointer-events-none absolute bottom-5 right-5 hidden h-32 w-32 place-items-center md:grid">
+              <motion.div
+                className="why-3d-orbit absolute inset-0 rounded-full"
+                animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="h-16 w-16 rounded-2xl border border-sky-100 bg-white/80 shadow-card"
+                animate={prefersReducedMotion ? undefined : { rotateX: [0, 8, 0], rotateY: [0, -10, 0], y: [0, -5, 0] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ transformStyle: 'preserve-3d' }}
+              />
+            </div>
             <div className="relative z-10 flex items-start gap-4">
               <motion.div
                 className="icon-surface h-16 w-16 rounded-2xl"
@@ -182,7 +195,54 @@ export default function WhyChooseUsSection() {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="lg:hidden">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Explore trust points</span>
+              <motion.span
+                className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
+                animate={prefersReducedMotion ? undefined : { x: [0, 5, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                Swipe <ArrowRight className="h-3 w-3" />
+              </motion.span>
+            </div>
+            <div className="scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
+              {benefits.map((benefit, idx) => {
+              const Icon = benefit.icon;
+              const isActive = activeBenefit === idx;
+              return (
+                <motion.button
+                  key={benefit.title}
+                  type="button"
+                  data-active={isActive ? 'true' : 'false'}
+                  onClick={() => setActiveBenefit(idx)}
+                  className={`why-tab-card group min-h-[176px] w-[82vw] max-w-[360px] shrink-0 snap-center rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-sky-300 ring-1 ring-sky-100' : 'border-sky-100'}`}
+                  whileTap={{ scale: 0.985, y: -3 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="icon-surface h-11 w-11 rounded-xl" data-active={isActive ? 'true' : undefined}>
+                      <Icon className="h-5 w-5" strokeWidth={1.7} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-primary' : 'text-text-primary'}`} style={{ fontFamily: 'var(--font-heading)' }}>
+                        {benefit.title}
+                      </h3>
+                      <p className="mt-1 line-clamp-3 text-xs font-medium leading-5 text-text-secondary">
+                        {benefit.desc}
+                      </p>
+                      <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-primary">
+                        Tap to feature <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </div>
+                  </div>
+                </motion.button>
+              );
+            })}
+            </div>
+          </div>
+
+          <div className="hidden grid-cols-2 gap-3 lg:grid">
             {benefits.map((benefit, idx) => {
             const Icon = benefit.icon;
             const isActive = activeBenefit === idx;

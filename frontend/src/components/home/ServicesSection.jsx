@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
@@ -73,8 +73,23 @@ export default function ServicesSection() {
     labour: site.serviceLabels?.porter_labour_service,
   };
   const [activeServiceId, setActiveServiceId] = useState('local');
+  const [mobileServiceIndex, setMobileServiceIndex] = useState(0);
+  const mobileTrackRef = useRef(null);
   const activeService = services.find((service) => service.id === activeServiceId) || services[0];
   const ActiveIcon = activeService.icon;
+
+  const updateMobileServiceIndex = () => {
+    const track = mobileTrackRef.current;
+    if (!track) return;
+    const cards = Array.from(track.children);
+    const center = track.scrollLeft + track.clientWidth / 2;
+    const nearest = cards.reduce((best, card, index) => {
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const distance = Math.abs(center - cardCenter);
+      return distance < best.distance ? { index, distance } : best;
+    }, { index: 0, distance: Number.POSITIVE_INFINITY });
+    setMobileServiceIndex(nearest.index);
+  };
 
   const containerVariants = {
     hidden: {},
@@ -234,13 +249,24 @@ export default function ServicesSection() {
         </motion.div>
 
         <div className="md:hidden">
-          <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Swipe services</span>
+            <motion.span
+              className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              Drag <ArrowRight className="h-3 w-3" />
+            </motion.span>
+          </div>
+          <div className="scroll-hint-fade relative -mx-4">
+            <div ref={mobileTrackRef} onScroll={updateMobileServiceIndex} className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
             {services.map((service, index) => {
               const Icon = service.icon;
               return (
-                <Link key={service.id} href={service.path} className="block w-[82vw] max-w-[340px] shrink-0 snap-center">
+                <Link key={service.id} href={service.path} className="block w-[88vw] max-w-[430px] shrink-0 snap-center">
                   <motion.div
-                    className="service-hover-card group flex min-h-[350px] flex-col justify-between rounded-3xl border border-sky-100 bg-white p-5 shadow-card"
+                    className="service-hover-card group flex min-h-[390px] flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)]"
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-60px' }}
@@ -272,10 +298,11 @@ export default function ServicesSection() {
                 </Link>
               );
             })}
+            </div>
           </div>
-          <div className="mt-2 flex justify-center gap-2">
+          <div className="mt-2 flex justify-center gap-2" aria-label="Service slide progress">
             {services.map((service, index) => (
-              <span key={service.id} className={`h-2 rounded-full ${index === 0 ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} />
+              <span key={service.id} className={`h-2 rounded-full transition-all duration-300 ${index === mobileServiceIndex ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} />
             ))}
           </div>
         </div>

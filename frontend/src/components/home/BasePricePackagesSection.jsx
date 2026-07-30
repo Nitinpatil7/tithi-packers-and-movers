@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Boxes, CheckCircle2, Clock, MapPinned, Route, Sparkles, Truck, Users } from 'lucide-react';
@@ -25,6 +25,8 @@ const serviceOrder = ['local_shifting', 'intercity_moving', 'porter_labour_servi
 
 export default function BasePricePackagesSection() {
   const [hydrated, setHydrated] = useState(false);
+  const [activePackageIndex, setActivePackageIndex] = useState(0);
+  const packageTrackRef = useRef(null);
   const { data: site = {} } = useSiteSetting();
   const { data: pricingRules = [], isLoading } = useQuery({
     queryKey: ['booking-pricing-rules', 'homepage-packages'],
@@ -44,6 +46,19 @@ export default function BasePricePackagesSection() {
   const showLoading = !hydrated || isLoading;
 
   if (!showLoading && !rules.length) return null;
+
+  const updatePackageIndex = () => {
+    const track = packageTrackRef.current;
+    if (!track) return;
+    const cards = Array.from(track.children);
+    const center = track.scrollLeft + track.clientWidth / 2;
+    const nearest = cards.reduce((best, card, index) => {
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const distance = Math.abs(center - cardCenter);
+      return distance < best.distance ? { index, distance } : best;
+    }, { index: 0, distance: Number.POSITIVE_INFINITY });
+    setActivePackageIndex(nearest.index);
+  };
 
   return (
     <section className="section-texture relative overflow-hidden py-20 md:py-28">
@@ -68,13 +83,32 @@ export default function BasePricePackagesSection() {
           </p>
         </motion.div>
 
-        <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
+        <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
+          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Swipe quote packages</span>
+          <motion.span
+            className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
+            animate={{ x: [0, 5, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            Drag <ArrowRight className="h-3 w-3" />
+          </motion.span>
+        </div>
+
+        <div ref={packageTrackRef} onScroll={updatePackageIndex} className="scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
           {showLoading
             ? serviceOrder.map((serviceType) => <PackageSkeletonCard key={serviceType} serviceType={serviceType} />)
             : rules.map((rule, index) => (
               <PackageCard key={rule.serviceType} rule={rule} site={site} index={index} />
             ))}
         </div>
+
+        {!showLoading && rules.length > 1 && (
+          <div className="mt-1 flex justify-center gap-2 lg:hidden" aria-label="Quote package slide progress">
+            {rules.map((rule, index) => (
+              <span key={rule.serviceType} className={`h-2 rounded-full transition-all duration-300 ${index === activePackageIndex ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -85,7 +119,7 @@ function PackageSkeletonCard({ serviceType }) {
   const Icon = meta.icon;
 
   return (
-    <article className={`flex h-full min-h-[460px] w-[82vw] max-w-[360px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
+    <article className={`flex h-full min-h-[500px] w-[88vw] max-w-[430px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="icon-surface h-14 w-14 rounded-2xl">
           <Icon className="h-7 w-7" strokeWidth={1.8} />
@@ -131,7 +165,7 @@ function PackageCard({ rule, site, index }) {
       transition={{ delay: index * 0.08, duration: 0.45 }}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.99 }}
-      className={`group relative flex h-full w-[82vw] max-w-[360px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
+      className={`group relative flex h-full w-[88vw] max-w-[430px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
     >
       {index === 0 && (
         <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
