@@ -67,6 +67,27 @@ export default function HowItWorksSection() {
 
         {/* Steps */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-7 relative">
+          <svg className="pointer-events-none absolute left-[12%] right-[12%] top-9 z-0 hidden h-28 w-[76%] overflow-visible md:block" viewBox="0 0 820 130" fill="none" aria-hidden="true">
+            <motion.path
+              d="M20 76 C185 8 275 126 410 64 C560 -8 635 118 800 52"
+              stroke="rgba(255,255,255,.28)"
+              strokeWidth="2"
+              strokeDasharray="10 14"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: true, margin: '-120px' }}
+              transition={{ duration: 1.25, ease: [0.22, 1, 0.36, 1] }}
+            />
+            <motion.circle
+              r="6"
+              fill="#f97316"
+              initial={{ cx: 20, cy: 76, opacity: 0 }}
+              whileInView={{ cx: [20, 410, 800], cy: [76, 64, 52], opacity: [0, 1, 1] }}
+              viewport={{ once: true, margin: '-120px' }}
+              transition={{ duration: 1.6, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </svg>
           {/* Desktop connecting line */}
           <div className="hidden md:block process-connector absolute top-[64px] left-[calc(16.67%+32px)] right-[calc(16.67%+32px)] h-1 rounded-full z-0">
             {/* Animated dash */}

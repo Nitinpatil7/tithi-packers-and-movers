@@ -68,7 +68,7 @@ export default function BasePricePackagesSection() {
           </p>
         </motion.div>
 
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
           {showLoading
             ? serviceOrder.map((serviceType) => <PackageSkeletonCard key={serviceType} serviceType={serviceType} />)
             : rules.map((rule, index) => (
@@ -85,7 +85,7 @@ function PackageSkeletonCard({ serviceType }) {
   const Icon = meta.icon;
 
   return (
-    <article className={`flex h-full min-h-[460px] flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card ${toneClass[meta.tone]}`}>
+    <article className={`flex h-full min-h-[460px] w-[82vw] max-w-[360px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border">
           <Icon className="h-7 w-7" strokeWidth={1.8} />
@@ -131,13 +131,19 @@ function PackageCard({ rule, site, index }) {
       transition={{ delay: index * 0.08, duration: 0.45 }}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.99 }}
-      className={`group flex h-full flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-lg ${toneClass[meta.tone]}`}
+      className={`group relative flex h-full w-[82vw] max-w-[360px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
     >
+      {index === 0 && (
+        <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
+          Recommended
+        </span>
+      )}
+      <Truck className="pointer-events-none absolute -right-10 bottom-24 h-20 w-20 text-sky-200/70 transition-transform duration-300 group-hover:-translate-x-4" strokeWidth={1.4} />
       <div className="flex items-start justify-between gap-4">
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border transition-all duration-300 group-hover:rotate-3 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:ring-sky-200/50">
           <Icon className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
         </div>
-        <span className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider text-text-tertiary ring-1 ring-bg-border">
+        <span className={`rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider text-text-tertiary ring-1 ring-bg-border ${index === 0 ? 'mt-8' : ''}`}>
           Starter quote
         </span>
       </div>

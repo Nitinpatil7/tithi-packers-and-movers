@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
@@ -72,6 +72,9 @@ export default function ServicesSection() {
     intercity: site.serviceLabels?.intercity_moving,
     labour: site.serviceLabels?.porter_labour_service,
   };
+  const [activeServiceId, setActiveServiceId] = useState('local');
+  const activeService = services.find((service) => service.id === activeServiceId) || services[0];
+  const ActiveIcon = activeService.icon;
 
   const containerVariants = {
     hidden: {},
@@ -88,7 +91,7 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="relative z-30 overflow-hidden bg-hero-gradient pt-20 pb-14 md:pt-24 md:pb-24">
+    <section id="services" className="relative z-10 overflow-visible bg-hero-gradient pt-28 pb-14 md:pt-24 md:pb-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
@@ -121,80 +124,161 @@ export default function ServicesSection() {
           </p>
         </motion.div>
 
-        {/* Services Grid — 3 columns */}
+        {/* Services discovery */}
         <motion.div
-          className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:gap-8"
+          className="hidden grid-cols-[0.86fr_1.14fr] gap-6 md:grid"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
         >
-          {services.map((service) => {
-            const Icon = service.icon;
-            return (
-              <motion.div key={service.id} variants={cardVariants} className="h-full">
-                <Link href={service.path} className="block group h-full">
+          <div className="flex flex-col gap-3">
+            {services.map((service, index) => {
+              const Icon = service.icon;
+              const isActive = activeService.id === service.id;
+              return (
+                <motion.button
+                  key={service.id}
+                  type="button"
+                  variants={cardVariants}
+                  onMouseEnter={() => setActiveServiceId(service.id)}
+                  onFocus={() => setActiveServiceId(service.id)}
+                  onClick={() => setActiveServiceId(service.id)}
+                  className={`service-hover-card group rounded-3xl border p-4 text-left shadow-card transition-all duration-300 ${isActive ? 'border-sky-300 bg-white shadow-[0_24px_56px_rgba(3,105,161,.16)]' : 'border-sky-100 bg-white/82 hover:border-sky-300 hover:bg-white'}`}
+                  whileHover={{ y: -6, rotateX: 1.4, rotateY: -1.8 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                >
+                  <div className="relative z-10 flex items-center gap-4">
+                    <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ring-1 transition-all duration-300 ${isActive ? 'bg-sky-950 text-sky-100 ring-sky-200/40' : 'bg-primary-soft text-primary ring-primary/10 group-hover:bg-sky-900 group-hover:text-sky-100'}`}>
+                      <Icon className="h-7 w-7 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110" strokeWidth={1.8} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">0{index + 1}</span>
+                      <span className="mt-1 block text-lg font-black text-text-primary transition-colors group-hover:text-sky-900">
+                        {serviceTitleById[service.id] || service.title}
+                      </span>
+                      <span className="mt-1 line-clamp-2 block text-sm font-medium leading-6 text-text-secondary">
+                        {service.description}
+                      </span>
+                    </span>
+                    <ArrowRight className="h-5 w-5 shrink-0 text-primary transition-transform duration-300 group-hover:translate-x-1" />
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          <motion.div
+            key={activeService.id}
+            initial={{ opacity: 0, x: 24, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
+          >
+            <div className="absolute inset-0 services-panel-route opacity-90" />
+            <div className="relative z-10 grid min-h-[380px] grid-cols-[0.95fr_1.05fr] items-center gap-6">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
+                  <ActiveIcon className="h-3.5 w-3.5" />
+                  Active service
+                </span>
+                <h3 className="mt-5 text-3xl font-black leading-tight text-text-primary">
+                  {serviceTitleById[activeService.id] || activeService.title}
+                </h3>
+                <p className="mt-4 text-base font-medium leading-7 text-text-secondary">
+                  {activeService.description}
+                </p>
+                <div className="mt-6 flex flex-col gap-2">
+                  {activeService.features.map((feat, index) => (
+                    <motion.div
+                      key={feat}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.06, duration: 0.25 }}
+                      className="flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-2 text-sm font-bold text-sky-900 ring-1 ring-sky-100"
+                    >
+                      <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
+                      {feat}
+                    </motion.div>
+                  ))}
+                </div>
+                <Link href={activeService.path} className="mt-7 inline-flex">
+                  <button className="btn-sky group/btn flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black">
+                    {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </button>
+                </Link>
+              </div>
+
+              <div className="relative grid min-h-[300px] place-items-center">
+                <motion.div
+                  className="absolute h-64 w-64 rounded-full border border-dashed border-orange-300/70"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+                />
+                <motion.div
+                  className="absolute h-44 w-44 rounded-full bg-sky-100/80"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <div className="relative grid h-32 w-32 place-items-center rounded-[28px] bg-sky-950 text-white shadow-[0_24px_55px_rgba(3,105,161,.28)]">
+                  <ActiveIcon className="h-14 w-14 text-sky-100" strokeWidth={1.6} />
+                </div>
+                <div className="absolute bottom-4 right-0 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-orange-600 shadow-card">
+                  Fast quote
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        <div className="md:hidden">
+          <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
+            {services.map((service, index) => {
+              const Icon = service.icon;
+              return (
+                <Link key={service.id} href={service.path} className="block w-[82vw] max-w-[340px] shrink-0 snap-center">
                   <motion.div
-                    className="service-hover-card flex h-full min-h-[350px] cursor-pointer flex-col justify-between rounded-3xl border border-sky-100 bg-white/88 p-5 shadow-card backdrop-blur-sm transition-all duration-300 hover:border-sky-300 hover:bg-white/95 hover:shadow-[0_24px_60px_rgba(3,105,161,.18)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md sm:min-h-[370px] sm:p-6"
-                    whileHover={{ y: -10, scale: 1.01 }}
-                    whileTap={{ scale: 0.985, y: -2 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    className="service-hover-card group flex min-h-[350px] flex-col justify-between rounded-3xl border border-sky-100 bg-white p-5 shadow-card"
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ delay: index * 0.08, duration: 0.45 }}
+                    whileTap={{ scale: 0.985, y: -3 }}
                   >
-                    <div className="flex flex-col gap-5 relative z-10">
-                      {/* Icon + arrow */}
+                    <div className="relative z-10">
                       <div className="flex items-start justify-between">
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm ring-1 ring-primary/10 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:ring-sky-200/50 group-hover:shadow-[0_18px_34px_rgba(3,105,161,.24),0_0_0_7px_rgba(14,165,233,.10)] group-hover:backdrop-blur-md group-focus-within:bg-sky-900 group-focus-within:text-sky-200 group-focus-within:ring-sky-200/50 sm:h-[60px] sm:w-[60px]">
-                          <Icon className="h-7 w-7 opacity-100 transition-colors duration-300 group-hover:text-sky-200 group-focus-within:text-sky-200" strokeWidth={2.1} />
+                        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-950 text-sky-100 shadow-sm">
+                          <Icon className="h-7 w-7" strokeWidth={1.8} />
                         </div>
-                        <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-sky-900 group-hover:text-sky-200"
-                        >
-                          <ArrowRight className="w-5 h-5" />
-                        </div>
+                        <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100">0{index + 1}</span>
                       </div>
-
-                      <div className="flex flex-col gap-2.5">
-                        <h3 className="text-xl font-black text-text-primary transition-colors group-hover:text-primary group-focus-within:text-primary">
-                          {serviceTitleById[service.id] || service.title}
-                        </h3>
-                        <p className="text-sm text-text-secondary leading-relaxed font-medium">
-                          {service.description}
-                        </p>
-                      </div>
-
-                      {/* Feature checklist */}
-                      <div className="flex flex-col gap-1.5">
+                      <h3 className="mt-5 text-xl font-black text-text-primary">{serviceTitleById[service.id] || service.title}</h3>
+                      <p className="mt-3 text-sm font-medium leading-7 text-text-secondary">{service.description}</p>
+                      <div className="mt-5 flex flex-col gap-2">
                         {service.features.map((feat) => (
-                          <div key={feat} className="flex items-center gap-2 rounded-xl bg-white/70 px-2 py-1.5 ring-1 ring-orange-100/70 transition group-hover:ring-orange-200">
-                            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-primary transition-colors group-hover:text-sky-800" />
-                            <span className="text-xs font-semibold text-text-secondary sm:text-sm">{feat}</span>
-                          </div>
+                          <span key={feat} className="rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-900 ring-1 ring-sky-100">
+                            {feat}
+                          </span>
                         ))}
                       </div>
                     </div>
-
-                    {/* CTA row */}
-                    <div className="flex items-center justify-between mt-6 pt-5 border-t border-bg-border relative z-10">
-                      <span
-                        className="text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 group-hover:gap-2.5 transition-all"
-                        style={{ color: service.color }}
-                      >
-                        {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                      <span
-                        className="text-xs font-bold px-3 py-1.5 rounded-full"
-                        style={{ backgroundColor: service.softBg, color: service.color }}
-                      >
-                        {language === 'gu' ? 'ભાવ જાણો' : language === 'hi' ? 'कोटेशन लें' : 'Get Quote'}
-                      </span>
-                    </div>
+                    <span className="relative z-10 mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-primary">
+                      {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
                   </motion.div>
                 </Link>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+              );
+            })}
+          </div>
+          <div className="mt-2 flex justify-center gap-2">
+            {services.map((service, index) => (
+              <span key={service.id} className={`h-2 rounded-full ${index === 0 ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

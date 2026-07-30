@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ChevronDown, CheckCircle2, Info } from 'lucide-react';
+import { CheckCircle2, Info } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -100,7 +100,7 @@ export default function ServiceDetailSection() {
   const current = details[activeTab];
 
   return (
-    <section id="service-details" className="theme-dark-flow relative z-10 border-t border-white/10 py-16 md:py-24">
+    <section id="service-details" className="theme-navy-blueprint relative z-10 overflow-hidden border-t border-white/10 py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         
         {/* Title */}
@@ -177,14 +177,20 @@ export default function ServiceDetailSection() {
                   {t.whatIsIncluded || 'What is included'}
                 </h4>
                 <ul className="flex flex-col gap-3">
-                  {current.included.map((inc) => (
-                    <li key={inc} className="theme-fill-card group flex gap-3 rounded-2xl bg-white/95 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 hover:shadow-xs active:scale-[.99]">
+                  {current.included.map((inc, index) => (
+                    <motion.li
+                      key={inc}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.055, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      className="theme-fill-card group flex gap-3 rounded-2xl bg-white/95 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 hover:shadow-xs active:scale-[.99]"
+                    >
                       <CheckCircle2 className={`w-5 h-5 shrink-0 ${
                         activeTab === 'local' ? 'text-service-local' :
                         activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-packing'
                       } transition-colors group-hover:text-sky-200`} />
                       <span className="transition-colors group-hover:text-sky-100">{inc}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
               </div>

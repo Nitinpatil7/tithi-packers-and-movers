@@ -684,6 +684,16 @@ input:focus, select:focus, textarea:focus {
     linear-gradient(135deg, #062f39 0%, #07333d 45%, #03262e 100%);
 }
 
+.theme-navy-blueprint {
+  background:
+    radial-gradient(circle at 76% 12%, rgba(14, 165, 233, .16), transparent 24%),
+    radial-gradient(circle at 18% 82%, rgba(249, 115, 22, .11), transparent 28%),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(135deg, #061827 0%, #092438 48%, #061420 100%);
+  background-size: auto, auto, 34px 34px, 34px 34px, auto;
+}
+
 .dotted-light-bg {
   background:
     radial-gradient(circle at 16px 16px, rgba(6, 54, 66, .08) 1.5px, transparent 2px),
@@ -726,8 +736,16 @@ input:focus, select:focus, textarea:focus {
 
 .loader-theme-bg {
   background:
-    radial-gradient(circle at center, rgba(255,255,255,.98) 0 78px, rgba(255,247,237,.78) 79px 126px, transparent 127px),
-    linear-gradient(135deg, #fff7ed 0%, #fffaf4 48%, #f8fafc 100%);
+    radial-gradient(circle at center, rgba(255,255,255,.98) 0 78px, rgba(255,247,237,.78) 79px 124px, transparent 125px),
+    radial-gradient(circle at 50% 48%, rgba(249,115,22,.08), transparent 27%),
+    linear-gradient(135deg, #fffaf4 0%, #fff7ed 48%, #f8fafc 100%);
+}
+
+.services-panel-route {
+  background:
+    radial-gradient(circle at 78% 28%, rgba(14,165,233,.17), transparent 25%),
+    radial-gradient(circle at 28% 84%, rgba(249,115,22,.10), transparent 24%),
+    repeating-linear-gradient(135deg, rgba(14,165,233,.055) 0 1px, transparent 1px 22px);
 }
 
 .hero-service-card {

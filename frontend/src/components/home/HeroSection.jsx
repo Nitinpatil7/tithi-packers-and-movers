@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -14,6 +14,20 @@ export default function HeroSection() {
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS.en;
   const { data: site = {} } = useSiteSetting();
+  const heroRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const smoothX = useSpring(pointerX, { stiffness: 110, damping: 18, mass: 0.35 });
+  const smoothY = useSpring(pointerY, { stiffness: 110, damping: 18, mass: 0.35 });
+  const truckRotateY = useTransform(smoothX, [-0.5, 0.5], [5, -5]);
+  const truckRotateX = useTransform(smoothY, [-0.5, 0.5], [-3.5, 3.5]);
+  const truckTranslateX = useTransform(smoothX, [-0.5, 0.5], [-12, 12]);
+  const truckTranslateY = useTransform(smoothY, [-0.5, 0.5], [-8, 8]);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const mobileTruckX = useTransform(scrollYProgress, [0, 1], [0, -34]);
+  const mobileTruckRotate = useTransform(scrollYProgress, [0, 1], [0, -1.8]);
+  const mobileBgX = useTransform(scrollYProgress, [0, 1], [0, 18]);
 
   const stats = [
     { value: site.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
@@ -47,11 +61,22 @@ export default function HeroSection() {
       transition: { type: 'spring', stiffness: 92, damping: 18 },
     },
   };
+  const handleTruckPointerMove = (event) => {
+    if (prefersReducedMotion) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerX.set((event.clientX - bounds.left) / bounds.width - 0.5);
+    pointerY.set((event.clientY - bounds.top) / bounds.height - 0.5);
+  };
+
+  const resetTruckPointer = () => {
+    pointerX.set(0);
+    pointerY.set(0);
+  };
 
   return (
-    <section className="relative isolate overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
+    <section ref={heroRef} className="relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-32 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
+      <motion.div style={prefersReducedMotion ? undefined : { x: mobileBgX }} className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
       <div className="relative z-20 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)] lg:gap-10 lg:px-8">
         <motion.div
@@ -134,20 +159,77 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        <div className="pointer-events-none relative hidden min-h-[360px] lg:block">
-          <Image
-            src="/truck.png"
-            alt="Tithi Packers and Movers truck"
-            width={920}
-            height={660}
-            priority
-            sizes="(min-width: 1280px) 560px, 46vw"
-            className="absolute -bottom-44 right-[-12%] z-10 w-[118%] max-w-[660px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
-          />
+        <div
+          className="relative hidden min-h-[440px] lg:block"
+          onPointerMove={handleTruckPointerMove}
+          onPointerLeave={resetTruckPointer}
+        >
+          <div className="pointer-events-none absolute inset-0 rounded-[42px] bg-[radial-gradient(circle_at_58%_42%,rgba(14,165,233,.20),transparent_38%),radial-gradient(circle_at_75%_62%,rgba(249,115,22,.14),transparent_32%)]" />
+          <svg className="pointer-events-none absolute left-4 top-12 h-[250px] w-[88%] text-sky-400/45" viewBox="0 0 520 260" fill="none" aria-hidden="true">
+            <motion.path
+              d="M18 210 C130 70 220 265 335 118 C390 48 448 64 500 22"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray="8 14"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={prefersReducedMotion ? { pathLength: 1, opacity: 0.45 } : { pathLength: 1, opacity: 0.45 }}
+              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+            />
+            {!prefersReducedMotion && (
+              <motion.circle
+                cx="18"
+                cy="210"
+                r="5"
+                fill="#f97316"
+                initial={{ opacity: 0 }}
+                animate={{ cx: [18, 130, 220, 335, 448, 500], cy: [210, 70, 265, 118, 64, 22], opacity: [0, 1, 1, 1, 1, 0] }}
+                transition={{ duration: 5.4, repeat: Infinity, repeatDelay: 2.2, ease: [0.22, 1, 0.36, 1] }}
+              />
+            )}
+          </svg>
+          <motion.div
+            className="pointer-events-none absolute -bottom-10 right-[-6%] z-10 w-[116%] max-w-[680px]"
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: 80 }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            transition={{ opacity: { duration: 0.65 }, x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
+            style={prefersReducedMotion ? undefined : { rotateX: truckRotateX, rotateY: truckRotateY, x: truckTranslateX, y: truckTranslateY, transformPerspective: 900 }}
+          >
+            <Image
+              src="/truck.png"
+              alt="Tithi Packers and Movers truck"
+              width={920}
+              height={660}
+              priority
+              sizes="(min-width: 1280px) 620px, 48vw"
+              className="relative z-10 w-full object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
+            />
+            <motion.div
+              className="absolute inset-x-[18%] bottom-5 h-8 rounded-full bg-slate-950/18 blur-xl"
+              animate={prefersReducedMotion ? undefined : { scaleX: [0.9, 1.02, 0.9], opacity: [0.38, 0.24, 0.38] }}
+              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute right-4 top-16 z-20 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 text-sm font-black text-sky-900 shadow-card backdrop-blur-md"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.55 }}
+          >
+            Safe & Insured
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute bottom-20 left-4 z-20 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 text-sm font-black text-sky-900 shadow-card backdrop-blur-md"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.55 }}
+          >
+            4.9 Rating
+          </motion.div>
         </div>
       </div>
 
-      <div className="relative z-20 mt-6 w-full px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 mt-6 w-full px-4 mb-10   sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-4xl grid-cols-3 gap-2 sm:gap-4">
           {services.map((service) => (
             <Link key={service.name} href={service.path}>
@@ -171,14 +253,19 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <Image
-        src="/front_truck.png"
-        alt=""
-        width={620}
-        height={360}
-        sizes="(min-width: 768px) 520px, 82vw"
-        className="pointer-events-none absolute -bottom-[30px] right-[-18%] z-10 w-[84vw] max-w-[420px] object-contain pt-2 drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)] sm:-bottom-10 sm:right-[-12%] sm:max-w-[500px] md:-bottom-12 md:max-w-[560px] lg:hidden"
-      />
+      <motion.div
+        className="pointer-events-none absolute bottom-[-14%] right-[-15%] z-50 w-[84vw] max-w-[420px] sm:-bottom-[18%] sm:right-[-10%] sm:max-w-[500px] md:-bottom-[20%] md:max-w-[500px] lg:hidden"
+        style={prefersReducedMotion ? undefined : { x: mobileTruckX, rotate: mobileTruckRotate }}
+      >
+        <Image
+          src="/front_truck.png"
+          alt=""
+          width={620}
+          height={400}
+          sizes="(min-width: 768px) 520px, 82vw"
+          className="w-full object-contain drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)]"
+        />
+      </motion.div>
     </section>
   );
 }
