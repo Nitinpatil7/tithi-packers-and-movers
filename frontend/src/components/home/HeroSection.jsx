@@ -20,10 +20,13 @@ export default function HeroSection() {
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 110, damping: 18, mass: 0.35 });
   const smoothY = useSpring(pointerY, { stiffness: 110, damping: 18, mass: 0.35 });
-  const truckRotateY = useTransform(smoothX, [-0.5, 0.5], [5, -5]);
-  const truckRotateX = useTransform(smoothY, [-0.5, 0.5], [-3.5, 3.5]);
-  const truckTranslateX = useTransform(smoothX, [-0.5, 0.5], [-12, 12]);
-  const truckTranslateY = useTransform(smoothY, [-0.5, 0.5], [-8, 8]);
+  const truckRotateY = useTransform(smoothX, [-0.5, 0.5], [4, -4]);
+  const truckRotateX = useTransform(smoothY, [-0.5, 0.5], [-3, 3]);
+  const truckTranslateX = useTransform(smoothX, [-0.5, 0.5], [-10, 10]);
+  const truckTranslateY = useTransform(smoothY, [-0.5, 0.5], [-7, 7]);
+  const visualBgX = useTransform(smoothX, [-0.5, 0.5], [8, -8]);
+  const visualBgY = useTransform(smoothY, [-0.5, 0.5], [6, -6]);
+  const shadowX = useTransform(smoothX, [-0.5, 0.5], [-6, 6]);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const mobileTruckX = useTransform(scrollYProgress, [0, 1], [0, -34]);
   const mobileTruckRotate = useTransform(scrollYProgress, [0, 1], [0, -1.8]);
@@ -145,7 +148,7 @@ export default function HeroSection() {
           <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[480px]">
             {stats.map((stat) => (
               <div key={stat.label} className="group flex min-w-0 items-center gap-2 rounded-2xl bg-white/80 px-3 py-2.5 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99]">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)]">
+                <div className="icon-surface h-8 w-8 rounded-xl">
                   {React.createElement(stat.icon, { className: 'h-4 w-4', strokeWidth: 1.8 })}
                 </div>
                 <div className="min-w-0">
@@ -164,7 +167,7 @@ export default function HeroSection() {
           onPointerMove={handleTruckPointerMove}
           onPointerLeave={resetTruckPointer}
         >
-          <div className="pointer-events-none absolute inset-0 rounded-[42px] bg-[radial-gradient(circle_at_58%_42%,rgba(14,165,233,.20),transparent_38%),radial-gradient(circle_at_75%_62%,rgba(249,115,22,.14),transparent_32%)]" />
+          <motion.div style={prefersReducedMotion ? undefined : { x: visualBgX, y: visualBgY }} className="pointer-events-none absolute inset-0 rounded-[42px] bg-[radial-gradient(circle_at_58%_42%,rgba(14,165,233,.20),transparent_38%),radial-gradient(circle_at_75%_62%,rgba(249,115,22,.14),transparent_32%)]" />
           <svg className="pointer-events-none absolute left-4 top-12 h-[250px] w-[88%] text-sky-400/45" viewBox="0 0 520 260" fill="none" aria-hidden="true">
             <motion.path
               d="M18 210 C130 70 220 265 335 118 C390 48 448 64 500 22"
@@ -191,8 +194,8 @@ export default function HeroSection() {
           <motion.div
             className="pointer-events-none absolute -bottom-10 right-[-6%] z-10 w-[116%] max-w-[680px]"
             initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: 80 }}
-            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
-            transition={{ opacity: { duration: 0.65 }, x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0, y: [0, -5, 0] }}
+            transition={{ opacity: { duration: 0.55 }, x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] }, y: { duration: 0.62, delay: 0.28, ease: [0.22, 1, 0.36, 1] } }}
             style={prefersReducedMotion ? undefined : { rotateX: truckRotateX, rotateY: truckRotateY, x: truckTranslateX, y: truckTranslateY, transformPerspective: 900 }}
           >
             <Image
@@ -208,6 +211,7 @@ export default function HeroSection() {
               className="absolute inset-x-[18%] bottom-5 h-8 rounded-full bg-slate-950/18 blur-xl"
               animate={prefersReducedMotion ? undefined : { scaleX: [0.9, 1.02, 0.9], opacity: [0.38, 0.24, 0.38] }}
               transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+              style={prefersReducedMotion ? undefined : { x: shadowX }}
             />
           </motion.div>
           <motion.div
@@ -240,8 +244,8 @@ export default function HeroSection() {
                 className="hero-service-card group flex min-h-[94px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[118px] sm:gap-3 sm:p-4"
                 style={{ '--hover-color': service.color }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
-                  {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-sky-200 sm:h-6 sm:w-6', strokeWidth: 1.9 })}
+                <div className="icon-surface h-10 w-10 rounded-xl sm:h-12 sm:w-12">
+                  {React.createElement(service.icon, { className: 'h-5 w-5 sm:h-6 sm:w-6', strokeWidth: 1.9 })}
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>

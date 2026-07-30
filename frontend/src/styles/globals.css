@@ -748,6 +748,88 @@ input:focus, select:focus, textarea:focus {
     repeating-linear-gradient(135deg, rgba(14,165,233,.055) 0 1px, transparent 1px 22px);
 }
 
+.icon-surface {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(14, 165, 233, .16);
+  background: rgba(224, 242, 254, .78);
+  color: #0284c7;
+  box-shadow: 0 8px 18px rgba(3, 105, 161, .08);
+  transition:
+    background-color .28s cubic-bezier(.22, 1, .36, 1),
+    border-color .28s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .28s cubic-bezier(.22, 1, .36, 1),
+    color .28s cubic-bezier(.22, 1, .36, 1),
+    transform .28s cubic-bezier(.22, 1, .36, 1);
+}
+
+.group:hover .icon-surface,
+.group:focus-within .icon-surface,
+.group:active .icon-surface,
+.icon-surface[data-active="true"] {
+  border-color: rgba(125, 211, 252, .5);
+  background: #082f49;
+  color: #bae6fd;
+  box-shadow: 0 16px 32px rgba(3, 105, 161, .22);
+  transform: translateY(-2px) rotate(3deg) scale(1.06);
+}
+
+.icon-surface svg {
+  color: currentColor;
+  transition: transform .28s cubic-bezier(.22, 1, .36, 1), color .28s cubic-bezier(.22, 1, .36, 1);
+}
+
+.group:hover .icon-surface svg,
+.group:focus-within .icon-surface svg,
+.group:active .icon-surface svg,
+.icon-surface[data-active="true"] svg {
+  transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .icon-surface,
+  .group:focus-within .icon-surface,
+  .group:active .icon-surface,
+  .icon-surface[data-active="true"],
+  .group:hover .icon-surface svg,
+  .group:focus-within .icon-surface svg,
+  .group:active .icon-surface svg,
+  .icon-surface[data-active="true"] svg {
+    transform: none;
+  }
+}
+
+.why-choice-bg {
+  background:
+    radial-gradient(circle at 25% 58%, rgba(249, 115, 22, .12), transparent 22%),
+    linear-gradient(135deg, rgba(255,255,255,.98), rgba(240,249,255,.92)),
+    linear-gradient(90deg, rgba(14,165,233,.055) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(14,165,233,.045) 1px, transparent 1px);
+  background-size: auto, auto, 30px 30px, 30px 30px;
+}
+
+.why-stats-strip::after {
+  content: "";
+  position: absolute;
+  inset-inline: 18px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #0ea5e9, #f97316, transparent);
+  animation: flowPulse 4.5s ease-in-out infinite;
+}
+
+.process-network {
+  background:
+    radial-gradient(circle at 22% 28%, rgba(14,165,233,.18), transparent 22%),
+    radial-gradient(circle at 78% 74%, rgba(249,115,22,.16), transparent 22%),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,.032) 1px, transparent 1px);
+  background-size: auto, auto, 36px 36px, 36px 36px;
+  animation: bgDrift 32s linear infinite;
+}
+
 .hero-service-card {
   position: relative;
   overflow: hidden;

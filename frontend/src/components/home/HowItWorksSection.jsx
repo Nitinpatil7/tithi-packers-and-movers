@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Layers, ClipboardList, PhoneCall, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguageStore } from '@/store/languageStore';
@@ -10,6 +10,7 @@ import { PAGE_TRANSLATIONS } from '@/data/translations';
 export default function HowItWorksSection() {
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
+  const prefersReducedMotion = useReducedMotion();
 
   const steps = [
     {
@@ -41,6 +42,7 @@ export default function HowItWorksSection() {
   return (
     <section className="theme-dark-flow py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="process-network pointer-events-none absolute inset-0 opacity-75" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -66,18 +68,24 @@ export default function HowItWorksSection() {
         </motion.div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-7 relative">
+        <div className="grid grid-cols-1 gap-7 md:grid-cols-3 md:gap-7 relative">
           <svg className="pointer-events-none absolute left-[12%] right-[12%] top-9 z-0 hidden h-28 w-[76%] overflow-visible md:block" viewBox="0 0 820 130" fill="none" aria-hidden="true">
             <motion.path
               d="M20 76 C185 8 275 126 410 64 C560 -8 635 118 800 52"
-              stroke="rgba(255,255,255,.28)"
-              strokeWidth="2"
-              strokeDasharray="10 14"
+              stroke="rgba(255,255,255,.18)"
+              strokeWidth="7"
+              strokeLinecap="round"
+            />
+            <motion.path
+              d="M20 76 C185 8 275 126 410 64 C560 -8 635 118 800 52"
+              stroke="url(#processGradient)"
+              strokeWidth="3"
+              strokeDasharray="12 12"
               strokeLinecap="round"
               initial={{ pathLength: 0 }}
               whileInView={{ pathLength: 1 }}
               viewport={{ once: true, margin: '-120px' }}
-              transition={{ duration: 1.25, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: prefersReducedMotion ? 0.01 : 1.25, ease: [0.22, 1, 0.36, 1] }}
             />
             <motion.circle
               r="6"
@@ -85,19 +93,33 @@ export default function HowItWorksSection() {
               initial={{ cx: 20, cy: 76, opacity: 0 }}
               whileInView={{ cx: [20, 410, 800], cy: [76, 64, 52], opacity: [0, 1, 1] }}
               viewport={{ once: true, margin: '-120px' }}
-              transition={{ duration: 1.6, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: prefersReducedMotion ? 0.01 : 1.6, delay: prefersReducedMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
             />
+            <defs>
+              <linearGradient id="processGradient" x1="20" x2="800" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f97316" />
+                <stop offset=".5" stopColor="#38bdf8" />
+                <stop offset="1" stopColor="#f97316" />
+              </linearGradient>
+            </defs>
           </svg>
           {/* Desktop connecting line */}
-          <div className="hidden md:block process-connector absolute top-[64px] left-[calc(16.67%+32px)] right-[calc(16.67%+32px)] h-1 rounded-full z-0">
+          <div className="hidden md:block process-connector absolute top-[64px] left-[calc(16.67%+32px)] right-[calc(16.67%+32px)] h-1 rounded-full z-0 opacity-35">
             {/* Animated dash */}
             <div className="absolute top-0 left-0 right-0 h-full overflow-hidden">
               <div className="process-flow-light h-full w-1/3 bg-gradient-to-r from-transparent via-white to-transparent" />
               <div className="process-route-spark absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-orange-400 shadow-[0_0_18px_rgba(249,115,22,.55)]" />
             </div>
           </div>
-          <div className="md:hidden process-connector absolute left-8 top-16 bottom-16 w-1 rounded-full z-0">
-            <div className="process-flow-light h-20 w-full bg-gradient-to-b from-transparent via-white to-transparent" />
+          <div className="md:hidden absolute left-12 top-10 bottom-10 z-0 w-1 overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              className="w-full rounded-full bg-gradient-to-b from-orange-500 via-sky-300 to-orange-500"
+              initial={{ height: '0%' }}
+              whileInView={{ height: '100%' }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: prefersReducedMotion ? 0.01 : 1.45, ease: [0.22, 1, 0.36, 1] }}
+            />
+            {!prefersReducedMotion && <div className="process-flow-light h-20 w-full bg-gradient-to-b from-transparent via-white to-transparent" />}
           </div>
 
           {steps.map((step, idx) => {
@@ -112,7 +134,7 @@ export default function HowItWorksSection() {
                 transition={{ duration: 0.5, delay: idx * 0.18 }}
               >
                 <motion.div
-                  className="group grid w-full grid-cols-[96px_1fr] gap-4 rounded-3xl border border-white/10 bg-transparent p-0 text-white transition-all duration-300 active:scale-[.99] md:flex md:flex-col md:items-center md:p-4"
+                  className="group grid w-full grid-cols-[96px_1fr] gap-4 rounded-3xl border border-white/10 bg-transparent p-0 text-white transition-all duration-300 hover:border-white/25 hover:bg-white/[.03] active:scale-[.99] md:flex md:flex-col md:items-center md:p-4"
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -120,8 +142,10 @@ export default function HowItWorksSection() {
                   {/* Step number + icon */}
                   <motion.div
                     className="process-step-aura relative mx-auto w-fit md:mb-6"
-                    animate={{ y: [0, -3, 0] }}
-                    transition={{ duration: 3.4 + idx * 0.3, repeat: Infinity, ease: 'easeInOut' }}
+                    initial={{ scale: 0.94 }}
+                    whileInView={{ scale: [0.94, 1.04, 1] }}
+                    viewport={{ once: true }}
+                    transition={{ duration: prefersReducedMotion ? 0.01 : 0.7, delay: idx * 0.28, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div
                       className="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center text-4xl bg-orange-500 text-white shadow-[0_18px_45px_rgba(249,81,30,.28)] ring-1 ring-white/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_24px_60px_rgba(249,81,30,.42)]"
@@ -155,12 +179,6 @@ export default function HowItWorksSection() {
                   </div>
                 </motion.div>
 
-                {/* Mobile arrow connector */}
-                {idx < steps.length - 1 && (
-                  <div className="md:hidden flex items-center justify-center my-4">
-                    <ArrowRight className="w-6 h-6 rotate-90 text-orange-500" />
-                  </div>
-                )}
               </motion.div>
             );
           })}

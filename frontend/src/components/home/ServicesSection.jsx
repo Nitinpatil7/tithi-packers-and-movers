@@ -150,8 +150,8 @@ export default function ServicesSection() {
                   transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                 >
                   <div className="relative z-10 flex items-center gap-4">
-                    <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ring-1 transition-all duration-300 ${isActive ? 'bg-sky-950 text-sky-100 ring-sky-200/40' : 'bg-primary-soft text-primary ring-primary/10 group-hover:bg-sky-900 group-hover:text-sky-100'}`}>
-                      <Icon className="h-7 w-7 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110" strokeWidth={1.8} />
+                    <span className="icon-surface h-14 w-14 rounded-2xl" data-active={isActive ? 'true' : undefined}>
+                      <Icon className="h-7 w-7" strokeWidth={1.8} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">0{index + 1}</span>
@@ -222,7 +222,7 @@ export default function ServicesSection() {
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <div className="relative grid h-32 w-32 place-items-center rounded-[28px] bg-sky-950 text-white shadow-[0_24px_55px_rgba(3,105,161,.28)]">
+                <div className="icon-surface relative h-32 w-32 rounded-[28px]" data-active="true">
                   <ActiveIcon className="h-14 w-14 text-sky-100" strokeWidth={1.6} />
                 </div>
                 <div className="absolute bottom-4 right-0 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-orange-600 shadow-card">
@@ -249,7 +249,7 @@ export default function ServicesSection() {
                   >
                     <div className="relative z-10">
                       <div className="flex items-start justify-between">
-                        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-950 text-sky-100 shadow-sm">
+                        <div className="icon-surface h-14 w-14 rounded-2xl" data-active="true">
                           <Icon className="h-7 w-7" strokeWidth={1.8} />
                         </div>
                         <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100">0{index + 1}</span>
