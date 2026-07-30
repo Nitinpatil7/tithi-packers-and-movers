@@ -104,12 +104,12 @@ export default function Providers({ children }) {
 
   if (!mounted) {
     return (
-      <div className="loader-theme-bg flex min-h-screen w-full flex-col text-white">
-        <div className="h-16 w-full border-b border-white/10 bg-white/5" />
+      <div className="loader-theme-bg flex min-h-screen w-full flex-col text-text-primary">
+        <div className="h-16 w-full border-b border-orange-100 bg-white/30" />
         <main className="grid flex-1 place-items-center px-4">
           <div className="flex flex-col items-center gap-3 text-center">
             <Spinner size="lg" />
-            <p className="text-sm font-bold text-white/90">Loading...</p>
+            <p className="text-sm font-bold text-orange-600">Loading...</p>
           </div>
         </main>
       </div>

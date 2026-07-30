@@ -317,6 +317,32 @@ svg[aria-label$="coverage map"] path[stroke-dasharray] {
   box-shadow: none;
 }
 
+.booking-items-ui section article.booking-item-row {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  padding: .75rem;
+  border: 1px solid color-mix(in srgb, var(--color-bg-border) 80%, transparent);
+  border-radius: 1rem;
+  background: var(--color-bg-white);
+  box-shadow: none;
+}
+
+.booking-items-ui section article.booking-item-row h4::before {
+  content: none;
+}
+
+.booking-items-ui section article.booking-item-row > div {
+  display: flex;
+  grid-template-columns: none;
+  gap: .75rem;
+  margin-top: 0;
+}
+
+.booking-items-ui section article.booking-item-row > div > span {
+  display: grid;
+}
+
 .booking-items-ui section article:last-child {
   border-bottom: 0;
 }
@@ -700,11 +726,8 @@ input:focus, select:focus, textarea:focus {
 
 .loader-theme-bg {
   background:
-    radial-gradient(circle at center, rgba(255,255,255,.96) 0 74px, rgba(255,255,255,.36) 75px 118px, transparent 119px),
-    radial-gradient(circle at 28% 24%, rgba(255,255,255,.42) 0 2px, transparent 3px),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 1px, transparent 1px 24px),
-    linear-gradient(135deg, #f0f9ff 0%, #bae6fd 48%, #38bdf8 100%);
-  animation: loaderBackdropFlow 18s linear infinite;
+    radial-gradient(circle at center, rgba(255,255,255,.98) 0 78px, rgba(255,247,237,.78) 79px 126px, transparent 127px),
+    linear-gradient(135deg, #fff7ed 0%, #fffaf4 48%, #f8fafc 100%);
 }
 
 .hero-service-card {
