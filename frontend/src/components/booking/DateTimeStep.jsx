@@ -124,11 +124,11 @@ function CustomCalendar({ selectedDate, onSelect }) {
                 isDisabled ? "calendar-day-disabled" : "",
                 isToday && !isSelected ? "ring-2 ring-primary/40 font-black" : ""
               )}
-              title={isSunday && !isDisabled ? '+5% Sunday hike' : undefined}
+              title={isSunday && !isDisabled ? 'Sunday booking' : undefined}
             >
               {day.getDate()}
               {isSunday && !isDisabled && (
-                <span className="sunday-hike-badge">+5%</span>
+                <span className="sunday-hike-badge">S</span>
               )}
             </button>
           );
@@ -145,7 +145,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
           <div className="w-5 h-5 rounded-md bg-red-100 text-red-500 flex items-center justify-center text-[9px] font-bold ring-1 ring-red-300">
             S
           </div>
-          <span className="text-[10px] font-semibold text-text-secondary">Sunday (+5%)</span>
+          <span className="text-[10px] font-semibold text-text-secondary">Sunday</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-5 rounded-md bg-bg-section opacity-40" />
@@ -224,7 +224,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           >
             {isSunday ? '⚠️' : '✓'}{' '}
             {selectedDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            {isSunday && ' — 5% Sunday hike will be applied to your total.'}
+            {isSunday && ' - Weekend crew availability will be reflected in your final quote summary.'}
           </motion.p>
         )}
       </div>
@@ -241,9 +241,9 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
             <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-200">
               <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-amber-800">Sunday Booking — 5% Extra Charge</p>
+                <p className="text-sm font-bold text-amber-800">Sunday Booking</p>
                 <p className="text-xs text-amber-700 font-medium mt-0.5">
-                  Sunday bookings attract a 5% hike on the base amount to cover weekend crew overtime. This will be shown in your quote summary.
+                  Sunday bookings use weekend crew availability. Any applicable adjustment will be shown only in your final quote summary.
                 </p>
               </div>
             </div>

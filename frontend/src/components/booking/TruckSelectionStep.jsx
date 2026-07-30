@@ -18,12 +18,11 @@ const normalizeTruckOption = (truck = {}) => {
     image: truck.image || '',
     bestFor: capacityKg ? `${capacityKg.toLocaleString('en-IN')} kg capacity` : truck.capacityLabel || truck.bestFor || 'Capacity not set',
     example: truck.example || '',
-    price: Number(truck.price || 0) > 0 ? `Rs ${Number(truck.price).toLocaleString('en-IN')}` : '',
     isFree: truck.isFree,
   };
 };
 
-export default function TruckSelectionStep({ onSubmit, onBack, initialData = {}, trucks = [], showPrice = false }) {
+export default function TruckSelectionStep({ onSubmit, onBack, initialData = {}, trucks = [] }) {
   const options = (trucks.length ? trucks : TRUCK_OPTIONS).map(normalizeTruckOption);
   const [selectedTruck, setSelectedTruck] = useState(initialData.selectedTruck || initialData.truckType || null);
   const [guideOpen, setGuideOpen] = useState(false);
@@ -92,7 +91,6 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
                 </div>
                 <span className="text-sm font-bold text-text-secondary">{truck.bestFor}</span>
                 {truck.example && <span className="text-xs text-text-tertiary">{truck.example}</span>}
-                {showPrice && truck.price && <span className="mt-1 text-sm font-black text-primary">{truck.price}</span>}
               </div>
             </button>
           );

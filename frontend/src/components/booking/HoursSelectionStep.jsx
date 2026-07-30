@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, IndianRupee } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +27,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
     <div className="flex flex-col gap-7 text-left">
       <div>
         <h3 className="text-2xl font-black text-text-primary mb-1" style={{ fontFamily: 'var(--font-heading)' }}>Select Work Duration</h3>
-        <p className="text-sm text-text-secondary font-medium">Prices below are package charges per employee for the selected duration.</p>
+        <p className="text-sm text-text-secondary font-medium">Choose the work duration required for your move. Your final quote appears on the review step.</p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {packages.map((option) => {
@@ -36,8 +36,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
             <button key={option.hours} type="button" onClick={() => setSelectedHours(option.hours)} className={cn('relative rounded-2xl border-2 p-4 flex flex-col items-center gap-2 transition-all', selected ? 'border-primary bg-primary-soft shadow-sky' : 'border-bg-border bg-white hover:border-primary/40')}>
               <Clock className={cn('w-5 h-5', selected ? 'text-primary' : 'text-text-secondary')} />
               <span className="text-xl font-black text-text-primary">{option.label || `${option.hours}h`}</span>
-              <span className="text-sm font-black text-primary">₹{option.perEmployee}</span>
-              <span className="text-[10px] text-text-tertiary">per employee</span>
+              <span className="text-[10px] text-text-tertiary">Duration package</span>
               {selected && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-primary" />}
             </button>
           );
@@ -45,8 +44,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
       </div>
       {selectedPackage && (
         <div className="p-5 bg-primary-soft rounded-2xl border border-primary/20 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3"><IndianRupee className="w-5 h-5 text-primary" /><div><p className="font-black text-text-primary">Labour Total</p><p className="text-xs text-text-secondary">₹{selectedPackage.perEmployee} per employee × {employeeCount} employees</p></div></div>
-          <span className="text-2xl font-black text-primary">₹{total}</span>
+          <div className="flex items-center gap-3"><Clock className="w-5 h-5 text-primary" /><div><p className="font-black text-text-primary">Duration selected</p><p className="text-xs text-text-secondary">{selectedPackage.label || `${selectedPackage.hours} hour(s)`} for {employeeCount} employee{employeeCount === 1 ? '' : 's'}</p></div></div><CheckCircle2 className="h-5 w-5 text-primary" />
         </div>
       )}
       <div className="flex items-center justify-between pt-4 border-t border-bg-border">

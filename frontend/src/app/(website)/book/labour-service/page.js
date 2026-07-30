@@ -117,7 +117,7 @@ export default function LabourServicePage() {
         <LocationStep onSubmit={handleLocationSubmit} initialData={bookingData} serviceType="labour" pricingRule={pricingRule} />
       )}
       {currentStep === 1 && (
-        <TruckSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} trucks={pricingRule?.labourPricing?.trucks || []} showPrice />
+        <TruckSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} trucks={pricingRule?.labourPricing?.trucks || []} />
       )}
       {currentStep === 2 && (
         <EmployeeSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} serviceType="labour" employeeRates={pricingRule?.labourPricing?.employeeRates || []} />

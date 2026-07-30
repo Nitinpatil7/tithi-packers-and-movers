@@ -669,7 +669,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
       )}
       {labour && pricingRule && (
         <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Base price includes</p>
+          <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Base package includes</p>
           <p className="mt-1 text-sm font-semibold text-text-secondary">Use this package directly, or customize truck, employees, and hours in the next steps.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <BaseChip icon={Truck} label="Truck" value={freeTruck ? `${freeTruck.name}${freeTruck.capacityKg ? ` - ${freeTruck.capacityKg} kg` : ''}` : 'Not set'} />

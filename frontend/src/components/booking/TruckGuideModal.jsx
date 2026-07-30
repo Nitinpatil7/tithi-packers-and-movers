@@ -27,7 +27,7 @@ export default function TruckGuideModal({ isOpen, onClose }) {
                 <Truck className="h-6 w-6 text-primary" strokeWidth={1.6} />
                 <div className="flex flex-col">
                   <span className="font-bold text-sm text-text-primary">{truck.name}</span>
-                  <span className="text-xs text-primary font-semibold">{truck.price}</span>
+                  <span className="text-xs text-primary font-semibold">{truck.capacity}</span>
                 </div>
               </div>
 

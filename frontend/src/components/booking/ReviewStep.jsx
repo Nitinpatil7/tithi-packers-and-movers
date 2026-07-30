@@ -2,88 +2,81 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight, ArrowLeft, MapPin, Box, Sparkles, Calendar,
-  Clock, IndianRupee, CheckCircle2, Users, Sun, AlertTriangle, Truck
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Box, Calendar, CheckCircle2, Clock, IndianRupee, MapPin, ShieldCheck, Sparkles, Sun, Truck, Users } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { formatCurrency, getServiceLabel } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { getTruckImageSrc } from '@/lib/truckVisuals';
-import { ItemIcon } from '@/lib/itemIcons';
 
 const SERVICE_LABELS = {
-  'local': 'Local Shifting',
+  local: 'Local Shifting',
   'local-shifting': 'Local Shifting',
-  'intercity': 'Intercity Moving',
+  intercity: 'Intercity Moving',
   'intercity-moving': 'Intercity Moving',
-  'labour': 'Labour & Porter Service',
+  labour: 'Labour & Porter Service',
   'labour-service': 'Labour & Porter Service',
-  'packing': 'Ordinary Service',
-  'commercial': 'Commercial Relocation',
+  porter_labour_service: 'Labour & Porter Service',
+  packing: 'Ordinary Service',
+  commercial: 'Commercial Relocation',
 };
 
 const TIME_SLOT_LABELS = {
-  morning: 'Morning (7:00 AM – 11:00 AM)',
-  afternoon: 'Afternoon (12:00 PM – 4:00 PM)',
-  evening: 'Evening (5:00 PM – 8:00 PM)',
+  morning: 'Morning (7:00 AM - 11:00 AM)',
+  afternoon: 'Afternoon (12:00 PM - 4:00 PM)',
+  evening: 'Evening (5:00 PM - 8:00 PM)',
 };
 
-function ReviewCard({ icon: Icon, iconColor, iconBg, title, children }) {
+function cn(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+function QuoteLine({ icon: Icon, label, detail, value, muted = false }) {
   return (
-    <div className="bg-bg-section rounded-2xl border border-bg-border p-5 flex flex-col gap-4 text-left">
-      <div className="flex items-center gap-3 border-b border-bg-border pb-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: iconBg }}>
-          <Icon className="w-4.5 h-4.5" style={{ color: iconColor }} />
-        </div>
-        <h4 className="text-sm font-black text-text-primary uppercase tracking-wider" style={{ fontFamily: 'var(--font-heading)' }}>
-          {title}
-        </h4>
+    <div className="flex items-start justify-between gap-4 border-b border-sky-100/80 py-4 last:border-0">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className={cn('mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl', muted ? 'bg-bg-section text-text-tertiary' : 'bg-orange-50 text-primary')}>
+          <Icon className="h-4.5 w-4.5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-black text-text-primary">{label}</span>
+          {detail && <span className="mt-0.5 block text-xs font-semibold leading-5 text-text-tertiary">{detail}</span>}
+        </span>
       </div>
-      <div className="flex flex-col gap-3 text-sm">{children}</div>
-    </div>
-  );
-}
-
-function DataRow({ label, value }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-text-tertiary font-bold uppercase tracking-wider">{label}</span>
-      <span className="text-base font-bold text-text-primary">{value || '—'}</span>
-    </div>
-  );
-}
-
-function TruckSummary({ truck, charge }) {
-  if (!truck?.name) return null;
-  const capacity = truck.capacityKg ? `${Number(truck.capacityKg).toLocaleString('en-IN')} kg` : truck.capacityLabel || 'Capacity not set';
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-bg-border bg-bg-white p-3">
-      <img src={getTruckImageSrc(truck)} alt={truck.name} className="h-16 w-20 shrink-0 rounded-xl object-cover" onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }} />
-      <div className="min-w-0">
-        <span className="block truncate text-sm font-black text-text-primary">{truck.name}</span>
-        <span className="text-xs font-bold text-text-tertiary">{capacity}{charge > 0 ? ` · ${formatCurrency(charge)}` : ''}</span>
-      </div>
-    </div>
-  );
-}
-
-function PricingRow({ label, value, highlight, strike }) {
-  return (
-    <div className={cn("flex items-center justify-between py-2", highlight ? "border-t-2 border-primary/20 mt-1 pt-3" : "border-b border-bg-border last:border-0")}>
-      <span className={cn("text-sm font-semibold", highlight ? "font-black text-text-primary" : "text-text-secondary")}>
-        {label}
-      </span>
-      <span className={cn("text-sm font-black font-mono", highlight ? "text-primary text-lg" : strike ? "text-text-tertiary line-through" : "text-text-primary")}>
+      <span className={cn('shrink-0 pt-1 text-right font-mono text-sm font-black', muted ? 'text-text-tertiary' : 'text-text-primary')}>
         {value}
       </span>
     </div>
   );
 }
 
-// cn utility inline
-function cn(...classes) {
-  return classes.filter(Boolean).join(' ');
+function ContextChip({ icon: Icon, label, value }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-2 rounded-2xl border border-orange-100 bg-white/85 px-3 py-2 shadow-xs">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-orange-50 text-primary">
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">{label}</span>
+        <span className="block truncate text-xs font-bold text-text-primary">{value}</span>
+      </span>
+    </div>
+  );
+}
+
+function TruckContext({ truck }) {
+  if (!truck?.name) return null;
+  const capacity = truck.capacityKg ? `${Number(truck.capacityKg).toLocaleString('en-IN')} kg` : truck.capacityLabel || 'Capacity not set';
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-white/85 p-3 shadow-xs">
+      <Image unoptimized src={getTruckImageSrc(truck)} alt={truck.name} width={80} height={56} className="h-14 w-20 shrink-0 rounded-xl border border-bg-border object-cover" />
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-black text-text-primary">{truck.name}</span>
+        <span className="text-xs font-bold text-text-tertiary">{capacity}</span>
+      </span>
+    </div>
+  );
 }
 
 export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
@@ -113,270 +106,123 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     useBasePackage = false,
   } = bookingData;
 
-  const isLabour = serviceType === 'labour' || serviceType === 'labour-service' || serviceType === 'porter_labour_service';
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
-  const allowanceText = (pricingBreakdown.freeItemAllowance || []).map((item) => `${item.sizeKey}: ${item.quantity}`).join(' · ');
+  const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
+  const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const itemBreakdown = pricingBreakdown.itemBreakdown || {};
-  const rawSelectedTruck = pricingBreakdown.selectedTruck || {};
-  const selectedTruck = rawSelectedTruck?.name ? rawSelectedTruck : {};
-  const truckLabel = selectedTruck?.name
-    ? `${selectedTruck.name}${selectedTruck.capacityKg ? ` - ${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : ''}`
-    : '';
-  const employeeRate = pricingBreakdown.employeeRate || {};
-  const hourlyRate = pricingBreakdown.hourlyRate || {};
-  const activeDistanceSlab = (pricingBreakdown.distanceSlabs || []).find((slab) => Number(distance) >= Number(slab.fromKm || 0) && (slab.toKm === null || slab.toKm === undefined || slab.toKm === '' || Number(distance) <= Number(slab.toKm)));
-
+  const allowanceText = (pricingBreakdown.freeItemAllowance || []).map((item) => `${item.sizeKey}: ${item.quantity}`).join(' | ');
+  const selectedTruck = pricingBreakdown.selectedTruck?.name ? pricingBreakdown.selectedTruck : null;
+  const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
   const formattedDate = scheduledDate
-    ? new Date(scheduledDate + 'T00:00:00').toLocaleDateString('en-IN', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      })
-    : '—';
+    ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
+
+  const addonLines = specialServices
+    .map((service) => ({
+      name: service.name,
+      quantity: Number(service.quantity || 1),
+      total: Number(service.total ?? ((service.charge || service.price || service.unitPrice || 0) * (service.quantity || 1))),
+    }))
+    .filter((service) => service.total > 0);
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Title */}
-      <div className="text-left">
-        <div className="flex items-center gap-2 mb-2">
-          <CheckCircle2 className="w-6 h-6 text-primary" />
-          <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-            Review Your Booking
-          </h3>
-        </div>
-        <p className="text-sm text-text-secondary font-medium">
-          Everything looks good? Verify your phone to confirm.
-        </p>
-      </div>
-
-      {/* Top row: Route + Schedule */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Route */}
-        <ReviewCard icon={MapPin} iconBg="#E0F2FE" iconColor="#0EA5E9" title="Addresses & Route">
-          <DataRow label="From (Pickup)" value={pickupLocation?.address} />
-          {pickupLocation?.address && (
-            <span className="text-xs text-text-tertiary font-semibold -mt-2">
-              Floor: {pickupLocation?.floor === 0 ? 'Ground' : pickupLocation?.floor}
-              {pickupLocation?.liftAvailable ? ' · Lift ✓' : ' · No Lift'}
-            </span>
-          )}
-          {dropLocation?.address && (
-            <>
-              <div className="h-px bg-bg-border" />
-              <DataRow label="To (Drop)" value={dropLocation.address} />
-              <span className="text-xs text-text-tertiary font-semibold -mt-2">
-                Floor: {dropLocation?.floor === 0 ? 'Ground' : dropLocation?.floor}
-                {dropLocation?.liftAvailable ? ' · Lift ✓' : ' · No Lift'}
-              </span>
-            </>
-          )}
-        </ReviewCard>
-
-        {/* Schedule */}
-        <ReviewCard icon={Calendar} iconBg="#BAE6FD" iconColor="#0284C7" title="Schedule">
-          <DataRow label="Service" value={SERVICE_LABELS[serviceType] || serviceType} />
-          {truckLabel && <TruckSummary truck={selectedTruck} charge={truckTotal} />}
-          <div className="grid grid-cols-1 gap-3 border-t border-bg-border pt-3">
-            <DataRow label="Date" value={formattedDate} />
-            <DataRow label="Time Slot" value={TIME_SLOT_LABELS[timeSlot] || timeSlot} />
-          </div>
-          {sundayHike > 0 && (
-            <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-xl border border-amber-200 -mt-1">
-              <Sun className="w-4 h-4 text-amber-600 shrink-0" />
-              <p className="text-xs font-bold text-amber-700">Sunday — 5% extra charge applies</p>
-            </div>
-          )}
-        </ReviewCard>
-      </div>
-
-      {/* Employee / Labour summary */}
-      {employeeCount > 0 && (
-        <ReviewCard icon={Users} iconBg="#E0F2FE" iconColor="#0EA5E9" title={isLabour ? 'Labour Details' : 'Crew'}>
-          <DataRow label="Employees" value={`${employeeCount} worker${employeeCount > 1 ? 's' : ''}`} />
-          {isLabour && hoursCount > 0 && (
-            <DataRow label="Duration" value={`${hoursCount} hour${hoursCount > 1 ? 's' : ''}`} />
-          )}
-          {isLabour && selectedTruck?.name && <TruckSummary truck={selectedTruck} charge={truckTotal} />}
-          {isLabour && employeeRate?.employees && <DataRow label="Employee package" value={employeeRate.label || `${employeeRate.employees} employee(s)`} />}
-          {isLabour && (hourlyRate?.hours || hourlyRate?.price) && <DataRow label="Hourly package" value={`${hourlyRate.label || `${hoursCount} hour`}${hourlyRate.price ? ` · ${formatCurrency(hourlyRate.price)} per employee` : ''}`} />}
-          <DataRow label="Labour Cost" value={formatCurrency(employeeTotal)} />
-        </ReviewCard>
-      )}
-
-      {isLabour && (
-        <ReviewCard icon={Truck} iconBg="#E0F2FE" iconColor="#0EA5E9" title="Porter Quote Details">
-          <DataRow label="Distance" value={distanceCharge > 0 ? `${distance} km · ${formatCurrency(distanceCharge)}` : 'Distance charge not applied'} />
-          {activeDistanceSlab && <DataRow label="Distance range" value={`${activeDistanceSlab.label || `${activeDistanceSlab.fromKm}-${activeDistanceSlab.toKm || '+'} km`} · ${activeDistanceSlab.isFree ? 'Free' : `${formatCurrency(activeDistanceSlab.ratePerKm)} / km`}`} />}
-          {selectedTruck?.name ? <TruckSummary truck={selectedTruck} charge={truckTotal} /> : <DataRow label="Truck" value="Not selected" />}
-          <DataRow label="Employees + hours" value={`${employeeCount || 0} employee(s) · ${hoursCount || 0} hour(s)`} />
-        </ReviewCard>
-      )}
-
-      {/* Items + Add-ons (non-labour) */}
-      {!isLabour && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ReviewCard icon={Box} iconBg="#BAE6FD" iconColor="#0EA5E9" title={`Inventory (${totalItems} items)`}>
-            {Boolean(itemBreakdown.selectedCount) && (
-              <div className="rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700">
-                Base allowance included {itemBreakdown.includedCount || 0} item(s). Additional charged item(s): {itemBreakdown.chargedCount || 0}.
-              </div>
-            )}
-            {items.length > 0 ? (
-              <div className="max-h-[180px] overflow-y-auto flex flex-col gap-2 pr-1">
-                {items.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between gap-3 py-2 border-b border-bg-border last:border-0">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
-                      <ItemIcon icon={item.icon} className="h-4 w-4" />
-                    </span>
-                    <div className="flex min-w-0 flex-1 flex-col text-left">
-                      <span className="text-sm font-semibold text-text-secondary">{item.name}</span>
-                      <span className="text-[10px] text-text-tertiary uppercase font-bold">Size: {item.tag}</span>
-                    </div>
-                    <span className="text-sm font-black text-text-primary font-mono bg-primary-soft px-2 py-0.5 rounded-lg">
-                      ×{item.quantity}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-6 text-center">
-                <span className="text-3xl block mb-2">📋</span>
-                <p className="text-sm text-text-tertiary font-semibold">No items checklist added</p>
-              </div>
-            )}
-          </ReviewCard>
-
-          <ReviewCard icon={Sparkles} iconBg="#E0F2FE" iconColor="#38BDF8" title="Special Add-ons">
-            {specialServices.length > 0 ? (
-              <div className="max-h-[180px] overflow-y-auto flex flex-col gap-2 pr-1">
-                {specialServices.map((service) => (
-                  <div key={service.name} className="flex justify-between items-center py-2 border-b border-bg-border last:border-0">
-                    <span className="text-sm font-semibold text-text-secondary">
-                      {service.name} ×{service.quantity}
-                    </span>
-                    <span className="text-sm font-black text-primary font-mono">
-                      {formatCurrency((service.charge || service.price || 0) * service.quantity)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-6 text-center">
-                <Sparkles className="mb-2 h-7 w-7 text-primary" strokeWidth={1.7} />
-                <p className="text-sm text-text-tertiary font-semibold">No add-ons selected</p>
-              </div>
-            )}
-          </ReviewCard>
-        </div>
-      )}
-
-      {/* Pricing Summary */}
-      <motion.div
-        className="p-6 bg-primary-soft rounded-2xl border border-primary/20 flex flex-col gap-0"
-        initial={{ opacity: 0, y: 10 }}
+    <div className="flex flex-col gap-6 text-left">
+      <motion.header
+        className="rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/80 via-white to-sky-50/80 p-5 shadow-card sm:p-6"
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
       >
-        <div className="flex items-center gap-3 mb-4 text-left">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <IndianRupee className="w-5 h-5 text-white" />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary text-white shadow-sky">
+              <IndianRupee className="h-6 w-6" />
+            </span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Final quote</p>
+              <h3 className="mt-1 text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Review Your Booking Cost</h3>
+              <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-text-secondary">Only the final computed quotation is shown here. Charges below are calculated from your selected route, access details, inventory, add-ons, and labour choices.</p>
+            </div>
           </div>
-          <div>
-            <p className="text-base font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-              Detailed Price Quotation
-            </p>
-            <p className="text-xs text-text-secondary font-medium">
-              Transparent charges based on distance, floor level, and items.
-            </p>
+          <div className="rounded-2xl border border-orange-100 bg-white/90 px-4 py-3 text-right shadow-xs">
+            <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">Total quotation</span>
+            <strong className="mt-1 block font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
+          </div>
+        </div>
+      </motion.header>
+
+      <motion.section
+        className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08, duration: 0.35 }}
+      >
+        <div className="border-b border-orange-100 bg-gradient-to-r from-orange-50 to-sky-50 px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h4 className="text-base font-black text-text-primary">Cost Breakdown</h4>
+              <p className="mt-0.5 text-xs font-semibold text-text-tertiary">Line-by-line charges applied to this booking.</p>
+            </div>
+            <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
         </div>
 
-        <div className="flex flex-col">
-          {/* Base Fare */}
+        <div className="px-5 sm:px-6">
           {(!isLabour || useBasePackage || basePrice > 0) && (
-            <PricingRow label={isLabour && useBasePackage ? 'Base Labour Package' : 'Base Fare Shifting Cost'} value={formatCurrency(basePrice)} />
+            <QuoteLine icon={CheckCircle2} label={isLabour && useBasePackage ? 'Base labour package' : 'Base shifting fare'} detail={isLabour && useBasePackage ? 'Configured base package selected.' : 'Starting fare from the active pricing rule.'} value={formatCurrency(basePrice)} />
           )}
 
-          {/* Shifting Items Extra */}
-          {itemsExtraCharge > 0 && (
-            <PricingRow 
-              label={`Additional item charges${allowanceText ? ` (base includes ${allowanceText})` : ' (above base allowance)'}`} 
-              value={formatCurrency(itemsExtraCharge)} 
-            />
-          )}
-          {!isLabour && itemBreakdown.selectedCount > 0 && itemsExtraCharge === 0 && (
-            <PricingRow
-              label={`Items covered in base allowance${allowanceText ? ` (${allowanceText})` : ''}`}
-              value="Included"
-            />
+          <QuoteLine icon={MapPin} label="Distance charge" detail={distance ? `${distance} km route distance` : 'Route distance unavailable or not applicable'} value={distanceCharge > 0 ? formatCurrency(distanceCharge) : 'Included'} muted={distanceCharge <= 0} />
+
+          {floorTotalCharge > 0 ? (
+            <>
+              {pickupFloorCharge > 0 && <QuoteLine icon={MapPin} label="Pickup lift/floor charge" detail={`Floor ${pickupLocation?.floor ?? 0}${pickupLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(pickupFloorCharge)} />}
+              {dropFloorCharge > 0 && <QuoteLine icon={MapPin} label="Drop lift/floor charge" detail={`Floor ${dropLocation?.floor ?? 0}${dropLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(dropFloorCharge)} />}
+            </>
+          ) : !isLabour ? (
+            <QuoteLine icon={MapPin} label="Lift/floor charge" detail="No billable floor or lift charge applied." value="Included" muted />
+          ) : null}
+
+          {!isLabour && itemBreakdown.selectedCount > 0 && (
+            <QuoteLine icon={Box} label="Free-allowance value adjustment" detail={`Selected ${itemBreakdown.selectedCount || totalItems} item(s). Included ${itemBreakdown.includedCount || 0}; charged beyond allowance ${itemBreakdown.chargedCount || 0}.${allowanceText ? ` Base allowance: ${allowanceText}.` : ''}`} value={itemBreakdown.includedCount > 0 ? 'Applied' : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
           )}
 
-          {/* Distance Charges */}
-          {distanceCharge > 0 && (
-            <PricingRow 
-              label={`Distance Charges (${distance} km)`} 
-              value={formatCurrency(distanceCharge)} 
-            />
-          )}
+          {!isLabour && itemsExtraCharge > 0 && <QuoteLine icon={Box} label="Additional item charges" detail="Items beyond the free allowance." value={formatCurrency(itemsExtraCharge)} />}
+          {!isLabour && itemBreakdown.selectedCount > 0 && itemsExtraCharge <= 0 && <QuoteLine icon={Box} label="Additional item charges" detail="All selected items are covered by the allowance." value="Included" muted />}
 
-          {/* Floor Charges */}
-          {floorTotalCharge > 0 && (
-            <PricingRow 
-              label={`Floor Charges (Pickup: F${pickupLocation?.floor ?? 0} + Drop: F${dropLocation?.floor ?? 0})`} 
-              value={formatCurrency(floorTotalCharge)} 
-            />
-          )}
+          {addonLines.length > 0 ? addonLines.map((service) => (
+            <QuoteLine key={service.name} icon={Sparkles} label={service.quantity > 1 ? `${service.name} x ${service.quantity}` : service.name} detail="Add-on service charge" value={formatCurrency(service.total)} />
+          )) : !isLabour && <QuoteLine icon={Sparkles} label="Add-on service charges" detail="No paid add-ons selected." value="None" muted />}
 
-          {/* Labor/Crew charges */}
-          {employeeTotal > 0 && (
-            <PricingRow 
-              label={isLabour ? `Labour (${hoursCount || 1}h package ${formatCurrency(labourPerEmployee)} per employee × ${employeeCount})` : `Crew Service (${employeeCount} employees)`}
-              value={formatCurrency(employeeTotal)} 
-            />
-          )}
-          {truckTotal > 0 && (
-            <PricingRow
-              label={`Truck Charge${pricingBreakdown.selectedTruck?.name ? ` (${pricingBreakdown.selectedTruck.name})` : ''}`}
-              value={formatCurrency(truckTotal)}
-            />
-          )}
+          {isLabour && employeeTotal > 0 && <QuoteLine icon={Users} label="Labour charge" detail={`${hoursCount || 1} hour package${employeeCount ? ` for ${employeeCount} employee(s)` : ''}${labourPerEmployee ? `, ${formatCurrency(labourPerEmployee)} per employee` : ''}`} value={formatCurrency(employeeTotal)} />}
+          {isLabour && truckTotal > 0 && <QuoteLine icon={Truck} label="Truck charge" detail={selectedTruck?.name || 'Selected vehicle'} value={formatCurrency(truckTotal)} />}
+          {isLabour && useBasePackage && employeeTotal <= 0 && truckTotal <= 0 && <QuoteLine icon={Users} label="Labour/truck package adjustment" detail="Truck, employees, and hours are covered by the selected base package." value="Included" muted />}
 
-          {/* Add-on services */}
-          {addOnTotal > 0 && (
-            <PricingRow label="Special Services & Add-ons" value={formatCurrency(addOnTotal)} />
-          )}
-
-          {/* Sunday Hike */}
-          {sundayHike > 0 && (
-            <PricingRow
-              label="Sunday Booking Hike (+5%)"
-              value={`+ ${formatCurrency(sundayHike)}`}
-            />
-          )}
-
-          {/* Grand Total */}
-          <PricingRow
-            label="Total Quotation Price"
-            value={formatCurrency(grandTotal)}
-            highlight
-          />
+          {sundayHike > 0 && <QuoteLine icon={Sun} label="Sunday booking adjustment" detail="Weekend crew availability adjustment." value={formatCurrency(sundayHike)} />}
         </div>
 
-        {sundayHike > 0 && (
-          <div className="flex items-start gap-2 mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-left">
-            <Sun className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs font-semibold text-amber-700">
-              5% Sunday hike (₹{sundayHike}) has been added to your shifting quotation.
-            </p>
+        <div className="border-t border-orange-100 bg-gradient-to-r from-orange-50 via-white to-sky-50 px-5 py-5 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <span>
+              <span className="block text-sm font-black text-text-primary">Total quotation price</span>
+              <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Inclusive of the charge lines above.</span>
+            </span>
+            <strong className="font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
           </div>
-        )}
-      </motion.div>
+        </div>
+      </motion.section>
 
-      {/* Actions */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ContextChip icon={Truck} label="Service" value={SERVICE_LABELS[serviceType] || serviceType} />
+        <ContextChip icon={Calendar} label="Move date" value={formattedDate} />
+        <ContextChip icon={Clock} label="Time slot" value={TIME_SLOT_LABELS[timeSlot] || timeSlot} />
+        <ContextChip icon={Box} label="Inventory" value={totalItems ? `${totalItems} item(s) selected` : isLabour ? `${employeeCount || 0} employee(s), ${hoursCount || 0} hour(s)` : 'No item checklist'} />
+      </div>
+
+      <TruckContext truck={selectedTruck} />
+
       <div className="flex items-center justify-between pt-5 border-t border-bg-border">
         <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button
-          onClick={onSubmit}
-          className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2"
-        >
+        <button onClick={onSubmit} className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2">
           Verify Phone (OTP)
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -384,4 +230,5 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     </div>
   );
 }
+
 export { ReviewStep };
