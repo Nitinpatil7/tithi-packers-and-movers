@@ -88,7 +88,7 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="section-texture py-16 md:py-28 relative overflow-hidden">
+    <section id="services" className="services-sky-bg pt-24 pb-16 md:py-28 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(14,165,233,.10),transparent)]" />
 
@@ -135,7 +135,7 @@ export default function ServicesSection() {
               <motion.div key={service.id} variants={cardVariants}>
                 <Link href={service.path} className="block group h-full">
                   <motion.div
-                    className="service-hover-card min-h-[420px] rounded-3xl border border-sky-100 bg-white/92 p-6 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:p-8 hover:border-sky-200 hover:shadow-sky-lg focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
+                    className="service-hover-card min-h-[420px] rounded-3xl border border-sky-100 bg-white/95 p-6 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:p-8 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
                     whileHover={{ y: -8 }}
                     whileTap={{ scale: 0.985, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -143,12 +143,11 @@ export default function ServicesSection() {
                     <div className="flex flex-col gap-6 relative z-10">
                       {/* Icon + arrow */}
                       <div className="flex items-start justify-between">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white group-focus-within:bg-primary group-focus-within:text-white" style={{ backgroundColor: service.softBg }}>
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white group-focus-within:bg-primary group-focus-within:text-white">
                           <Icon className="h-8 w-8 transition-colors" strokeWidth={1.7} />
                         </div>
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-orange-500 group-hover:text-white"
-                          style={{ backgroundColor: service.color + '18', color: service.color }}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-primary group-hover:text-white"
                         >
                           <ArrowRight className="w-5 h-5" />
                         </div>

@@ -60,7 +60,7 @@ export default function HowItWorksSection() {
             {t.processTitle || 'Book Your Move in '}{' '}
             <span className="text-orange-500">{t.processTitleHighlight || '3 Simple Steps'}</span>
           </h2>
-          <p className="text-lg text-white/72 max-w-xl leading-relaxed font-medium">
+          <p className="text-lg text-white/80 max-w-xl leading-relaxed font-medium">
             {t.processSubhead || 'No long phone calls or back-and-forth negotiations. Start your stress-free move right now.'}
           </p>
         </motion.div>
@@ -118,15 +118,14 @@ export default function HowItWorksSection() {
                     <h3 className="text-lg md:text-xl font-black text-white mb-2 md:mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                       {step.title}
                     </h3>
-                    <p className="text-sm text-white/78 leading-relaxed font-medium">
+                    <p className="text-sm text-white/80 leading-relaxed font-medium">
                       {step.desc}
                     </p>
 
                     {idx === 0 && (
                       <Link href="/book/local-shifting">
                         <div
-                          className="inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full transition-all hover:shadow-sm"
-                          style={{ backgroundColor: step.bg, color: step.color }}
+                          className="inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white text-orange-600 transition-all hover:bg-orange-500 hover:text-white hover:shadow-sm"
                         >
                           {t.startHere || 'Start Here'} <ArrowRight className="h-3.5 w-3.5" />
                         </div>

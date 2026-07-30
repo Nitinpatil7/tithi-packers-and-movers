@@ -109,7 +109,7 @@ export default function ServiceDetailSection() {
             {t.detailsLabel || 'Service Details & Inclusions'}
           </h2>
           <div className="w-16 h-1 bg-orange-500 rounded-full" />
-          <p className="mt-1 max-w-md text-sm font-medium leading-6 text-white/72 sm:text-base">
+          <p className="mt-1 max-w-md text-sm font-medium leading-6 text-white/80 sm:text-base">
             {t.detailsSubhead || 'Click on a service below to review exactly what is included in our premium packages.'}
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function ServiceDetailSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className="relative rounded-[28px] border border-white/12 bg-white/10 p-5 shadow-[0_24px_70px_rgba(0,0,0,.22)] backdrop-blur-sm sm:p-7 md:p-8"
+            className="relative rounded-[28px] border border-white/10 bg-white/10 p-5 shadow-[0_24px_70px_rgba(0,0,0,.22)] backdrop-blur-sm sm:p-7 md:p-8"
           >
             <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-12 lg:items-center lg:gap-8">
               
@@ -148,7 +148,7 @@ export default function ServiceDetailSection() {
                 <h3 className="text-xl font-black leading-tight text-white sm:text-2xl">
                   {current.name} {t.inclusionsTitle || 'Inclusions'}
                 </h3>
-                <p className="text-sm font-medium leading-7 text-white/78 sm:text-base">
+                <p className="text-sm font-medium leading-7 text-white/85 sm:text-base">
                   {current.text}
                 </p>
 
@@ -164,7 +164,7 @@ export default function ServiceDetailSection() {
 
                 <div className="mt-1 sm:mt-4">
                   <Link href={current.path} className="block w-full sm:inline-block sm:w-auto">
-                    <Button variant={activeTab} size="lg" className="w-full shadow-lg sm:w-auto">
+                    <Button variant={activeTab} size="lg" className="w-full bg-white text-orange-600 shadow-lg hover:bg-orange-500 hover:text-white sm:w-auto">
                       {t.bookThisService || 'Book This Service'}
                     </Button>
                   </Link>

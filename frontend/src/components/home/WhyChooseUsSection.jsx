@@ -142,7 +142,7 @@ export default function WhyChooseUsSection() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
-            className="rounded-3xl border border-orange-100 bg-white/92 p-6 shadow-card md:p-8"
+            className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-card md:p-8"
           >
             <div className="flex items-start gap-4">
               <motion.div
@@ -187,20 +187,20 @@ export default function WhyChooseUsSection() {
                   type="button"
                   data-active={isActive ? 'true' : 'false'}
                   onClick={() => setActiveBenefit(idx)}
-                  className={`why-tab-card group h-full w-full rounded-2xl border p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-orange-200 bg-orange-50/80 shadow-md' : 'border-sky-100 bg-white/88 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
+                  className={`why-tab-card group h-full w-full rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-primary/35 ring-1 ring-primary/10' : 'border-sky-100 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
                   whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs transition-all group-hover:-translate-y-1 group-hover:bg-orange-500 group-hover:text-white"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs transition-all group-hover:-translate-y-1 group-hover:scale-105 group-hover:bg-primary group-hover:text-white"
                       style={{ backgroundColor: benefit.bg }}
                     >
                       <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-white" strokeWidth={1.7} />
                     </div>
                     <div>
-                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-orange-600' : 'text-text-primary group-hover:text-orange-600'}`} style={{ fontFamily: 'var(--font-heading)' }}>
+                      <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-primary' : 'text-text-primary group-hover:text-primary'}`} style={{ fontFamily: 'var(--font-heading)' }}>
                         {benefit.title}
                       </h3>
                       <p className={`mt-1 hidden text-xs font-medium leading-5 transition-colors sm:line-clamp-2 sm:block ${isActive ? 'text-text-secondary' : 'text-text-secondary'}`}>

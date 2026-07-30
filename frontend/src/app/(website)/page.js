@@ -25,15 +25,15 @@ export default function Home() {
       {/* 1. HeroSection */}
       <HeroSection />
 
-      <div className="relative z-20 -mt-4 -mb-4 flex justify-end overflow-hidden py-3 pl-4 lg:hidden">
-        <div className="hero-front-truck-bridge pointer-events-none relative h-28 w-full max-w-[420px] overflow-hidden sm:h-36 md:h-40 md:max-w-[520px]">
+      <div className="relative z-20 h-0 overflow-visible lg:hidden">
+        <div className="hero-front-truck-bridge pointer-events-none absolute -top-16 right-0 h-32 w-[78vw] max-w-[420px] overflow-hidden sm:-top-20 sm:h-40 md:max-w-[520px]">
           <Image
             src="/front_truck.png"
             alt=""
             width={560}
             height={320}
             priority
-            className="absolute -right-[14%] top-1/2 w-[96%] max-w-[440px] -translate-y-1/2 object-contain drop-shadow-[0_22px_28px_rgba(15,23,42,0.20)] md:max-w-[520px]"
+            className="absolute -right-[14%] bottom-0 w-[100%] max-w-[440px] object-contain drop-shadow-[0_22px_28px_rgba(15,23,42,0.20)] md:max-w-[520px]"
           />
         </div>
       </div>
