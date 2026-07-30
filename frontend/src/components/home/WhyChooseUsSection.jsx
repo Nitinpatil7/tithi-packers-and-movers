@@ -187,14 +187,14 @@ export default function WhyChooseUsSection() {
                   type="button"
                   data-active={isActive ? 'true' : 'false'}
                   onClick={() => setActiveBenefit(idx)}
-                  className={`why-tab-card group h-full w-full rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-primary/35 ring-1 ring-primary/10' : 'border-sky-100 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
-                  whileHover={{ y: -3 }}
+                  className={`why-tab-card group h-full w-full rounded-2xl border bg-white/95 p-4 text-left shadow-card transition-all duration-300 active:scale-[.99] ${isActive ? 'border-primary/25 ring-1 ring-primary/10' : 'border-sky-100 hover:border-orange-200 hover:bg-bg-white hover:shadow-md'}`}
+                  whileHover={{ y: -5, scale: 1.015 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs transition-all group-hover:-translate-y-1 group-hover:scale-105 group-hover:bg-primary group-hover:text-white"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs ring-1 ring-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:ring-orange-100 group-hover:shadow-[0_14px_28px_rgba(249,115,22,.18)]"
                       style={{ backgroundColor: benefit.bg }}
                     >
                       <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-white" strokeWidth={1.7} />

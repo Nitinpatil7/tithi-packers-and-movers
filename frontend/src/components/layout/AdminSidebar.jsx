@@ -93,8 +93,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
                 <Link
                   key={link.path}
                   href={link.path}
-                  onMouseEnter={() => router.prefetch(link.path)}
-                  onFocus={() => router.prefetch(link.path)}
+                  prefetch={false}
                   className={cn(
                     "flex items-center justify-start gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all group relative",
                     isActive 
@@ -119,6 +118,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
         <div className="shrink-0 border-t border-bg-border bg-white p-2 md:p-4 flex flex-col gap-1.5">
           <Link
             href="/"
+            prefetch={false}
             className="flex items-center justify-start gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-elevated/40 group relative"
           >
             <Home className="w-5 h-5 shrink-0" />

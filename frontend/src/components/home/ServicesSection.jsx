@@ -88,7 +88,7 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="services-sky-bg pt-20 pb-14 md:py-24 relative overflow-hidden">
+    <section id="services" className="services-sky-bg relative z-30 overflow-hidden pt-16 pb-14 md:pt-20 md:pb-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(14,165,233,.10),transparent)]" />
 
@@ -96,23 +96,23 @@ export default function ServicesSection() {
 
         {/* Section Header */}
         <motion.div
-          className="flex flex-col items-center text-center mb-12 md:mb-14 gap-4"
+          className="flex flex-col items-center text-center mb-10 gap-3 md:mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="section-label">
+          <span className="section-label text-[13px]">
             <Truck className="w-3.5 h-3.5" />
             {language === 'gu' ? 'અમારી સેવાઓ' : language === 'hi' ? 'हमारी सेवाएं' : 'Our Services'}
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-text-primary mt-2">
+          <h2 className="text-display-md md:text-display-lg font-black text-text-primary">
             {language === 'gu' ? 'તમારી દરેક ' : language === 'hi' ? 'आपकी हर ' : 'Everything You Need to '}
             <span className="gradient-text">
               {language === 'gu' ? 'જરૂરત પૂરી' : language === 'hi' ? 'जरूरत पूरी' : 'Move Hassle-Free'}
             </span>
           </h2>
-          <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium">
+          <p className="max-w-xl text-base font-medium leading-7 text-text-secondary md:text-lg">
             {language === 'gu'
               ? 'સ્થાનિક, આંતર-શહેરી અથવા ફક્ત મજૂરી — ત્રણ વિશેષ સેવાઓ, તમારી જરૂરિયાત મુજબ.'
               : language === 'hi'
@@ -123,7 +123,7 @@ export default function ServicesSection() {
 
         {/* Services Grid — 3 columns */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
+          className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -132,10 +132,10 @@ export default function ServicesSection() {
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <motion.div key={service.id} variants={cardVariants}>
+              <motion.div key={service.id} variants={cardVariants} className="h-full">
                 <Link href={service.path} className="block group h-full">
                   <motion.div
-                    className="service-hover-card min-h-[350px] rounded-3xl border border-sky-100 bg-white/95 p-5 shadow-card transition-all duration-300 h-full flex flex-col justify-between cursor-pointer sm:min-h-[370px] sm:p-6 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md"
+                    className="service-hover-card flex h-full min-h-[350px] cursor-pointer flex-col justify-between rounded-3xl border border-sky-100 bg-white/95 p-5 shadow-card transition-all duration-300 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md sm:min-h-[370px] sm:p-6"
                     whileHover={{ y: -8 }}
                     whileTap={{ scale: 0.985, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -144,7 +144,7 @@ export default function ServicesSection() {
                       {/* Icon + arrow */}
                       <div className="flex items-start justify-between">
                         <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm ring-1 ring-primary/10 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-[#063642]/90 group-hover:text-white group-hover:ring-white/30 group-hover:shadow-[0_18px_34px_rgba(6,54,66,.26),0_0_0_7px_rgba(14,165,233,.10)] group-hover:backdrop-blur-md group-focus-within:bg-[#063642]/90 group-focus-within:text-white group-focus-within:ring-white/30 sm:h-[60px] sm:w-[60px]">
-                          <Icon className="h-7 w-7 transition-colors duration-300 group-hover:text-white group-focus-within:text-white" strokeWidth={2} />
+                          <Icon className="h-7 w-7 opacity-100 transition-colors duration-300 group-hover:text-white group-focus-within:text-white" strokeWidth={2.1} />
                         </div>
                         <div
                           className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-primary group-hover:text-white"

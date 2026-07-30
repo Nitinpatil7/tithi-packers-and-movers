@@ -1,44 +1,31 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Image from 'next/image';
-import { ShieldCheck, Truck, Star, ArrowRight, Clock, MapPin, Package, CheckCircle, House, MapPinned, Headphones, Building2, HardHat } from 'lucide-react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
-import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@/hooks/useSiteSetting';
+import { useLanguageStore } from '@/store/languageStore';
 
 export default function HeroSection() {
   const { language } = useLanguageStore();
-  const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
+  const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS.en;
   const { data: site = {} } = useSiteSetting();
-
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.12 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 32 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 90, damping: 18 },
-    },
-  };
 
   const stats = [
     { value: site.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
     { value: site.stats?.citiesCovered ?? 0, suffix: '+', label: t.statCities || 'Cities Served', icon: MapPinned },
     { value: site.stats?.yearsExperience ?? 0, suffix: '+', label: t.statYears || 'Years Trust', icon: ShieldCheck },
-    { value: site.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Customer Satisfaction', icon: Headphones },
+    { value: site.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Support', icon: Headphones },
   ];
+
   const services = [
     { name: site.serviceLabels?.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
     { name: site.serviceLabels?.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour & Porter', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour Service', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [
@@ -47,335 +34,151 @@ export default function HeroSection() {
     { text: t.badge2HrQuote || '2-Hour Quote', icon: Clock },
   ];
 
-  return (
-    <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-20 sm:pt-24 md:pt-24 pb-0 overflow-hidden">
-      <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-20 h-px bg-gradient-to-r from-transparent via-service-local/20 to-transparent pointer-events-none" />
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
 
-      {/* Dot pattern */}
+  const itemVariants = {
+    hidden: { opacity: 0, y: 26 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 92, damping: 18 },
+    },
+  };
+
+  return (
+    <section className="relative isolate overflow-x-clip overflow-y-visible bg-hero-gradient pt-20 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
+      <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex flex-col items-center gap-5 md:gap-6">
-        {/* Main Content Row */}
+      <div className="relative z-20 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)] lg:gap-10 lg:px-8">
         <motion.div
-          className="flex w-full max-w-5xl flex-col items-center text-center gap-4 md:gap-5"
+          className="flex max-w-3xl flex-col items-center gap-4 text-center lg:items-start lg:text-left"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Trust badge */}
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2">
-            <span className="section-label">
-              <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="section-label max-w-[calc(100vw-2rem)] justify-center whitespace-normal text-center leading-snug">
+              <ShieldCheck className="h-3.5 w-3.5" />
               {t.heroBadge || '#1 Packers & Movers in Surat, Gujarat'}
             </span>
           </motion.div>
 
-          {/* Rating row */}
           <motion.div variants={itemVariants} className="flex items-center gap-3">
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
               ))}
             </div>
             <span className="text-sm font-bold text-text-primary">4.9</span>
-            <span className="text-sm text-text-secondary">• 234 {t.verifiedReviews || 'verified reviews'}</span>
+            <span className="text-sm text-text-secondary">234 {t.verifiedReviews || 'verified reviews'}</span>
           </motion.div>
 
-          {/* Headline */}
           <motion.h1
             variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.0] text-text-primary"
+            className="max-w-full text-3xl font-black leading-[1.05] tracking-tight text-text-primary sm:text-5xl md:text-6xl xl:text-7xl"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            {t.heroTitle1 || 'Trusted Packers & '}{' '}
-            <span className="gradient-text block sm:inline">
-              {t.heroTitle2 || 'Movers in Surat'}
-            </span>
+            {t.heroTitle1 || 'Trusted Packers & '}
+            <span className="gradient-text block sm:inline">{t.heroTitle2 || 'Movers in Surat'}</span>
           </motion.h1>
 
-          {/* Subheadline */}
-          <motion.p
-            variants={itemVariants}
-            className="text-base md:text-lg text-text-secondary max-w-2xl leading-relaxed font-medium"
-          >
+          <motion.p variants={itemVariants} className="w-full max-w-[300px] text-base font-medium leading-7 text-text-secondary sm:max-w-2xl md:text-lg">
             {t.heroSubheadline || (
               <>
-                Book your local or intercity move in{' '}
-                <span className="text-primary font-bold">2 minutes</span>. Transparent pricing, zero hidden charges, and professional support across India.
+                Book your local or intercity move in <span className="font-bold text-primary">2 minutes</span>. Transparent pricing, zero hidden charges, and professional support across India.
               </>
             )}
           </motion.p>
 
-          {/* Trust badges */}
-          <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3">
+          <motion.div variants={itemVariants} className="flex w-full max-w-[300px] flex-wrap justify-center gap-2.5 sm:max-w-none lg:justify-start">
             {trustBadges.map(({ text, icon: Icon }) => (
-              <div
-                key={text}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-white rounded-full border border-bg-border shadow-xs text-sm font-semibold text-text-secondary"
-              >
-                <Icon className="w-3.5 h-3.5 text-primary" />
+              <div key={text} className="flex items-center gap-1.5 rounded-full border border-bg-border bg-white px-2.5 py-1.5 text-[11px] font-semibold text-text-secondary shadow-xs sm:px-3 sm:text-sm">
+                <Icon className="h-3.5 w-3.5 text-primary" />
                 {text}
               </div>
             ))}
           </motion.div>
 
-          {/* CTA buttons */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
-          >
+          <motion.div variants={itemVariants} className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
             <Link href="/book/local-shifting" className="w-full sm:w-auto">
-              <button className="btn-orange w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 tracking-wide">
+              <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto">
                 {t.btnQuote || 'Get Free Quote'}
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
             <Link href="/my-bookings" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold border-2 border-bg-border bg-white text-text-primary hover:border-primary/30 hover:text-primary transition-all shadow-xs">
+              <button className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto">
                 {t.btnTrack || 'Track My Booking'}
               </button>
             </Link>
           </motion.div>
 
-          {/* Stats Bar */}
-          <motion.div
-            variants={itemVariants}
-            className="grid w-full max-w-3xl grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:gap-3 sm:pt-5"
-          >
-            {stats.map((stat, i) => (
-              <div
-                key={stat.label}
-                className="group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-3 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:px-4 lg:py-4"
-              >
-                <div className="mb-2 grid h-8 w-8 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-white sm:h-9 sm:w-9">{React.createElement(stat.icon, { className: 'h-4 w-4 sm:h-[18px] sm:w-[18px]', strokeWidth: 1.8 })}</div>
-                <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-2xl" style={{ fontFamily: 'var(--font-heading)' }}>
-                  <AnimatedCounter value={String(stat.value)} suffix={stat.suffix} />
-                </span>
-                <span className="mt-1 text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-tertiary sm:text-xs sm:tracking-wider">{stat.label}</span>
+          <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[480px]">
+            {stats.map((stat) => (
+              <div key={stat.label} className="group flex min-w-0 items-center gap-2 rounded-2xl bg-white/80 px-3 py-2.5 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-200 active:scale-[.99]">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                  {React.createElement(stat.icon, { className: 'h-4 w-4', strokeWidth: 1.8 })}
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-lg font-black leading-none text-text-primary sm:text-xl" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <AnimatedCounter value={String(stat.value)} suffix={stat.suffix} />
+                  </span>
+                  <span className="mt-0.5 block truncate text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-tertiary sm:text-[10px]">{stat.label}</span>
+                </div>
               </div>
             ))}
           </motion.div>
         </motion.div>
 
-        {/* Retired side truck column */}
-        <div className="hidden">
-          <motion.div
-            initial={false}
-            animate={false}
-            className="relative w-full max-w-[420px] transition-transform duration-500 group-hover:scale-[1.018] xl:max-w-[480px]"
-          >
-            <div className="absolute inset-x-8 bottom-5 h-8 rounded-full bg-slate-900/10 blur-xl pointer-events-none" />
-            <Image
-              src="/truck.png"
-              alt="Tithi Packers and Movers truck"
-              width={720}
-              height={520}
-              sizes="(min-width: 1280px) 480px, 420px"
-              className="relative z-10 h-auto w-full object-contain drop-shadow-[0_24px_35px_rgba(15,23,42,0.22)]"
-            />
-
-            <svg
-              viewBox="0 0 520 380"
-              aria-hidden="true"
-              className="hidden w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#ff9a3c" />
-                  <stop offset="46%" stopColor="#ff6a1f" />
-                  <stop offset="100%" stopColor="#d93f0b" />
-                </linearGradient>
-                <linearGradient id="skyStripe" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#fff4ec" />
-                  <stop offset="100%" stopColor="#ffd4b8" />
-                </linearGradient>
-                <linearGradient id="cabinGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#ff7a22" />
-                  <stop offset="55%" stopColor="#ec520f" />
-                  <stop offset="100%" stopColor="#a92e09" />
-                </linearGradient>
-                <linearGradient id="windowGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#102632" stopOpacity="0.96" />
-                  <stop offset="100%" stopColor="#0b1720" stopOpacity="0.86" />
-                </linearGradient>
-                <filter id="truckShadow">
-                  <feDropShadow dx="0" dy="12" stdDeviation="10" floodColor="#0f172a" floodOpacity="0.22" />
-                </filter>
-              </defs>
-
-              {/* Road shadow */}
-              <ellipse cx="260" cy="340" rx="200" ry="14" fill="#0f172a" opacity="0.16" />
-              <motion.path d="M55 346 H145 M180 346 H270 M305 346 H405" stroke="#ff5a1f" strokeWidth="3" strokeLinecap="round" strokeDasharray="18 14" initial={{ pathOffset: 0 }} animate={{ pathOffset: -1 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }} opacity=".42" />
-
-              {/* Container body */}
-              <rect x="40" y="80" width="300" height="200" rx="14" fill="url(#bodyGrad)" stroke="#a92e09" strokeWidth="2.4" filter="url(#truckShadow)" />
-              <path d="M58 98h252c9 0 16 7 16 16v11H58V98Z" fill="#ffbd75" opacity=".55" />
-              <path d="M52 88h278" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity=".55" />
-
-              {/* Horizontal panel lines */}
-              <line x1="40" y1="140" x2="340" y2="140" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
-              <line x1="40" y1="200" x2="340" y2="200" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
-              <line x1="40" y1="255" x2="340" y2="255" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
-
-              {/* Vertical door seam */}
-              <line x1="200" y1="80" x2="200" y2="255" stroke="#b93b0d" strokeWidth="2" opacity=".38" />
-
-              {/* Sky blue stripe bottom */}
-              <rect x="40" y="255" width="300" height="24" rx="0" fill="url(#skyStripe)" />
-              <rect x="40" y="268" width="300" height="11" rx="0" fill="#111827" opacity="0.18" />
-
-              {/* TITHI branding on container */}
-              <text x="185" y="180" fill="#fff" fontSize="32" fontWeight="900" textAnchor="middle" letterSpacing="6" fontFamily="Outfit, sans-serif">TITHI</text>
-              <text x="185" y="215" fill="#fff4ec" fontSize="11" fontWeight="800" textAnchor="middle" letterSpacing="3" fontFamily="Outfit, sans-serif">PACKERS & MOVERS</text>
-
-              {/* Rear door handle */}
-              <rect x="195" y="195" width="10" height="30" rx="5" fill="#7c2d12" opacity=".72" />
-              <rect x="195" y="210" width="10" height="10" rx="2" fill="#431407" opacity=".55" />
-
-              {/* Cabin */}
-              <path d="M340 120 H430 L465 185 V280 H340 Z" fill="url(#cabinGrad)" stroke="#7c2d12" strokeWidth="2.4" filter="url(#truckShadow)" />
-              <path d="M348 126h72c16 0 30 14 39 44l6 20h-30l-18-45h-69v-19Z" fill="#ffb066" opacity=".45" />
-
-              {/* Sky blue cabin stripe */}
-              <path d="M340 255 L464 255" stroke="#111827" strokeWidth="8" opacity=".32" />
-
-              {/* Cabin window */}
-              <path d="M350 132 H415 L450 182 H350 Z" fill="url(#windowGrad)" opacity="0.96" />
-              <path d="M358 138 H410 L432 174 H358 Z" fill="#ffffff" opacity=".11" />
-              <path d="M350 132 H415 L450 182 H350 Z" stroke="#fff4ec" strokeWidth="2" fill="none" opacity="0.22" />
-
-              {/* Front grill and bumper */}
-              <path d="M432 194h31v49h-31z" fill="#101827" opacity=".88" />
-              <path d="M438 203h20 M438 214h20 M438 225h20" stroke="#718096" strokeWidth="3" strokeLinecap="round" opacity=".8" />
-              <path d="M424 250h43v16h-43z" fill="#111827" opacity=".9" />
-
-              {/* Side mirror */}
-              <rect x="460" y="168" width="14" height="20" rx="4" fill="#111827" stroke="#2d3748" strokeWidth="1" />
-
-              {/* Headlight */}
-              <rect x="458" y="215" width="14" height="22" rx="4" fill="#FFF9C4" stroke="#FDD835" strokeWidth="1.5" />
-              <polygon points="472,218 510,200 510,240 472,234" fill="#FDD835" opacity="0.25" />
-
-              {/* Wheel arches */}
-              <path d="M80 270 A38 38 0 0 1 156 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
-              <path d="M226 270 A38 38 0 0 1 302 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
-              <path d="M356 270 A38 38 0 0 1 432 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
-
-              {/* Wheels */}
-              {[118, 264, 394].map((cx, i) => (
-                <g key={i}>
-                  <circle cx={cx} cy={288} r="32" fill="#37474F" />
-                  <circle cx={cx} cy={288} r="22" fill="#546E7A" />
-                  <circle cx={cx} cy={288} r="10" fill="#78909C" />
-                  <circle cx={cx} cy={288} r="4" fill="#B0BEC5" />
-                  {/* Lug nuts */}
-                  {[0, 72, 144, 216, 288].map((angle) => (
-                    <circle
-                      key={angle}
-                      cx={cx + 15 * Math.cos((angle * Math.PI) / 180)}
-                      cy={288 + 15 * Math.sin((angle * Math.PI) / 180)}
-                      r="2.5"
-                      fill="#90A4AE"
-                    />
-                  ))}
-                </g>
-              ))}
-
-              {/* Exhaust pipe */}
-              <rect x="334" y="220" width="8" height="60" rx="4" fill="#9E9E9E" />
-              {/* Exhaust smoke */}
-              {[0, 1, 2].map((i) => (
-                <ellipse key={i} cx={330 - i * 6} cy={210 - i * 12} rx={4 + i * 2} ry={3 + i} fill="#E0E0E0" opacity={0.3 - i * 0.08} />
-              ))}
-            </svg>
-          </motion.div>
-
-          {/* Floating service cards */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8, type: 'spring', stiffness: 80 }}
-            className="hidden absolute top-10 right-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[160px]"
-          >
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-sm">✓</span>
-              <span className="text-xs font-bold text-text-primary">{t.confirmedCardTitle || 'Booking Confirmed'}</span>
-            </div>
-            <p className="text-[10px] text-text-tertiary leading-snug">{t.confirmedCardSub || 'Move scheduled for tomorrow'}</p>
-            <div className="mt-2 flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
-              ))}
-              <span className="text-[10px] text-text-tertiary ml-1">4.9</span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.1, type: 'spring', stiffness: 80 }}
-            className="hidden absolute bottom-24 left-0 bg-white rounded-2xl shadow-lg border border-bg-border p-3.5 min-w-[150px]"
-          >
-            <div className="text-xs text-text-tertiary mb-1 font-semibold uppercase tracking-wider">{t.trackingCardTitle || 'Live Tracking'}</div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-sm font-bold text-text-primary">{t.trackingCardSub || 'On the way'}</span>
-            </div>
-            <div className="text-[11px] text-text-secondary mt-1">{t.trackingEta || 'ETA: 45 minutes'}</div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Service Quick-links row */}
-      <div className="w-full mt-5 md:mt-6 relative z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-4xl mx-auto">
-            {services.map((service) => (
-              <Link key={service.name} href={service.path}>
-                <motion.div
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ scale: { type: 'spring', stiffness: 300, damping: 20 } }}
-                  className="hero-service-card group flex min-h-[96px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[126px] sm:gap-3 sm:p-4"
-                  style={{ '--hover-color': service.color }}
-                >
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-orange-500 sm:h-12 sm:w-12"
-                    style={{ backgroundColor: service.bg, color: service.color }}
-                  >
-                    {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-white sm:h-6 sm:w-6', strokeWidth: 1.8 })}
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">
-                      {service.name}
-                    </span>
-                    <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{t.bookNow || 'Book Now'} →</span>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Static Truck Row */}
-      <div className="hero-truck-wrap pointer-events-none relative z-10 mt-3 flex w-full justify-center px-4 md:mt-4">
-        <div className="relative w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
-          <div className="absolute inset-x-12 bottom-4 h-7 rounded-full bg-slate-900/10 blur-xl" />
+        <div className="pointer-events-none relative hidden min-h-[360px] lg:block">
           <Image
             src="/truck.png"
             alt="Tithi Packers and Movers truck"
-            width={900}
-            height={650}
+            width={920}
+            height={660}
             priority
-            sizes="(min-width: 1024px) 620px, (min-width: 640px) 520px, 420px"
-            className="relative z-10 h-auto w-full object-contain drop-shadow-[0_18px_26px_rgba(15,23,42,0.18)]"
+            sizes="(min-width: 1280px) 560px, 46vw"
+            className="absolute -bottom-44 right-[-12%] z-10 w-[118%] max-w-[660px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
           />
         </div>
       </div>
+
+      <div className="relative z-20 mt-6 w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-2 sm:gap-4">
+          {services.map((service) => (
+            <Link key={service.name} href={service.path}>
+              <motion.div
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ scale: { type: 'spring', stiffness: 300, damping: 20 } }}
+                className="hero-service-card group flex min-h-[94px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[118px] sm:gap-3 sm:p-4"
+                style={{ '--hover-color': service.color }}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-orange-500 group-hover:text-white sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
+                  {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-white sm:h-6 sm:w-6', strokeWidth: 1.9 })}
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
+                  <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{t.bookNow || 'Book Now'}</span>
+                </div>
+              </motion.div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <Image
+        src="/front_truck.png"
+        alt=""
+        width={620}
+        height={360}
+        sizes="(min-width: 768px) 520px, 82vw"
+        className="pointer-events-none absolute -bottom-14 right-[-12%] z-10 w-[82vw] max-w-[420px] object-contain pt-2 drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)] sm:-bottom-16 sm:max-w-[500px] md:-bottom-20 md:max-w-[560px] lg:hidden"
+      />
     </section>
   );
 }

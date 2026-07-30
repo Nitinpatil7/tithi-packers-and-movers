@@ -993,7 +993,7 @@ input.booking-input.gm-err-autocomplete {
   gap: 8px;
   background: var(--color-primary-soft);
   color: var(--color-primary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;

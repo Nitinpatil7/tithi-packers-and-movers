@@ -34,7 +34,7 @@ export default function FAQSection() {
   return (
     <section id="faq" className="dotted-light-bg py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      <Image src="/back_truck.png" alt="" width={420} height={280} className="pointer-events-none absolute -left-28 top-6 z-0 w-[220px] opacity-85 drop-shadow-[0_22px_34px_rgba(15,23,42,.18)] sm:-left-32 sm:w-[280px] md:w-[340px] lg:w-[420px]" />
+      <Image src="/back_truck.png" alt="" width={560} height={370} className="pointer-events-none absolute -left-32 top-28 z-0 w-[300px] opacity-35 drop-shadow-[0_22px_34px_rgba(15,23,42,.16)] sm:-left-40 sm:top-24 sm:w-[380px] md:top-16 md:w-[460px] md:opacity-55 lg:-left-44 lg:w-[560px] lg:opacity-80" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 

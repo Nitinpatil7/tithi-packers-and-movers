@@ -2,10 +2,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { enableQueryPersistence, queryClient } from '@/lib/queryClient';
-import { getItemCatalog } from '@/lib/itemApi';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Spinner from '@/components/ui/Spinner';
@@ -16,6 +15,7 @@ import { useBookingStore } from '@/store/bookingStore';
 
 export default function Providers({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { initializeTheme } = useThemeStore();
   const { initializeLanguage } = useLanguageStore();
@@ -50,20 +50,21 @@ export default function Providers({ children }) {
     // Warm the three main booking routes as soon as the browser is idle so
     // service-card and navbar clicks feel immediate.
     const prefetchServices = () => {
+      if (pathname?.startsWith('/admin') || pathname?.startsWith('/monitoring')) return;
       router.prefetch('/book/local-shifting');
       router.prefetch('/book/intercity-moving');
       router.prefetch('/book/labour-service');
       router.prefetch('/about');
       router.prefetch('/contact');
       router.prefetch('/my-bookings');
-      void queryClient.prefetchQuery({ queryKey: ['items', 'catalog', {}], queryFn: () => getItemCatalog({}), staleTime: 5 * 60 * 1000 });
     };
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(prefetchServices);
+      const idleId = window.requestIdleCallback(prefetchServices, { timeout: 1800 });
       return () => window.cancelIdleCallback(idleId);
     }
-    prefetchServices();
-  }, [router]);
+    const timer = window.setTimeout(prefetchServices, 1200);
+    return () => window.clearTimeout(timer);
+  }, [pathname, router]);
 
   useEffect(() => {
     let socket;

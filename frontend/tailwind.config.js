@@ -65,8 +65,8 @@ module.exports = {
       fontSize: {
         'display-2xl': ['4.5rem', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
         'display-xl': ['3.75rem', { lineHeight: '1.08', letterSpacing: '-0.025em' }],
-        'display-lg': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
-        'display-md': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.018em' }],
+        'display-lg': ['3.125rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-md': ['2.375rem', { lineHeight: '1.14', letterSpacing: '-0.018em' }],
         'display-sm': ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
       },
       borderRadius: {
