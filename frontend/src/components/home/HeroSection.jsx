@@ -47,17 +47,17 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-32 md:pt-36 pb-0 overflow-hidden">
+    <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-24 sm:pt-28 md:pt-36 pb-0 overflow-hidden">
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-20 h-px bg-gradient-to-r from-transparent via-service-local/20 to-transparent pointer-events-none" />
 
       {/* Dot pattern */}
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
         {/* Left Column */}
         <motion.div
-          className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 md:gap-8"
+          className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left gap-5 md:gap-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -140,12 +140,12 @@ export default function HeroSection() {
           {/* Stats Bar */}
           <motion.div
             variants={itemVariants}
-            className="grid w-full grid-cols-4 gap-2 border-t-2 border-bg-border pt-4 sm:gap-0 sm:pt-6"
+            className="grid w-full grid-cols-2 gap-2 border-t-2 border-bg-border pt-4 sm:grid-cols-4 sm:gap-0 sm:pt-6"
           >
             {stats.map((stat, i) => (
               <div
                 key={stat.label}
-                className={`group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-1.5 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:items-start lg:bg-transparent lg:px-3 lg:py-4 lg:text-left lg:ring-0 ${i > 0 ? 'sm:border-l sm:border-bg-border' : ''}`}
+                className={`group flex min-w-0 flex-col items-center rounded-2xl bg-white/75 px-3 py-3 text-center ring-1 ring-sky-100/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xs hover:ring-orange-200 active:scale-[.98] lg:items-start lg:bg-transparent lg:px-3 lg:py-4 lg:text-left lg:ring-0 ${i > 0 ? 'sm:border-l sm:border-bg-border' : ''}`}
               >
                 <div className="mb-2 grid h-8 w-8 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-primary group-hover:text-white sm:h-9 sm:w-9">{React.createElement(stat.icon, { className: 'h-4 w-4 sm:h-[18px] sm:w-[18px]', strokeWidth: 1.8 })}</div>
                 <span className="text-lg font-black leading-none text-text-primary sm:text-2xl md:text-3xl" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -158,9 +158,10 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Right Column: Truck SVG */}
-        <div className="hero-truck-wrap group hidden lg:col-span-5 lg:flex items-center justify-center relative">
+        <div className="hero-truck-wrap group pointer-events-none absolute -right-24 bottom-24 z-[5] flex w-[280px] items-center justify-center sm:-right-10 sm:bottom-20 sm:w-[340px] lg:pointer-events-auto lg:relative lg:bottom-auto lg:right-auto lg:z-auto lg:col-span-5 lg:w-auto">
           <motion.div
-            animate={{ y: [0, -5, 0], x: [0, 2, 0] }}
+            initial={{ opacity: 0, x: 90 }}
+            animate={{ opacity: 1, y: [0, -5, 0], x: [0, 2, 0] }}
             transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
             className="w-full relative transition-transform duration-500 group-hover:scale-[1.025]"
           >
@@ -174,74 +175,85 @@ export default function HeroSection() {
             >
               <defs>
                 <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="var(--truck-body-start)" />
-                  <stop offset="100%" stopColor="var(--truck-body-end)" />
+                  <stop offset="0%" stopColor="#ff9a3c" />
+                  <stop offset="46%" stopColor="#ff6a1f" />
+                  <stop offset="100%" stopColor="#d93f0b" />
                 </linearGradient>
                 <linearGradient id="skyStripe" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0EA5E9" />
-                  <stop offset="100%" stopColor="#0284C7" />
+                  <stop offset="0%" stopColor="#fff4ec" />
+                  <stop offset="100%" stopColor="#ffd4b8" />
                 </linearGradient>
                 <linearGradient id="cabinGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="var(--truck-cabin-start)" />
-                  <stop offset="100%" stopColor="var(--truck-cabin-end)" />
+                  <stop offset="0%" stopColor="#ff7a22" />
+                  <stop offset="55%" stopColor="#ec520f" />
+                  <stop offset="100%" stopColor="#a92e09" />
                 </linearGradient>
                 <linearGradient id="windowGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#90CAF9" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#42A5F5" stopOpacity="0.6" />
+                  <stop offset="0%" stopColor="#102632" stopOpacity="0.96" />
+                  <stop offset="100%" stopColor="#0b1720" stopOpacity="0.86" />
                 </linearGradient>
                 <filter id="truckShadow">
-                  <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--truck-shadow)" floodOpacity="0.12" />
+                  <feDropShadow dx="0" dy="12" stdDeviation="10" floodColor="#0f172a" floodOpacity="0.22" />
                 </filter>
               </defs>
 
               {/* Road shadow */}
-              <ellipse cx="260" cy="340" rx="200" ry="14" fill="#0EA5E9" opacity="0.10" />
-              <motion.path d="M55 346 H145 M180 346 H270 M305 346 H405" stroke="#0EA5E9" strokeWidth="3" strokeLinecap="round" strokeDasharray="18 14" initial={{ pathOffset: 0 }} animate={{ pathOffset: -1 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }} opacity=".35" />
+              <ellipse cx="260" cy="340" rx="200" ry="14" fill="#0f172a" opacity="0.16" />
+              <motion.path d="M55 346 H145 M180 346 H270 M305 346 H405" stroke="#ff5a1f" strokeWidth="3" strokeLinecap="round" strokeDasharray="18 14" initial={{ pathOffset: 0 }} animate={{ pathOffset: -1 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }} opacity=".42" />
 
               {/* Container body */}
-              <rect x="40" y="80" width="300" height="200" rx="14" fill="url(#bodyGrad)" stroke="var(--truck-outline)" strokeWidth="2.4" filter="url(#truckShadow)" />
+              <rect x="40" y="80" width="300" height="200" rx="14" fill="url(#bodyGrad)" stroke="#a92e09" strokeWidth="2.4" filter="url(#truckShadow)" />
+              <path d="M58 98h252c9 0 16 7 16 16v11H58V98Z" fill="#ffbd75" opacity=".55" />
+              <path d="M52 88h278" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity=".55" />
 
               {/* Horizontal panel lines */}
-              <line x1="40" y1="140" x2="340" y2="140" stroke="#E0E0E0" strokeWidth="1.5" />
-              <line x1="40" y1="200" x2="340" y2="200" stroke="#E0E0E0" strokeWidth="1.5" />
-              <line x1="40" y1="255" x2="340" y2="255" stroke="#E0E0E0" strokeWidth="1.5" />
+              <line x1="40" y1="140" x2="340" y2="140" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
+              <line x1="40" y1="200" x2="340" y2="200" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
+              <line x1="40" y1="255" x2="340" y2="255" stroke="#b93b0d" strokeWidth="1.5" opacity=".45" />
 
               {/* Vertical door seam */}
-              <line x1="200" y1="80" x2="200" y2="255" stroke="#E0E0E0" strokeWidth="2" />
+              <line x1="200" y1="80" x2="200" y2="255" stroke="#b93b0d" strokeWidth="2" opacity=".38" />
 
               {/* Sky blue stripe bottom */}
               <rect x="40" y="255" width="300" height="24" rx="0" fill="url(#skyStripe)" />
-              <rect x="40" y="268" width="300" height="11" rx="0" fill="#0284C7" opacity="0.3" />
+              <rect x="40" y="268" width="300" height="11" rx="0" fill="#111827" opacity="0.18" />
 
               {/* TITHI branding on container */}
-              <text x="185" y="180" fill="var(--truck-brand)" fontSize="32" fontWeight="900" textAnchor="middle" letterSpacing="6" fontFamily="Outfit, sans-serif">TITHI</text>
-              <text x="185" y="215" fill="var(--truck-subbrand)" fontSize="11" fontWeight="800" textAnchor="middle" letterSpacing="3" fontFamily="Outfit, sans-serif">PACKERS & MOVERS</text>
+              <text x="185" y="180" fill="#fff" fontSize="32" fontWeight="900" textAnchor="middle" letterSpacing="6" fontFamily="Outfit, sans-serif">TITHI</text>
+              <text x="185" y="215" fill="#fff4ec" fontSize="11" fontWeight="800" textAnchor="middle" letterSpacing="3" fontFamily="Outfit, sans-serif">PACKERS & MOVERS</text>
 
               {/* Rear door handle */}
-              <rect x="195" y="195" width="10" height="30" rx="5" fill="#BDBDBD" />
-              <rect x="195" y="210" width="10" height="10" rx="2" fill="#9E9E9E" />
+              <rect x="195" y="195" width="10" height="30" rx="5" fill="#7c2d12" opacity=".72" />
+              <rect x="195" y="210" width="10" height="10" rx="2" fill="#431407" opacity=".55" />
 
               {/* Cabin */}
-              <path d="M340 120 H430 L465 185 V280 H340 Z" fill="url(#cabinGrad)" stroke="var(--truck-outline)" strokeWidth="2.4" filter="url(#truckShadow)" />
+              <path d="M340 120 H430 L465 185 V280 H340 Z" fill="url(#cabinGrad)" stroke="#7c2d12" strokeWidth="2.4" filter="url(#truckShadow)" />
+              <path d="M348 126h72c16 0 30 14 39 44l6 20h-30l-18-45h-69v-19Z" fill="#ffb066" opacity=".45" />
 
               {/* Sky blue cabin stripe */}
-              <path d="M340 255 L464 255" stroke="url(#skyStripe)" strokeWidth="8" />
+              <path d="M340 255 L464 255" stroke="#111827" strokeWidth="8" opacity=".32" />
 
               {/* Cabin window */}
-              <path d="M350 132 H415 L450 182 H350 Z" fill="url(#windowGrad)" opacity="0.9" />
-              <path d="M350 132 H415 L450 182 H350 Z" stroke="#90CAF9" strokeWidth="2" fill="none" opacity="0.5" />
+              <path d="M350 132 H415 L450 182 H350 Z" fill="url(#windowGrad)" opacity="0.96" />
+              <path d="M358 138 H410 L432 174 H358 Z" fill="#ffffff" opacity=".11" />
+              <path d="M350 132 H415 L450 182 H350 Z" stroke="#fff4ec" strokeWidth="2" fill="none" opacity="0.22" />
+
+              {/* Front grill and bumper */}
+              <path d="M432 194h31v49h-31z" fill="#101827" opacity=".88" />
+              <path d="M438 203h20 M438 214h20 M438 225h20" stroke="#718096" strokeWidth="3" strokeLinecap="round" opacity=".8" />
+              <path d="M424 250h43v16h-43z" fill="#111827" opacity=".9" />
 
               {/* Side mirror */}
-              <rect x="460" y="168" width="14" height="20" rx="4" fill="#BDBDBD" stroke="#E0E0E0" strokeWidth="1" />
+              <rect x="460" y="168" width="14" height="20" rx="4" fill="#111827" stroke="#2d3748" strokeWidth="1" />
 
               {/* Headlight */}
               <rect x="458" y="215" width="14" height="22" rx="4" fill="#FFF9C4" stroke="#FDD835" strokeWidth="1.5" />
               <polygon points="472,218 510,200 510,240 472,234" fill="#FDD835" opacity="0.25" />
 
               {/* Wheel arches */}
-              <path d="M80 270 A38 38 0 0 1 156 270" stroke="#E0E0E0" strokeWidth="4" fill="none" />
-              <path d="M226 270 A38 38 0 0 1 302 270" stroke="#E0E0E0" strokeWidth="4" fill="none" />
-              <path d="M356 270 A38 38 0 0 1 432 270" stroke="#E0E0E0" strokeWidth="4" fill="none" />
+              <path d="M80 270 A38 38 0 0 1 156 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
+              <path d="M226 270 A38 38 0 0 1 302 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
+              <path d="M356 270 A38 38 0 0 1 432 270" stroke="#7c2d12" strokeWidth="5" fill="none" />
 
               {/* Wheels */}
               {[118, 264, 394].map((cx, i) => (
