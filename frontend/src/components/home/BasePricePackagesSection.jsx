@@ -194,12 +194,12 @@ function getInclusions(rule) {
     ];
   }
 
-  const freeItems = (rule.freeItemAllowance || []).filter((item) => Number(item.quantity) > 0).slice(0, 4).map((item) => `${item.quantity} ${item.sizeKey}`).join(' · ');
+  const freeItemCount = (rule.freeItemAllowance || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const freeDistance = (rule.distancePricing?.slabs || []).find((item) => item.isFree);
   const freeFloor = (rule.floorPricing?.slabs || []).find((item) => item.isFree);
 
   return [
-    { icon: Boxes, label: 'Items included', value: freeItems || 'Base allowance managed in admin' },
+    { icon: Boxes, label: 'Items included', value: freeItemCount ? `${freeItemCount} eligible inventory item(s)` : 'Base allowance managed in admin' },
     { icon: MapPinned, label: 'Distance included', value: freeDistance ? freeDistance.label || `${freeDistance.fromKm}-${freeDistance.toKm || '+'} km` : 'As per distance slabs' },
     { icon: CheckCircle2, label: 'Floor included', value: freeFloor ? freeFloor.label || `${freeFloor.fromFloor}-${freeFloor.toFloor || '+'} floor` : 'As per floor slabs' },
   ];

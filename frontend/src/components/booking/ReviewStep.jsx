@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Box, Calendar, CheckCircle2, Clock, IndianRupee,
 import Button from '@/components/ui/Button';
 import { formatCurrency } from '@/lib/utils';
 import { getTruckImageSrc } from '@/lib/truckVisuals';
+import { deriveFreeAllowanceItems } from '@/lib/freeAllowanceDisplay';
 
 const SERVICE_LABELS = {
   local: 'Local Shifting',
@@ -109,9 +110,9 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
   const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const itemBreakdown = pricingBreakdown.itemBreakdown || {};
-  const allowanceText = (pricingBreakdown.freeItemAllowance || []).map((item) => `${item.sizeKey}: ${item.quantity}`).join(' | ');
   const selectedTruck = pricingBreakdown.selectedTruck?.name ? pricingBreakdown.selectedTruck : null;
   const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
+  const freeAllowanceItems = deriveFreeAllowanceItems(items, itemBreakdown);
   const formattedDate = scheduledDate
     ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : '';
@@ -183,7 +184,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
           ) : null}
 
           {!isLabour && itemBreakdown.selectedCount > 0 && (
-            <QuoteLine icon={Box} label="Free-allowance value adjustment" detail={`Selected ${itemBreakdown.selectedCount || totalItems} item(s). Included ${itemBreakdown.includedCount || 0}; charged beyond allowance ${itemBreakdown.chargedCount || 0}.${allowanceText ? ` Base allowance: ${allowanceText}.` : ''}`} value={itemBreakdown.includedCount > 0 ? 'Applied' : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
+            <QuoteLine icon={Box} label="Free-allowance value adjustment" detail={freeAllowanceItems.length ? `${freeAllowanceItems.map((item) => item.name).join(', ')} included under free allowance. Charged beyond allowance: ${itemBreakdown.chargedCount || 0}.` : `Selected ${itemBreakdown.selectedCount || totalItems} item(s). Charged beyond allowance: ${itemBreakdown.chargedCount || 0}.`} value={itemBreakdown.includedCount > 0 ? 'Applied' : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
           )}
 
           {!isLabour && itemsExtraCharge > 0 && <QuoteLine icon={Box} label="Additional item charges" detail="Items beyond the free allowance." value={formatCurrency(itemsExtraCharge)} />}

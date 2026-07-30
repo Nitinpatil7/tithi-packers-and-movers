@@ -25,6 +25,7 @@ import Input from '@/components/ui/Input';
 import Spinner from '@/components/ui/Spinner';
 import QuoteModal from '@/components/admin/QuoteModal';
 import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getBookingScheduledDate } from '@/lib/utils';
+import { deriveFreeAllowanceItems } from '@/lib/freeAllowanceDisplay';
 import toast from 'react-hot-toast';
 
 const TIME_SLOT_LABELS = {
@@ -111,6 +112,8 @@ export default function BookingDetailPage() {
     ? `${selectedTruck.name}${selectedTruck.capacityKg ? ` - ${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : ''}`
     : booking.truckType?.replace?.(/[_-]/g, ' ') || '-';
   const selectedItems = getSelectedItems(booking);
+  const selectedAddons = getSelectedAddons(booking);
+  const freeAllowanceItems = deriveFreeAllowanceItems(selectedItems, booking.pricing?.breakdown?.itemBreakdown || {});
   const itemSummary = getItemSummary(selectedItems);
 
   return (
@@ -237,6 +240,19 @@ export default function BookingDetailPage() {
                   <DetailMetric label="Size mix" value={itemSummary.sizeLabel} />
                   <DetailMetric label="Items charge" value={formatCurrency(itemSummary.totalAmount)} />
                 </div>
+                {freeAllowanceItems.length > 0 && (
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
+                    <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-700">Items used under free allowance</span>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {freeAllowanceItems.map((item, index) => (
+                        <div key={`${item.name}-${item.sizeKey}-${index}`} className="rounded-xl bg-white px-3 py-2 text-xs ring-1 ring-emerald-100">
+                          <strong className="block text-text-primary">{item.name}</strong>
+                          <span className="text-[10px] font-semibold text-text-tertiary">{item.category || 'Inventory item'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {selectedItems.map((item, idx) => {
                     const quantity = Number(item.quantity || 0);
@@ -290,6 +306,36 @@ export default function BookingDetailPage() {
               </div>
             )}
           </Card>
+
+          {!isLabour && (
+            <Card className="p-6 bg-bg-card border border-bg-border/60 glass">
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider flex items-center gap-2 mb-4 border-b border-bg-border/60 pb-3">
+                <Sparkles className="w-4.5 h-4.5 text-primary" />
+                Selected Add-ons
+              </h3>
+              {selectedAddons.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {selectedAddons.map((addon, index) => (
+                    <div key={`${addon.key || addon.name}-${index}`} className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <strong className="block truncate text-text-primary">{addon.name || addon.key || 'Add-on service'}</strong>
+                          <span className="mt-0.5 block text-[10px] font-semibold uppercase text-text-tertiary">{String(addon.unit || 'service').replace(/_/g, ' ')}</span>
+                        </div>
+                        <span className="rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-xs font-black text-primary">x{Number(addon.quantity || 1)}</span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between border-t border-bg-border/50 pt-2">
+                        <span className="font-semibold text-text-secondary">Total</span>
+                        <span className="font-mono font-black text-text-primary">{formatCurrency(Number(addon.total ?? ((addon.pricesnapshot || addon.price || addon.unitPrice || addon.charge || 0) * (addon.quantity || 1))))}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="py-6 text-center text-xs font-semibold text-text-secondary">No add-ons selected for this booking.</p>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* Right Info Panel (4 cols) */}
@@ -423,6 +469,12 @@ function DetailMetric({ label, value }) {
 function getSelectedItems(booking) {
   if (Array.isArray(booking.items) && booking.items.length) return booking.items;
   if (Array.isArray(booking.quoteSnapshot?.items) && booking.quoteSnapshot.items.length) return booking.quoteSnapshot.items;
+  return [];
+}
+
+function getSelectedAddons(booking) {
+  if (Array.isArray(booking.selectedAddons) && booking.selectedAddons.length) return booking.selectedAddons;
+  if (Array.isArray(booking.quoteSnapshot?.selectedAddons) && booking.quoteSnapshot.selectedAddons.length) return booking.quoteSnapshot.selectedAddons;
   return [];
 }
 
