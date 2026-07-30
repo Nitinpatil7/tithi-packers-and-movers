@@ -39,8 +39,8 @@ export default function AdminLayout({ children }) {
 
   if (status !== 'authenticated') {
     return (
-      <div className="min-h-screen grid place-items-center bg-sky-50">
-        <div className="flex flex-col items-center gap-3 text-sm font-semibold text-sky-700">
+      <div className="grid min-h-screen place-items-center bg-[#ff4f1f]">
+        <div className="flex flex-col items-center gap-3 text-sm font-bold text-white/90">
           <Spinner size="lg" />
           Verifying secure admin session...
         </div>

@@ -543,17 +543,7 @@ input:focus, select:focus, textarea:focus {
   100% { transform: translateX(-50%); }
 }
 
-@keyframes roadMove {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-36px); }
-}
-
-@keyframes truckBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-@keyframes wheelSpin {
+@keyframes loaderRingSpin {
   to { transform: rotate(360deg); }
 }
 
@@ -770,19 +760,10 @@ input:focus, select:focus, textarea:focus {
   animation-play-state: paused;
 }
 
-.truck-loader__body {
-  animation: truckBob 1s ease-in-out infinite;
-  transform-origin: center;
-}
-
-.truck-loader__wheel {
-  animation: wheelSpin .75s linear infinite;
+.truck-loader__ring {
+  animation: loaderRingSpin 1.35s linear infinite;
   transform-box: fill-box;
   transform-origin: center;
-}
-
-.truck-loader__road {
-  animation: roadMove .8s linear infinite;
 }
 
 .footer-link-line {

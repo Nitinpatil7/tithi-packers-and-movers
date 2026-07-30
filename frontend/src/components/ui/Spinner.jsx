@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils';
 
 export default function Spinner({ size = 'md', className }) {
   const sizes = {
-    sm: 'w-7 h-5',
-    md: 'w-20 h-12',
-    lg: 'w-32 h-20',
+    sm: 'h-6 w-6',
+    md: 'h-16 w-16',
+    lg: 'h-24 w-24',
   };
 
   return (
@@ -18,19 +18,20 @@ export default function Spinner({ size = 'md', className }) {
       )}
       role="status"
     >
-      <svg viewBox="0 0 120 72" className="h-full w-full" aria-hidden="true" focusable="false">
-        <g className="truck-loader__body">
-          <path d="M14 38h46V21c0-3.3 2.7-6 6-6h19c2 0 3.9 1 5 2.7L101 36h5c2.8 0 5 2.2 5 5v10H14V38Z" fill="currentColor" />
-          <path d="M66 22h16.5c.7 0 1.4.4 1.8 1L92 36H66V22Z" fill="#fff" opacity=".88" />
-          <path d="M22 28h28" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity=".82" />
-          <path d="M14 51h97" stroke="#152338" strokeWidth="4" strokeLinecap="round" opacity=".2" />
+      <svg viewBox="0 0 96 96" className="h-full w-full" aria-hidden="true" focusable="false">
+        <circle cx="48" cy="48" r="47" fill="#ff4f1f" />
+        <g className="truck-loader__ring" fill="none" stroke="#fff" strokeLinecap="round" strokeWidth="2">
+          <path d="M28 20a33 33 0 0 0-7 47" opacity=".8" />
+          <path d="M68 76a33 33 0 0 0 7-47" opacity=".8" />
         </g>
-        <circle className="truck-loader__wheel" cx="35" cy="53" r="8" fill="#152338" />
-        <circle className="truck-loader__wheel" cx="88" cy="53" r="8" fill="#152338" />
-        <g className="truck-loader__road" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity=".45">
-          <path d="M10 65h26" />
-          <path d="M52 65h34" />
-          <path d="M99 65h14" />
+        <circle cx="48" cy="48" r="22" fill="#fff" />
+        <g fill="#ff4f1f">
+          <path d="M34 45.5h19.5v-6H34a2 2 0 0 0-2 2v12h3.8a5.2 5.2 0 0 1 10.1 0h11.2a5.2 5.2 0 0 1 10.1 0H70v-7.2a3 3 0 0 0-.7-1.9l-4.5-5.3a3 3 0 0 0-2.3-1.1h-6.8v13.5H34v-6Z" />
+          <path d="M57.8 40.8h4.4c.4 0 .8.2 1.1.5l3.3 3.9h-8.8v-4.4Z" fill="#fff" opacity=".45" />
+          <path d="M29.5 43h10.2a1.5 1.5 0 0 0 0-3H31a1.5 1.5 0 0 0-1.5 1.5V43Z" />
+          <path d="M28 48h11a1.5 1.5 0 0 0 0-3H28v3Z" />
+          <circle cx="40.8" cy="54.4" r="3.1" />
+          <circle cx="62.2" cy="54.4" r="3.1" />
         </g>
       </svg>
       <span className="sr-only">Loading...</span>
