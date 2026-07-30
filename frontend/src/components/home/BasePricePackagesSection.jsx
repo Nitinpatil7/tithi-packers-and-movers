@@ -46,9 +46,8 @@ export default function BasePricePackagesSection() {
   if (!showLoading && !rules.length) return null;
 
   return (
-    <section className="relative overflow-hidden bg-bg-white py-20 md:py-28">
+    <section className="section-texture relative overflow-hidden py-20 md:py-28">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      <div className="absolute left-1/2 top-10 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -130,11 +129,13 @@ function PackageCard({ rule, site, index }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ delay: index * 0.08, duration: 0.45 }}
-      className={`flex h-full flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card ${toneClass[meta.tone]}`}
+      whileHover={{ y: -6 }}
+      whileTap={{ scale: 0.99 }}
+      className={`group flex h-full flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-lg ${toneClass[meta.tone]}`}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border">
-          <Icon className="h-7 w-7" strokeWidth={1.8} />
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border transition-all duration-300 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white">
+          <Icon className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
         </div>
         <span className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider text-text-tertiary ring-1 ring-bg-border">
           Starter quote
@@ -148,7 +149,7 @@ function PackageCard({ rule, site, index }) {
         </p>
       </div>
 
-      <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-bg-border">
+      <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-bg-border transition-all duration-300 group-hover:ring-orange-100">
         <p className="text-xs font-black uppercase tracking-wider text-text-tertiary">Starting from</p>
         <div className="mt-1 flex items-end gap-2">
           <span className="text-3xl font-black text-text-primary">{formatCurrency(rule.basePrice || 0)}</span>
@@ -158,8 +159,8 @@ function PackageCard({ rule, site, index }) {
 
       <div className="mt-5 flex flex-1 flex-col gap-2">
         {inclusions.map(({ icon: ItemIcon, label, value }) => (
-          <div key={label} className="flex gap-3 rounded-2xl bg-white/75 p-3 ring-1 ring-white/80">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+          <div key={label} className="flex gap-3 rounded-2xl bg-white/75 p-3 ring-1 ring-white/80 transition-all duration-300 hover:bg-white hover:ring-orange-100">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white">
               <ItemIcon className="h-4.5 w-4.5" />
             </span>
             <div>
@@ -171,7 +172,7 @@ function PackageCard({ rule, site, index }) {
       </div>
 
       <Link href={meta.href} className="mt-6">
-        <button className="btn-sky flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black">
+        <button className="btn-sky flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black active:scale-[.98] transition-transform">
           Select Package
           <ArrowRight className="h-4 w-4" />
         </button>

@@ -47,9 +47,10 @@ export default function Footer() {
       {/* Top decorative gradient line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      {/* Background orbs */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-service-local/5 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{
+        backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+      }} />
 
       {/* CTA Strip */}
       <div className="border-b border-white/8 relative z-10">
@@ -64,13 +65,13 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-3">
             {phone && <a href={`tel:${phone}`}>
-              <button className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 transition-all">
+              <button className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 hover:border-primary/50 active:scale-[.98] transition-all">
                 <Phone className="w-4 h-4" />
                 {language === 'gu' ? 'ફોન કરો' : language === 'hi' ? 'कॉल करें' : 'Call Now'}
               </button>
             </a>}
             <Link href="/book/local-shifting">
-              <button className="btn-orange px-5 py-2.5 rounded-xl text-sm font-bold">
+              <button className="btn-orange px-5 py-2.5 rounded-xl text-sm font-bold active:scale-[.98] transition-transform">
                 {t.bookNow || 'Book Now'} →
               </button>
             </Link>
@@ -107,25 +108,25 @@ export default function Footer() {
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-emerald-400 hover:border-emerald-400/30 hover:bg-emerald-400/10 transition-all"
+                className="group w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-emerald-400 hover:border-emerald-400/30 hover:bg-emerald-400/10 hover:-translate-y-1 active:scale-95 transition-all"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4 transition-transform group-hover:rotate-6" />
               </a>}
               <a
                 href="https://instagram.com/tithipackers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-pink-400 hover:border-pink-400/30 hover:bg-pink-400/10 transition-all"
+                className="group w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-pink-400 hover:border-pink-400/30 hover:bg-pink-400/10 hover:-translate-y-1 active:scale-95 transition-all"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                <svg className="w-4 h-4 transition-transform group-hover:rotate-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
               </a>
               <a
                 href="https://facebook.com/tithipackers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-blue-400 hover:border-blue-400/30 hover:bg-blue-400/10 transition-all"
+                className="group w-9 h-9 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white/60 hover:text-blue-400 hover:border-blue-400/30 hover:bg-blue-400/10 hover:-translate-y-1 active:scale-95 transition-all"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                <svg className="w-4 h-4 transition-transform group-hover:rotate-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
               </a>
             </div>
           </div>
@@ -140,7 +141,7 @@ export default function Footer() {
                 <li key={link.path} className="text-left">
                   <Link
                     href={link.path}
-                    className="text-sm text-white/55 hover:text-white flex items-center gap-2 group transition-colors font-medium text-left"
+                    className="footer-link-line text-sm text-white/55 hover:text-white flex items-center gap-2 group transition-colors font-medium text-left w-fit"
                   >
                     <ArrowRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
                     {link.name}
@@ -160,7 +161,7 @@ export default function Footer() {
                 <li key={service.path} className="text-left">
                   <Link
                     href={service.path}
-                    className="text-sm text-white/55 hover:text-white flex items-center gap-2 group transition-colors font-medium text-left"
+                    className="footer-link-line text-sm text-white/55 hover:text-white flex items-center gap-2 group transition-colors font-medium text-left w-fit"
                   >
                     <span className="w-1.5 h-1.5 rounded-full shrink-0 opacity-0 group-hover:opacity-100 transition-all" style={{ backgroundColor: service.color }} />
                     {service.name}
@@ -174,7 +175,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4 text-left">
             <h4 className="text-white font-black text-sm uppercase tracking-widest">Legal</h4>
             <ul className="flex flex-col gap-3">
-              {legalLinks.map((link) => <li key={link.path}><Link href={link.path} className="flex items-center gap-2 text-sm font-medium text-white/55 transition-colors hover:text-white"><ArrowRight className="h-3.5 w-3.5 text-primary" />{link.name}</Link></li>)}
+              {legalLinks.map((link) => <li key={link.path}><Link href={link.path} className="footer-link-line group flex w-fit items-center gap-2 text-sm font-medium text-white/55 transition-colors hover:text-white"><ArrowRight className="h-3.5 w-3.5 text-primary transition-transform group-hover:translate-x-1" />{link.name}</Link></li>)}
             </ul>
           </div>
 
@@ -189,13 +190,13 @@ export default function Footer() {
                 <span>{address}</span>
               </li>}
               {phone && <li className="text-left">
-                <a href={`tel:${phone}`} className="flex items-center gap-3 text-sm text-white/55 hover:text-white transition-colors font-medium text-left">
+                <a href={`tel:${phone}`} className="footer-link-line flex w-fit items-center gap-3 text-sm text-white/55 hover:text-white transition-colors font-medium text-left">
                   <Phone className="w-4 h-4 text-primary shrink-0" />
                   {phone}
                 </a>
               </li>}
               {email && <li className="text-left">
-                <a href={`mailto:${email}`} className="flex items-center gap-3 text-sm text-white/55 hover:text-white transition-colors font-medium text-left">
+                <a href={`mailto:${email}`} className="footer-link-line flex w-fit items-center gap-3 text-sm text-white/55 hover:text-white transition-colors font-medium text-left">
                   <Mail className="w-4 h-4 text-primary shrink-0" />
                   {email}
                 </a>

@@ -8,6 +8,7 @@ import { enableQueryPersistence, queryClient } from '@/lib/queryClient';
 import { getItemCatalog } from '@/lib/itemApi';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import Spinner from '@/components/ui/Spinner';
 import Toast from '@/components/ui/Toast';
 import { useThemeStore } from '@/store/themeStore';
 import { useLanguageStore } from '@/store/languageStore';
@@ -107,7 +108,7 @@ export default function Providers({ children }) {
         <div className="h-16 w-full border-b border-bg-border/60 bg-bg-page/80" />
         <main className="grid flex-1 place-items-center px-4">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <Spinner size="lg" />
             <p className="text-sm font-bold text-text-secondary">Loading...</p>
           </div>
         </main>

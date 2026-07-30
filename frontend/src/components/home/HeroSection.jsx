@@ -48,9 +48,8 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen bg-hero-gradient flex flex-col items-center justify-center pt-32 md:pt-36 pb-0 overflow-hidden">
-      {/* Soft background orbs */}
-      <div className="absolute top-0 left-0 w-[700px] h-[700px] bg-primary/6 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/3 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-service-local/5 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
+      <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-20 h-px bg-gradient-to-r from-transparent via-service-local/20 to-transparent pointer-events-none" />
 
       {/* Dot pattern */}
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
@@ -165,8 +164,7 @@ export default function HeroSection() {
             transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
             className="w-full relative transition-transform duration-500 group-hover:scale-[1.025]"
           >
-            {/* Glow behind truck */}
-            <div className="absolute inset-0 m-auto w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute inset-x-8 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
 
             <svg
               viewBox="0 0 520 380"
@@ -318,6 +316,7 @@ export default function HeroSection() {
               <Link key={service.name} href={service.path}>
                 <motion.div
                   whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   className="flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-bg-border shadow-card hover:shadow-lg hover:border-primary/25 group cursor-pointer transition-all duration-300"
                   style={{ '--hover-color': service.color }}

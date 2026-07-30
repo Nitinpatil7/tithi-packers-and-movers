@@ -18,13 +18,20 @@ export default function FAQSection() {
   const phone = site.phone || '';
 
   const faqs = !isError && Array.isArray(apiFaqs) ? apiFaqs : [];
+  const trustItems = [
+    '100% trusted transport',
+    'Verified moving crew',
+    'Safe packing',
+    'Real-time support',
+    'Transparent quotes',
+  ];
 
   const toggleFAQ = (id) => {
     setOpenId(openId === id ? null : id);
   };
 
   return (
-    <section id="faq" className="py-24 md:py-32 bg-bg-section relative overflow-hidden">
+    <section id="faq" className="section-texture py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -50,13 +57,31 @@ export default function FAQSection() {
           </p>
         </motion.div>
 
+        <motion.div
+          className="mb-8 overflow-hidden rounded-2xl border border-orange-100 bg-white/85 py-3 shadow-card"
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          aria-label="Trust highlights"
+        >
+          <div className="trust-marquee whitespace-nowrap">
+            {[...trustItems, ...trustItems].map((item, index) => (
+              <span key={`${item}-${index}`} className="mx-4 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-orange-600">
+                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(244,81,30,0.12)]" />
+                {item}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+
         {/* FAQs Accordion */}
         <div className="flex flex-col gap-3">
           {isLoading && [0, 1, 2].map((item) => (
-            <div key={item} className="h-24 animate-pulse rounded-2xl border border-sky-100 bg-white" />
+            <div key={item} className="h-24 animate-pulse rounded-2xl border border-orange-100 bg-white/80" />
           ))}
           {!isLoading && faqs.length === 0 && (
-            <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-sm font-medium text-text-secondary">
+            <div className="rounded-2xl border border-orange-100 bg-white/85 p-8 text-center text-sm font-medium text-text-secondary shadow-card">
               FAQs are being updated. Please check back shortly.
             </div>
           )}
@@ -71,10 +96,12 @@ export default function FAQSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.06 }}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.99 }}
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-primary/30 bg-white shadow-md'
-                    : 'border-bg-border bg-white hover:border-primary/20 hover:shadow-xs'
+                    ? 'border-orange-200 bg-white shadow-md'
+                    : 'border-bg-border bg-white/90 hover:border-orange-200 hover:shadow-xs active:border-orange-200'
                 }`}
               >
                 {/* Accordion Trigger */}
@@ -84,7 +111,7 @@ export default function FAQSection() {
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
-                      isOpen ? 'bg-primary text-white' : 'bg-primary-soft text-primary'
+                      isOpen ? 'bg-primary text-white shadow-sky' : 'bg-orange-50 text-primary'
                     }`}>
                       <HelpCircle className="w-4.5 h-4.5" />
                     </div>

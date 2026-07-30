@@ -5,6 +5,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, ArrowRight, ArrowLeft, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
 import { cn } from '@/lib/utils';
 
 const MONTH_NAMES = [
@@ -209,7 +210,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           />
         ) : (
           <div className="grid min-h-80 place-items-center rounded-2xl border border-bg-border bg-white">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <Spinner size="md" />
           </div>
         )}
         {calendarReady && selectedDate && (

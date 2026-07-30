@@ -66,11 +66,9 @@ export default function WhyChooseUsSection() {
   ];
 
   return (
-    <section className="py-24 md:py-32 bg-white relative overflow-hidden">
+    <section className="section-texture py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      
-      {/* BG decorations */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/4 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/4 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -108,12 +106,13 @@ export default function WhyChooseUsSection() {
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
               <motion.div
-                className="bg-white border border-bg-border rounded-3xl p-6 md:p-8 text-center shadow-card hover:shadow-md transition-all cursor-default"
+                className="group bg-white/90 border border-sky-100 rounded-3xl p-5 md:p-7 text-center shadow-card hover:border-orange-200 hover:shadow-md transition-all cursor-default active:scale-[.99]"
                 whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.99 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 ring-4 ring-sky-50 transition-all group-hover:bg-orange-500 group-hover:text-white group-hover:rotate-3"
                   style={{ backgroundColor: stat.bg }}
                 >
                   <StatIcon className="h-6 w-6 text-primary" strokeWidth={1.7} />
@@ -145,19 +144,20 @@ export default function WhyChooseUsSection() {
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
               >
                 <motion.div
-                  className="bg-bg-section border border-bg-border rounded-2xl p-7 flex flex-col gap-4 h-full hover:bg-bg-white hover:shadow-md transition-all duration-300"
-                  whileHover={{ y: -3 }}
+                className="group bg-white/86 border border-sky-100 rounded-2xl p-6 flex flex-col gap-4 h-full hover:border-orange-200 hover:bg-bg-white hover:shadow-md transition-all duration-300 active:scale-[.99]"
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
                   <div className="flex items-start gap-4">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-xs transition-all group-hover:-translate-y-1 group-hover:bg-orange-500 group-hover:text-white"
                       style={{ backgroundColor: benefit.bg }}
                     >
                       <Icon className="h-6 w-6 text-primary" strokeWidth={1.7} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-text-primary mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+                      <h3 className="text-lg font-black text-text-primary mb-2 transition-colors group-hover:text-orange-600" style={{ fontFamily: 'var(--font-heading)' }}>
                         {benefit.title}
                       </h3>
                       <p className="text-sm text-text-secondary leading-relaxed font-medium">

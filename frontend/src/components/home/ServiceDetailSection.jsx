@@ -100,7 +100,7 @@ export default function ServiceDetailSection() {
   const current = details[activeTab];
 
   return (
-    <section id="service-details" className="relative z-10 border-t border-bg-border/60 bg-bg-section py-16 md:py-24">
+    <section id="service-details" className="section-texture relative z-10 border-t border-bg-border/60 py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         
         {/* Title */}
@@ -115,7 +115,7 @@ export default function ServiceDetailSection() {
         </div>
 
         {/* Desktop & Mobile Tab Selector */}
-        <div className="mb-7 grid grid-cols-1 gap-2 rounded-2xl border border-bg-border bg-bg-white p-2 shadow-xs sm:grid-cols-3 md:mb-12">
+        <div className="mb-7 grid grid-cols-1 gap-2 rounded-2xl border border-orange-100 bg-bg-white/85 p-2 shadow-xs sm:grid-cols-3 md:mb-12">
           {Object.keys(details).map((key) => (
             <button
               key={key}
@@ -123,7 +123,7 @@ export default function ServiceDetailSection() {
               className={`min-h-12 rounded-xl px-3 py-3 text-center text-xs font-black uppercase tracking-wide transition-all focus:outline-none sm:text-[11px] md:text-xs ${
                 activeTab === key
                   ? 'bg-primary text-white shadow-sky'
-                  : 'bg-transparent text-text-secondary hover:bg-bg-section hover:text-text-primary'
+                  : 'bg-transparent text-text-secondary hover:bg-orange-50 hover:text-primary active:bg-orange-50'
               }`}
             >
               {details[key].name}
@@ -139,7 +139,7 @@ export default function ServiceDetailSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className={`relative rounded-2xl border border-bg-border bg-gradient-to-r ${current.bgGlow} p-5 shadow-card sm:p-7 md:rounded-r-xl md:border-l-4 md:border-l-0 md:p-8 ${current.border} glass`}
+            className={`relative rounded-2xl border border-orange-100 bg-gradient-to-r ${current.bgGlow} p-5 shadow-card sm:p-7 md:rounded-r-xl md:border-l-4 md:border-l-0 md:p-8 ${current.border} glass`}
           >
             <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-12 lg:items-center lg:gap-8">
               
@@ -172,13 +172,13 @@ export default function ServiceDetailSection() {
               </div>
 
               {/* Right Column Inclusions Checklist */}
-              <div className="flex flex-col gap-4 rounded-2xl border border-bg-border/70 bg-bg-white/60 p-4 lg:col-span-5 lg:bg-transparent lg:p-0 lg:border-0">
+              <div className="flex flex-col gap-4 rounded-2xl border border-orange-100 bg-bg-white/75 p-4 lg:col-span-5 lg:bg-white/45">
                 <h4 className="text-[11px] font-black uppercase tracking-widest text-text-tertiary">
                   {t.whatIsIncluded || 'What is included'}
                 </h4>
                 <ul className="flex flex-col gap-3">
                   {current.included.map((inc) => (
-                    <li key={inc} className="flex gap-3 text-sm font-medium leading-6 text-text-secondary">
+                    <li key={inc} className="flex gap-3 rounded-2xl bg-white/80 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-bg-border/70 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-100 hover:shadow-xs active:scale-[.99]">
                       <CheckCircle2 className={`w-5 h-5 shrink-0 ${
                         activeTab === 'local' ? 'text-service-local' :
                         activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-packing'

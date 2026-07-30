@@ -16,7 +16,7 @@ export default function CTABannerSection() {
   const whatsapp = site.whatsappNumber || '';
 
   return (
-    <section className="relative overflow-hidden bg-white py-12 md:py-24">
+    <section className="section-texture-warm relative overflow-hidden py-12 md:py-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -29,8 +29,8 @@ export default function CTABannerSection() {
           {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#F4511E] via-[#FF6535] to-[#D84315]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.12)_0%,transparent_60%)]" />
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/8 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-20 w-48 h-48 bg-white/5 rounded-full translate-y-1/2" />
+          <div className="absolute inset-x-0 top-8 h-px bg-white/20" />
+          <div className="absolute inset-x-0 bottom-10 h-px bg-white/15" />
 
           {/* Dot pattern */}
           <div className="absolute inset-0 opacity-10" style={{
