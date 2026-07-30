@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Edit3, Eye, EyeOff, Image as ImageIcon, MessageSquareQuote, Plus, Search, Star, Trash2 } from 'lucide-react';
+import { Edit3, Eye, EyeOff, GripVertical, Image as ImageIcon, MessageSquareQuote, Plus, Search, Star, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
-import { useAdminTestimonials, useCreateTestimonial, useDeleteTestimonial, useUpdateTestimonial } from '@/hooks/useTestimonials';
+import { useAdminTestimonials, useCreateTestimonial, useDeleteTestimonial, useReorderTestimonials, useUpdateTestimonial } from '@/hooks/useTestimonials';
 
 const SERVICE_TYPES = [
   ['local_shifting', 'Local Movers'], ['intercity_moving', 'Intercity Movers'],
@@ -25,6 +25,8 @@ export default function AdminTestimonialsPage() {
   const createMutation = useCreateTestimonial();
   const updateMutation = useUpdateTestimonial();
   const deleteMutation = useDeleteTestimonial();
+  const reorderMutation = useReorderTestimonials();
+  const [draggingId, setDraggingId] = useState(null);
   const testimonials = useMemo(() => Array.isArray(data) ? data : [], [data]);
   const filtered = testimonials.filter((item) => `${item.name} ${item.location || ''} ${item.content}`.toLowerCase().includes(search.toLowerCase()));
 
@@ -54,6 +56,24 @@ export default function AdminTestimonialsPage() {
     try { await deleteMutation.mutateAsync(item._id); toast.success('Testimonial deactivated'); }
     catch (error) { toast.error(error.message); }
   };
+  const reorderTestimonial = async (targetId) => {
+    const hasFilter = search || filters.status !== 'all' || filters.featured !== 'all' || filters.serviceType !== 'all';
+    if (!draggingId || draggingId === targetId || hasFilter) return;
+    const ids = testimonials.map((item) => item._id);
+    const fromIndex = ids.indexOf(draggingId);
+    const toIndex = ids.indexOf(targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
+    const [moved] = ids.splice(fromIndex, 1);
+    ids.splice(toIndex, 0, moved);
+    try {
+      await reorderMutation.mutateAsync(ids);
+      toast.success('Testimonial order saved');
+    } catch (error) {
+      toast.error(error.message || 'Could not reorder testimonials');
+    } finally {
+      setDraggingId(null);
+    }
+  };
   const chooseImage = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -70,7 +90,7 @@ export default function AdminTestimonialsPage() {
     <section className="grid gap-4 sm:grid-cols-3"><Stat label="Total records" value={testimonials.length} icon={MessageSquareQuote} /><Stat label="Active" value={testimonials.filter((item) => item.status === 'active').length} icon={Eye} green /><Stat label="Featured" value={testimonials.filter((item) => item.isFeatured).length} icon={Star} /></section>
 
     <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm"><div className="grid gap-3 border-b border-sky-100 p-4 md:grid-cols-[1fr_auto_auto_auto]"><label className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customer, location or review..." className="w-full rounded-xl border border-sky-100 bg-sky-50/60 py-2.5 pl-10 pr-4 text-sm text-slate-900" /></label><Filter value={filters.status} onChange={(status) => setFilters({ ...filters, status })} options={[['all', 'All statuses'], ['active', 'Active'], ['inactive', 'Inactive']]} /><Filter value={filters.featured} onChange={(featured) => setFilters({ ...filters, featured })} options={[['all', 'All placement'], ['true', 'Featured'], ['false', 'Standard']]} /><Filter value={filters.serviceType} onChange={(serviceType) => setFilters({ ...filters, serviceType })} options={[['all', 'All services'], ...SERVICE_TYPES]} /></div>
-      {isLoading ? <div className="p-12 text-center text-sm text-slate-500">Loading testimonials...</div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load testimonials.</p><button onClick={() => refetch()} className="mt-3 text-sm font-bold text-sky-600">Try again</button></div> : filtered.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No testimonials match these filters.</div> : <div className="grid gap-4 p-4 lg:grid-cols-2">{filtered.map((item) => <article key={item._id} className="rounded-2xl border border-sky-100 p-5 transition hover:border-sky-200 hover:shadow-sm"><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><Avatar item={item} /><div className="min-w-0"><h2 className="truncate font-bold text-slate-900">{item.name}</h2><p className="truncate text-xs font-semibold text-slate-400">{item.location || 'Location not added'}</p></div></div><div className="flex gap-1">{[1,2,3,4,5].map((star) => <Star key={star} className={`h-3.5 w-3.5 ${star <= item.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}</div></div><p className="mt-4 line-clamp-3 min-h-[66px] text-sm leading-6 text-slate-600">“{item.content}”</p><div className="mt-4 flex flex-wrap items-center gap-2"><Badge>{SERVICE_TYPES.find(([value]) => value === item.serviceType)?.[1] || 'General'}</Badge>{item.isFeatured && <Badge featured>Featured</Badge>}<Badge inactive={item.status !== 'active'}>{item.status === 'active' ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{item.status || 'active'}</Badge><span className="ml-auto text-xs font-semibold text-slate-400">Order {item.sortOrder || 0}</span></div><div className="mt-4 flex justify-end gap-2 border-t border-sky-50 pt-4"><button onClick={() => openEdit(item)} className="inline-flex items-center gap-2 rounded-xl border border-sky-100 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50"><Edit3 className="h-3.5 w-3.5" /> Edit</button><button onClick={() => deactivate(item)} disabled={item.status === 'inactive' || deleteMutation.isPending} className="inline-flex items-center gap-2 rounded-xl border border-red-100 px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-50 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" /> Deactivate</button></div></article>)}</div>}
+      {isLoading ? <div className="p-12 text-center text-sm text-slate-500">Loading testimonials...</div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load testimonials.</p><button onClick={() => refetch()} className="mt-3 text-sm font-bold text-sky-600">Try again</button></div> : filtered.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No testimonials match these filters.</div> : <div className="grid gap-4 p-4 lg:grid-cols-2">{filtered.map((item) => <article key={item._id} draggable={!search && filters.status === 'all' && filters.featured === 'all' && filters.serviceType === 'all'} onDragStart={() => setDraggingId(item._id)} onDragOver={(event) => event.preventDefault()} onDrop={() => reorderTestimonial(item._id)} className={`rounded-2xl border border-sky-100 p-5 transition hover:border-sky-200 hover:shadow-sm ${draggingId === item._id ? 'opacity-60' : ''}`}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="cursor-grab text-slate-300 active:cursor-grabbing" title="Drag testimonial"><GripVertical className="h-5 w-5" /></span><Avatar item={item} /><div className="min-w-0"><h2 className="truncate font-bold text-slate-900">{item.name}</h2><p className="truncate text-xs font-semibold text-slate-400">{item.location || 'Location not added'}</p></div></div><div className="flex gap-1">{[1,2,3,4,5].map((star) => <Star key={star} className={`h-3.5 w-3.5 ${star <= item.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />)}</div></div><p className="mt-4 line-clamp-3 min-h-[66px] text-sm leading-6 text-slate-600">“{item.content}”</p><div className="mt-4 flex flex-wrap items-center gap-2"><Badge>{SERVICE_TYPES.find(([value]) => value === item.serviceType)?.[1] || 'General'}</Badge>{item.isFeatured && <Badge featured>Featured</Badge>}<Badge inactive={item.status !== 'active'}>{item.status === 'active' ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{item.status || 'active'}</Badge><span className="ml-auto text-xs font-semibold text-slate-400">Order {item.sortOrder || 0}</span></div><div className="mt-4 flex justify-end gap-2 border-t border-sky-50 pt-4"><button onClick={() => openEdit(item)} className="inline-flex items-center gap-2 rounded-xl border border-sky-100 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50"><Edit3 className="h-3.5 w-3.5" /> Edit</button><button onClick={() => deactivate(item)} disabled={item.status === 'inactive' || deleteMutation.isPending} className="inline-flex items-center gap-2 rounded-xl border border-red-100 px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-50 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" /> Deactivate</button></div></article>)}</div>}
     </section>
 
     <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Update testimonial' : 'Add testimonial'} size="lg">

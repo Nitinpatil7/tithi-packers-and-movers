@@ -27,6 +27,7 @@ const adminAuthRoutes = require("./routes/adminAuth.routes");
 const adminAnalyticsRoutes = require("./routes/adminAnalytics.routes");
 
 const app = express();
+const requestBodyLimit = process.env.REQUEST_BODY_LIMIT || "2mb";
 
 const defaultAllowedOrigins = [
     "http://localhost:3000",
@@ -55,8 +56,8 @@ app.use(cors({
 }))
 
 app.use(helmet());
-app.use(express.json({limit:"20kb"}));
-app.use(express.urlencoded({extended:true , limit:"20kb"}));
+app.use(express.json({ limit: requestBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
 app.use(cookieParser());
 app.use(requestidmiddlewere);
 app.use(requestlogger);

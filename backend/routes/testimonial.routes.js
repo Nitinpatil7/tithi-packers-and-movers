@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/", testimonialController.getPublicTestimonials);
 
 router.get("/admin/all", adminAuth, testimonialController.getAllTestimonialsForAdmin);
+router.patch("/admin/reorder", adminAuth, testimonialController.reorderTestimonials);
 
 router.get("/:id", adminAuth, testimonialController.getTestimonialById);
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Boxes, ChevronDown, ChevronRight, Edit3, Layers3, PackagePlus, Plus, Ruler, Search, Trash2 } from 'lucide-react';
+import { Boxes, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, PackagePlus, Plus, Ruler, Search, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
-import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize } from '@/hooks/useItems';
+import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useReorderGroups, useReorderItems, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize } from '@/hooks/useItems';
 
 const baseRecord = { name: '', description: '', sortOrder: 0, isActive: true };
 const sizeIdOf = (size) => size.sizeId?._id || size.sizeId || size._id;
@@ -15,6 +15,7 @@ export default function AdminItemsPage() {
   const [search, setSearch] = useState('');
   const [editor, setEditor] = useState(null);
   const [sizeManager, setSizeManager] = useState(false);
+  const [dragging, setDragging] = useState(null);
   const { data = [], isLoading, isError, refetch } = useAdminItemCatalog({});
   const { data: globalSizes = [] } = useAdminSizes({});
   const sections = useMemo(() => Array.isArray(data) ? data : [], [data]);
@@ -30,8 +31,42 @@ export default function AdminItemsPage() {
     createGroup: useCreateGroup(), updateGroup: useUpdateGroup(), deleteGroup: useDeleteGroup(),
     createItem: useCreateItem(), updateItem: useUpdateItem(), deleteItem: useDeleteItem(),
     createSize: useCreateSize(), updateSize: useUpdateSize(), deleteSize: useDeleteSize(),
+    reorderGroups: useReorderGroups(), reorderItems: useReorderItems(),
   };
   const busy = Object.values(mutations).some((mutation) => mutation.isPending);
+
+  const startDrag = (event, payload) => {
+    if (search) return;
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', payload.id);
+    setDragging(payload);
+  };
+
+  const reorderList = async ({ type, parentId, fromId, toId, records }) => {
+    if (!fromId || !toId || fromId === toId) {
+      setDragging(null);
+      return;
+    }
+    const ids = records.map((record) => record._id);
+    const fromIndex = ids.indexOf(fromId);
+    const toIndex = ids.indexOf(toId);
+    if (fromIndex < 0 || toIndex < 0) {
+      setDragging(null);
+      return;
+    }
+    const [moved] = ids.splice(fromIndex, 1);
+    ids.splice(toIndex, 0, moved);
+    try {
+      if (type === 'group') await mutations.reorderGroups.mutateAsync({ sectionId: parentId, orderedIds: ids });
+      if (type === 'item') await mutations.reorderItems.mutateAsync({ groupId: parentId, orderedIds: ids });
+      toast.success(type === 'group' ? 'Groups reordered' : 'Items reordered');
+    } catch (error) {
+      toast.error(error.message || 'Could not save order');
+    } finally {
+      setDragging(null);
+    }
+  };
 
   const saveEditor = async (form) => {
     try {
@@ -69,7 +104,69 @@ export default function AdminItemsPage() {
     {isLoading ? <Empty text="Loading item catalog…" /> : isError ? <Empty text="Could not load the item catalog." action={() => refetch()} /> : !sections.length ? <Empty text="No sections yet. Create the first section to start your catalog." /> : <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
       <div className="flex gap-2 overflow-x-auto border-b border-sky-100 bg-sky-50/40 p-3">{sections.map((section) => <button key={section._id} onClick={() => setActiveSection(section._id)} className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition ${current?._id === section._id ? 'bg-sky-600 text-white shadow-md shadow-sky-100' : 'bg-white text-slate-600 ring-1 ring-sky-100 hover:text-sky-700'}`}>{section.name}<span className="ml-2 text-[10px] opacity-70">{section.groups?.length || 0}</span></button>)}</div>
       <div className="flex flex-col gap-3 border-b border-sky-100 p-4 md:flex-row md:items-center md:justify-between"><label className="relative max-w-md flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} className="admin-field pl-10" placeholder="Search groups or items…" /></label><div className="flex flex-wrap gap-2"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'section', record: current })}>Edit section</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Section', current)}>Deactivate</SmallButton><SmallButton icon={Plus} primary onClick={() => setEditor({ type: 'group', section: current })}>Add group</SmallButton></div></div>
-      <div className="space-y-3 p-4">{groups.length ? groups.map((group) => { const open = expandedGroups[group._id] ?? true; return <article key={group._id} className="overflow-hidden rounded-2xl border border-sky-100"><div className="flex flex-col gap-3 bg-sky-50/45 p-4 sm:flex-row sm:items-center sm:justify-between"><button onClick={() => setExpandedGroups((value) => ({ ...value, [group._id]: !open }))} className="flex min-w-0 items-center gap-3 text-left"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-sky-600 ring-1 ring-sky-100">{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</span><span><strong className="block text-sm text-slate-900">{group.name}</strong><span className="text-xs font-semibold text-slate-400">{group.items?.length || 0} items</span></span></button><div className="flex flex-wrap gap-2"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'group', record: group, section: current })}>Edit</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Group', group)}>Deactivate</SmallButton><SmallButton icon={Plus} primary onClick={() => setEditor({ type: 'item', group })}>Add item</SmallButton></div></div>{open && <div className="grid gap-3 p-3 md:grid-cols-2 2xl:grid-cols-3">{group.items?.length ? group.items.map((item) => <div key={item._id} className="flex min-h-32 flex-col justify-between rounded-2xl border border-slate-100 p-4 transition hover:border-sky-200 hover:shadow-sm"><div><div className="flex items-start justify-between gap-3"><h3 className="text-sm font-black text-slate-800">{item.name}</h3><span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.isActive === false ? 'bg-slate-300' : 'bg-emerald-500'}`} /></div><div className="mt-3 flex flex-wrap gap-1.5">{(item.sizes || []).map((size) => <span key={size._id || `${item._id}-${size.sizeKey}`} className="rounded-lg bg-sky-50 px-2 py-1 text-[10px] font-black text-sky-700">{size.label || size.sizeKey}: ₹{Number(size.price || 0).toLocaleString('en-IN')}</span>)}</div></div><div className="mt-4 flex gap-2 border-t border-slate-100 pt-3"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'item', record: item, group })}>Edit item</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Item', item)}>Deactivate</SmallButton></div></div>) : <p className="col-span-full py-8 text-center text-sm font-semibold text-slate-400">No items in this group yet.</p>}</div>}</article>; }) : <Empty text="No groups or items match your search." />}</div>
+      <div className="space-y-3 p-4">
+        {groups.length ? groups.map((group) => {
+          const sourceGroup = (current?.groups || []).find((item) => item._id === group._id) || group;
+          const open = expandedGroups[group._id] ?? true;
+          const itemRecords = group.items || [];
+          const reorderItemRecords = sourceGroup.items || [];
+          return (
+            <article
+              key={group._id}
+              onDragOver={(event) => { if (dragging?.type === 'group' && !search) event.preventDefault(); }}
+              onDrop={() => !search && dragging?.type === 'group' && reorderList({ type: 'group', parentId: current?._id, fromId: dragging?.id, toId: group._id, records: current?.groups || [] })}
+              className={`overflow-hidden rounded-2xl border border-sky-100 ${dragging?.type === 'group' && dragging?.id === group._id ? 'opacity-60' : ''}`}
+            >
+              <div className="flex flex-col gap-3 bg-sky-50/45 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    draggable={!search}
+                    onDragStart={(event) => startDrag(event, { type: 'group', id: group._id })}
+                    onDragEnd={() => setDragging(null)}
+                    className="grid h-9 w-9 shrink-0 cursor-grab place-items-center rounded-xl bg-white text-slate-400 ring-1 ring-sky-100 active:cursor-grabbing"
+                    title={search ? 'Clear search to reorder groups' : 'Drag group'}
+                  >
+                    <GripVertical className="h-4 w-4" />
+                  </span>
+                  <button onClick={() => setExpandedGroups((value) => ({ ...value, [group._id]: !open }))} className="flex min-w-0 items-center gap-3 text-left">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-sky-600 ring-1 ring-sky-100">{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</span>
+                    <span><strong className="block text-sm text-slate-900">{group.name}</strong><span className="text-xs font-semibold text-slate-400">{itemRecords.length} items</span></span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'group', record: group, section: current })}>Edit</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Group', group)}>Deactivate</SmallButton><SmallButton icon={Plus} primary onClick={() => setEditor({ type: 'item', group })}>Add item</SmallButton></div>
+              </div>
+              {open && <div className="grid gap-3 p-3 md:grid-cols-2 2xl:grid-cols-3">
+                {itemRecords.length ? itemRecords.map((item) => (
+                  <div
+                    key={item._id}
+                    onDragOver={(event) => { if (dragging?.type === 'item' && !search) event.preventDefault(); }}
+                    onDrop={() => !search && dragging?.type === 'item' && reorderList({ type: 'item', parentId: group._id, fromId: dragging?.id, toId: item._id, records: reorderItemRecords })}
+                    className={`flex min-h-32 flex-col justify-between rounded-2xl border border-slate-100 p-4 transition hover:border-sky-200 hover:shadow-sm ${dragging?.type === 'item' && dragging?.id === item._id ? 'opacity-60' : ''}`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex min-w-0 items-start gap-2">
+                          <span
+                            draggable={!search}
+                            onDragStart={(event) => startDrag(event, { type: 'item', id: item._id })}
+                            onDragEnd={() => setDragging(null)}
+                            className="mt-0.5 cursor-grab text-slate-300 active:cursor-grabbing"
+                            title={search ? 'Clear search to reorder items' : 'Drag item'}
+                          ><GripVertical className="h-4 w-4" /></span>
+                          <h3 className="text-sm font-black text-slate-800">{item.name}</h3>
+                        </div>
+                        <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.isActive === false ? 'bg-slate-300' : 'bg-emerald-500'}`} />
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1.5">{(item.sizes || []).map((size) => <span key={size._id || `${item._id}-${size.sizeKey}`} className="rounded-lg bg-sky-50 px-2 py-1 text-[10px] font-black text-sky-700">{size.label || size.sizeKey}: ₹{Number(size.price || 0).toLocaleString('en-IN')}</span>)}</div>
+                    </div>
+                    <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'item', record: item, group })}>Edit item</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Item', item)}>Deactivate</SmallButton></div>
+                  </div>
+                )) : <p className="col-span-full py-8 text-center text-sm font-semibold text-slate-400">No items in this group yet.</p>}
+              </div>}
+            </article>
+          );
+        }) : <Empty text="No groups or items match your search." />}
+      </div>
     </section>}
 
     <RecordEditor editor={editor} sections={sections} globalSizes={globalSizes} busy={busy} onClose={() => setEditor(null)} onSave={saveEditor} />

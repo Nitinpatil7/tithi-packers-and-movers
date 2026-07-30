@@ -110,6 +110,8 @@ export default function BookingDetailPage() {
   const truckLabel = selectedTruck?.name
     ? `${selectedTruck.name}${selectedTruck.capacityKg ? ` - ${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : ''}`
     : booking.truckType?.replace?.(/[_-]/g, ' ') || '-';
+  const selectedItems = getSelectedItems(booking);
+  const itemSummary = getItemSummary(selectedItems);
 
   return (
     <div className="flex flex-col gap-6 text-left pb-12">
@@ -228,22 +230,44 @@ export default function BookingDetailPage() {
                 <DetailMetric label="Distance" value={`${booking.distanceKm || booking.pricing?.breakdown?.distanceKm || 0} km`} />
                 <DetailMetric label="Labour charge" value={formatCurrency(booking.employeeTotal || booking.pricing?.breakdown?.employeeTotal || 0)} />
               </div>
-            ) : booking.items && booking.items.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {booking.items.map((item, idx) => (
-                  <div 
-                    key={idx}
-                    className="flex justify-between items-center bg-bg-elevated/45 border border-bg-border/60 rounded p-3 text-xs"
-                  >
-                    <div className="flex flex-col text-left gap-0.5">
-                      <span className="font-bold text-text-primary">{item.name}</span>
-                      <span className="text-[10px] text-text-tertiary">{item.category}</span>
-                    </div>
-                    <span className="font-mono text-primary font-bold text-sm bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">
-                      x{item.quantity}
-                    </span>
-                  </div>
-                ))}
+            ) : selectedItems.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <DetailMetric label="Selected items" value={`${itemSummary.totalQuantity} unit(s)`} />
+                  <DetailMetric label="Size mix" value={itemSummary.sizeLabel} />
+                  <DetailMetric label="Items charge" value={formatCurrency(itemSummary.totalAmount)} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedItems.map((item, idx) => {
+                    const quantity = Number(item.quantity || 0);
+                    const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
+                    const lineTotal = Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
+                    const size = item.sizeTag || item.sizeKey || item.tag || '-';
+                    return (
+                      <div
+                        key={`${item.itemkey || item.itemId || item.name}-${idx}`}
+                        className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 text-left">
+                            <span className="block truncate font-black text-text-primary">{item.name}</span>
+                            <span className="mt-0.5 block truncate text-[10px] font-semibold text-text-tertiary">
+                              {item.category || item.section || 'Inventory item'}
+                            </span>
+                          </div>
+                          <span className="shrink-0 rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-sm font-black text-primary">
+                            x{quantity}
+                          </span>
+                        </div>
+                        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-bg-border/50 pt-2 text-[10px] font-bold text-text-secondary">
+                          <span>Size <b className="block text-text-primary">{size}</b></span>
+                          <span>Rate <b className="block font-mono text-text-primary">{formatCurrency(unitPrice)}</b></span>
+                          <span>Total <b className="block font-mono text-text-primary">{formatCurrency(lineTotal)}</b></span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ) : booking.businessDetails ? (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-left">
@@ -394,4 +418,30 @@ function DetailMetric({ label, value }) {
       <span className="mt-1 block text-sm font-bold capitalize text-text-primary">{value || '-'}</span>
     </div>
   );
+}
+
+function getSelectedItems(booking) {
+  if (Array.isArray(booking.items) && booking.items.length) return booking.items;
+  if (Array.isArray(booking.quoteSnapshot?.items) && booking.quoteSnapshot.items.length) return booking.quoteSnapshot.items;
+  return [];
+}
+
+function getItemSummary(items = []) {
+  const sizeCounts = {};
+  const totalQuantity = items.reduce((sum, item) => {
+    const quantity = Number(item.quantity || 0);
+    const size = String(item.sizeTag || item.sizeKey || item.tag || 'NA').toUpperCase();
+    sizeCounts[size] = (sizeCounts[size] || 0) + quantity;
+    return sum + quantity;
+  }, 0);
+  const totalAmount = items.reduce((sum, item) => {
+    const quantity = Number(item.quantity || 0);
+    const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
+    return sum + Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
+  }, 0);
+  const sizeLabel = Object.entries(sizeCounts)
+    .filter(([, count]) => count > 0)
+    .map(([size, count]) => `${size}: ${count}`)
+    .join(' | ');
+  return { totalQuantity, totalAmount, sizeLabel: sizeLabel || '-' };
 }

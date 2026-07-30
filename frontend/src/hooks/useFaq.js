@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFaq, deleteFaq, getFaqById, getFaqs, updateFaq } from '@/lib/faqApi';
+import { createFaq, deleteFaq, getFaqById, getFaqs, reorderFaqs, updateFaq } from '@/lib/faqApi';
 
 export function useFaqs(category) {
   return useQuery({
@@ -35,4 +35,9 @@ export function useUpdateFaq() {
 export function useDeleteFaq() {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: deleteFaq, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['faqs'] }) });
+}
+
+export function useReorderFaqs() {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: reorderFaqs, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['faqs'] }) });
 }

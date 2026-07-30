@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Eye, Edit3, Trash2 } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
-import { formatBookingDate, formatBookingTimeSlot, formatCurrency } from '@/lib/utils';
+import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate } from '@/lib/utils';
 
 const TIME_SLOT_LABELS = {
   morning: 'Morning',
@@ -37,6 +37,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete })
             <th className="px-5 py-4">Customer</th>
             <th className="px-5 py-4 hidden md:table-cell">Service</th>
             <th className="px-5 py-4 hidden sm:table-cell">Date / Time</th>
+            <th className="px-5 py-4 hidden lg:table-cell">Booked On</th>
             <th className="px-5 py-4">Status</th>
             <th className="px-5 py-4 hidden sm:table-cell">Amount</th>
             <th className="px-5 py-4 text-right">Actions</th>
@@ -49,6 +50,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete })
             const bookingId = b.bookingId || b.bookingid || b._id;
             const timeSlot = formatBookingTimeSlot(b, TIME_SLOT_LABELS, 'Slot not set');
             const scheduledDate = formatBookingDate(b);
+            const bookedDate = formatDate(b.createdAt) || '-';
             return (
             <tr
               key={bookingId}
@@ -65,6 +67,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete })
                   <span className="font-bold text-text-primary">{b.customerName || '-'}</span>
                   <span className="text-[10px] text-text-tertiary font-mono">{b.mobile || '-'}</span>
                   <span className="text-[10px] font-semibold text-text-tertiary sm:hidden">{scheduledDate} / {timeSlot}</span>
+                  <span className="text-[10px] font-semibold text-sky-600 lg:hidden">Booked: {bookedDate}</span>
                 </div>
               </td>
 
@@ -78,6 +81,14 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete })
                 <div className="flex flex-col gap-0.5">
                   <span className="font-bold text-text-primary">{scheduledDate}</span>
                   <span className="text-[10px] font-semibold capitalize text-text-tertiary">{timeSlot}</span>
+                </div>
+              </td>
+
+              {/* Booked Date */}
+              <td className="px-5 py-4 hidden lg:table-cell text-text-secondary font-mono">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold text-text-primary">{bookedDate}</span>
+                  <span className="text-[10px] font-semibold text-text-tertiary">Created by user</span>
                 </div>
               </td>
 

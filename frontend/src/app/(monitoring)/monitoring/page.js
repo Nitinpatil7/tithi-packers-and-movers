@@ -1,21 +1,25 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   AlertTriangle,
   BarChart3,
   CheckCircle2,
+  CircleDot,
   Clock3,
   Database,
+  FileText,
   Globe2,
   Gauge,
   HardDrive,
+  History,
   Network,
   RefreshCw,
   Server,
   ShieldAlert,
   TimerReset,
+  TrendingUp,
   Wifi,
   WifiOff,
   XCircle,
@@ -24,6 +28,10 @@ import {
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const SOCKET_URL = API_URL || undefined;
 const AUTO_REFRESH_MS = 5000;
+const HISTORY_STORAGE_KEY = "tithi-monitoring-availability-history";
+const LOG_STORAGE_KEY = "tithi-monitoring-event-logs";
+const MAX_HISTORY_ITEMS = 96;
+const MAX_LOG_ITEMS = 160;
 
 const ENDPOINTS = [
   {
@@ -177,6 +185,151 @@ function classifySpeed(duration) {
   return { label: "CRITICAL", color: "bg-red-500", text: "text-red-300" };
 }
 
+function readStoredJson(key, fallback) {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStoredJson(key, value) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Monitoring must keep running even if browser storage is blocked.
+  }
+}
+
+function endpointHealthy(result) {
+  return Boolean(result?.ok || result?.expectedProtected);
+}
+
+function formatDuration(totalSeconds = 0) {
+  const seconds = Math.max(0, Math.round(totalSeconds));
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+  if (hours) return `${hours}h ${minutes}m`;
+  if (minutes) return `${minutes}m ${remainingSeconds}s`;
+  return `${remainingSeconds}s`;
+}
+
+function formatTime(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function buildAvailabilityRecord(results, generatedAt, source, payload) {
+  const checked = results.length;
+  const failed = results.filter((item) => !endpointHealthy(item)).length;
+  const healthy = checked - failed;
+  const averageTiming = checked
+    ? Math.round(
+        results.reduce((sum, item) => sum + (item.duration || 0), 0) / checked,
+      )
+    : 0;
+
+  return {
+    id: `${generatedAt}-${source}`,
+    generatedAt,
+    source,
+    checked,
+    healthy,
+    failed,
+    availability: checked ? Math.round((healthy / checked) * 10000) / 100 : 0,
+    database: payload?.database || "unknown",
+    socket: source === "socket" ? "connected" : "fallback",
+    averageTiming,
+    slowest:
+      [...results].sort((a, b) => (b.duration || 0) - (a.duration || 0))[0] ||
+      null,
+    results,
+  };
+}
+
+function buildMonitorLogs(previousResults = [], nextResults = [], generatedAt, source) {
+  const previousMap = new Map(previousResults.map((item) => [item.path, item]));
+  const logs = [];
+
+  nextResults.forEach((result) => {
+    const previous = previousMap.get(result.path);
+    const wasHealthy = previous ? endpointHealthy(previous) : null;
+    const isHealthy = endpointHealthy(result);
+
+    if (wasHealthy === null) {
+      logs.push({
+        id: `${generatedAt}-${result.path}-initial`,
+        type: isHealthy ? "recovered" : "failed",
+        title: isHealthy ? `${result.name} reachable` : `${result.name} failed`,
+        detail: `${result.method} ${result.path} returned HTTP ${result.status} in ${result.duration} ms.`,
+        generatedAt,
+        source,
+      });
+      return;
+    }
+
+    if (wasHealthy !== isHealthy) {
+      logs.push({
+        id: `${generatedAt}-${result.path}-${isHealthy ? "recovered" : "failed"}`,
+        type: isHealthy ? "recovered" : "failed",
+        title: isHealthy ? `${result.name} recovered` : `${result.name} went down`,
+        detail: `${result.message || result.statusText || "Status changed"} | HTTP ${result.status} | ${result.duration} ms`,
+        generatedAt,
+        source,
+      });
+      return;
+    }
+
+    if (isHealthy && result.duration > 1500 && (!previous || previous.duration <= 1500)) {
+      logs.push({
+        id: `${generatedAt}-${result.path}-slow`,
+        type: "slow",
+        title: `${result.name} became slow`,
+        detail: `${result.duration} ms response time. Check database/API pressure if this repeats.`,
+        generatedAt,
+        source,
+      });
+    }
+  });
+
+  return logs;
+}
+
+function calculateAvailabilityStats(history) {
+  const totalSnapshots = history.length;
+  const totalChecks = history.reduce((sum, item) => sum + item.checked, 0);
+  const failedChecks = history.reduce((sum, item) => sum + item.failed, 0);
+  const availability = totalChecks
+    ? Math.round(((totalChecks - failedChecks) / totalChecks) * 10000) / 100
+    : 0;
+  const downtimeSnapshots = history.filter((item) => item.failed > 0).length;
+  const intervalSeconds = AUTO_REFRESH_MS / 1000;
+
+  return {
+    totalSnapshots,
+    totalChecks,
+    failedChecks,
+    availability,
+    downtime: formatDuration(downtimeSnapshots * intervalSeconds),
+    working: formatDuration(
+      Math.max(totalSnapshots - downtimeSnapshots, 0) * intervalSeconds,
+    ),
+    currentStreak: formatDuration(
+      history.findIndex((item) => item.failed > 0) === -1
+        ? totalSnapshots * intervalSeconds
+        : history.findIndex((item) => item.failed > 0) * intervalSeconds,
+    ),
+  };
+}
+
 async function checkEndpoint(endpoint) {
   const started = performance.now();
   const url = toApiUrl(endpoint.path);
@@ -236,6 +389,12 @@ async function checkEndpointsInBatches(batchSize = 4, onBatch) {
 export default function MonitoringPage() {
   const [results, setResults] = useState([]);
   const [snapshot, setSnapshot] = useState(null);
+  const [availabilityHistory, setAvailabilityHistory] = useState(() =>
+    readStoredJson(HISTORY_STORAGE_KEY, []),
+  );
+  const [eventLogs, setEventLogs] = useState(() =>
+    readStoredJson(LOG_STORAGE_KEY, []),
+  );
   const [isRunning, setIsRunning] = useState(false);
   const [socketState, setSocketState] = useState("connecting");
   const [socketMessage, setSocketMessage] = useState(
@@ -243,6 +402,42 @@ export default function MonitoringPage() {
   );
   const [lastRun, setLastRun] = useState("");
   const [socketRef, setSocketRef] = useState(null);
+  const latestResultsRef = useRef([]);
+
+  const recordSnapshot = (nextResults, generatedAt, source, payload = {}) => {
+    const stableTime = generatedAt || new Date().toISOString();
+    const newLogs = buildMonitorLogs(
+      latestResultsRef.current,
+      nextResults,
+      stableTime,
+      source,
+    );
+    latestResultsRef.current = nextResults;
+
+    if (newLogs.length) {
+      setEventLogs((previousLogs) => {
+        const nextLogs = [...newLogs, ...previousLogs].slice(0, MAX_LOG_ITEMS);
+        writeStoredJson(LOG_STORAGE_KEY, nextLogs);
+        return nextLogs;
+      });
+    }
+
+    setAvailabilityHistory((previousHistory) => {
+      if (previousHistory[0]?.generatedAt === stableTime) return previousHistory;
+      const record = buildAvailabilityRecord(
+        nextResults,
+        stableTime,
+        source,
+        payload,
+      );
+      const nextHistory = [record, ...previousHistory].slice(
+        0,
+        MAX_HISTORY_ITEMS,
+      );
+      writeStoredJson(HISTORY_STORAGE_KEY, nextHistory);
+      return nextHistory;
+    });
+  };
 
   useEffect(() => {
     let socket;
@@ -281,8 +476,15 @@ export default function MonitoringPage() {
       });
 
       socket.on("monitoring:snapshot", (payload) => {
+        const nextResults = payload?.results || [];
         setSnapshot(payload);
-        setResults(payload?.results || []);
+        setResults(nextResults);
+        recordSnapshot(
+          nextResults,
+          payload?.generatedAt || new Date().toISOString(),
+          "socket",
+          payload,
+        );
         setLastRun(
           payload?.generatedAt
             ? new Date(payload.generatedAt).toLocaleString()
@@ -315,6 +517,7 @@ export default function MonitoringPage() {
       });
       if (cancelled) return;
       setResults(checks);
+      recordSnapshot(checks, new Date().toISOString(), "browser fallback");
       setLastRun(new Date().toLocaleString());
     };
     runFallback();
@@ -370,12 +573,24 @@ export default function MonitoringPage() {
     }
     const checks = await checkEndpointsInBatches(4, setResults);
     setResults(checks);
+    recordSnapshot(checks, new Date().toISOString(), "manual browser check");
     setLastRun(new Date().toLocaleString());
     setIsRunning(false);
   };
 
   const socketHealthy = socketState === "connected";
   const dbStatus = snapshot?.database || health?.database || "unknown";
+  const availabilityStats = useMemo(
+    () => calculateAvailabilityStats(availabilityHistory),
+    [availabilityHistory],
+  );
+  const currentAvailability =
+    availabilityHistory[0]?.availability ??
+    (summary.checked
+      ? Math.round(
+          ((summary.checked - summary.failed) / summary.checked) * 10000,
+        ) / 100
+      : 0);
 
   return (
     <main className="relative min-h-screen  overflow-hidden bg-[#020617] text-slate-100">
@@ -525,6 +740,103 @@ export default function MonitoringPage() {
             </Panel>
           </div>
 
+          <section className="rounded-xl border border-cyan-300/15 bg-slate-950/80 shadow-[0_0_42px_rgba(8,145,178,0.08)]">
+            <div className="flex flex-col gap-3 border-b border-cyan-300/15 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-emerald-300" />
+                <h2 className="font-black text-white">Availability Monitor</h2>
+              </div>
+              <span className="font-mono text-xs font-semibold text-slate-400">
+                {availabilityStats.totalSnapshots
+                  ? `${availabilityStats.totalSnapshots} snapshots saved in this browser`
+                  : "Waiting for availability history"}
+              </span>
+            </div>
+            <div className="grid gap-4 p-4 lg:grid-cols-[260px_1fr]">
+              <div className="rounded-lg border border-emerald-300/20 bg-emerald-400/10 p-4">
+                <p className="text-xs font-black uppercase tracking-wider text-emerald-200">
+                  Current Availability
+                </p>
+                <p className="mt-2 font-mono text-4xl font-black text-white">
+                  {currentAvailability.toFixed(2)}%
+                </p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
+                  <div
+                    className={`h-full rounded-full ${
+                      currentAvailability >= 99
+                        ? "bg-emerald-400"
+                        : currentAvailability >= 95
+                          ? "bg-amber-400"
+                          : "bg-red-500"
+                    }`}
+                    style={{ width: `${Math.min(currentAvailability, 100)}%` }}
+                  />
+                </div>
+                <div className="mt-4 grid gap-2">
+                  <HealthRow label="Working time" value={availabilityStats.working} />
+                  <HealthRow label="Failed time" value={availabilityStats.downtime} />
+                  <HealthRow
+                    label="Healthy streak"
+                    value={availabilityStats.currentStreak}
+                  />
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <div className="mb-3 grid gap-3 sm:grid-cols-3">
+                  <MiniMetric
+                    label="Total checks"
+                    value={availabilityStats.totalChecks || summary.checked}
+                    tone="cyan"
+                  />
+                  <MiniMetric
+                    label="Failed checks"
+                    value={availabilityStats.failedChecks || summary.failed}
+                    tone={availabilityStats.failedChecks || summary.failed ? "red" : "emerald"}
+                  />
+                  <MiniMetric
+                    label="Avg latency"
+                    value={`${availabilityHistory[0]?.averageTiming ?? summary.avg} ms`}
+                    tone="sky"
+                  />
+                </div>
+                <div className="grid grid-cols-12 gap-1">
+                  {availabilityHistory.slice(0, 48).map((item) => (
+                    <div
+                      key={item.id}
+                      title={`${formatTime(item.generatedAt)} | ${item.availability}% | ${item.failed} failed`}
+                      className={`h-8 rounded border ${
+                        item.failed
+                          ? "border-red-300/30 bg-red-500/70"
+                          : "border-emerald-300/30 bg-emerald-400/70"
+                      }`}
+                    />
+                  ))}
+                  {!availabilityHistory.length &&
+                    Array.from({ length: 24 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="h-8 rounded border border-slate-700 bg-slate-900"
+                      />
+                    ))}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-400">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-sm bg-emerald-400" />
+                    Working snapshot
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-sm bg-red-500" />
+                    Failed snapshot
+                  </span>
+                  <span className="font-mono">
+                    Latest: {formatTime(availabilityHistory[0]?.generatedAt)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section className="overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/80 shadow-[0_0_42px_rgba(8,145,178,0.08)]">
             <div className="flex items-center justify-between border-b border-cyan-300/15 px-4 py-3">
               <div className="flex items-center gap-2">
@@ -638,6 +950,57 @@ export default function MonitoringPage() {
         </div>
 
         <aside className="space-y-6">
+          <Panel title="Live Logs" icon={FileText}>
+            <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+              {eventLogs.length ? (
+                eventLogs.slice(0, 18).map((log) => (
+                  <LogItem key={log.id} log={log} />
+                ))
+              ) : (
+                <Diagnostic
+                  label="No events yet"
+                  value="Logs appear here when an API fails, recovers, or becomes critically slow."
+                />
+              )}
+            </div>
+          </Panel>
+
+          <Panel title="Last Failure" icon={History}>
+            {(() => {
+              const lastFailed = availabilityHistory.find((item) => item.failed > 0);
+              if (!lastFailed) {
+                return (
+                  <Diagnostic
+                    label="No failure recorded"
+                    value="Current browser history has only healthy availability snapshots."
+                  />
+                );
+              }
+              const failedEndpoints = lastFailed.results
+                .filter((item) => !endpointHealthy(item))
+                .map((item) => item.name)
+                .join(", ");
+              return (
+                <>
+                  <HealthRow label="Time" value={formatTime(lastFailed.generatedAt)} />
+                  <HealthRow label="Failed APIs" value={`${lastFailed.failed}`} />
+                  <Diagnostic
+                    label="What failed"
+                    value={failedEndpoints || "Failure details unavailable."}
+                  />
+                  <Diagnostic
+                    label="Likely reason"
+                    value={
+                      lastFailed.database === "disconnected"
+                        ? "Database disconnected or backend could not reach MongoDB."
+                        : "Endpoint returned an error, timed out, or browser could not reach backend."
+                    }
+                  />
+                </>
+              );
+            })()}
+          </Panel>
+
           <Panel title="Failure Diagnosis" icon={ShieldAlert}>
             <Diagnostic
               label="Failed to fetch"
@@ -734,6 +1097,25 @@ function Metric({ icon: Icon, label, value, tone }) {
   );
 }
 
+function MiniMetric({ label, value, tone }) {
+  const tones = {
+    cyan: "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
+    sky: "border-sky-300/20 bg-sky-300/10 text-sky-200",
+    emerald: "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
+    red: "border-red-300/20 bg-red-400/10 text-red-200",
+  };
+  return (
+    <div className={`rounded-lg border p-3 ${tones[tone] || tones.cyan}`}>
+      <p className="text-xs font-bold uppercase tracking-wider opacity-80">
+        {label}
+      </p>
+      <p className="mt-1 truncate font-mono text-lg font-black text-white">
+        {value}
+      </p>
+    </div>
+  );
+}
+
 function Panel({ title, icon: Icon, children }) {
   return (
     <section className="rounded-xl border border-cyan-300/15 bg-slate-950/80 p-4 shadow-[0_0_42px_rgba(8,145,178,0.08)]">
@@ -743,6 +1125,34 @@ function Panel({ title, icon: Icon, children }) {
       </div>
       <div className="space-y-3">{children}</div>
     </section>
+  );
+}
+
+function LogItem({ log }) {
+  const tone =
+    log.type === "failed"
+      ? "text-red-300"
+      : log.type === "slow"
+        ? "text-amber-300"
+        : "text-emerald-300";
+
+  return (
+    <div className="border-b border-cyan-300/10 pb-3 last:border-0 last:pb-0">
+      <div className="flex items-start gap-2">
+        <CircleDot className={`mt-0.5 h-4 w-4 shrink-0 ${tone}`} />
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="text-xs font-black text-slate-100">{log.title}</p>
+            <span className="font-mono text-[10px] font-bold uppercase text-slate-500">
+              {formatTime(log.generatedAt)}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-semibold leading-5 text-slate-400">
+            {log.detail}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

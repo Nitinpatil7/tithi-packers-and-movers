@@ -43,6 +43,14 @@ const deleteFAQ = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, faq, "FAQ deactivated successfully"));
 });
 
+const reorderFAQs = asyncHandler(async (req, res) => {
+  const faqs = await faqService.reorderFAQs(req.body.orderedIds);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, faqs, "FAQs reordered successfully"));
+});
+
 
 
 module.exports = {
@@ -51,4 +59,5 @@ module.exports = {
   getFAQById,
   updateFAQ,
   deleteFAQ,
+  reorderFAQs,
 }

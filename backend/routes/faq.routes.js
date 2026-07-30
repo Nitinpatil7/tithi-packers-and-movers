@@ -5,6 +5,7 @@ const adminAuth = require("../middlewere/adminAuth.middlewere");
 const router = express.Router();
 
 router.post("/", adminAuth, faqController.createFAQ);
+router.patch("/reorder", adminAuth, faqController.reorderFAQs);
 
 router.get("/", faqController.getAllFAQs);
 router.get("/:id", faqController.getFAQById);

@@ -95,9 +95,17 @@ export const getAdminStats = async () => fetch(`${API_URL}/api/admin-analytics/d
   .then(readResponse)
   .then((payload) => {
     const stats = payload?.stats || {};
+    const serviceKeyMap = {
+      local_shifting: 'local',
+      intercity_moving: 'intercity',
+      porter_labour_service: 'porterLabour',
+    };
     const bookingsByService = {};
     (payload?.serviceBreakdown || []).forEach((item) => {
-      if (item.serviceType) bookingsByService[item.serviceType] = item.bookings || 0;
+      if (!item.serviceType) return;
+      const count = Number(item.bookings || 0);
+      bookingsByService[item.serviceType] = count;
+      bookingsByService[serviceKeyMap[item.serviceType] || item.serviceType] = count;
     });
     return {
       ...payload,
@@ -106,7 +114,10 @@ export const getAdminStats = async () => fetch(`${API_URL}/api/admin-analytics/d
       pendingBookings: stats.pendingBookings || 0,
       confirmedBookings: stats.inProgressBookings || 0,
       completedThisMonth: stats.completedBookings || 0,
-      dailyBookings: payload?.dailyBookingGraph || [],
+      dailyBookings: (payload?.dailyBookingGraph || []).map((item) => ({
+        ...item,
+        count: Number(item.count ?? item.bookings ?? 0),
+      })),
       bookingsByService,
       recentBookings: (payload?.recentBookings || []).map(normalizeBooking),
     };

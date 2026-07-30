@@ -15,6 +15,16 @@ export default function BookingLineChart({ data = [] }) {
     return <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>;
   }
 
+  const hasBookings = data.some((item) => Number(item.count ?? item.bookings ?? 0) > 0);
+
+  if (!hasBookings) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-bg-border bg-bg-section px-6 text-center text-xs font-semibold text-text-secondary">
+        No confirmed booking frequency in the last 30 days yet.
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">

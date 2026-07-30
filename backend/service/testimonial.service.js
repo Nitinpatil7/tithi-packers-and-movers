@@ -1,9 +1,11 @@
 
 const Testimonial = require("../schema/Testimonial.model")
 const ApiError = require("../utility/apierror");
+const { notifyContentChange } = require("../utility/contentEvents");
 
 const createTestimonial = async (payload) => {
   const testimonial = await Testimonial.create(payload);
+  notifyContentChange("testimonial", "testimonial:create", { id: testimonial._id });
   return testimonial;
 };
 
@@ -48,6 +50,7 @@ const getAllTestimonialsForAdmin = async (query = {}) => {
   }
 
   const testimonials = await Testimonial.find(filter).sort({
+    sortOrder: 1,
     createdAt: -1,
   });
 
@@ -61,6 +64,7 @@ const getTestimonialById = async (testimonialId) => {
     throw new ApiError(404, "Testimonial not found");
   }
 
+  notifyContentChange("testimonial", "testimonial:update", { id: testimonialId });
   return testimonial;
 };
 
@@ -78,7 +82,20 @@ const updateTestimonial = async (testimonialId, payload) => {
     throw new ApiError(404, "Testimonial not found");
   }
 
+  notifyContentChange("testimonial", "testimonial:delete", { id: testimonialId });
   return testimonial;
+};
+
+const reorderTestimonials = async (orderedIds = []) => {
+  const ids = [...new Set((orderedIds || []).map(String))];
+  if (!ids.length) throw new ApiError(400, "Ordered testimonial IDs are required");
+  const count = await Testimonial.countDocuments({ _id: { $in: ids } });
+  if (count !== ids.length) throw new ApiError(400, "One or more testimonials are invalid");
+  await Testimonial.bulkWrite(ids.map((id, index) => ({
+    updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
+  })));
+  notifyContentChange("testimonial", "testimonial:reorder");
+  return getAllTestimonialsForAdmin({});
 };
 
 const deleteTestimonial = async (testimonialId) => {
@@ -107,5 +124,6 @@ module.exports = {
   getTestimonialById,
   updateTestimonial,
   deleteTestimonial,
+  reorderTestimonials,
 
 }

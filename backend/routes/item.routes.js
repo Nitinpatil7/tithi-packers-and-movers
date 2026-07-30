@@ -12,6 +12,7 @@ router.get("/sizes", controller.getPublicSizes);
 
 router.get("/admin/catalog", adminAuth, controller.getAdminCatalog);
 router.get("/admin/items", adminAuth, controller.getAdminItems);
+router.patch("/admin/items/reorder", adminAuth, controller.reorderItems);
 router.post("/admin/items", adminAuth, controller.createItem);
 router.patch("/admin/items/:id", adminAuth, controller.updateItem);
 router.delete("/admin/items/:id", adminAuth, controller.deleteItem);
@@ -20,6 +21,7 @@ router.post("/admin/sections", adminAuth, controller.createSection);
 router.patch("/admin/sections/:id", adminAuth, controller.updateSection);
 router.delete("/admin/sections/:id", adminAuth, controller.deleteSection);
 router.get("/admin/groups", adminAuth, controller.getAdminGroups);
+router.patch("/admin/groups/reorder", adminAuth, controller.reorderGroups);
 router.post("/admin/groups", adminAuth, controller.createGroup);
 router.patch("/admin/groups/:id", adminAuth, controller.updateGroup);
 router.delete("/admin/groups/:id", adminAuth, controller.deleteGroup);

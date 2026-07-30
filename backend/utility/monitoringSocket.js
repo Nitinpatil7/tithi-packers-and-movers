@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
+const { setContentEmitter } = require("./contentEvents");
 
-const CHECK_INTERVAL_MS = 1000;
+const CHECK_INTERVAL_MS = 5000;
 
 const endpoints = [
   {
@@ -211,7 +212,19 @@ const attachMonitoringSocket = (httpServer, app, port) => {
   });
 
   const namespace = io.of("/monitoring");
+  const contentNamespace = io.of("/content");
   let latestSnapshot = null;
+
+  setContentEmitter((payload) => {
+    contentNamespace.emit("content:changed", payload);
+  });
+
+  contentNamespace.on("connection", (socket) => {
+    socket.emit("content:connected", {
+      message: "Content realtime socket connected",
+      generatedAt: new Date().toISOString(),
+    });
+  });
 
   const emitSnapshot = async () => {
     latestSnapshot = await buildSnapshot(port);

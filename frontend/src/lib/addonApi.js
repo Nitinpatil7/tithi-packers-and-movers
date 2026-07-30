@@ -19,9 +19,15 @@ async function addonRequest(path, options = {}) {
 }
 
 const list = (payload) => Array.isArray(payload) ? payload : payload?.addons || payload?.items || payload?.results || [];
+const addonKeyFromName = (name = '') => String(name)
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_+|_+$/g, '');
+const withGeneratedKey = (data = {}) => ({ ...data, key: data.key || addonKeyFromName(data.name) });
 export const getAvailableAddons = (filters) => addonRequest(`/available${queryString(filters)}`).then(list);
 export const getAdminAddons = (filters = {}) => addonRequest(`/admin/all${queryString(filters)}`, { credentials: 'include' }).then(list);
 export const getTriggerGroups = (filters = {}) => addonRequest(`/admin/trigger-groups${queryString(filters)}`, { credentials: 'include' }).then(list);
-export const createAddon = (data) => addonRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(data) });
+export const createAddon = (data) => addonRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(withGeneratedKey(data)) });
 export const updateAddon = (id, data) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deleteAddon = (id) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });

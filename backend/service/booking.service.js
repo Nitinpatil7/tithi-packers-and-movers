@@ -174,9 +174,23 @@ const trackBookingsByMobile = async (mobileInput) => {
 const getAllBookings = async (query = {}) => {
   const filter = { status: { $ne: "draft" } };
   if (query.status && query.status !== "draft") filter.status = query.status;
+  if (query.actionOnly === "true") filter.status = { $in: ["pending", "quote_sent", "confirmed", "in_progress"] };
+  if (query.delayOnly === "true") {
+    const todayStart = new Date(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) + "T00:00:00+05:30");
+    filter.status = { $in: ["pending", "quote_sent", "confirmed", "in_progress"] };
+    filter.scheduledate = { $lt: todayStart };
+  }
   if (query.serviceType) filter.serviceType = query.serviceType;
   if (query.mobile) filter["customer.mobile"] = normalizeMobile(query.mobile);
-  return Booking.find(filter).sort({ createdAt: -1 }).limit(Math.min(Number(query.limit) || 100, 200));
+  if (query.scheduledDate && query.delayOnly !== "true") {
+    const dayStart = new Date(`${query.scheduledDate}T00:00:00+05:30`);
+    if (!Number.isNaN(dayStart.getTime())) {
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+      filter.scheduledate = { $gte: dayStart, $lt: dayEnd };
+    }
+  }
+  const sort = query.scheduledDate || query.delayOnly === "true" ? { scheduledate: 1, timeslot: 1, createdAt: -1 } : { createdAt: -1 };
+  return Booking.find(filter).sort(sort).limit(Math.min(Number(query.limit) || 100, 200));
 };
 
 const getBookingById = async (bookingid) => {

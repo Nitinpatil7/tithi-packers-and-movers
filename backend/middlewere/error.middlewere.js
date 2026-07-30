@@ -1,8 +1,12 @@
 const errorMiddleware = (err , req , res , next) =>{
-    const statuscode = err.statuscode || 500;
+    const statuscode = err.statuscode || err.status || 500;
+    const message =
+        err.type === "entity.too.large"
+            ? "Request payload is too large. Please reduce selected items or contact support."
+            : err.message || " Internal Server Error";
     
     const errorLog = {
-        message: err.message,
+        message,
         statusCode: statuscode,
         method: req.method,
         url: req.originalUrl,
@@ -20,7 +24,7 @@ const errorMiddleware = (err , req , res , next) =>{
     return res.status(statuscode).json({
         success:false,
         statuscode,
-        message: err.message || " Internal Server Error",
+        message,
         error: err.errors || [],
         stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
     })

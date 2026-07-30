@@ -35,6 +35,12 @@ export const updateFaq = (id, faq) => faqRequest(`/${id}`, {
   body: JSON.stringify(faq),
 });
 
+export const reorderFaqs = (orderedIds) => faqRequest('/reorder', {
+  method: 'PATCH',
+  credentials: 'include',
+  body: JSON.stringify({ orderedIds }),
+});
+
 export const deleteFaq = (id) => faqRequest(`/${id}`, {
   method: 'DELETE',
   credentials: 'include',

@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTestimonial, deleteTestimonial, getAdminTestimonials, getPublicTestimonials, updateTestimonial } from '@/lib/testimonialApi';
+import { createTestimonial, deleteTestimonial, getAdminTestimonials, getPublicTestimonials, reorderTestimonials, updateTestimonial } from '@/lib/testimonialApi';
 
 export const usePublicTestimonials = (filters = {}) => useQuery({ queryKey: ['testimonials', 'public', filters], queryFn: () => getPublicTestimonials(filters), staleTime: 5 * 60 * 1000, retry: 1 });
 export const useAdminTestimonials = (filters = {}) => useQuery({ queryKey: ['admin', 'testimonials', filters], queryFn: () => getAdminTestimonials(filters), placeholderData: keepPreviousData, refetchOnMount: false });
@@ -12,4 +12,4 @@ function useTestimonialMutation(mutationFn) {
 export const useCreateTestimonial = () => useTestimonialMutation(createTestimonial);
 export const useUpdateTestimonial = () => useTestimonialMutation(({ id, data }) => updateTestimonial(id, data));
 export const useDeleteTestimonial = () => useTestimonialMutation(deleteTestimonial);
-
+export const useReorderTestimonials = () => useTestimonialMutation(reorderTestimonials);

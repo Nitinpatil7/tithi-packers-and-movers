@@ -4,11 +4,22 @@ const ItemCategory = require("../schema/ItemCategory.model");
 const ItemGroup = require("../schema/ItemGroup.model");
 const ItemSize = require("../schema/ItemSize.model");
 const ApiError = require("../utility/apierror");
+const { notifyContentChange } = require("../utility/contentEvents");
 
 const slugify = (value) => String(value || "").trim().toLowerCase()
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const exactText = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, "i");
+const uniqueSlug = async (Model, base, currentId = null) => {
+  const root = slugify(base) || "item";
+  for (let index = 0; index < 100; index += 1) {
+    const key = index === 0 ? root : `${root}-${index + 1}`;
+    const filter = { key };
+    if (currentId) filter._id = { $ne: currentId };
+    if (!(await Model.exists(filter))) return key;
+  }
+  throw new ApiError(409, "Unable to generate unique key");
+};
 
 const requireSection = async (id) => {
   if (!mongoose.isValidObjectId(id)) throw new ApiError(400, "Valid sectionId is required");
@@ -65,8 +76,8 @@ const normalizeItemPayload = async (payload, current = null) => {
   update.section = group.categoryId.name;
   if (update.sizes !== undefined) update.sizes = await normalizeVariants(update.sizes);
   if (!current && update.sizes === undefined) throw new ApiError(400, "sizes is required");
-  if (!current && !update.key) update.key = slugify(`${update.section}-${update.group}-${update.name}`);
-  if (update.key !== undefined) update.key = slugify(update.key);
+  if (!current) update.key = await uniqueSlug(Item, update.key || `${update.section}-${update.group}-${update.name}`);
+  else if (update.key !== undefined) update.key = await uniqueSlug(Item, update.key, current._id);
   delete update.sizeTag;
   delete update.price;
   return update;
@@ -138,17 +149,36 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   })).filter((section) => !publicOnly || section.groups.length);
 };
 
-const createItem = async (payload) => Item.create(await normalizeItemPayload(payload));
+const createItem = async (payload) => {
+  const item = await Item.create(await normalizeItemPayload(payload));
+  notifyContentChange("catalog", "item:create", { id: item._id });
+  return item;
+};
 const updateItem = async (id, payload) => {
   const current = await Item.findById(id);
   if (!current) throw new ApiError(404, "Item not found");
-  return Item.findByIdAndUpdate(id, { $set: await normalizeItemPayload(payload, current) },
+  const item = await Item.findByIdAndUpdate(id, { $set: await normalizeItemPayload(payload, current) },
     { new: true, runValidators: true });
+  notifyContentChange("catalog", "item:update", { id });
+  return item;
 };
 const deleteItem = async (id) => {
   const item = await Item.findByIdAndUpdate(id, { $set: { isActive: false } }, { new: true });
   if (!item) throw new ApiError(404, "Item not found");
+  notifyContentChange("catalog", "item:delete", { id });
   return item;
+};
+const reorderItems = async (groupId, orderedIds = []) => {
+  const group = await requireGroup(groupId);
+  const ids = [...new Set((orderedIds || []).map(String))];
+  if (!ids.length || ids.some((id) => !mongoose.isValidObjectId(id))) throw new ApiError(400, "Valid ordered item IDs are required");
+  const count = await Item.countDocuments({ _id: { $in: ids }, groupId: group._id });
+  if (count !== ids.length) throw new ApiError(400, "One or more items do not belong to this group");
+  await Item.bulkWrite(ids.map((id, index) => ({
+    updateOne: { filter: { _id: id, groupId: group._id }, update: { $set: { sortOrder: index } } },
+  })));
+  notifyContentChange("catalog", "items:reorder", { groupId });
+  return getItems({ groupId: group._id });
 };
 
 const getSections = (query = {}, publicOnly = false) => {
@@ -157,7 +187,11 @@ const getSections = (query = {}, publicOnly = false) => {
   if (!publicOnly && query.isActive === "false") filter.isActive = false;
   return ItemCategory.find(filter).sort({ sortOrder: 1, name: 1 });
 };
-const createSection = (payload) => ItemCategory.create({ ...payload, key: slugify(payload.key || payload.name) });
+const createSection = async (payload) => {
+  const section = await ItemCategory.create({ ...payload, key: slugify(payload.key || payload.name) });
+  notifyContentChange("catalog", "section:create", { id: section._id });
+  return section;
+};
 const updateSection = async (id, payload) => {
   const update = { ...payload };
   if (update.key !== undefined) update.key = slugify(update.key);
@@ -169,6 +203,7 @@ const updateSection = async (id, payload) => {
       Item.updateMany({ categoryId: id }, { $set: { section: update.name } }),
     ]);
   }
+  notifyContentChange("catalog", "section:update", { id });
   return section;
 };
 const deleteSection = async (id) => {
@@ -178,6 +213,7 @@ const deleteSection = async (id) => {
     ItemGroup.updateMany({ categoryId: id }, { $set: { isActive: false } }),
     Item.updateMany({ categoryId: id }, { $set: { isActive: false } }),
   ]);
+  notifyContentChange("catalog", "section:delete", { id });
   return section;
 };
 
@@ -192,8 +228,10 @@ const getGroups = (query = {}, publicOnly = false) => {
 };
 const createGroup = async (payload) => {
   const section = await requireSection(payload.sectionId || payload.categoryId);
-  return ItemGroup.create({ ...payload, categoryId: section._id, section: section.name,
+  const group = await ItemGroup.create({ ...payload, categoryId: section._id, section: section.name,
     key: slugify(payload.key || payload.name) });
+  notifyContentChange("catalog", "group:create", { id: group._id });
+  return group;
 };
 const updateGroup = async (id, payload) => {
   const current = await ItemGroup.findById(id);
@@ -207,13 +245,27 @@ const updateGroup = async (id, payload) => {
   if (update.key !== undefined) update.key = slugify(update.key);
   const group = await ItemGroup.findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true });
   await Item.updateMany({ groupId: id }, { $set: { group: group.name, categoryId: section._id, section: section.name } });
+  notifyContentChange("catalog", "group:update", { id });
   return group;
 };
 const deleteGroup = async (id) => {
   const group = await ItemGroup.findByIdAndUpdate(id, { $set: { isActive: false } }, { new: true });
   if (!group) throw new ApiError(404, "Group not found");
   await Item.updateMany({ groupId: id }, { $set: { isActive: false } });
+  notifyContentChange("catalog", "group:delete", { id });
   return group;
+};
+const reorderGroups = async (sectionId, orderedIds = []) => {
+  const section = await requireSection(sectionId);
+  const ids = [...new Set((orderedIds || []).map(String))];
+  if (!ids.length || ids.some((id) => !mongoose.isValidObjectId(id))) throw new ApiError(400, "Valid ordered group IDs are required");
+  const count = await ItemGroup.countDocuments({ _id: { $in: ids }, categoryId: section._id });
+  if (count !== ids.length) throw new ApiError(400, "One or more groups do not belong to this section");
+  await ItemGroup.bulkWrite(ids.map((id, index) => ({
+    updateOne: { filter: { _id: id, categoryId: section._id }, update: { $set: { sortOrder: index } } },
+  })));
+  notifyContentChange("catalog", "groups:reorder", { sectionId });
+  return getGroups({ sectionId: section._id });
 };
 
 const getSizes = (query = {}, publicOnly = false) => {
@@ -222,8 +274,12 @@ const getSizes = (query = {}, publicOnly = false) => {
   if (!publicOnly && query.isActive === "false") filter.isActive = false;
   return ItemSize.find(filter).sort({ sortOrder: 1, key: 1 });
 };
-const createSize = (payload) => ItemSize.create({ ...payload,
-  key: String(payload.key || payload.label || "").trim().toUpperCase() });
+const createSize = async (payload) => {
+  const size = await ItemSize.create({ ...payload,
+    key: String(payload.key || payload.label || "").trim().toUpperCase() });
+  notifyContentChange("catalog", "size:create", { id: size._id });
+  return size;
+};
 const updateSize = async (id, payload) => {
   const current = await ItemSize.findById(id);
   if (!current) throw new ApiError(404, "Item size not found");
@@ -234,6 +290,7 @@ const updateSize = async (id, payload) => {
     "sizes.$[variant].sizeKey": size.key,
     "sizes.$[variant].label": size.label,
   } }, { arrayFilters: [{ "variant.sizeId": id }] });
+  notifyContentChange("catalog", "size:update", { id });
   return size;
 };
 const deleteSize = async (id) => {
@@ -241,12 +298,13 @@ const deleteSize = async (id) => {
   if (!size) throw new ApiError(404, "Item size not found");
   await Item.updateMany({ "sizes.sizeId": id }, { $set: { "sizes.$[variant].isActive": false } },
     { arrayFilters: [{ "variant.sizeId": id }] });
+  notifyContentChange("catalog", "size:delete", { id });
   return size;
 };
 
 module.exports = {
   getItems, getCatalog, createItem, updateItem, deleteItem,
   getSections, createSection, updateSection, deleteSection,
-  getGroups, createGroup, updateGroup, deleteGroup,
+  getGroups, createGroup, updateGroup, deleteGroup, reorderGroups, reorderItems,
   getSizes, createSize, updateSize, deleteSize, slugify,
 };

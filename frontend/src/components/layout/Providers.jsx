@@ -64,6 +64,43 @@ export default function Providers({ children }) {
     prefetchServices();
   }, [router]);
 
+  useEffect(() => {
+    let socket;
+    let cancelled = false;
+    const connectRealtime = async () => {
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      if (!apiUrl || cancelled) return;
+      const { io } = await import('socket.io-client');
+      if (cancelled) return;
+      socket = io(`${apiUrl}/content`, {
+        transports: ['websocket'],
+        withCredentials: true,
+      });
+      socket.on('content:changed', (event) => {
+        if (event?.target === 'catalog') {
+          queryClient.invalidateQueries({ queryKey: ['items'] });
+          queryClient.invalidateQueries({ queryKey: ['admin', 'items'] });
+        }
+        if (event?.target === 'faq') {
+          queryClient.invalidateQueries({ queryKey: ['faqs'] });
+        }
+        if (event?.target === 'testimonial') {
+          queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+          queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] });
+        }
+      });
+    };
+    const start = () => { void connectRealtime(); };
+    let idleId;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) idleId = window.requestIdleCallback(start);
+    else start();
+    return () => {
+      cancelled = true;
+      if (idleId) window.cancelIdleCallback(idleId);
+      socket?.disconnect();
+    };
+  }, []);
+
   if (!mounted) {
     return (
       <div className="flex min-h-screen w-full flex-col bg-bg-page text-text-primary">

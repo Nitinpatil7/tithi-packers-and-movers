@@ -9,9 +9,9 @@ import Spinner from '@/components/ui/Spinner';
 import Badge from '@/components/ui/Badge';
 import { formatCurrency } from '@/lib/utils';
 
-const RevenueChart = dynamic(() => import('@/components/admin/RevenueChart'), {
+const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,
-  loading: () => <div className="h-72 flex items-center justify-center text-text-tertiary">Loading chart...</div>,
+  loading: () => <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>,
 });
 
 export default function AdminAnalyticsPage() {
@@ -41,9 +41,9 @@ export default function AdminAnalyticsPage() {
     <Card className="p-6 bg-bg-card border border-bg-border/60 glass flex flex-col gap-4">
       <div className="flex flex-col text-left">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Daily Booking Frequency</h3>
-        <span className="text-[10px] text-text-tertiary">Last 30 days from confirmed business bookings</span>
+        <span className="text-[10px] text-text-tertiary">Last 30 days from active business bookings</span>
       </div>
-      <RevenueChart data={dashboard?.dailyBookingGraph || dashboard?.dailyBookings || []} />
+      <BookingLineChart data={dashboard?.dailyBookings || []} />
     </Card>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

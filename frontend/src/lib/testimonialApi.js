@@ -30,4 +30,4 @@ export const getTestimonialById = (id) => testimonialRequest(`/${encodeURICompon
 export const createTestimonial = (data) => testimonialRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(data) });
 export const updateTestimonial = (id, data) => testimonialRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deleteTestimonial = (id) => testimonialRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
-
+export const reorderTestimonials = (orderedIds) => testimonialRequest('/admin/reorder', { method: 'PATCH', credentials: 'include', body: JSON.stringify({ orderedIds }) });

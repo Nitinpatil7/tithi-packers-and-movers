@@ -58,11 +58,20 @@ const deleteTestimonial = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, testimonial, "Testimonial deactivated successfully"));
 });
 
+const reorderTestimonials = asyncHandler(async (req, res) => {
+  const testimonials = await testimonialService.reorderTestimonials(req.body.orderedIds);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, testimonials, "Testimonials reordered successfully"));
+});
+
 module.exports = {
  createTestimonial,
   getPublicTestimonials,
   getAllTestimonialsForAdmin,
   getTestimonialById,
   updateTestimonial,
-  deleteTestimonial,   
+  deleteTestimonial,
+  reorderTestimonials,
 }
