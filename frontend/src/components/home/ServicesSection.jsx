@@ -88,9 +88,9 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="services-sky-bg relative z-30 overflow-hidden pt-16 pb-14 md:pt-20 md:pb-24">
+    <section id="services" className="relative z-30 overflow-hidden bg-hero-gradient pt-20 pb-14 md:pt-24 md:pb-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-10 h-24 bg-[linear-gradient(90deg,transparent,rgba(14,165,233,.10),transparent)]" />
+      <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -135,19 +135,19 @@ export default function ServicesSection() {
               <motion.div key={service.id} variants={cardVariants} className="h-full">
                 <Link href={service.path} className="block group h-full">
                   <motion.div
-                    className="service-hover-card flex h-full min-h-[350px] cursor-pointer flex-col justify-between rounded-3xl border border-sky-100 bg-white/95 p-5 shadow-card transition-all duration-300 hover:border-sky-300 hover:shadow-[0_22px_55px_rgba(14,165,233,.16)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md sm:min-h-[370px] sm:p-6"
-                    whileHover={{ y: -8 }}
+                    className="service-hover-card flex h-full min-h-[350px] cursor-pointer flex-col justify-between rounded-3xl border border-sky-100 bg-white/88 p-5 shadow-card backdrop-blur-sm transition-all duration-300 hover:border-sky-300 hover:bg-white/95 hover:shadow-[0_24px_60px_rgba(3,105,161,.18)] focus-within:border-sky-300 active:-translate-y-1 active:shadow-md sm:min-h-[370px] sm:p-6"
+                    whileHover={{ y: -10, scale: 1.01 }}
                     whileTap={{ scale: 0.985, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   >
                     <div className="flex flex-col gap-5 relative z-10">
                       {/* Icon + arrow */}
                       <div className="flex items-start justify-between">
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm ring-1 ring-primary/10 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-[#063642]/90 group-hover:text-white group-hover:ring-white/30 group-hover:shadow-[0_18px_34px_rgba(6,54,66,.26),0_0_0_7px_rgba(14,165,233,.10)] group-hover:backdrop-blur-md group-focus-within:bg-[#063642]/90 group-focus-within:text-white group-focus-within:ring-white/30 sm:h-[60px] sm:w-[60px]">
-                          <Icon className="h-7 w-7 opacity-100 transition-colors duration-300 group-hover:text-white group-focus-within:text-white" strokeWidth={2.1} />
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-soft text-primary text-3xl shadow-sm ring-1 ring-primary/10 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-3 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:ring-sky-200/50 group-hover:shadow-[0_18px_34px_rgba(3,105,161,.24),0_0_0_7px_rgba(14,165,233,.10)] group-hover:backdrop-blur-md group-focus-within:bg-sky-900 group-focus-within:text-sky-200 group-focus-within:ring-sky-200/50 sm:h-[60px] sm:w-[60px]">
+                          <Icon className="h-7 w-7 opacity-100 transition-colors duration-300 group-hover:text-sky-200 group-focus-within:text-sky-200" strokeWidth={2.1} />
                         </div>
                         <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-primary group-hover:text-white"
+                          className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary-soft text-primary opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-sky-900 group-hover:text-sky-200"
                         >
                           <ArrowRight className="w-5 h-5" />
                         </div>
@@ -166,7 +166,7 @@ export default function ServicesSection() {
                       <div className="flex flex-col gap-1.5">
                         {service.features.map((feat) => (
                           <div key={feat} className="flex items-center gap-2 rounded-xl bg-white/70 px-2 py-1.5 ring-1 ring-orange-100/70 transition group-hover:ring-orange-200">
-                            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-primary" />
+                            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-primary transition-colors group-hover:text-sky-800" />
                             <span className="text-xs font-semibold text-text-secondary sm:text-sm">{feat}</span>
                           </div>
                         ))}

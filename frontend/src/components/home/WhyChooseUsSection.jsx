@@ -98,28 +98,29 @@ export default function WhyChooseUsSection() {
         </motion.div>
 
         {/* Stats Row */}
-        <div className="mb-10 grid grid-cols-4 gap-2 md:mb-14 md:gap-5">
+        <div className="mb-10 grid grid-cols-4 items-stretch gap-2 md:mb-14 md:gap-5">
           {stats.map((stat, idx) => {
             const StatIcon = stat.icon;
             return (
             <motion.div
               key={stat.label}
+              className="h-full"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
               <motion.div
-                className="group rounded-2xl border border-sky-100 bg-white/90 px-1.5 py-3 text-center shadow-card transition-all hover:border-orange-200 hover:shadow-md active:scale-[.99] md:rounded-3xl md:p-6"
+                className="group flex h-full min-h-[98px] flex-col items-center justify-center rounded-2xl border border-sky-100 bg-white/90 px-1.5 py-3 text-center shadow-card transition-all hover:border-sky-300 hover:shadow-md active:scale-[.99] md:min-h-[188px] md:rounded-3xl md:p-6"
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.99 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
                 <div
-                  className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-xl text-2xl ring-4 ring-sky-50 transition-all group-hover:bg-orange-500 group-hover:text-white group-hover:rotate-3 md:mb-4 md:h-14 md:w-14 md:rounded-2xl"
+                  className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-xl text-2xl ring-4 ring-sky-50 transition-all group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:rotate-3 group-hover:ring-sky-200/50 md:mb-4 md:h-14 md:w-14 md:rounded-2xl"
                   style={{ backgroundColor: stat.bg }}
                 >
-                  <StatIcon className="h-4 w-4 text-primary transition-colors group-hover:text-white md:h-6 md:w-6" strokeWidth={1.7} />
+                  <StatIcon className="h-4 w-4 text-primary transition-colors group-hover:text-sky-200 md:h-6 md:w-6" strokeWidth={1.7} />
                 </div>
                 <div
                   className="mb-1 text-xl font-black leading-none transition-colors md:mb-2 md:text-5xl"
@@ -194,10 +195,10 @@ export default function WhyChooseUsSection() {
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs ring-1 ring-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:ring-orange-100 group-hover:shadow-[0_14px_28px_rgba(249,115,22,.18)]"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs ring-1 ring-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:ring-sky-200/50 group-hover:shadow-[0_14px_28px_rgba(3,105,161,.20)]"
                       style={{ backgroundColor: benefit.bg }}
                     >
-                      <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-white" strokeWidth={1.7} />
+                      <Icon className="h-5 w-5 text-primary transition-colors group-hover:text-sky-200" strokeWidth={1.7} />
                     </div>
                     <div>
                       <h3 className={`text-sm font-black leading-snug transition-colors md:text-base ${isActive ? 'text-primary' : 'text-text-primary group-hover:text-primary'}`} style={{ fontFamily: 'var(--font-heading)' }}>

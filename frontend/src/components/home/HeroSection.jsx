@@ -49,7 +49,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative isolate overflow-x-clip overflow-y-visible bg-hero-gradient pt-20 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
+    <section className="relative isolate overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
@@ -61,8 +61,8 @@ export default function HeroSection() {
           animate="visible"
         >
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2">
-            <span className="section-label max-w-[calc(100vw-2rem)] justify-center whitespace-normal text-center leading-snug">
-              <ShieldCheck className="h-3.5 w-3.5" />
+            <span className="section-label max-w-[300px] justify-center whitespace-normal px-2.5 text-center text-[9px] leading-snug tracking-[0.08em] sm:max-w-[calc(100vw-2rem)] sm:px-3.5 sm:text-[13px] sm:tracking-[0.12em]">
+              <ShieldCheck className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" />
               {t.heroBadge || '#1 Packers & Movers in Surat, Gujarat'}
             </span>
           </motion.div>
@@ -94,9 +94,9 @@ export default function HeroSection() {
             )}
           </motion.p>
 
-          <motion.div variants={itemVariants} className="flex w-full max-w-[300px] flex-wrap justify-center gap-2.5 sm:max-w-none lg:justify-start">
+          <motion.div variants={itemVariants} className="flex w-full max-w-[270px] flex-wrap justify-center gap-2 sm:max-w-none sm:gap-2.5 lg:justify-start">
             {trustBadges.map(({ text, icon: Icon }) => (
-              <div key={text} className="flex items-center gap-1.5 rounded-full border border-bg-border bg-white px-2.5 py-1.5 text-[11px] font-semibold text-text-secondary shadow-xs sm:px-3 sm:text-sm">
+              <div key={text} className="flex items-center gap-1 rounded-full border border-bg-border bg-white px-2 py-1.5 text-[10px] font-semibold text-text-secondary shadow-xs sm:gap-1.5 sm:px-3 sm:text-sm">
                 <Icon className="h-3.5 w-3.5 text-primary" />
                 {text}
               </div>
@@ -119,8 +119,8 @@ export default function HeroSection() {
 
           <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[480px]">
             {stats.map((stat) => (
-              <div key={stat.label} className="group flex min-w-0 items-center gap-2 rounded-2xl bg-white/80 px-3 py-2.5 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-200 active:scale-[.99]">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+              <div key={stat.label} className="group flex min-w-0 items-center gap-2 rounded-2xl bg-white/80 px-3 py-2.5 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99]">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)]">
                   {React.createElement(stat.icon, { className: 'h-4 w-4', strokeWidth: 1.8 })}
                 </div>
                 <div className="min-w-0">
@@ -158,8 +158,8 @@ export default function HeroSection() {
                 className="hero-service-card group flex min-h-[94px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[118px] sm:gap-3 sm:p-4"
                 style={{ '--hover-color': service.color }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-orange-500 group-hover:text-white sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
-                  {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-white sm:h-6 sm:w-6', strokeWidth: 1.9 })}
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
+                  {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-sky-200 sm:h-6 sm:w-6', strokeWidth: 1.9 })}
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
@@ -177,7 +177,7 @@ export default function HeroSection() {
         width={620}
         height={360}
         sizes="(min-width: 768px) 520px, 82vw"
-        className="pointer-events-none absolute -bottom-14 right-[-12%] z-10 w-[82vw] max-w-[420px] object-contain pt-2 drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)] sm:-bottom-16 sm:max-w-[500px] md:-bottom-20 md:max-w-[560px] lg:hidden"
+        className="pointer-events-none absolute -bottom-[30px] right-[-18%] z-10 w-[84vw] max-w-[420px] object-contain pt-2 drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)] sm:-bottom-10 sm:right-[-12%] sm:max-w-[500px] md:-bottom-12 md:max-w-[560px] lg:hidden"
       />
     </section>
   );

@@ -134,7 +134,7 @@ function PackageCard({ rule, site, index }) {
       className={`group flex h-full flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card transition-all duration-300 hover:border-orange-200 hover:shadow-lg ${toneClass[meta.tone]}`}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border transition-all duration-300 group-hover:rotate-3 group-hover:bg-primary group-hover:text-white">
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-primary shadow-xs ring-1 ring-bg-border transition-all duration-300 group-hover:rotate-3 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:ring-sky-200/50">
           <Icon className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
         </div>
         <span className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider text-text-tertiary ring-1 ring-bg-border">
@@ -160,7 +160,7 @@ function PackageCard({ rule, site, index }) {
       <div className="mt-5 flex flex-1 flex-col gap-2">
         {inclusions.map(({ icon: ItemIcon, label, value }) => (
           <div key={label} className="flex gap-3 rounded-2xl bg-white/75 p-3 ring-1 ring-white/80 transition-all duration-300 hover:bg-white hover:ring-orange-100">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-sky-900 group-hover:text-sky-200">
               <ItemIcon className="h-4.5 w-4.5" />
             </span>
             <div>

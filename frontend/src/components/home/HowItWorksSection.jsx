@@ -125,7 +125,7 @@ export default function HowItWorksSection() {
                     {idx === 0 && (
                       <Link href="/book/local-shifting">
                         <div
-                          className="inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white text-orange-600 transition-all hover:bg-orange-500 hover:text-white hover:shadow-sm"
+                          className="inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white text-orange-600 transition-all hover:bg-sky-900 hover:text-sky-200 hover:shadow-sm"
                         >
                           {t.startHere || 'Start Here'} <ArrowRight className="h-3.5 w-3.5" />
                         </div>

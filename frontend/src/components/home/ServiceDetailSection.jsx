@@ -123,7 +123,7 @@ export default function ServiceDetailSection() {
               className={`min-h-12 rounded-xl px-3 py-3 text-center text-xs font-black uppercase tracking-wide transition-all focus:outline-none sm:text-[11px] md:text-xs ${
                 activeTab === key
                   ? 'bg-orange-500 text-white shadow-[0_14px_28px_rgba(249,81,30,.28)]'
-                  : 'bg-white/95 text-text-secondary hover:bg-orange-500 hover:text-white active:bg-orange-500'
+                  : 'bg-white/95 text-text-secondary hover:bg-sky-900 hover:text-sky-200 active:bg-sky-900'
               }`}
             >
               {details[key].name}
@@ -164,7 +164,7 @@ export default function ServiceDetailSection() {
 
                 <div className="mt-1 sm:mt-4">
                   <Link href={current.path} className="block w-full sm:inline-block sm:w-auto">
-                    <Button variant={activeTab} size="lg" className="w-full bg-white text-orange-600 shadow-lg hover:bg-orange-500 hover:text-white sm:w-auto">
+                    <Button variant={activeTab} size="lg" className="w-full bg-white text-orange-600 shadow-lg hover:bg-sky-900 hover:text-sky-200 sm:w-auto">
                       {t.bookThisService || 'Book This Service'}
                     </Button>
                   </Link>
@@ -178,12 +178,12 @@ export default function ServiceDetailSection() {
                 </h4>
                 <ul className="flex flex-col gap-3">
                   {current.included.map((inc) => (
-                    <li key={inc} className="theme-fill-card group flex gap-3 rounded-2xl bg-white/95 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-500 hover:shadow-xs active:scale-[.99]">
+                    <li key={inc} className="theme-fill-card group flex gap-3 rounded-2xl bg-white/95 p-3 text-sm font-medium leading-6 text-text-secondary ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 hover:shadow-xs active:scale-[.99]">
                       <CheckCircle2 className={`w-5 h-5 shrink-0 ${
                         activeTab === 'local' ? 'text-service-local' :
                         activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-packing'
-                      } transition-colors group-hover:text-white`} />
-                      <span className="transition-colors group-hover:text-white">{inc}</span>
+                      } transition-colors group-hover:text-sky-200`} />
+                      <span className="transition-colors group-hover:text-sky-100">{inc}</span>
                     </li>
                   ))}
                 </ul>
