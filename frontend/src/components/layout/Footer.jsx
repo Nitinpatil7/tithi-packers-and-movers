@@ -64,16 +64,18 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {phone && <a href={`tel:${phone}`}>
-              <button className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 hover:border-primary/50 active:scale-[.98] transition-all">
+            {phone && <a
+              href={`tel:${phone}`}
+              className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 hover:border-primary/50 active:scale-[.98] transition-all"
+            >
                 <Phone className="w-4 h-4" />
                 {language === 'gu' ? 'ફોન કરો' : language === 'hi' ? 'कॉल करें' : 'Call Now'}
-              </button>
             </a>}
-            <Link href="/book/local-shifting">
-              <button className="btn-orange px-5 py-2.5 rounded-xl text-sm font-bold active:scale-[.98] transition-transform">
-                {t.bookNow || 'Book Now'} →
-              </button>
+            <Link
+              href="/book/local-shifting"
+              className="btn-orange inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-bold active:scale-[.98] transition-transform"
+            >
+              {t.bookNow || 'Book Now'} →
             </Link>
           </div>
         </div>

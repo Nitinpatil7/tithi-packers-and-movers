@@ -211,11 +211,12 @@ function PackageCard({ rule, site, index }) {
         ))}
       </div>
 
-      <Link href={meta.href} className="mt-6">
-        <button className="btn-sky flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black active:scale-[.98] transition-transform">
-          Select Package
-          <ArrowRight className="h-4 w-4" />
-        </button>
+      <Link
+        href={meta.href}
+        className="btn-sky mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black active:scale-[.98] transition-transform"
+      >
+        Select Package
+        <ArrowRight className="h-4 w-4" />
       </Link>
     </motion.article>
   );

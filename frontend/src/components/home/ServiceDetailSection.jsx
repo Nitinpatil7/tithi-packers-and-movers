@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { CheckCircle2, Info } from 'lucide-react';
-import Button from '@/components/ui/Button';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@/hooks/useSiteSetting';
@@ -163,10 +162,11 @@ export default function ServiceDetailSection() {
                 )}
 
                 <div className="mt-1 sm:mt-4">
-                  <Link href={current.path} className="block w-full sm:inline-block sm:w-auto">
-                    <Button variant={activeTab} size="lg" className="w-full bg-white text-orange-600 shadow-lg hover:bg-sky-900 hover:text-sky-200 sm:w-auto">
-                      {t.bookThisService || 'Book This Service'}
-                    </Button>
+                  <Link
+                    href={current.path}
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-white px-7 py-3.5 text-base font-bold text-orange-600 shadow-lg transition-all duration-200 hover:bg-sky-900 hover:text-sky-200 active:scale-[0.98] sm:w-auto"
+                  >
+                    {t.bookThisService || 'Book This Service'}
                   </Link>
                 </div>
               </div>

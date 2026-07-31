@@ -105,11 +105,12 @@ export default function ProfilePage() {
           </div>
 
           <div className="border-t border-bg-border/60 pt-4 mt-2 flex flex-col gap-3">
-            <Link href="/my-bookings" className="w-full">
-              <Button variant="secondary" className="w-full flex gap-2 text-xs py-2">
-                <ClipboardList className="w-4 h-4" />
-                {t.viewBookings}
-              </Button>
+            <Link
+              href="/my-bookings"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-bg-border bg-white px-5 py-2 text-xs font-bold text-text-primary shadow-xs transition-all duration-200 hover:border-primary/30 hover:text-primary active:scale-[0.98]"
+            >
+              <ClipboardList className="w-4 h-4" />
+              {t.viewBookings}
             </Link>
 
             <Button 

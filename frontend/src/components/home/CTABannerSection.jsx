@@ -8,6 +8,8 @@ import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@/hooks/useSiteSetting';
 
+const MotionLink = motion(Link);
+
 export default function CTABannerSection() {
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
@@ -71,43 +73,37 @@ export default function CTABannerSection() {
 
             {/* Right CTA */}
             <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-72 md:gap-4">
-              <Link href="/book/local-shifting" className="w-full md:w-auto">
-                <motion.button
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-black text-primary shadow-xl transition-all hover:shadow-2xl sm:text-base md:w-auto md:px-8"
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {t.btnCost || 'Calculate Moving Cost'}
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-              </Link>
+              <MotionLink
+                href="/book/local-shifting"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-black text-primary shadow-xl transition-all hover:shadow-2xl sm:text-base md:w-auto md:px-8"
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {t.btnCost || 'Calculate Moving Cost'}
+                <ArrowRight className="w-5 h-5" />
+              </MotionLink>
 
-              {phone && <a href={`tel:${phone}`} className="w-full md:w-auto">
-                <motion.button
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-white/20 sm:text-base md:w-auto md:px-8"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Phone className="w-5 h-5" />
-                  {language === 'gu' ? `કૉલ કરો ${phone}` : language === 'hi' ? `कॉल करें ${phone}` : `Call ${phone}`}
-                </motion.button>
-              </a>}
+              {phone && <motion.a
+                href={`tel:${phone}`}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-white/20 sm:text-base md:w-auto md:px-8"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Phone className="w-5 h-5" />
+                {language === 'gu' ? `કૉલ કરો ${phone}` : language === 'hi' ? `कॉल करें ${phone}` : `Call ${phone}`}
+              </motion.a>}
 
-              {whatsapp && <a
+              {whatsapp && <motion.a
                 href={`https://wa.me/${whatsapp}?text=Hi, I need a moving quote`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full md:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-white/20 sm:text-base md:w-auto md:px-8"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <motion.button
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-white/20 sm:text-base md:w-auto md:px-8"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  {t.btnWhatsApp || 'WhatsApp Us'}
-                </motion.button>
-              </a>}
+                <MessageCircle className="w-5 h-5" />
+                {t.btnWhatsApp || 'WhatsApp Us'}
+              </motion.a>}
             </div>
           </div>
         </motion.div>

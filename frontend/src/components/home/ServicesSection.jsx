@@ -224,11 +224,12 @@ export default function ServicesSection() {
                     </motion.div>
                   ))}
                 </div>
-                <Link href={activeService.path} className="mt-7 inline-flex">
-                  <button className="btn-sky group/btn flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black">
-                    {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                  </button>
+                <Link
+                  href={activeService.path}
+                  className="btn-sky group/btn mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black"
+                >
+                  {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
               </div>
 

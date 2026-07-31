@@ -110,13 +110,13 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete })
               <td className="px-5 py-4">
                 <div className="flex items-center justify-end gap-1">
                   {/* View */}
-                  <Link href={`/admin/bookings/${encodeURIComponent(bookingId)}`}>
-                    <button
-                      title="View Details"
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-text-tertiary hover:text-primary hover:bg-primary-soft transition-all"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                  <Link
+                    href={`/admin/bookings/${encodeURIComponent(bookingId)}`}
+                    title="View Details"
+                    aria-label="View booking details"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-text-tertiary hover:text-primary hover:bg-primary-soft transition-all"
+                  >
+                    <Eye className="w-4 h-4" />
                   </Link>
 
                   {/* Edit */}

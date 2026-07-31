@@ -230,10 +230,11 @@ export default function Navbar() {
               </div>
             </div>
 
-            <Link href="/book/local-shifting">
-              <button className="btn-orange px-4 py-2 rounded-xl text-sm font-bold">
-                {t.bookNow || 'Book Now'} →
-              </button>
+            <Link
+              href="/book/local-shifting"
+              className="btn-orange inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold"
+            >
+              {t.bookNow || 'Book Now'} →
             </Link>
           </div>
 
@@ -356,10 +357,11 @@ export default function Navbar() {
               </div>
 
               <div className="pt-4 border-t border-bg-border flex flex-col gap-3">
-                <Link href="/book/local-shifting" className="w-full">
-                  <button className="btn-orange w-full py-3 rounded-xl font-bold text-sm">
-                    {t.bookNow || 'Book Now'} →
-                  </button>
+                <Link
+                  href="/book/local-shifting"
+                  className="btn-orange flex w-full items-center justify-center py-3 rounded-xl font-bold text-sm"
+                >
+                  {t.bookNow || 'Book Now'} →
                 </Link>
               </div>
             </div>

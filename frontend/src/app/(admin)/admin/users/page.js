@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useAdminUsers } from '@/hooks/useAdmin';
 import Card from '@/components/ui/Card';
 import Spinner from '@/components/ui/Spinner';
@@ -88,9 +89,9 @@ export default function AdminUsersPage() {
                       {formatCurrency(u.totalQuotedAmount || 0)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <a href={`/admin/messaging?mobile=${encodeURIComponent(u.mobile || '')}&name=${encodeURIComponent(u.name || '')}`} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700">
+                      <Link href={`/admin/messaging?mobile=${encodeURIComponent(u.mobile || '')}&name=${encodeURIComponent(u.name || '')}`} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700">
                         <MessageSquare className="h-3.5 w-3.5" />Message
-                      </a>
+                      </Link>
                     </td>
                   </tr>
                 ))}

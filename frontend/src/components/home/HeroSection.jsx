@@ -138,16 +138,18 @@ export default function HeroSection() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-            <Link href="/book/local-shifting" className="w-full sm:w-auto">
-              <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto">
-                {t.btnQuote || 'Get Free Quote'}
-                <ArrowRight className="h-5 w-5" />
-              </button>
+            <Link
+              href="/book/local-shifting"
+              className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto"
+            >
+              {t.btnQuote || 'Get Free Quote'}
+              <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link href="/my-bookings" className="w-full sm:w-auto">
-              <button className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto">
-                {t.btnTrack || 'Track My Booking'}
-              </button>
+            <Link
+              href="/my-bookings"
+              className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-center text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto"
+            >
+              {t.btnTrack || 'Track My Booking'}
             </Link>
           </motion.div>
 
