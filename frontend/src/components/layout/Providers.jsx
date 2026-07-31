@@ -44,7 +44,7 @@ export default function Providers({ children }) {
     };
 
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(hydrateDeferredState, { timeout: 900 });
+      idleId = window.requestIdleCallback(hydrateDeferredState, { timeout: 1600 });
     } else if (typeof window !== 'undefined') {
       timer = window.setTimeout(hydrateDeferredState, 0);
     }
@@ -62,18 +62,22 @@ export default function Providers({ children }) {
     // service-card and navbar clicks feel immediate.
     const prefetchServices = () => {
       if (pathname?.startsWith('/admin') || pathname?.startsWith('/monitoring')) return;
-      router.prefetch('/book/local-shifting');
-      router.prefetch('/book/intercity-moving');
-      router.prefetch('/book/labour-service');
-      router.prefetch('/about');
-      router.prefetch('/contact');
-      router.prefetch('/my-bookings');
+      [
+        '/book/local-shifting',
+        '/book/intercity-moving',
+        '/book/labour-service',
+        '/book/commercial-moving',
+        '/book/ordinary-service',
+        '/about',
+        '/contact',
+        '/my-bookings',
+      ].forEach((route) => router.prefetch(route));
     };
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(prefetchServices, { timeout: 1800 });
+      const idleId = window.requestIdleCallback(prefetchServices, { timeout: 450 });
       return () => window.cancelIdleCallback(idleId);
     }
-    const timer = window.setTimeout(prefetchServices, 1200);
+    const timer = window.setTimeout(prefetchServices, 250);
     return () => window.clearTimeout(timer);
   }, [pathname, router]);
 

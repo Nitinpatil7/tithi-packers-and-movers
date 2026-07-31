@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
@@ -14,6 +14,8 @@ export default function HeroSection() {
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS.en;
   const { data: site = {} } = useSiteSetting();
+  const [hydrated, setHydrated] = useState(false);
+  const stableSite = hydrated ? site : {};
   const heroRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
   const pointerX = useMotionValue(0);
@@ -32,17 +34,21 @@ export default function HeroSection() {
   const mobileTruckRotate = useTransform(scrollYProgress, [0, 1], [0, -1.8]);
   const mobileBgX = useTransform(scrollYProgress, [0, 1], [0, 18]);
 
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   const stats = [
-    { value: site.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
-    { value: site.stats?.citiesCovered ?? 0, suffix: '+', label: t.statCities || 'Cities Served', icon: MapPinned },
-    { value: site.stats?.yearsExperience ?? 0, suffix: '+', label: t.statYears || 'Years Trust', icon: ShieldCheck },
-    { value: site.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Support', icon: Headphones },
+    { value: stableSite.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
+    { value: stableSite.stats?.citiesCovered ?? 0, suffix: '+', label: t.statCities || 'Cities Served', icon: MapPinned },
+    { value: stableSite.stats?.yearsExperience ?? 0, suffix: '+', label: t.statYears || 'Years Trust', icon: ShieldCheck },
+    { value: stableSite.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Support', icon: Headphones },
   ];
 
   const services = [
-    { name: site.serviceLabels?.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { name: site.serviceLabels?.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour Service', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { name: stableSite.serviceLabels?.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
+    { name: stableSite.serviceLabels?.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
+    { name: stableSite.serviceLabels?.porter_labour_service || t.labourService || 'Labour Service', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [

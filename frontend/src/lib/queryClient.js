@@ -1,7 +1,18 @@
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 
-const CACHE_KEY = 'tithi_public_query_cache_v2';
+const CACHE_KEY = 'tithi_public_query_cache_v3';
+const LEGACY_CACHE_KEYS = ['tithi_public_query_cache_v2'];
 const CACHE_MAX_AGE = 30 * 60 * 1000;
+
+const canHydrateQuery = (queryKey = []) => queryKey[0] !== 'admin' && queryKey[0] !== 'site-setting';
+
+function getHydratableClientState(clientState) {
+  if (!clientState?.queries) return clientState;
+  return {
+    ...clientState,
+    queries: clientState.queries.filter((query) => canHydrateQuery(query.queryKey)),
+  };
+}
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,8 +31,11 @@ export function enableQueryPersistence() {
   if (typeof window === 'undefined' || persistenceEnabled) return () => {};
   persistenceEnabled = true;
   try {
+    LEGACY_CACHE_KEYS.forEach((key) => window.localStorage.removeItem(key));
     const saved = JSON.parse(window.localStorage.getItem(CACHE_KEY) || 'null');
-    if (saved?.timestamp && Date.now() - saved.timestamp < CACHE_MAX_AGE && saved.clientState) hydrate(queryClient, saved.clientState);
+    if (saved?.timestamp && Date.now() - saved.timestamp < CACHE_MAX_AGE && saved.clientState) {
+      hydrate(queryClient, getHydratableClientState(saved.clientState));
+    }
   } catch { /* Invalid cache should never block the application. */ }
   let timer;
   const unsubscribe = queryClient.getQueryCache().subscribe(() => {
@@ -31,8 +45,7 @@ export function enableQueryPersistence() {
         const clientState = dehydrate(queryClient, {
           shouldDehydrateQuery: (query) => (
             query.state.status === 'success'
-            && query.queryKey[0] !== 'admin'
-            && query.queryKey[0] !== 'site-setting'
+            && canHydrateQuery(query.queryKey)
           ),
         });
         window.localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), clientState }));
