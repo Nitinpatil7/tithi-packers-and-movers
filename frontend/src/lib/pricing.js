@@ -140,7 +140,7 @@ export function calculateBookingPrice(bookingData = {}) {
   const floorTotalCharge = pickupFloorCharge + dropFloorCharge;
   const distanceCharge = rule?.distancePricing?.enabled ? getDistanceCharges(distance, rule) : 0;
   const hourlyRate = (rule.labourPricing?.hourlyRates || []).find((item) => toNumber(item.hours) === toNumber(bookingData.hoursCount));
-  const hourlyPrice = useBasePackage && hourlyRate?.isFree ? 0 : toNumber(bookingData.hourlyRatePerEmployee || hourlyRate?.price);
+  const hourlyPrice = useBasePackage && hourlyRate?.isFree ? 0 : toNumber(hourlyRate?.price ?? bookingData.hourlyRatePerEmployee);
   const employeeRate = (rule.labourPricing?.employeeRates || []).find((item) => toNumber(item.employees) === toNumber(bookingData.employeeCount));
   const employeeTotal = isLabour && !useBasePackage ? hourlyPrice * Math.max(1, toNumber(bookingData.employeeCount, 1)) : 0;
   const truck = (rule.labourPricing?.trucks || []).find((item) => item.key === (bookingData.selectedTruck || bookingData.truckType) || item.id === (bookingData.selectedTruck || bookingData.truckType));

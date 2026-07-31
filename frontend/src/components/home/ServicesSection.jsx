@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
@@ -10,6 +10,12 @@ import { useSiteSetting } from '@/hooks/useSiteSetting';
 export default function ServicesSection() {
   const { language } = useLanguageStore();
   const { data: site = {} } = useSiteSetting();
+  const [hydrated, setHydrated] = useState(false);
+  const stableSite = hydrated ? site : {};
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const services = [
     {
@@ -68,9 +74,9 @@ export default function ServicesSection() {
     },
   ];
   const serviceTitleById = {
-    local: site.serviceLabels?.local_shifting,
-    intercity: site.serviceLabels?.intercity_moving,
-    labour: site.serviceLabels?.porter_labour_service,
+    local: stableSite.serviceLabels?.local_shifting,
+    intercity: stableSite.serviceLabels?.intercity_moving,
+    labour: stableSite.serviceLabels?.porter_labour_service,
   };
   const [activeServiceId, setActiveServiceId] = useState('local');
   const [mobileServiceIndex, setMobileServiceIndex] = useState(0);

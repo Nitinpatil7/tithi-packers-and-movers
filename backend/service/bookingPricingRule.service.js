@@ -144,7 +144,7 @@ const normalizePayload = (payload = {}) => {
       key: slug(truck.key || truck.name),
       image: String(truck.image || "").trim(),
       capacityKg: Number(truck.capacityKg) || 0,
-      price: truck.isFree ? 0 : Number(truck.price) || 0,
+      price: Number(truck.price) || 0,
       isActive: true,
     }));
   }
@@ -162,7 +162,7 @@ const normalizePayload = (payload = {}) => {
       ...rate,
       hours: Number(rate.hours) || 1,
       label: rate.label || `${Number(rate.hours) || 1} hour${Number(rate.hours) > 1 ? "s" : ""}`,
-      price: rate.isFree ? 0 : Number(rate.price) || 0,
+      price: Number(rate.price) || 0,
       isActive: true,
     }));
   }

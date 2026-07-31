@@ -2,22 +2,24 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useBookingStore } from '@/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@/hooks/useBookingDraft';
 import { usePublicPricingRule } from '@/hooks/useBookingPricingRules';
 import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@/lib/bookingPayload';
 import BookingLayout from '@/components/booking/BookingLayout';
-import LocationStep from '@/components/booking/LocationStep';
-import TruckSelectionStep from '@/components/booking/TruckSelectionStep';
-import EmployeeSelectionStep from '@/components/booking/EmployeeSelectionStep';
-import HoursSelectionStep from '@/components/booking/HoursSelectionStep';
-import DateTimeStep from '@/components/booking/DateTimeStep';
-import ReviewStep from '@/components/booking/ReviewStep';
-import OTPStep from '@/components/booking/OTPStep';
-import SuccessStep from '@/components/booking/SuccessStep';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Truck', 'Employees', 'Hours', 'Schedule', 'Review', 'Verify OTP'];
+const stepLoader = () => <div className="min-h-[360px] rounded-3xl border border-sky-100 bg-white/80" />;
+const LocationStep = dynamic(() => import('@/components/booking/LocationStep'), { ssr: false, loading: stepLoader });
+const TruckSelectionStep = dynamic(() => import('@/components/booking/TruckSelectionStep'), { ssr: false, loading: stepLoader });
+const EmployeeSelectionStep = dynamic(() => import('@/components/booking/EmployeeSelectionStep'), { ssr: false, loading: stepLoader });
+const HoursSelectionStep = dynamic(() => import('@/components/booking/HoursSelectionStep'), { ssr: false, loading: stepLoader });
+const DateTimeStep = dynamic(() => import('@/components/booking/DateTimeStep'), { ssr: false, loading: stepLoader });
+const ReviewStep = dynamic(() => import('@/components/booking/ReviewStep'), { ssr: false, loading: stepLoader });
+const OTPStep = dynamic(() => import('@/components/booking/OTPStep'), { ssr: false, loading: stepLoader });
+const SuccessStep = dynamic(() => import('@/components/booking/SuccessStep'), { ssr: false, loading: stepLoader });
 
 export default function LabourServicePage() {
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
