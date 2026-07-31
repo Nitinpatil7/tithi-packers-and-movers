@@ -450,12 +450,15 @@ svg.lucide { fill: none !important; }
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-bg-page);
   color: var(--color-text-primary);
   font-family: var(--font-display);
+  max-width: 100%;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

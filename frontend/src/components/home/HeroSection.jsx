@@ -194,7 +194,7 @@ export default function HeroSection() {
                 r="5"
                 fill="#f97316"
                 initial={{ opacity: 0 }}
-                animate={{ cx: [18, 130, 220, 335, 448, 500], cy: [210, 70, 265, 118, 64, 22], opacity: [0, 1, 1, 1, 1, 0] }}
+                animate={{ x: [0, 112, 202, 317, 430, 482], y: [0, -140, 55, -92, -146, -188], opacity: [0, 1, 1, 1, 1, 0] }}
                 transition={{ duration: 5.4, repeat: Infinity, repeatDelay: 2.2, ease: [0.22, 1, 0.36, 1] }}
               />
             )}
