@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 const { setContentEmitter } = require("./contentEvents");
+const { setAdminBookingEmitter } = require("./bookingEvents");
+const bookingService = require("../service/booking.service");
+const { getRedisClient, getRedisUrl } = require("../config/redis");
 
 const CHECK_INTERVAL_MS = 5000;
 
@@ -158,11 +161,48 @@ const checkEndpoint = async (baseUrl, endpoint) => {
   }
 };
 
+const checkRedis = async () => {
+  const started = performance.now();
+  try {
+    const redis = await Promise.race([
+      getRedisClient(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Redis connection timed out")), 1200),
+      ),
+    ]);
+    const pong = await Promise.race([
+      redis.ping(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Redis ping timed out")), 1200),
+      ),
+    ]);
+
+    return {
+      status: pong === "PONG" ? "connected" : "unhealthy",
+      ok: pong === "PONG",
+      url: getRedisUrl().replace(/\/\/.*@/, "//***@"),
+      duration: Math.round(performance.now() - started),
+      message: pong === "PONG" ? "Redis ping successful" : "Unexpected Redis ping response",
+      checkedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      status: "disconnected",
+      ok: false,
+      url: getRedisUrl().replace(/\/\/.*@/, "//***@"),
+      duration: Math.round(performance.now() - started),
+      message: error.message,
+      checkedAt: new Date().toISOString(),
+    };
+  }
+};
+
 const buildSnapshot = async (port) => {
   const baseUrl = process.env.MONITORING_SELF_URL || `http://127.0.0.1:${port}`;
-  const results = await Promise.all(
-    endpoints.map((endpoint) => checkEndpoint(baseUrl, endpoint)),
-  );
+  const [results, redis] = await Promise.all([
+    Promise.all(endpoints.map((endpoint) => checkEndpoint(baseUrl, endpoint))),
+    checkRedis(),
+  ]);
   const failed = results.filter(
     (item) => !item.ok && !item.expectedProtected,
   ).length;
@@ -185,6 +225,7 @@ const buildSnapshot = async (port) => {
     baseUrl,
     database:
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    redis,
     server: {
       uptime: process.uptime(),
       memory: process.memoryUsage(),
@@ -213,7 +254,14 @@ const attachMonitoringSocket = (httpServer, app, port) => {
 
   const namespace = io.of("/monitoring");
   const contentNamespace = io.of("/content");
+  const adminNamespace = io.of("/admin");
   let latestSnapshot = null;
+
+  const emitAdminSummary = async () => {
+    const summary = await bookingService.getRealtimeSummary();
+    adminNamespace.emit("admin:booking-summary", summary);
+    return summary;
+  };
 
   setContentEmitter((payload) => {
     contentNamespace.emit("content:changed", payload);
@@ -223,6 +271,30 @@ const attachMonitoringSocket = (httpServer, app, port) => {
     socket.emit("content:connected", {
       message: "Content realtime socket connected",
       generatedAt: new Date().toISOString(),
+    });
+  });
+
+  setAdminBookingEmitter((eventPayload) => {
+    adminNamespace.emit("admin:booking-event", eventPayload);
+    emitAdminSummary().catch((error) => {
+      adminNamespace.emit("admin:error", { message: error.message });
+    });
+  });
+
+  adminNamespace.on("connection", (socket) => {
+    socket.emit("admin:connected", {
+      message: "Admin realtime socket connected",
+      generatedAt: new Date().toISOString(),
+    });
+
+    emitAdminSummary()
+      .then((summary) => socket.emit("admin:booking-summary", summary))
+      .catch((error) => socket.emit("admin:error", { message: error.message }));
+
+    socket.on("admin:refresh", () => {
+      emitAdminSummary()
+        .then((summary) => socket.emit("admin:booking-summary", summary))
+        .catch((error) => socket.emit("admin:error", { message: error.message }));
     });
   });
 

@@ -1,10 +1,12 @@
 const Otp = require("../schema/Otp.model");
 const ApiError = require("../utility/apierror");
 const { hashOtp, compareOtp } = require("../utility/hashOtp");
+const generateOtp = require("../utility/generateOtp");
 const sendMessage = require("./messageProvider.service");
+const otpCache = require("./otpCache.service");
 
-const OTP_EXPIRY_MINUTES = 5;
-const RESEND_COOLDOWN_SECONDS = 60;
+const OTP_EXPIRY_SECONDS = otpCache.OTP_TTL_SECONDS;
+const RESEND_COOLDOWN_SECONDS = otpCache.OTP_COOLDOWN_SECONDS;
 
 const normalizeMobile = (value) => {
   let mobile = String(value || "").replace(/\D/g, "");
@@ -17,48 +19,55 @@ const normalizeMobile = (value) => {
 
 const sendOtp = async ({ mobile: mobileInput, purpose = "booking" }) => {
   const mobile = normalizeMobile(mobileInput);
-  const latestOtp = await Otp.findOne({ mobile, purpose }).sort({ createdAt: -1 });
+  const cooldownTtl = await otpCache.getCooldownTtl({ mobile, purpose });
 
-  if (latestOtp) {
-    const secondsSinceLastOtp = (Date.now() - latestOtp.createdAt.getTime()) / 1000;
-    if (secondsSinceLastOtp < RESEND_COOLDOWN_SECONDS) {
-      throw new ApiError(
-        429,
-        `Please wait ${Math.ceil(RESEND_COOLDOWN_SECONDS - secondsSinceLastOtp)} seconds before requesting another OTP`,
-      );
-    }
+  if (cooldownTtl > 0) {
+    throw new ApiError(
+      429,
+      `Please wait ${cooldownTtl} seconds before requesting another OTP`,
+    );
   }
 
   await Otp.updateMany({ mobile, purpose, isUsed: false }, { $set: { isUsed: true } });
 
-  const otp = process.env.OTP_STATIC_CODE || "123456";
+  const otp = generateOtp();
+  const otpHash = await hashOtp(otp);
   const otpRecord = await Otp.create({
     mobile,
     purpose,
-    otpHash: await hashOtp(otp),
-    expiresAt: new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000),
+    otpHash,
+    expiresAt: new Date(Date.now() + OTP_EXPIRY_SECONDS * 1000),
     purgeAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  });
+
+  await otpCache.storeOtp({
+    mobile,
+    purpose,
+    otpRecordId: otpRecord._id,
+    otpHash,
+    maxAttempts: otpRecord.maxAttempts,
   });
 
   const result = await sendMessage({
     channel: "sms",
     mobile,
-    message: `${otp} is your Tithi Packers and Movers verification OTP. It expires in ${OTP_EXPIRY_MINUTES} minutes.`,
     otp,
   });
 
-  if (!result.success && process.env.OTP_ALLOW_FAKE_DELIVERY === "false") {
+  if (!result.success) {
     await Otp.findByIdAndDelete(otpRecord._id);
+    await otpCache.deleteOtpAndCooldown({ mobile, purpose });
     throw new ApiError(503, result.errorMessage || "Unable to send OTP");
   }
 
   return {
     mobile,
     purpose,
-    expiresInSeconds: OTP_EXPIRY_MINUTES * 60,
+    expiresInSeconds: OTP_EXPIRY_SECONDS,
     resendAfterSeconds: RESEND_COOLDOWN_SECONDS,
-    devOtp: otp,
-    deliveryMode: result.success ? "provider" : "fake",
+    provider: result.provider,
+    requestId: result.providerMessageId,
+    deliveryCost: result.response?.data?.cost,
   };
 };
 
@@ -68,27 +77,32 @@ const verifyOtp = async ({ mobile: mobileInput, otp, purpose = "booking" }) => {
     throw new ApiError(400, "OTP must be a 6-digit number");
   }
 
-  const otpRecord = await Otp.findOne({ mobile, purpose, isUsed: false })
-    .sort({ createdAt: -1 })
-    .select("+otpHash");
+  const otpState = await otpCache.getOtp({ mobile, purpose });
+  if (!otpState) throw new ApiError(400, "OTP is invalid, expired, or already used");
 
+  const otpRecord = await Otp.findById(otpState.otpRecordId).select("+otpHash");
   if (!otpRecord) throw new ApiError(400, "OTP is invalid or already used");
-  if (otpRecord.expiresAt <= new Date()) {
+  if (otpRecord.isUsed || otpRecord.expiresAt <= new Date()) {
     otpRecord.isUsed = true;
     await otpRecord.save();
+    await otpCache.deleteOtp({ mobile, purpose });
     throw new ApiError(400, "OTP has expired. Please request a new OTP");
   }
-  if (otpRecord.attempts >= otpRecord.maxAttempts) {
+  if (otpState.attempts >= otpState.maxAttempts) {
     otpRecord.isUsed = true;
     await otpRecord.save();
+    await otpCache.deleteOtp({ mobile, purpose });
     throw new ApiError(429, "Maximum OTP attempts exceeded. Please request a new OTP");
   }
 
-  const isValid = await compareOtp(String(otp), otpRecord.otpHash);
+  const isValid = await compareOtp(String(otp), otpState.otpHash || otpRecord.otpHash);
   if (!isValid) {
-    otpRecord.attempts += 1;
+    otpState.attempts += 1;
+    otpRecord.attempts = otpState.attempts;
     if (otpRecord.attempts >= otpRecord.maxAttempts) otpRecord.isUsed = true;
     await otpRecord.save();
+    if (otpRecord.isUsed) await otpCache.deleteOtp({ mobile, purpose });
+    else await otpCache.updateAttempts({ mobile, purpose, otpState });
     throw new ApiError(400, "Invalid OTP", [
       { remainingAttempts: Math.max(otpRecord.maxAttempts - otpRecord.attempts, 0) },
     ]);
@@ -100,6 +114,7 @@ const verifyOtp = async ({ mobile: mobileInput, otp, purpose = "booking" }) => {
     Date.now() + Number(process.env.OTP_VERIFICATION_WINDOW_MINUTES || 15) * 60 * 1000,
   );
   await otpRecord.save();
+  await otpCache.deleteOtp({ mobile, purpose });
 
   return {
     mobile,

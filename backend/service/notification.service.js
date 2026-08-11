@@ -1,9 +1,35 @@
 
 const Notification = require("../schema/Notification.model")
 const ApiError = require("../utility/apierror");
-const messageProviderService = require("../service/messageProvider.service");
+const {
+  enqueueNotificationDelivery,
+  processNotification,
+} = require("../queue/notification.queue");
+const {
+  buildAdminMessage,
+  buildWhatsAppActionUrl,
+} = require("./whatsappTemplate.service");
 
 const sendSingleNotification = async (payload) => {
+  let providerPayload = payload.providerPayload || null;
+  let meta = payload.meta || {};
+
+  if (payload.channel === "whatsapp" && !providerPayload) {
+    providerPayload = await buildAdminMessage({
+      mobile: payload.customerMobile,
+      message: payload.message,
+    });
+  }
+
+  if (payload.channel === "whatsapp" && providerPayload) {
+    meta = {
+      ...meta,
+      whatsappActionUrl: buildWhatsAppActionUrl(providerPayload),
+      ownerWhatsappNumber: providerPayload.ownerWhatsappNumber,
+      trackingUrl: providerPayload.trackingUrl,
+    };
+  }
+
   const notification = await Notification.create({
     bookingId: payload.bookingId || null,
     customerMobile: payload.customerMobile,
@@ -13,35 +39,25 @@ const sendSingleNotification = async (payload) => {
     title: payload.title,
     message: payload.message,
     createdBy: payload.createdBy || "admin",
-    meta: payload.meta || {},
+    meta,
     status: "pending",
   });
 
-  const result = await messageProviderService({
-    channel: notification.channel,
-    mobile: notification.customerMobile,
-    message: notification.message,
-    templateName: payload.templateName,
-    language: payload.language,
-    parameters: payload.parameters,
-  });
-
-  if (result.success) {
-    notification.status = "sent";
-    notification.provider = result.provider;
-    notification.providerMessageId = result.providerMessageId;
-    notification.providerResponse = result.response;
-    notification.sentAt = new Date();
-  } else {
-    notification.status = "failed";
-    notification.provider = result.provider;
-    notification.providerResponse = result.response;
-    notification.errorMessage = result.errorMessage;
+  try {
+    await enqueueNotificationDelivery({
+      notificationId: notification._id.toString(),
+      providerPayload,
+    });
+  } catch (error) {
+    await processNotification({
+      data: {
+        notificationId: notification._id.toString(),
+        providerPayload,
+      },
+    });
   }
 
-  await notification.save();
-
-  return notification;
+  return Notification.findById(notification._id);
 };
 
 const sendBroadcastNotification = async (payload) => {
@@ -54,28 +70,7 @@ const sendBroadcastNotification = async (payload) => {
     meta = {},
   } = payload;
 
-  if (!targetCustomers.length) {
-    throw new ApiError(400, "Target customers are required");
-  }
-
-  const results = [];
-
-  for (const customer of targetCustomers) {
-    const notification = await sendSingleNotification({
-      customerMobile: customer.mobile,
-      customerName: customer.name,
-      channel,
-      type,
-      title,
-      message,
-      createdBy: "admin",
-      meta,
-    });
-
-    results.push(notification);
-  }
-
-  return results;
+  throw new ApiError(400, "Broadcast notifications are disabled for now. Send a single customer message.");
 };
 
 const sendBookingNotification = async ({

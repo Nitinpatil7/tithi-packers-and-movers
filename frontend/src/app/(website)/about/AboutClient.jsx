@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { ShieldCheck, Users, Milestone, Award } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import { useLanguageStore } from '@/store/languageStore';
@@ -70,17 +71,23 @@ export default function AboutClient() {
   ];
 
   return (
-    <div className="min-h-screen bg-bg-page text-text-primary pt-32 pb-16">
-      <div className="max-w-4xl mx-auto px-4 text-left flex flex-col gap-10">
+    <div className="relative min-h-screen overflow-hidden bg-bg-page pt-32 pb-16 text-text-primary">
+      <div className="pointer-events-none absolute inset-x-0 top-20 h-72 bg-[radial-gradient(circle_at_18%_20%,rgba(14,165,233,.16),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(249,115,22,.10),transparent_28%)]" />
+      <motion.div
+        className="pointer-events-none absolute right-6 top-32 hidden h-28 w-28 rounded-[32px] border border-sky-100 bg-white/50 shadow-sky md:block"
+        animate={{ rotateY: [0, 12, 0], y: [0, -8, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="relative z-10 max-w-4xl mx-auto px-4 text-left flex flex-col gap-10">
         
         {/* Title */}
-        <div className="flex flex-col gap-3">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="flex flex-col gap-3">
           <span className="text-xs uppercase font-bold tracking-widest text-primary">{t.journey}</span>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-text-primary">
             {site.aboutTitle || <>{t.title1}<span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">{t.title2}</span></>}
           </h1>
           <div className="w-16 h-1 bg-primary rounded-full mt-2" />
-        </div>
+        </motion.div>
 
         {/* Text Details */}
         <div className="flex flex-col gap-6 text-text-secondary text-base leading-relaxed">
@@ -99,7 +106,8 @@ export default function AboutClient() {
             {values.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.title} className="p-5 flex flex-col gap-3.5 bg-bg-white border border-bg-border/60 shadow-xs">
+                <motion.div key={item.title} whileHover={{ y: -6, rotateX: 1.5 }} transition={{ duration: 0.22 }}>
+                <Card className="p-5 flex h-full flex-col gap-3.5 bg-bg-white border border-bg-border/60 shadow-xs transition hover:border-primary/25 hover:shadow-sky">
                   <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <Icon className="w-5 h-5" />
                   </div>
@@ -108,6 +116,7 @@ export default function AboutClient() {
                     <span className="text-xs text-text-secondary leading-relaxed">{item.desc}</span>
                   </div>
                 </Card>
+                </motion.div>
               );
             })}
           </div>

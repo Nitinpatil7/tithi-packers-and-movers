@@ -65,25 +65,25 @@ export default function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-8">
+        <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center group shrink-0">
+          <Link href="/" className="flex min-w-0 items-center group shrink-0">
             {site.logoUrl && <Image unoptimized src={site.logoUrl} alt={site.companyName || 'Company logo'} width={32} height={32} className="mr-2.5 h-8 w-8 rounded-lg object-contain" />}
-            <span className="flex max-w-[220px] flex-col leading-tight">
+            <span className="flex max-w-[180px] flex-col leading-tight sm:max-w-[220px]">
             <span className={cn(
-              "text-lg font-black tracking-wide transition-colors font-heading",
+              "truncate text-base font-black tracking-wide transition-colors font-heading sm:text-lg",
               scrolled ? "text-text-primary" : "text-text-primary"
             )}>
               {site.companyName || 'TITHI'}
             </span>
-            <span className="text-[9px] uppercase font-bold tracking-[0.3em] text-primary">
+            <span className="truncate text-[8px] uppercase font-bold tracking-[0.22em] text-primary sm:text-[9px] sm:tracking-[0.3em]">
               {site.tagline || 'Packers & Movers'}
             </span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
+          <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             <Link
               href="/"
               className={cn(
@@ -165,7 +165,7 @@ export default function Navbar() {
           </nav>
 
           {/* CTAs */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
+          <div className="hidden lg:flex items-center gap-3 shrink-0">
             {/* Desktop Language Selector */}
             <div className="relative group shrink-0 flex items-center">
               <button
@@ -239,7 +239,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Hamburger */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl border border-bg-border bg-white text-text-secondary hover:text-primary hover:border-primary/30 transition-all"
@@ -258,7 +258,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
+            className="lg:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
           >
             <div className="px-5 py-6 flex flex-col gap-5">
               <Link href="/" className={cn("text-base font-bold", pathname === '/' ? "text-primary" : "text-text-secondary")}>

@@ -1,5 +1,4 @@
-// src/app/(website)/book/local-shifting/page.js
-'use client';
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import { useBookingStore } from '@/store/bookingStore';
@@ -36,7 +35,7 @@ export default function LocalShiftingPage() {
       resetBooking();
       updateBookingData({ serviceType: 'local' });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {

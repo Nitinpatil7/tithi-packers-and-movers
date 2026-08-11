@@ -7,6 +7,7 @@ import AdminHeader from '@/components/layout/AdminHeader';
 import Spinner from '@/components/ui/Spinner';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { useThemeStore } from '@/store/themeStore';
+import useAdminRealtime from '@/hooks/useAdminRealtime';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function AdminLayout({ children }) {
   const isLoginPage = pathname === '/admin/login';
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
   const applyPublicTheme = useThemeStore((state) => state.applyTheme);
+  useAdminRealtime(status === 'authenticated' && !isLoginPage);
 
   useEffect(() => {
     document.documentElement.classList.remove('dark');
@@ -39,7 +41,7 @@ export default function AdminLayout({ children }) {
 
   if (status !== 'authenticated') {
     return (
-      <div className="loader-theme-bg grid min-h-screen place-items-center">
+      <div className="grid min-h-screen place-items-center bg-transparent">
         <div className="flex flex-col items-center gap-3 text-sm font-bold text-orange-600">
           <Spinner size="lg" />
           Verifying secure admin session...

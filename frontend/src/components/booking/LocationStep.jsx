@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Layers, Loader2, Map as MapIcon, MapPin, Truck, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -40,8 +40,53 @@ function extractAddressMeta(place, fallbackAddress = '') {
   return { city, state, pincode };
 }
 
+function isCoordinateAddress(value = '') {
+  const text = String(value || '').trim();
+  if (!text) return false;
+  const coordinatePair = text.match(/[-+]?\d{1,3}(?:\.\d+)?\s*[, ]\s*[-+]?\d{1,3}(?:\.\d+)?/);
+  if (!coordinatePair) return false;
+  const plainCoordinate = /^[-+]?\d{1,3}(?:\.\d+)?\s*[, ]\s*[-+]?\d{1,3}(?:\.\d+)?$/.test(text);
+  return plainCoordinate || text.replace(coordinatePair[0], '').trim().length < 6;
+}
+
+function cleanReadableAddress(value = '') {
+  const text = String(value || '').trim();
+  return isReadableAddress(text) ? text : '';
+}
+
+function isReadableAddress(value = '') {
+  const text = String(value || '').trim();
+  if (text.length < 8 || isCoordinateAddress(text)) return false;
+  if (/^[A-Z0-9+]{4,}\s*[A-Z0-9+]*$/i.test(text)) return false;
+  return /[a-z]/i.test(text);
+}
+
+function placeRank(place) {
+  const types = place?.types || [];
+  if (types.includes('street_address') || types.includes('premise') || types.includes('subpremise')) return 1;
+  if (types.includes('route') || types.includes('establishment')) return 2;
+  if (types.includes('neighborhood') || types.includes('sublocality') || types.includes('sublocality_level_1')) return 3;
+  if (types.includes('locality') || types.includes('postal_code')) return 4;
+  if (types.includes('plus_code')) return 9;
+  return 5;
+}
+
+function chooseReadablePlace(results = []) {
+  return [...results]
+    .filter((place) => cleanReadableAddress(place?.formatted_address))
+    .sort((a, b) => placeRank(a) - placeRank(b))[0] || null;
+}
+
+function visibleAddress(value = {}) {
+  const address = cleanReadableAddress(value?.address);
+  if (address) return address;
+  const mapAddress = cleanReadableAddress(value?.mapAddress);
+  if (mapAddress) return mapAddress;
+  return '';
+}
+
 function normalizeLocationPayload({ address, lat, lng, floor, liftAvailable, place, manual = false, mapPicked = false }) {
-  const cleanAddress = String(address || '').trim();
+  const cleanAddress = cleanReadableAddress(address);
   const meta = place ? extractAddressMeta(place, cleanAddress) : {
     city: /surat/i.test(cleanAddress) ? 'Surat' : '',
     state: /gujarat/i.test(cleanAddress) || /surat/i.test(cleanAddress) ? 'Gujarat' : '',
@@ -54,6 +99,7 @@ function normalizeLocationPayload({ address, lat, lng, floor, liftAvailable, pla
     pincode: meta.pincode || '000000',
     floor,
     liftAvailable,
+    mapAddress: cleanAddress,
     lat: lat ?? null,
     lng: lng ?? null,
     manual,
@@ -122,8 +168,20 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
-  const [selected, setSelected] = useState(toLatLngLiteral(initialValue) || SURAT_CENTER);
-  const [address, setAddress] = useState(initialValue?.address || '');
+  const initialValueLat = initialValue?.lat;
+  const initialValueLng = initialValue?.lng;
+  const initialValueAddress = initialValue?.address;
+  const initialValueMapAddress = initialValue?.mapAddress;
+  const initialLatLng = useMemo(() => {
+    if (initialValueLat === undefined || initialValueLng === undefined) return null;
+    return toLatLngLiteral({ lat: initialValueLat, lng: initialValueLng });
+  }, [initialValueLat, initialValueLng]);
+  const initialReadableAddress = useMemo(
+    () => visibleAddress({ address: initialValueAddress, mapAddress: initialValueMapAddress }),
+    [initialValueAddress, initialValueMapAddress]
+  );
+  const [selected, setSelected] = useState(initialLatLng || SURAT_CENTER);
+  const [address, setAddress] = useState(initialReadableAddress);
   const [placeForAddress, setPlaceForAddress] = useState(null);
   const [error, setError] = useState('');
   const [loadingAddress, setLoadingAddress] = useState(false);
@@ -132,8 +190,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     if (!open) return undefined;
     let attempts = 0;
     let cancelled = false;
-    setSelected(toLatLngLiteral(initialValue) || SURAT_CENTER);
-    setAddress(initialValue?.address || '');
+    setSelected(initialLatLng || SURAT_CENTER);
+    setAddress(initialReadableAddress);
     setPlaceForAddress(null);
     setError('');
 
@@ -149,28 +207,34 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ location: latLng }, (results, status) => {
         setLoadingAddress(false);
-        if (status === 'OK' && results?.[0]) {
-          setAddress(results[0].formatted_address);
-          setPlaceForAddress(results[0]);
+        const readablePlace = status === 'OK' ? chooseReadablePlace(results) : null;
+        const readable = cleanReadableAddress(readablePlace?.formatted_address);
+        if (readablePlace && readable) {
+          setAddress(readable);
+          setPlaceForAddress(readablePlace);
         } else {
-          setAddress(`${latLng.lat.toFixed(6)}, ${latLng.lng.toFixed(6)}`);
+          setAddress('');
           setPlaceForAddress(null);
+          setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
         }
       });
     };
 
     const centerFromTypedArea = (map, marker) => {
-      const typedAddress = String(initialValue?.address || '').trim();
-      if (!typedAddress || toLatLngLiteral(initialValue) || !window.google?.maps?.Geocoder) return;
+      const typedAddress = String(initialReadableAddress).trim();
+      if (!typedAddress || initialLatLng || !window.google?.maps?.Geocoder) return;
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ address: typedAddress, componentRestrictions: { country: 'IN' } }, (results, status) => {
         if (cancelled || status !== 'OK' || !results?.[0]) return;
-        const location = results[0].geometry.location;
+        const readablePlace = chooseReadablePlace(results);
+        if (!readablePlace) return;
+        const location = readablePlace.geometry.location;
         const latLng = toLatLngLiteral(location);
-        if (!latLng) return;
+        const readable = cleanReadableAddress(readablePlace.formatted_address);
+        if (!latLng || !readable) return;
         setSelected(latLng);
-        setAddress(results[0].formatted_address);
-        setPlaceForAddress(results[0]);
+        setAddress(readable);
+        setPlaceForAddress(readablePlace);
         marker.setPosition(latLng);
         map.setCenter(latLng);
         map.setZoom(needsSurat(serviceType, role) ? 15 : 12);
@@ -181,10 +245,11 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       if (cancelled || mapInstanceRef.current || !mapRef.current) return;
       if (!window.google?.maps?.Map) {
         attempts += 1;
+        if (attempts >= 40) setError('Google Maps is taking too long to load. Please check the Maps API key or internet connection.');
         return;
       }
 
-      const start = toLatLngLiteral(initialValue) || SURAT_CENTER;
+      const start = initialLatLng || SURAT_CENTER;
       const map = new window.google.maps.Map(mapRef.current, {
         center: start,
         zoom: needsSurat(serviceType, role) ? 14 : 7,
@@ -226,6 +291,10 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       marker.addListener('dragend', (event) => updateSelection(event.latLng));
       mapInstanceRef.current = map;
       markerRef.current = marker;
+      window.setTimeout(() => {
+        window.google?.maps?.event?.trigger(map, 'resize');
+        map.setCenter(start);
+      }, 0);
       reverseGeocode(start);
       centerFromTypedArea(map, marker);
     };
@@ -242,18 +311,24 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       mapInstanceRef.current = null;
       markerRef.current = null;
     };
-  }, [initialValue, open, role, serviceType, title]);
+  }, [initialLatLng, initialReadableAddress, open, role, serviceType, title]);
 
   if (!open) return null;
 
   const confirm = () => {
+    const readable = cleanReadableAddress(address);
     const validation = validateLatLng(selected, serviceType, role);
     if (validation) {
       setError(validation);
       return;
     }
-    onPick({ address: address || `${selected.lat.toFixed(6)}, ${selected.lng.toFixed(6)}`, lat: selected.lat, lng: selected.lng, place: placeForAddress });
+    if (!readable || !placeForAddress) {
+      setError('Please wait for the readable map address, or choose a nearby road/building.');
+      return;
+    }
+    onPick({ address: readable, lat: selected.lat, lng: selected.lng, place: placeForAddress });
   };
+  const readableAddress = cleanReadableAddress(address);
 
   return (
     <div className="fixed inset-0 z-[2147483000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
@@ -267,15 +342,15 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div ref={mapRef} className="min-h-0 flex-1 bg-bg-section" />
+        <div ref={mapRef} className="h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]" />
         <div className="border-t border-bg-border p-4 sm:p-5">
           <div className="rounded-2xl bg-bg-section p-3 text-sm font-semibold text-text-secondary">
-            {loadingAddress ? 'Finding address...' : address || 'Pick a point on the map'}
+            {loadingAddress ? 'Finding address...' : readableAddress || 'Pick a point on the map'}
           </div>
           {error && <p className="mt-2 flex items-center gap-1 text-xs font-bold text-red-600"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-xl border border-bg-border px-5 py-3 text-sm font-bold text-text-secondary">Cancel</button>
-            <button type="button" onClick={confirm} className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-white shadow-sky">Use This Location</button>
+            <button type="button" onClick={confirm} disabled={!readableAddress || loadingAddress} className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-white shadow-sky disabled:cursor-not-allowed disabled:opacity-50">Use This Location</button>
           </div>
         </div>
       </div>
@@ -286,17 +361,35 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
 function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, onError, clearError }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
-  const selectedRef = useRef(Boolean(value?.address && value?.lat && value?.lng));
-  const [inputVal, setInputVal] = useState(value?.address || '');
+  const selectedRef = useRef(Boolean(visibleAddress(value) && value?.lat && value?.lng));
+  const [inputVal, setInputVal] = useState(visibleAddress(value));
   const [floor, setFloor] = useState(value?.floor ?? 0);
   const [liftAvailable, setLiftAvailable] = useState(value?.liftAvailable || false);
   const [validationMsg, setValidationMsg] = useState('');
-  const [isSelected, setIsSelected] = useState(Boolean(value?.address && value?.lat && value?.lng));
+  const [isSelected, setIsSelected] = useState(Boolean(visibleAddress(value) && value?.lat && value?.lng));
   const [mapsState, setMapsState] = useState(hasUsableMapsKey ? 'loading' : 'error');
   const [locating, setLocating] = useState(false);
   const [hasBlurred, setHasBlurred] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
   const autoLocationAskedRef = useRef(false);
+
+  useEffect(() => {
+    const readable = visibleAddress(value);
+    if (readable && readable !== inputVal) {
+      setInputVal(readable);
+      setIsSelected(Boolean(value?.lat && value?.lng));
+      selectedRef.current = Boolean(value?.lat && value?.lng);
+      return;
+    }
+    if (!readable && isCoordinateAddress(inputVal)) {
+      setInputVal('');
+      setIsSelected(false);
+      selectedRef.current = false;
+      onChange(null);
+    }
+  // Keep the visible field human-readable when saved draft data changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value?.address, value?.mapAddress, value?.lat, value?.lng]);
 
   const setInvalid = (message) => {
     selectedRef.current = false;
@@ -312,7 +405,11 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
       return;
     }
 
-    const address = place.formatted_address;
+    const address = visibleAddress({ address: place.formatted_address });
+    if (!address) {
+      setInvalid('Google returned coordinates instead of a readable address. Please search the address manually.');
+      return;
+    }
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
     const nextLocation = normalizeLocationPayload({ address, lat, lng, floor, liftAvailable, place });
@@ -326,8 +423,13 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
   };
 
   const acceptMapLocation = ({ address, lat, lng, place }) => {
-    const nextLocation = normalizeLocationPayload({ address, lat, lng, floor, liftAvailable, place, mapPicked: true });
-    setInputVal(address);
+    const readable = visibleAddress({ address });
+    if (!readable) {
+      setInvalid('Please choose a readable address, not latitude/longitude.');
+      return;
+    }
+    const nextLocation = normalizeLocationPayload({ address: readable, lat, lng, floor, liftAvailable, place, mapPicked: true });
+    setInputVal(readable);
     setValidationMsg('');
     setIsSelected(true);
     selectedRef.current = true;
@@ -431,8 +533,13 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ location: { lat: coords.latitude, lng: coords.longitude } }, (results, status) => {
           setLocating(false);
-          if (status === 'OK' && results?.[0]) acceptPlace(results[0]);
-          else setInvalid('Could not identify your current address. Please search it manually.');
+          if (status === 'OK' && results?.[0]) {
+            const readablePlace = chooseReadablePlace(results);
+            if (readablePlace) acceptPlace(readablePlace);
+            else setInvalid('Could not identify a readable address. Please search it manually.');
+          } else {
+            setInvalid('Could not identify your current address. Please search it manually.');
+          }
         });
       },
       () => {
@@ -455,6 +562,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     value: i,
     label: i === 0 ? 'Ground Floor' : `${i}${i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th'} Floor`,
   }));
+  const mapInitialValue = useMemo(() => value || { address: inputVal }, [inputVal, value]);
 
   const placeholder = needsSurat(serviceType, role)
     ? 'Search an exact address in Surat'
@@ -481,7 +589,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
             type="text"
             value={inputVal}
             onChange={(event) => {
-              const nextValue = event.target.value;
+              const nextValue = isCoordinateAddress(event.target.value) ? '' : event.target.value;
               setInputVal(nextValue);
               if (mapsState === 'error') {
                 const error = validateManualAddress(nextValue, serviceType, role);
@@ -574,7 +682,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
           </label>
         </div>
       </div>
-      <MapPickerModal open={mapOpen} title={title} role={role} serviceType={serviceType} initialValue={value || { address: inputVal }} onClose={() => setMapOpen(false)} onPick={acceptMapLocation} />
+      <MapPickerModal open={mapOpen} title={title} role={role} serviceType={serviceType} initialValue={mapInitialValue} onClose={() => setMapOpen(false)} onPick={acceptMapLocation} />
     </div>
   );
 }

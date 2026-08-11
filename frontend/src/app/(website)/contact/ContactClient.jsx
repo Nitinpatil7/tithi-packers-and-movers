@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, MessageSquare, Send } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
@@ -126,8 +127,14 @@ export default function ContactClient() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-bg-page text-text-primary pt-32 pb-16">
-      <div className="max-w-6xl mx-auto px-4 w-full">
+    <div className="relative min-h-screen overflow-hidden bg-bg-page pt-32 pb-16 text-text-primary">
+      <div className="pointer-events-none absolute inset-x-0 top-20 h-80 bg-[radial-gradient(circle_at_12%_18%,rgba(14,165,233,.16),transparent_32%),radial-gradient(circle_at_88%_20%,rgba(249,115,22,.10),transparent_28%)]" />
+      <motion.div
+        className="pointer-events-none absolute left-8 top-40 hidden h-24 w-24 rounded-[28px] border border-sky-100 bg-white/55 shadow-sky lg:block"
+        animate={{ rotateY: [0, -14, 0], y: [0, 10, 0] }}
+        transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
         
         {/* Title */}
         <div className="flex flex-col items-center text-center mb-16 gap-3">
@@ -143,7 +150,7 @@ export default function ContactClient() {
           
           {/* Left Column: Form (7 cols) */}
           <div className="lg:col-span-7">
-            <Card className="p-6 md:p-8 bg-bg-white border border-bg-border/60 shadow-xs">
+            <Card className="p-6 md:p-8 bg-bg-white/95 border border-bg-border/60 shadow-xs backdrop-blur transition hover:border-primary/20 hover:shadow-sky">
               <h3 className="text-lg font-bold text-text-primary flex items-center gap-2 mb-6 border-b border-bg-border/60 pb-3">
                 <MessageSquare className="w-5 h-5 text-primary" />
                 {t.sendMsg}
@@ -184,7 +191,7 @@ export default function ContactClient() {
 
           {/* Right Column: Office Info (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <Card className="p-6 bg-bg-white border border-bg-border/60 shadow-xs flex flex-col gap-6">
+            <Card className="p-6 bg-bg-white/95 border border-bg-border/60 shadow-xs flex flex-col gap-6 backdrop-blur transition hover:border-primary/20 hover:shadow-sky">
               <h3 className="text-base font-bold text-text-primary uppercase tracking-wider border-b border-bg-border/60 pb-3">
                 {t.corpOffice}
               </h3>

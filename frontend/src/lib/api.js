@@ -28,6 +28,21 @@ const toDateInput = (value) => {
   return date.toISOString().slice(0, 10);
 };
 
+const isCoordinateAddress = (value = '') => /^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/.test(String(value).trim());
+const normalizeLocation = (location = {}) => {
+  const address = String(location.address || '').trim();
+  const fallback = String(location.mapAddress || location.formattedAddress || '').trim();
+  return {
+    ...location,
+    address: address && !isCoordinateAddress(address)
+      ? address
+      : fallback && !isCoordinateAddress(fallback)
+        ? fallback
+        : '',
+    liftAvailable: location.liftAvailable ?? location.liftavailable,
+  };
+};
+
 export const normalizeBooking = (booking = {}) => {
   const customer = booking.customer || {};
   const pricing = booking.pricing || booking.quoteSnapshot?.pricing || {};
@@ -43,8 +58,8 @@ export const normalizeBooking = (booking = {}) => {
     customerName: booking.customerName || customer.name || '',
     mobile: booking.mobile || customer.mobile || '',
     email: booking.email || customer.email || '',
-    pickupLocation: { ...pickupLocation, liftAvailable: pickupLocation.liftAvailable ?? pickupLocation.liftavailable },
-    dropLocation: { ...dropLocation, liftAvailable: dropLocation.liftAvailable ?? dropLocation.liftavailable },
+    pickupLocation: normalizeLocation(pickupLocation),
+    dropLocation: normalizeLocation(dropLocation),
     scheduledDate: booking.scheduledDate || toDateInput(booking.scheduledate),
     timeSlot: booking.timeSlot || booking.timeslot || '',
     truckType: booking.truckType || porterLabourDetails.truckType || '',
@@ -181,13 +196,6 @@ export const getNotifications = async (filters = {}) => {
 };
 
 export const sendNotification = async (data) => fetch(`${API_URL}/api/notification/send`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  credentials: 'include',
-  body: JSON.stringify(data),
-}).then(readResponse);
-
-export const broadcastNotification = async (data) => fetch(`${API_URL}/api/notification/broadcast`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',

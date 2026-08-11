@@ -195,10 +195,10 @@ export default function ServicesSection() {
             initial={{ opacity: 0, x: 24, scale: 0.98 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-white p-5 shadow-[0_28px_80px_rgba(3,105,161,.16)] sm:p-7"
+            className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
           >
             <div className="absolute inset-0 services-panel-route opacity-90" />
-            <div className="relative z-10 grid min-h-[380px] grid-cols-1 items-center gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="relative z-10 grid min-h-[380px] grid-cols-[0.95fr_1.05fr] items-center gap-6">
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
                   <ActiveIcon className="h-3.5 w-3.5" />

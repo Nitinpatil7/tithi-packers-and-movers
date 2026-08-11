@@ -246,6 +246,7 @@ function buildAvailabilityRecord(results, generatedAt, source, payload) {
     failed,
     availability: checked ? Math.round((healthy / checked) * 10000) / 100 : 0,
     database: payload?.database || "unknown",
+    redis: payload?.redis?.status || "unknown",
     socket: source === "socket" ? "connected" : "fallback",
     averageTiming,
     slowest:
@@ -580,6 +581,8 @@ export default function MonitoringPage() {
 
   const socketHealthy = socketState === "connected";
   const dbStatus = snapshot?.database || health?.database || "unknown";
+  const redisStatus = snapshot?.redis?.status || "unknown";
+  const redisHealthy = snapshot?.redis?.ok || redisStatus === "connected";
   const availabilityStats = useMemo(
     () => calculateAvailabilityStats(availabilityHistory),
     [availabilityHistory],
@@ -637,7 +640,7 @@ export default function MonitoringPage() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <Metric
               icon={Server}
               label="Backend Origin"
@@ -655,6 +658,12 @@ export default function MonitoringPage() {
               label="Database"
               value={dbStatus}
               tone={dbStatus === "connected" ? "emerald" : "amber"}
+            />
+            <Metric
+              icon={HardDrive}
+              label="Redis"
+              value={redisStatus}
+              tone={redisHealthy ? "emerald" : "red"}
             />
             <Metric
               icon={Gauge}
@@ -737,6 +746,15 @@ export default function MonitoringPage() {
                 value={summary.slowest ? `${summary.slowest.duration} ms` : "-"}
               />
               <HealthRow label="DB link" value={dbStatus} />
+              <HealthRow label="Redis link" value={redisStatus} />
+              <HealthRow
+                label="Redis ping"
+                value={
+                  snapshot?.redis?.duration !== undefined
+                    ? `${snapshot.redis.duration} ms`
+                    : "Pending"
+                }
+              />
             </Panel>
           </div>
 

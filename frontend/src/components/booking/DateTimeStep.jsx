@@ -257,7 +257,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           <Clock className="w-4 h-4 text-primary" />
           Preferred Arrival Time *
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
           {TIME_SLOTS.map((item) => {
             const isSelected = slot === item.id;
             return (
@@ -266,7 +266,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 type="button"
                 onClick={() => { setSlot(item.id); setError(''); }}
                 className={cn(
-                  "flex flex-col items-center justify-center text-center p-5 rounded-2xl border-2 cursor-pointer select-none transition-all duration-200",
+                  "flex min-w-[78vw] snap-start flex-col items-center justify-center text-center p-5 rounded-2xl border-2 cursor-pointer select-none transition-all duration-200 sm:min-w-0",
                   isSelected
                     ? "border-primary bg-primary-soft shadow-sky"
                     : "border-bg-border bg-white hover:border-primary/30 hover:bg-sky-50 shadow-xs"
@@ -281,7 +281,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 <span className="text-[10px] text-text-tertiary font-semibold mt-1 uppercase tracking-wider">{item.desc}</span>
                 {isSelected && (
                   <span className="mt-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Selected ✓
+                    Selected
                   </span>
                 )}
               </button>
@@ -302,7 +302,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 font-bold text-center">⚠ {error}</p>
+        <p className="text-sm text-red-500 font-bold text-center">{error}</p>
       )}
 
       {/* Actions */}

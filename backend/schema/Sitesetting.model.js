@@ -21,6 +21,8 @@ const siteSettingSchema = new mongoose.Schema(
 
     whatsappNumber: String,
 
+    ownerWhatsappNumber: String,
+
     email: String,
 
     address: String,

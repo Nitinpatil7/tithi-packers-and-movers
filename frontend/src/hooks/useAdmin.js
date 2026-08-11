@@ -10,7 +10,6 @@ import {
   getUsers,
   getNotifications,
   sendNotification,
-  broadcastNotification,
   getInAppNotifications,
   getInAppNotificationSummary,
   markInAppNotificationRead,
@@ -102,14 +101,6 @@ export function useSendNotification() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: sendNotification,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] }),
-  });
-}
-
-export function useBroadcastNotification() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: broadcastNotification,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] }),
   });
 }

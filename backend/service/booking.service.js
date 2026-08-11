@@ -3,9 +3,12 @@ const bcrypt = require("bcrypt");
 const Booking = require("../schema/Booking.model");
 const Otp = require("../schema/Otp.model");
 const ApiError = require("../utility/apierror");
+const logger = require("../utility/logger");
+const { notifyAdminBookingEvent } = require("../utility/bookingEvents");
 const inAppNotificationService = require("./inAppNotification.service");
+const notificationService = require("./notification.service");
 const { normalizeMobile } = require("./otp.service");
-const whatsappService = require("./whatsapp.service");
+const { buildStatusMessage } = require("./whatsappTemplate.service");
 
 const ITEM_SERVICES = ["local_shifting", "intercity_moving"];
 const ALLOWED_DRAFT_FIELDS = [
@@ -98,6 +101,36 @@ const buildClientSnapshot = (booking, pricing, source = "frontend") => ({
   selectedAddons: booking.selectedAddons.map((item) => item.toObject ? item.toObject() : item),
 });
 
+const enqueueStatusNotification = async (booking) => {
+  if (!booking?.customer?.mobile || process.env.WHATSAPP_STATUS_NOTIFICATIONS === "false") return null;
+  try {
+    const providerPayload = await buildStatusMessage(booking);
+    return await notificationService.sendSingleNotification({
+      bookingId: booking._id,
+      customerMobile: booking.customer.mobile,
+      customerName: booking.customer.name,
+      channel: "whatsapp",
+      type: booking.status === "completed" ? "booking_completed" : "status_update",
+      title: "Booking status updated",
+      message: providerPayload.message,
+      createdBy: "system",
+      providerPayload,
+      meta: {
+        event: "booking_status_updated",
+        bookingid: booking.bookingid,
+        status: booking.status,
+      },
+    });
+  } catch (error) {
+    logger.error("Booking status WhatsApp notification failed to queue", {
+      bookingid: booking.bookingid,
+      status: booking.status,
+      error: error.message,
+    });
+    return null;
+  }
+};
+
 const previewQuote = async (bookingid, token) => {
   const booking = await requireDraftAccess(bookingid, token);
   if (!booking.pricing?.submittedAt) {
@@ -146,7 +179,13 @@ const confirmBooking = async (bookingid, token, payload) => {
   });
   await booking.save();
   await inAppNotificationService.createNewBookingNotification(booking);
-  await whatsappService.sendBookingConfirmation(booking);
+  notifyAdminBookingEvent("booking:new", {
+    bookingid: booking.bookingid,
+    status: booking.status,
+    customerName: booking.customer.name,
+    mobile: booking.customer.mobile,
+    scheduledate: booking.scheduledate,
+  });
   const result = booking.toObject();
   delete result.draftTokenHash;
   return result;
@@ -240,19 +279,27 @@ const updateBookingStatus = async (bookingid, payload) => {
   booking.status = payload.status;
   booking.statusHistory.push({ status: payload.status, note: payload.note, changedby: "Admin" });
   await booking.save();
-  await whatsappService.sendBookingStatusUpdate(booking);
+  await enqueueStatusNotification(booking);
+  notifyAdminBookingEvent("booking:status", {
+    bookingid: booking.bookingid,
+    status: booking.status,
+    customerName: booking.customer?.name,
+    mobile: booking.customer?.mobile,
+  });
   return booking;
 };
 
 const updateBookingDetails = async (bookingid, payload) => {
   const booking = await Booking.findOne({ bookingid });
   if (!booking) throw new ApiError(404, "Booking not found");
+  let statusChanged = false;
   if (payload.status) {
     const allowed = ["pending", "quote_sent", "confirmed", "in_progress", "completed", "cancelled"];
     if (!allowed.includes(payload.status)) throw new ApiError(400, "Invalid booking status");
     if (booking.status !== payload.status) {
       booking.status = payload.status;
       booking.statusHistory.push({ status: payload.status, note: payload.note, changedby: "Admin" });
+      statusChanged = true;
     }
   }
   if (payload.scheduledate !== undefined) booking.scheduledate = payload.scheduledate ? new Date(payload.scheduledate) : undefined;
@@ -266,6 +313,14 @@ const updateBookingDetails = async (bookingid, payload) => {
     };
   }
   await booking.save();
+  if (statusChanged) await enqueueStatusNotification(booking);
+  notifyAdminBookingEvent(statusChanged ? "booking:status" : "booking:updated", {
+    bookingid: booking.bookingid,
+    status: booking.status,
+    customerName: booking.customer?.name,
+    mobile: booking.customer?.mobile,
+    scheduledate: booking.scheduledate,
+  });
   return booking;
 };
 
@@ -278,7 +333,49 @@ const updateAdminQuote = async (bookingid, payload) => {
   booking.status = "quote_sent";
   booking.statusHistory.push({ status: "quote_sent", note: payload.note || "Quotation updated", changedby: "Admin" });
   await booking.save();
+  notifyAdminBookingEvent("booking:quote", {
+    bookingid: booking.bookingid,
+    status: booking.status,
+    customerName: booking.customer?.name,
+    mobile: booking.customer?.mobile,
+  });
   return booking;
+};
+
+const getRealtimeSummary = async () => {
+  const now = new Date();
+  const todayStart = new Date(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) + "T00:00:00+05:30");
+  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+  const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
+  const activeStatuses = ["pending", "quote_sent", "confirmed", "in_progress"];
+
+  const [todayBookings, nextHourBookings, activeBookings] = await Promise.all([
+    Booking.find({
+      status: { $in: activeStatuses },
+      scheduledate: { $gte: todayStart, $lt: todayEnd },
+    }).select("bookingid status customer scheduledate timeslot pickuplocation droplocation serviceType").lean(),
+    Booking.find({
+      status: { $in: activeStatuses },
+      scheduledate: { $gte: now, $lte: nextHour },
+    }).select("bookingid status customer scheduledate timeslot pickuplocation droplocation serviceType").lean(),
+    Booking.find({ status: { $in: activeStatuses } })
+      .select("bookingid status customer scheduledate timeslot pickuplocation droplocation serviceType")
+      .sort({ scheduledate: 1, createdAt: -1 })
+      .limit(50)
+      .lean(),
+  ]);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    counts: {
+      today: todayBookings.length,
+      nextHour: nextHourBookings.length,
+      active: activeBookings.length,
+    },
+    todayBookings,
+    nextHourBookings,
+    activeBookings,
+  };
 };
 
 module.exports = {
@@ -294,4 +391,5 @@ module.exports = {
   updateBookingStatus,
   updateBookingDetails,
   updateAdminQuote,
+  getRealtimeSummary,
 };

@@ -1,7 +1,15 @@
 import { calculateBookingPrice, normalizeServiceType } from '@/lib/pricing';
 
+const isCoordinateAddress = (value = '') => /^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/.test(String(value).trim());
+const readableAddress = (location = {}) => {
+  const address = String(location.address || '').trim();
+  if (address && !isCoordinateAddress(address)) return address;
+  const fallback = String(location.mapAddress || location.formattedAddress || '').trim();
+  return fallback && !isCoordinateAddress(fallback) ? fallback : '';
+};
+
 const inferLocationFallbacks = (location = {}) => {
-  const address = String(location.address || '');
+  const address = readableAddress(location);
   const isSurat = /\bsurat\b/i.test(address) || String(location.city || '').toLowerCase() === 'surat';
   const pincodeFromAddress = address.match(/\b\d{6}\b/)?.[0];
   return {
@@ -14,7 +22,7 @@ const inferLocationFallbacks = (location = {}) => {
 const cleanLocation = (location = {}) => {
   const fallback = inferLocationFallbacks(location);
   return {
-    address: location.address || '',
+    address: readableAddress(location),
     city: fallback.city,
     state: fallback.state,
     pincode: fallback.pincode,

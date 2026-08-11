@@ -201,7 +201,7 @@ Access legend:
 | `POST /api/booking-pricing-rules/admin` | Admin | Pricing-rule body | `201`, `Booking pricing rule created` | Created pricing rule |
 | `PATCH /api/booking-pricing-rules/admin/:id` | Admin | Changed pricing-rule fields | `200`, `Booking pricing rule updated` | Updated pricing rule |
 | `DELETE /api/booking-pricing-rules/admin/:id` | Admin | Rule MongoDB ID | `200`, `Booking pricing rule deactivated` | Rule with `isActive: false` |
-| `POST /api/otp/send` | Public/rate-limited | `mobile`, optional `purpose` | `201`, `OTP sent successfully` | OTP timing; development may include `devOtp` |
+| `POST /api/otp/send` | Public/rate-limited | `mobile`, optional `purpose` | `201`, `OTP sent successfully` | OTP timing and APitxt request metadata |
 | `POST /api/otp/resend` | Public/rate-limited | Same as send | `201`, `OTP sent successfully` | New OTP timing |
 | `POST /api/otp/verify` | Public/rate-limited | `mobile`, `otp`, optional `purpose` | `200`, `Mobile number verified successfully` | `verified`, `verificationId`, `verifiedAt` |
 | `POST /api/bookings/draft` | Public/rate-limited | Initial booking body | `201`, `Booking draft created` | `{ booking, draftToken }` |
@@ -228,7 +228,7 @@ Access legend:
 | `GET /api/notification` | Public (current) | Notification filter queries | `200`, `Notifications fetched successfully` | Notification array |
 | `GET /api/notification/:id` | Public (current) | Notification ID | `200`, `Notification fetched successfully` | Notification object |
 | `POST /api/notification/send` | Public (current) | Single notification body | `201`, `Notification sent successfully` | Delivery record |
-| `POST /api/notification/broadcast` | Public (current) | Broadcast body | `201`, `Broadcast notifications processed successfully` | Delivery-record array |
+| `POST /api/notification/broadcast` | Admin | Disabled for now | `400`, broadcast disabled | Error only |
 | `DELETE /api/notification/:id` | Public (current) | Notification ID | `200`, `Notification deleted successfully` | Deleted record |
 | `GET /api/in-app-notifications` | Public (current) | `isRead`, `type`, `limit` | `200`, `In-app notifications fetched` | Alert array |
 | `GET /api/in-app-notifications/summary` | Public (current) | Nothing | `200`, `Notification dashboard summary fetched` | Today/unread/upcoming summary |
@@ -1108,11 +1108,13 @@ Send/resend `data`:
   "purpose": "booking",
   "expiresInSeconds": 300,
   "resendAfterSeconds": 60,
-  "devOtp": "123456"
+  "provider": "apitxt",
+  "requestId": "SMS-OTP-A1B2C3D4",
+  "deliveryCost": 0.25
 }
 ```
 
-`devOtp` is omitted in production. Verify `data`:
+OTP delivery uses APitxt via `APITXT_AUTHKEY` in the backend environment. Verify `data`:
 
 ```json
 {
@@ -1128,7 +1130,7 @@ Send/resend `data`:
 |---|---|---|---|
 | POST | `/api/otp/send` | `{ "mobile": "9876543210", "purpose": "booking" }` | OTP timing |
 | POST | `/api/otp/resend` | Same | New OTP timing |
-| POST | `/api/otp/verify` | `{ "mobile": "9876543210", "otp": "123456", "purpose": "booking" }` | `verificationId` |
+| POST | `/api/otp/verify` | `{ "mobile": "9876543210", "otp": "452134", "purpose": "booking" }` | `verificationId` |
 
 ## 9. Content/admin modules
 
@@ -1402,7 +1404,7 @@ Analytics overview `data` contains `currency`, `estimatedRevenue`, `averageBooki
 | `GET /api/notification` | Public (current) | None | Optional `status`, `type`, `channel`, `customerMobile`, `bookingId`, `limit` | Notification array |
 | `GET /api/notification/:id` | Public (current) | None | Notification `_id` | One notification |
 | `POST /api/notification/send` | Public (current) | None | Single-message body below | Delivery record; HTTP `201` |
-| `POST /api/notification/broadcast` | Public (current) | None | Broadcast body below | Delivery-record array; HTTP `201` |
+| `POST /api/notification/broadcast` | Admin | None | Disabled for now | Error only |
 | `DELETE /api/notification/:id` | Public (current) | None | Notification `_id`; no body | Permanently deleted record |
 
 Current route code has no auth middleware, so neither admin cookie nor draft token is required. Secure these routes before production if only admins may send messages.
@@ -1424,7 +1426,7 @@ Single notification POST body:
 
 Required: `customerMobile`, `channel`, `type`, `message`. Channel: `sms | whatsapp`. The returned record includes delivery `status: pending | sent | failed`, provider details and timestamps.
 
-Broadcast body:
+Broadcast is currently disabled. Use single-customer messaging instead. Previous broadcast body shape:
 
 ```json
 {
@@ -1464,7 +1466,7 @@ Alert fields are `_id`, `type`, `title`, `message`, `bookingId`, `isRead`, `read
 | GET | `/api/notification?status=sent&channel=whatsapp&limit=50` | Notification records |
 | GET/DELETE | `/api/notification/:id` | Notification detail/delete |
 | POST | `/api/notification/send` | `{ customerMobile, customerName?, channel, type, title?, message }` |
-| POST | `/api/notification/broadcast` | `{ targetCustomers, channel, type, title?, message }` |
+| POST | `/api/notification/broadcast` | Disabled for now |
 | GET | `/api/in-app-notifications?isRead=false&type=new_booking&limit=25` | Admin alert list |
 | GET | `/api/in-app-notifications/summary` | Unread/today/upcoming summary |
 | POST | `/api/in-app-notifications/new-booking` | `{ "bookingId": "BOOKING_MONGODB_ID" }` |

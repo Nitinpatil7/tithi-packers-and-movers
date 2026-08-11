@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { 
   CalendarDays, 
@@ -47,6 +48,11 @@ export default function DashboardPage() {
     delayOnly: true,
     limit: 25,
   }, token);
+  const { data: realtimeSummary } = useQuery({
+    queryKey: ['admin', 'realtime-summary'],
+    queryFn: async () => null,
+    enabled: false,
+  });
 
   const bookings = bookingsData?.bookings || [];
   const todayActionBookings = todayBookingsData?.bookings || [];
@@ -78,8 +84,8 @@ export default function DashboardPage() {
                 color="primary"
               />
               <StatCard
-                title="Pending Verification"
-                value={stats?.pendingBookings || 0}
+                title="Next Hour Orders"
+                value={realtimeSummary?.counts?.nextHour || 0}
                 icon={Clock}
                 color="commercial"
               />

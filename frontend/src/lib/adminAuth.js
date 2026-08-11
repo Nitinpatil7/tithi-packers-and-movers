@@ -1,23 +1,35 @@
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const ADMIN_REQUEST_TIMEOUT_MS = 5000;
 
 async function adminRequest(path, options = {}) {
-  const response = await fetch(`${API_URL}/api/admin-auth${path}`, {
-    credentials: 'include',
-    cache: 'no-store',
-    ...options,
-    headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ADMIN_REQUEST_TIMEOUT_MS);
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.message || data.error || 'Unable to complete the request.');
-    error.status = response.status;
+  try {
+    const response = await fetch(`${API_URL}/api/admin-auth${path}`, {
+      credentials: 'include',
+      cache: 'no-store',
+      ...options,
+      signal: options.signal || controller.signal,
+      headers: {
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...options.headers,
+      },
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(data.message || data.error || 'Unable to complete the request.');
+      error.status = response.status;
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error('Admin API timed out. Please check the backend server.');
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return data;
 }
 
 export const adminLogin = (email, password) => adminRequest('/login', {

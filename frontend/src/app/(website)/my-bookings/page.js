@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
@@ -117,9 +118,15 @@ function TrackingContent() {
   };
 
   return (
-    <main className="min-h-screen bg-bg-page pb-16 pt-28">
-      <div className="mx-auto grid max-w-6xl gap-5 px-4 sm:gap-6 lg:grid-cols-[390px_1fr]">
-        <Card className="h-fit border border-bg-border bg-bg-white p-5 shadow-xs sm:p-6 lg:sticky lg:top-24">
+    <main className="relative min-h-screen overflow-hidden bg-bg-page pb-16 pt-28">
+      <div className="pointer-events-none absolute inset-x-0 top-20 h-72 bg-[radial-gradient(circle_at_16%_18%,rgba(14,165,233,.15),transparent_34%),radial-gradient(circle_at_82%_24%,rgba(249,115,22,.09),transparent_28%)]" />
+      <motion.div
+        className="pointer-events-none absolute right-8 top-36 hidden h-24 w-24 rounded-[28px] border border-sky-100 bg-white/55 shadow-sky md:block"
+        animate={{ rotateY: [0, 14, 0], y: [0, -8, 0] }}
+        transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-5 px-4 sm:gap-6 lg:grid-cols-[390px_1fr]">
+        <Card className="h-fit border border-bg-border bg-bg-white/95 p-5 shadow-xs backdrop-blur transition hover:border-primary/20 hover:shadow-sky sm:p-6 lg:sticky lg:top-24">
           <div className="flex items-start gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Truck className="h-5 w-5" />
