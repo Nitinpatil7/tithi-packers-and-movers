@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -48,7 +48,7 @@ export default function CTABannerSection() {
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-white text-white" />
                 ))}
-                <span className="text-white/80 text-sm font-semibold ml-1">4.9 · 234 {t.verifiedReviews || 'reviews'}</span>
+                <span className="text-white/80 text-sm font-semibold ml-1">4.9 Â· 234 {t.verifiedReviews || 'reviews'}</span>
               </div>
               
               <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -65,7 +65,7 @@ export default function CTABannerSection() {
                   t.tagResponse || '2-Hour Response'
                 ].map((tag) => (
                   <span key={tag} className="bg-white/15 text-white text-xs font-bold px-4 py-1.5 rounded-full border border-white/20">
-                    ✓ {tag}
+                    âœ“ {tag}
                   </span>
                 ))}
               </div>
@@ -74,7 +74,7 @@ export default function CTABannerSection() {
             {/* Right CTA */}
             <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-72 md:gap-4">
               <MotionLink
-                href="/book/local-shifting"
+                href="/website/book/local-shifting"
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-black text-primary shadow-xl transition-all hover:shadow-2xl sm:text-base md:w-auto md:px-8"
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -90,7 +90,7 @@ export default function CTABannerSection() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Phone className="w-5 h-5" />
-                {language === 'gu' ? `કૉલ કરો ${phone}` : language === 'hi' ? `कॉल करें ${phone}` : `Call ${phone}`}
+                {language === 'gu' ? `àª•à«‰àª² àª•àª°à«‹ ${phone}` : language === 'hi' ? `à¤•à¥‰à¤² à¤•à¤°à¥‡à¤‚ ${phone}` : `Call ${phone}`}
               </motion.a>}
 
               {whatsapp && <motion.a
@@ -111,3 +111,4 @@ export default function CTABannerSection() {
     </section>
   );
 }
+

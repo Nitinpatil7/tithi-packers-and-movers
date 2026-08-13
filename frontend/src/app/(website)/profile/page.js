@@ -1,4 +1,4 @@
-// src/app/profile/page.js
+﻿// src/app/profile/page.js
 'use client';
 
 import React, { useEffect } from 'react';
@@ -22,24 +22,24 @@ const PROFILE_TRANSLATIONS = {
     logout: "Logout Account"
   },
   hi: {
-    tag: "ग्राहक खाता",
-    title: "आपका प्रोफाइल",
-    verified: "सत्यापित ग्राहक",
-    mobile: "मोबाइल नंबर",
-    email: "ईमेल पता",
-    notProvided: "प्रदान नहीं किया गया",
-    viewBookings: "शिफ्टिंग बुकिंग देखें",
-    logout: "लॉगआउट करें"
+    tag: "à¤—à¥à¤°à¤¾à¤¹à¤• à¤–à¤¾à¤¤à¤¾",
+    title: "à¤†à¤ªà¤•à¤¾ à¤ªà¥à¤°à¥‹à¤«à¤¾à¤‡à¤²",
+    verified: "à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ à¤—à¥à¤°à¤¾à¤¹à¤•",
+    mobile: "à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤°",
+    email: "à¤ˆà¤®à¥‡à¤² à¤ªà¤¤à¤¾",
+    notProvided: "à¤ªà¥à¤°à¤¦à¤¾à¤¨ à¤¨à¤¹à¥€à¤‚ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾",
+    viewBookings: "à¤¶à¤¿à¤«à¥à¤Ÿà¤¿à¤‚à¤— à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¦à¥‡à¤–à¥‡à¤‚",
+    logout: "à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ à¤•à¤°à¥‡à¤‚"
   },
   gu: {
-    tag: "ગ્રાહક ખાતું",
-    title: "તમારી પ્રોફાઇલ",
-    verified: "વેરીફાઇડ ગ્રાહક",
-    mobile: "મોબાઈલ નંબર",
-    email: "ઇમેઇલ સરનામું",
-    notProvided: "નથી આપેલ",
-    viewBookings: "શિફ્ટિંગ બુકિંગ જુઓ",
-    logout: "લોગઆઉટ કરો"
+    tag: "àª—à«àª°àª¾àª¹àª• àª–àª¾àª¤à«àª‚",
+    title: "àª¤àª®àª¾àª°à«€ àªªà«àª°à«‹àª«àª¾àª‡àª²",
+    verified: "àªµà«‡àª°à«€àª«àª¾àª‡àª¡ àª—à«àª°àª¾àª¹àª•",
+    mobile: "àª®à«‹àª¬àª¾àªˆàª² àª¨àª‚àª¬àª°",
+    email: "àª‡àª®à«‡àª‡àª² àª¸àª°àª¨àª¾àª®à«àª‚",
+    notProvided: "àª¨àª¥à«€ àª†àªªà«‡àª²",
+    viewBookings: "àª¶àª¿àª«à«àªŸàª¿àª‚àª— àª¬à«àª•àª¿àª‚àª— àªœà«àª“",
+    logout: "àª²à«‹àª—àª†àª‰àªŸ àª•àª°à«‹"
   }
 };
 
@@ -56,7 +56,7 @@ export default function ProfilePage() {
   useEffect(() => {
     // If not authenticated, redirect to sign-in page
     if (!isAuthenticated) {
-      router.push('/my-bookings');
+      router.push('/website/my-bookings');
     }
   }, [isAuthenticated, router]);
 
@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
           <div className="border-t border-bg-border/60 pt-4 mt-2 flex flex-col gap-3">
             <Link
-              href="/my-bookings"
+              href="/website/my-bookings"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-bg-border bg-white px-5 py-2 text-xs font-bold text-text-primary shadow-xs transition-all duration-200 hover:border-primary/30 hover:text-primary active:scale-[0.98]"
             >
               <ClipboardList className="w-4 h-4" />
@@ -128,3 +128,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

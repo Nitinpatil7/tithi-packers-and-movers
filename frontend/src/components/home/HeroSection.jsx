@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -23,9 +23,9 @@ export default function HeroSection() {
   ];
 
   const services = [
-    { name: site.serviceLabels?.local_shifting || t.localShifting , path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { name: site.serviceLabels?.porter_labour_service || t.labourService , path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { name: site.serviceLabels?.local_shifting || t.localShifting , path: '/website/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
+    { name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/website/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
+    { name: site.serviceLabels?.porter_labour_service || t.labourService , path: '/website/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [
@@ -104,13 +104,13 @@ export default function HeroSection() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-            <Link href="/book/local-shifting" className="w-full sm:w-auto">
+            <Link href="/website/book/local-shifting" className="w-full sm:w-auto">
               <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto">
                 {t.btnQuote || 'Get Free Quote'}
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
-            <Link href="/my-bookings" className="w-full sm:w-auto">
+            <Link href="/website/my-bookings" className="w-full sm:w-auto">
               <button className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto">
                 {t.btnTrack || 'Track My Booking'}
               </button>
@@ -182,3 +182,4 @@ export default function HeroSection() {
     </section>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -194,7 +194,7 @@ function TrackingContent() {
                 <BookingCard
                   key={booking._id || booking.bookingid || booking.bookingId}
                   booking={booking}
-                  onOpen={() => router.push(`/my-bookings/${booking.bookingid || booking.bookingId || booking._id}`)}
+                  onOpen={() => router.push(`/website/my-bookings/${booking.bookingid || booking.bookingId || booking._id}`)}
                 />
               ))}
             </div>
@@ -319,3 +319,4 @@ function InfoChip({ icon: Icon, label, value }) {
     </div>
   );
 }
+

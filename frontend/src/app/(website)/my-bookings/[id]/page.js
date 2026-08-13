@@ -1,4 +1,4 @@
-// src/app/my-bookings/[id]/page.js
+﻿// src/app/my-bookings/[id]/page.js
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -49,70 +49,70 @@ const DETAIL_TRANSLATIONS = {
     notFound: "Booking detail record not found."
   },
   hi: {
-    back: "बुकिंग पर वापस जाएं",
-    bookingRef: "बुकिंग संदर्भ",
-    requestedOn: "अनुरोध की तारीख: ",
-    timelineTitle: "स्थानांतरण समयरेखा स्थिति",
+    back: "à¤¬à¥à¤•à¤¿à¤‚à¤— à¤ªà¤° à¤µà¤¾à¤ªà¤¸ à¤œà¤¾à¤à¤‚",
+    bookingRef: "à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¸à¤‚à¤¦à¤°à¥à¤­",
+    requestedOn: "à¤…à¤¨à¥à¤°à¥‹à¤§ à¤•à¥€ à¤¤à¤¾à¤°à¥€à¤–: ",
+    timelineTitle: "à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£ à¤¸à¤®à¤¯à¤°à¥‡à¤–à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿",
     stages: {
-      pending: "लंबित",
-      confirmed: "पुष्टि की गई",
-      'in-progress': "प्रगति पर",
-      completed: "पूरा हुआ"
+      pending: "à¤²à¤‚à¤¬à¤¿à¤¤",
+      confirmed: "à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¥€ à¤—à¤ˆ",
+      'in-progress': "à¤ªà¥à¤°à¤—à¤¤à¤¿ à¤ªà¤°",
+      completed: "à¤ªà¥‚à¤°à¤¾ à¤¹à¥à¤†"
     },
-    addressDetails: "पता विवरण",
-    from: "कहाँ से (पिकअप)",
-    to: "कहाँ तक (डिलीवरी)",
-    floor: "मंजिल: ",
-    ground: "भूतल",
-    noLift: "लिफ्ट नहीं",
-    lift: "सर्विस लिफ्ट",
-    notSpecified: "निर्दिष्ट नहीं",
-    assignedDetails: "असाइन किए गए विवरण",
-    shiftingCategory: "स्थानांतरण श्रेणी",
-    vehicleAllocated: "आवंटित वाहन",
-    date: "दिनांक",
-    slot: "पसंदीदा स्लॉट",
-    quoteCalculations: "कोटेशन गणना",
-    addonEstimation: "ऐड-ऑन सेवाओं का अनुमान:",
-    baseCharge: "मूल वाहन शुल्क:",
-    pendingReview: "समीक्षा लंबित",
-    combinedCost: "संयुक्त चालान लागत:",
-    awaitingEstimation: "अनुमान की प्रतीक्षा",
-    calculatingQuote: "हमारे प्रबंधक आपके सामान की मात्रा के लिए स्थानीय परिवहन दरों की गणना कर रहे हैं। हम 2 घंटे के भीतर एसएमएस/व्हाट्सएप के माध्यम से अपडेटेड कोटेशन भेजेंगे।",
-    notFound: "बुकिंग विवरण रिकॉर्ड नहीं मिला।"
+    addressDetails: "à¤ªà¤¤à¤¾ à¤µà¤¿à¤µà¤°à¤£",
+    from: "à¤•à¤¹à¤¾à¤ à¤¸à¥‡ (à¤ªà¤¿à¤•à¤…à¤ª)",
+    to: "à¤•à¤¹à¤¾à¤ à¤¤à¤• (à¤¡à¤¿à¤²à¥€à¤µà¤°à¥€)",
+    floor: "à¤®à¤‚à¤œà¤¿à¤²: ",
+    ground: "à¤­à¥‚à¤¤à¤²",
+    noLift: "à¤²à¤¿à¤«à¥à¤Ÿ à¤¨à¤¹à¥€à¤‚",
+    lift: "à¤¸à¤°à¥à¤µà¤¿à¤¸ à¤²à¤¿à¤«à¥à¤Ÿ",
+    notSpecified: "à¤¨à¤¿à¤°à¥à¤¦à¤¿à¤·à¥à¤Ÿ à¤¨à¤¹à¥€à¤‚",
+    assignedDetails: "à¤…à¤¸à¤¾à¤‡à¤¨ à¤•à¤¿à¤ à¤—à¤ à¤µà¤¿à¤µà¤°à¤£",
+    shiftingCategory: "à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£ à¤¶à¥à¤°à¥‡à¤£à¥€",
+    vehicleAllocated: "à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤µà¤¾à¤¹à¤¨",
+    date: "à¤¦à¤¿à¤¨à¤¾à¤‚à¤•",
+    slot: "à¤ªà¤¸à¤‚à¤¦à¥€à¤¦à¤¾ à¤¸à¥à¤²à¥‰à¤Ÿ",
+    quoteCalculations: "à¤•à¥‹à¤Ÿà¥‡à¤¶à¤¨ à¤—à¤£à¤¨à¤¾",
+    addonEstimation: "à¤à¤¡-à¤‘à¤¨ à¤¸à¥‡à¤µà¤¾à¤“à¤‚ à¤•à¤¾ à¤…à¤¨à¥à¤®à¤¾à¤¨:",
+    baseCharge: "à¤®à¥‚à¤² à¤µà¤¾à¤¹à¤¨ à¤¶à¥à¤²à¥à¤•:",
+    pendingReview: "à¤¸à¤®à¥€à¤•à¥à¤·à¤¾ à¤²à¤‚à¤¬à¤¿à¤¤",
+    combinedCost: "à¤¸à¤‚à¤¯à¥à¤•à¥à¤¤ à¤šà¤¾à¤²à¤¾à¤¨ à¤²à¤¾à¤—à¤¤:",
+    awaitingEstimation: "à¤…à¤¨à¥à¤®à¤¾à¤¨ à¤•à¥€ à¤ªà¥à¤°à¤¤à¥€à¤•à¥à¤·à¤¾",
+    calculatingQuote: "à¤¹à¤®à¤¾à¤°à¥‡ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤• à¤†à¤ªà¤•à¥‡ à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¥€ à¤®à¤¾à¤¤à¥à¤°à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤ªà¤°à¤¿à¤µà¤¹à¤¨ à¤¦à¤°à¥‹à¤‚ à¤•à¥€ à¤—à¤£à¤¨à¤¾ à¤•à¤° à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤¹à¤® 2 à¤˜à¤‚à¤Ÿà¥‡ à¤•à¥‡ à¤­à¥€à¤¤à¤° à¤à¤¸à¤à¤®à¤à¤¸/à¤µà¥à¤¹à¤¾à¤Ÿà¥à¤¸à¤à¤ª à¤•à¥‡ à¤®à¤¾à¤§à¥à¤¯à¤® à¤¸à¥‡ à¤…à¤ªà¤¡à¥‡à¤Ÿà¥‡à¤¡ à¤•à¥‹à¤Ÿà¥‡à¤¶à¤¨ à¤­à¥‡à¤œà¥‡à¤‚à¤—à¥‡à¥¤",
+    notFound: "à¤¬à¥à¤•à¤¿à¤‚à¤— à¤µà¤¿à¤µà¤°à¤£ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾à¥¤"
   },
   gu: {
-    back: "બુકિંગ પર પાછા જાઓ",
-    bookingRef: "બુકિંગ સંદર્ભ નંબર",
-    requestedOn: "વિનંતી તારીખ: ",
-    timelineTitle: "શિફ્ટિંગ પ્રગતિ સ્થિતિ",
+    back: "àª¬à«àª•àª¿àª‚àª— àªªàª° àªªàª¾àª›àª¾ àªœàª¾àª“",
+    bookingRef: "àª¬à«àª•àª¿àª‚àª— àª¸àª‚àª¦àª°à«àª­ àª¨àª‚àª¬àª°",
+    requestedOn: "àªµàª¿àª¨àª‚àª¤à«€ àª¤àª¾àª°à«€àª–: ",
+    timelineTitle: "àª¶àª¿àª«à«àªŸàª¿àª‚àª— àªªà«àª°àª—àª¤àª¿ àª¸à«àª¥àª¿àª¤àª¿",
     stages: {
-      pending: "બાકી છે",
-      confirmed: "કન્ફર્મ થયેલ",
-      'in-progress': "ચાલુ છે",
-      completed: "પૂર્ણ થયેલ"
+      pending: "àª¬àª¾àª•à«€ àª›à«‡",
+      confirmed: "àª•àª¨à«àª«àª°à«àª® àª¥àª¯à«‡àª²",
+      'in-progress': "àªšàª¾àª²à« àª›à«‡",
+      completed: "àªªà«‚àª°à«àª£ àª¥àª¯à«‡àª²"
     },
-    addressDetails: "સરનામાની વિગતો",
-    from: "ક્યાંથી (પિકઅપ)",
-    to: "ક્યાં (ડિલિવરી)",
-    floor: "માળ: ",
-    ground: "ગ્રાઉન્ડ ફ્લોર",
-    noLift: "લિફ્ટ નથી",
-    lift: "સર્વિસ લિફ્ટ",
-    notSpecified: "આપેલ નથી",
-    assignedDetails: "ટ્રક અને સમયની વિગત",
-    shiftingCategory: "શિફ્ટિંગ કેટેગરી",
-    vehicleAllocated: "ફાળવેલ વાહન",
-    date: "તારીખ",
-    slot: "પસંદગીનો સમય",
-    quoteCalculations: "ભાવ ગણતરી",
-    addonEstimation: "વધારાની સેવાઓનો ખર્ચ:",
-    baseCharge: "વાહનનું બેઝ ભાડું:",
-    pendingReview: "ગણતરી બાકી છે",
-    combinedCost: "કુલ બિલ રકમ:",
-    awaitingEstimation: "ભાવ ગણતરી ચાલુ છે",
-    calculatingQuote: "અમારા મેનેજરો તમારા સામાનના પ્રમાણ મુજબ લોકલ ટ્રાન્સપોર્ટ ભાડાની ગણતરી કરી રહ્યા છે. અમે ૨ કલાકમાં એસએમએસ/વોટ્સએપ દ્વારા નવો ભાવ મોકલીશું.",
-    notFound: "બુકિંગ વિગતનો રેકોર્ડ મળ્યો નથી."
+    addressDetails: "àª¸àª°àª¨àª¾àª®àª¾àª¨à«€ àªµàª¿àª—àª¤à«‹",
+    from: "àª•à«àª¯àª¾àª‚àª¥à«€ (àªªàª¿àª•àª…àªª)",
+    to: "àª•à«àª¯àª¾àª‚ (àª¡àª¿àª²àª¿àªµàª°à«€)",
+    floor: "àª®àª¾àª³: ",
+    ground: "àª—à«àª°àª¾àª‰àª¨à«àª¡ àª«à«àª²à«‹àª°",
+    noLift: "àª²àª¿àª«à«àªŸ àª¨àª¥à«€",
+    lift: "àª¸àª°à«àªµàª¿àª¸ àª²àª¿àª«à«àªŸ",
+    notSpecified: "àª†àªªà«‡àª² àª¨àª¥à«€",
+    assignedDetails: "àªŸà«àª°àª• àª…àª¨à«‡ àª¸àª®àª¯àª¨à«€ àªµàª¿àª—àª¤",
+    shiftingCategory: "àª¶àª¿àª«à«àªŸàª¿àª‚àª— àª•à«‡àªŸà«‡àª—àª°à«€",
+    vehicleAllocated: "àª«àª¾àª³àªµà«‡àª² àªµàª¾àª¹àª¨",
+    date: "àª¤àª¾àª°à«€àª–",
+    slot: "àªªàª¸àª‚àª¦àª—à«€àª¨à«‹ àª¸àª®àª¯",
+    quoteCalculations: "àª­àª¾àªµ àª—àª£àª¤àª°à«€",
+    addonEstimation: "àªµàª§àª¾àª°àª¾àª¨à«€ àª¸à«‡àªµàª¾àª“àª¨à«‹ àª–àª°à«àªš:",
+    baseCharge: "àªµàª¾àª¹àª¨àª¨à«àª‚ àª¬à«‡àª àª­àª¾àª¡à«àª‚:",
+    pendingReview: "àª—àª£àª¤àª°à«€ àª¬àª¾àª•à«€ àª›à«‡",
+    combinedCost: "àª•à«àª² àª¬àª¿àª² àª°àª•àª®:",
+    awaitingEstimation: "àª­àª¾àªµ àª—àª£àª¤àª°à«€ àªšàª¾àª²à« àª›à«‡",
+    calculatingQuote: "àª…àª®àª¾àª°àª¾ àª®à«‡àª¨à«‡àªœàª°à«‹ àª¤àª®àª¾àª°àª¾ àª¸àª¾àª®àª¾àª¨àª¨àª¾ àªªà«àª°àª®àª¾àª£ àª®à«àªœàª¬ àª²à«‹àª•àª² àªŸà«àª°àª¾àª¨à«àª¸àªªà«‹àª°à«àªŸ àª­àª¾àª¡àª¾àª¨à«€ àª—àª£àª¤àª°à«€ àª•àª°à«€ àª°àª¹à«àª¯àª¾ àª›à«‡. àª…àª®à«‡ à«¨ àª•àª²àª¾àª•àª®àª¾àª‚ àªàª¸àªàª®àªàª¸/àªµà«‹àªŸà«àª¸àªàªª àª¦à«àªµàª¾àª°àª¾ àª¨àªµà«‹ àª­àª¾àªµ àª®à«‹àª•àª²à«€àª¶à«àª‚.",
+    notFound: "àª¬à«àª•àª¿àª‚àª— àªµàª¿àª—àª¤àª¨à«‹ àª°à«‡àª•à«‹àª°à«àª¡ àª®àª³à«àª¯à«‹ àª¨àª¥à«€."
   }
 };
 
@@ -138,7 +138,7 @@ export default function CustomerBookingDetailPage() {
       setBooking(data);
     } catch (err) {
       toast.error(t.notFound);
-      router.push('/my-bookings');
+      router.push('/website/my-bookings');
     } finally {
       setLoading(false);
     }
@@ -177,14 +177,14 @@ export default function CustomerBookingDetailPage() {
 
   const getLocalizedServiceLabel = (service) => {
     const labels = {
-      'local-shifting': language === 'gu' ? 'લોકલ શિફ્ટિંગ' : language === 'hi' ? 'लोकल शिफ्टिंग' : 'Local Shifting',
-      'local': language === 'gu' ? 'લોકલ શિફ્ટિંગ' : language === 'hi' ? 'લોકલ શિફ્ટિંગ' : 'Local Shifting',
-      'intercity-moving': language === 'gu' ? 'આંતર-શહેરી શિફ્ટિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
-      'intercity': language === 'gu' ? 'આંતર-શહેરી શિફ્ટિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
-      'packing-service': language === 'gu' ? 'સામાન્ય સેવા (Ordinary)' : language === 'hi' ? 'साधारण सेवा (Ordinary)' : 'Ordinary Service',
-      'packing': language === 'gu' ? 'સામાન્ય સેવા (Ordinary)' : language === 'hi' ? 'साधारण सेवा (Ordinary)' : 'Ordinary Service',
-      'commercial-moving': language === 'gu' ? 'વ્યાપાર સ્થળાંતર' : language === 'hi' ? 'व्यावસાયिक સ્થળાંતર' : 'Business Relocation',
-      'commercial': language === 'gu' ? 'વ્યાપાર સ્થળાંતર' : language === 'hi' ? 'व्यावસાયિક સ્થળાંતર' : 'Business Relocation'
+      'local-shifting': language === 'gu' ? 'àª²à«‹àª•àª² àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : language === 'hi' ? 'à¤²à¥‹à¤•à¤² à¤¶à¤¿à¤«à¥à¤Ÿà¤¿à¤‚à¤—' : 'Local Shifting',
+      'local': language === 'gu' ? 'àª²à«‹àª•àª² àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : language === 'hi' ? 'àª²à«‹àª•àª² àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : 'Local Shifting',
+      'intercity-moving': language === 'gu' ? 'àª†àª‚àª¤àª°-àª¶àª¹à«‡àª°à«€ àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : language === 'hi' ? 'à¤‡à¤‚à¤Ÿà¤°à¤¸à¤¿à¤Ÿà¥€ à¤®à¥‚à¤µà¤¿à¤‚à¤—' : 'Intercity Moving',
+      'intercity': language === 'gu' ? 'àª†àª‚àª¤àª°-àª¶àª¹à«‡àª°à«€ àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : language === 'hi' ? 'à¤‡à¤‚à¤Ÿà¤°à¤¸à¤¿à¤Ÿà¥€ à¤®à¥‚à¤µà¤¿à¤‚à¤—' : 'Intercity Moving',
+      'packing-service': language === 'gu' ? 'àª¸àª¾àª®àª¾àª¨à«àª¯ àª¸à«‡àªµàª¾ (Ordinary)' : language === 'hi' ? 'à¤¸à¤¾à¤§à¤¾à¤°à¤£ à¤¸à¥‡à¤µà¤¾ (Ordinary)' : 'Ordinary Service',
+      'packing': language === 'gu' ? 'àª¸àª¾àª®àª¾àª¨à«àª¯ àª¸à«‡àªµàª¾ (Ordinary)' : language === 'hi' ? 'à¤¸à¤¾à¤§à¤¾à¤°à¤£ à¤¸à¥‡à¤µà¤¾ (Ordinary)' : 'Ordinary Service',
+      'commercial-moving': language === 'gu' ? 'àªµà«àª¯àª¾àªªàª¾àª° àª¸à«àª¥àª³àª¾àª‚àª¤àª°' : language === 'hi' ? 'à¤µà¥à¤¯à¤¾à¤µàª¸àª¾àª¯à¤¿à¤• àª¸à«àª¥àª³àª¾àª‚àª¤àª°' : 'Business Relocation',
+      'commercial': language === 'gu' ? 'àªµà«àª¯àª¾àªªàª¾àª° àª¸à«àª¥àª³àª¾àª‚àª¤àª°' : language === 'hi' ? 'à¤µà¥à¤¯à¤¾à¤µàª¸àª¾àª¯àª¿àª• àª¸à«àª¥àª³àª¾àª‚àª¤àª°' : 'Business Relocation'
     };
     return labels[service] || getServiceLabel(service);
   };
@@ -196,7 +196,7 @@ export default function CustomerBookingDetailPage() {
         {/* Header navigation */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => router.push('/my-bookings')}
+            onClick={() => router.push('/website/my-bookings')}
             className="text-xs font-bold text-text-secondary hover:text-text-primary flex items-center gap-1 focus:outline-none"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -356,3 +356,4 @@ export default function CustomerBookingDetailPage() {
 function normalizeStatus(status) {
   return String(status || 'pending').replace(/-/g, '_');
 }
+

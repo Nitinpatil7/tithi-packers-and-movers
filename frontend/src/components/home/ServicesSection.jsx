@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -20,57 +20,57 @@ export default function ServicesSection() {
   const services = [
     {
       id: 'local',
-      title: language === 'gu' ? 'લોકલ શિફ્ટિંગ' : language === 'hi' ? 'लोकल शिफ्टिंग' : 'Local Shifting',
+      title: language === 'gu' ? 'àª²à«‹àª•àª² àª¶àª¿àª«à«àªŸàª¿àª‚àª—' : language === 'hi' ? 'à¤²à¥‹à¤•à¤² à¤¶à¤¿à¤«à¥à¤Ÿà¤¿à¤‚à¤—' : 'Local Shifting',
       description: language === 'gu'
-        ? 'સુરત શહેરની અંદર ઘર અથવા ઓફિસ શિફ્ટ. સ્થાવર ટ્રાફિક મુક્ત, ઝડપી અને ભરોસાપાત્ર.'
+        ? 'àª¸à«àª°àª¤ àª¶àª¹à«‡àª°àª¨à«€ àª…àª‚àª¦àª° àª˜àª° àª…àª¥àªµàª¾ àª“àª«àª¿àª¸ àª¶àª¿àª«à«àªŸ. àª¸à«àª¥àª¾àªµàª° àªŸà«àª°àª¾àª«àª¿àª• àª®à«àª•à«àª¤, àªàª¡àªªà«€ àª…àª¨à«‡ àª­àª°à«‹àª¸àª¾àªªàª¾àª¤à«àª°.'
         : language === 'hi'
-        ? 'सूरत शहर के अंदर घर या ऑफिस शिफ्ट। उसी दिन उपलब्ध, तेज़ और भरोसेमंद।'
+        ? 'à¤¸à¥‚à¤°à¤¤ à¤¶à¤¹à¤° à¤•à¥‡ à¤…à¤‚à¤¦à¤° à¤˜à¤° à¤¯à¤¾ à¤‘à¤«à¤¿à¤¸ à¤¶à¤¿à¤«à¥à¤Ÿà¥¤ à¤‰à¤¸à¥€ à¤¦à¤¿à¤¨ à¤‰à¤ªà¤²à¤¬à¥à¤§, à¤¤à¥‡à¤œà¤¼ à¤”à¤° à¤­à¤°à¥‹à¤¸à¥‡à¤®à¤‚à¤¦à¥¤'
         : 'Home or office relocation within Surat. Same-day shifting, flexible schedules with expert packers.',
       icon: Truck,
       color: '#0EA5E9',
       softBg: '#E0F2FE',
-      path: '/book/local-shifting',
+      path: '/website/book/local-shifting',
       features: language === 'gu'
-        ? ['તે જ દિવસે ઉપલબ્ધ', 'તાલીમબદ્ધ ટીમ', 'ફ્લોર-ટુ-ફ્લોર સર્વિસ']
+        ? ['àª¤à«‡ àªœ àª¦àª¿àªµàª¸à«‡ àª‰àªªàª²àª¬à«àª§', 'àª¤àª¾àª²à«€àª®àª¬àª¦à«àª§ àªŸà«€àª®', 'àª«à«àª²à«‹àª°-àªŸà«-àª«à«àª²à«‹àª° àª¸àª°à«àªµàª¿àª¸']
         : language === 'hi'
-        ? ['उसी दिन उपलब्ध', 'प्रशिक्षित टीम', 'फ्लोर-टू-फ्लोर सेवा']
+        ? ['à¤‰à¤¸à¥€ à¤¦à¤¿à¤¨ à¤‰à¤ªà¤²à¤¬à¥à¤§', 'à¤ªà¥à¤°à¤¶à¤¿à¤•à¥à¤·à¤¿à¤¤ à¤Ÿà¥€à¤®', 'à¤«à¥à¤²à¥‹à¤°-à¤Ÿà¥‚-à¤«à¥à¤²à¥‹à¤° à¤¸à¥‡à¤µà¤¾']
         : ['Same-day available', 'Trained crew', 'Floor-to-floor service'],
     },
     {
       id: 'intercity',
-      title: language === 'gu' ? 'આંતર-શહેરી મૂવિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
+      title: language === 'gu' ? 'àª†àª‚àª¤àª°-àª¶àª¹à«‡àª°à«€ àª®à«‚àªµàª¿àª‚àª—' : language === 'hi' ? 'à¤‡à¤‚à¤Ÿà¤°à¤¸à¤¿à¤Ÿà¥€ à¤®à¥‚à¤µà¤¿à¤‚à¤—' : 'Intercity Moving',
       description: language === 'gu'
-        ? 'સુરતથી ભારત ભરમાં ક્યાંય પણ નિર્વિઘ્ન શિફ્ટ. ફ્ક‍્ત-ટ્રક અથવા સસ્તા ભાગ-ભાર સાથે GPS ટ્રેકિંગ.'
+        ? 'àª¸à«àª°àª¤àª¥à«€ àª­àª¾àª°àª¤ àª­àª°àª®àª¾àª‚ àª•à«àª¯àª¾àª‚àª¯ àªªàª£ àª¨àª¿àª°à«àªµàª¿àª˜à«àª¨ àª¶àª¿àª«à«àªŸ. àª«à«àª•â€à«àª¤-àªŸà«àª°àª• àª…àª¥àªµàª¾ àª¸àª¸à«àª¤àª¾ àª­àª¾àª—-àª­àª¾àª° àª¸àª¾àª¥à«‡ GPS àªŸà«àª°à«‡àª•àª¿àª‚àª—.'
         : language === 'hi'
-        ? 'सूरत से पूरे भारत में कहीं भी निर्बाध स्थानांतरण। पूर्ण कंटेनर या किफायती आंशिक-लोड।'
+        ? 'à¤¸à¥‚à¤°à¤¤ à¤¸à¥‡ à¤ªà¥‚à¤°à¥‡ à¤­à¤¾à¤°à¤¤ à¤®à¥‡à¤‚ à¤•à¤¹à¥€à¤‚ à¤­à¥€ à¤¨à¤¿à¤°à¥à¤¬à¤¾à¤§ à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£à¥¤ à¤ªà¥‚à¤°à¥à¤£ à¤•à¤‚à¤Ÿà¥‡à¤¨à¤° à¤¯à¤¾ à¤•à¤¿à¤«à¤¾à¤¯à¤¤à¥€ à¤†à¤‚à¤¶à¤¿à¤•-à¤²à¥‹à¤¡à¥¤'
         : 'Seamless shifting from Surat to anywhere in India. Full container or economical part-loads with GPS tracking.',
       icon: Navigation,
       color: '#0284C7',
       softBg: '#BAE6FD',
-      path: '/book/intercity-moving',
+      path: '/website/book/intercity-moving',
       features: language === 'gu'
-        ? ['સમગ્ર ભારત રૂટ', 'જીપીએસ ટ્રેકિંગ', 'કાર્ગો વીમો']
+        ? ['àª¸àª®àª—à«àª° àª­àª¾àª°àª¤ àª°à«‚àªŸ', 'àªœà«€àªªà«€àªàª¸ àªŸà«àª°à«‡àª•àª¿àª‚àª—', 'àª•àª¾àª°à«àª—à«‹ àªµà«€àª®à«‹']
         : language === 'hi'
-        ? ['अखिल भारत मार्ग', 'जीपीएस ट्रैकिंग', 'कार्गो बीमा']
+        ? ['à¤…à¤–à¤¿à¤² à¤­à¤¾à¤°à¤¤ à¤®à¤¾à¤°à¥à¤—', 'à¤œà¥€à¤ªà¥€à¤à¤¸ à¤Ÿà¥à¤°à¥ˆà¤•à¤¿à¤‚à¤—', 'à¤•à¤¾à¤°à¥à¤—à¥‹ à¤¬à¥€à¤®à¤¾']
         : ['Pan-India routes', 'GPS tracking', 'Cargo insurance'],
     },
     {
       id: 'labour',
-      title: language === 'gu' ? 'મજૂરી અને પોર્ટર સેવા' : language === 'hi' ? 'लेबर और पोर्टर सेवा' : 'Labour & Porter Service',
+      title: language === 'gu' ? 'àª®àªœà«‚àª°à«€ àª…àª¨à«‡ àªªà«‹àª°à«àªŸàª° àª¸à«‡àªµàª¾' : language === 'hi' ? 'à¤²à¥‡à¤¬à¤° à¤”à¤° à¤ªà¥‹à¤°à¥à¤Ÿà¤° à¤¸à¥‡à¤µà¤¾' : 'Labour & Porter Service',
       description: language === 'gu'
-        ? 'ટ્રક વગર ફક્ત કુશળ કામદારો. ભારે સામાન ઉઠાવવો, ખસેડવો અથવા ગોઠવવો — કલાક પ્રમાણે ભાડું.'
+        ? 'àªŸà«àª°àª• àªµàª—àª° àª«àª•à«àª¤ àª•à«àª¶àª³ àª•àª¾àª®àª¦àª¾àª°à«‹. àª­àª¾àª°à«‡ àª¸àª¾àª®àª¾àª¨ àª‰àª àª¾àªµàªµà«‹, àª–àª¸à«‡àª¡àªµà«‹ àª…àª¥àªµàª¾ àª—à«‹àª àªµàªµà«‹ â€” àª•àª²àª¾àª• àªªà«àª°àª®àª¾àª£à«‡ àª­àª¾àª¡à«àª‚.'
         : language === 'hi'
-        ? 'ट्रक के बिना सिर्फ कुशल मजदूर। भारी सामान उठाना, शिफ्ट करना या व्यवस्थित करना — प्रति घंटे भाड़ा।'
-        : 'Expert manpower only — no truck needed. Lifting, shifting, or arranging heavy items. Charged per hour.',
+        ? 'à¤Ÿà¥à¤°à¤• à¤•à¥‡ à¤¬à¤¿à¤¨à¤¾ à¤¸à¤¿à¤°à¥à¤« à¤•à¥à¤¶à¤² à¤®à¤œà¤¦à¥‚à¤°à¥¤ à¤­à¤¾à¤°à¥€ à¤¸à¤¾à¤®à¤¾à¤¨ à¤‰à¤ à¤¾à¤¨à¤¾, à¤¶à¤¿à¤«à¥à¤Ÿ à¤•à¤°à¤¨à¤¾ à¤¯à¤¾ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¿à¤¤ à¤•à¤°à¤¨à¤¾ â€” à¤ªà¥à¤°à¤¤à¤¿ à¤˜à¤‚à¤Ÿà¥‡ à¤­à¤¾à¤¡à¤¼à¤¾à¥¤'
+        : 'Expert manpower only â€” no truck needed. Lifting, shifting, or arranging heavy items. Charged per hour.',
       icon: Users,
       color: '#38BDF8',
       softBg: '#E0F2FE',
-      path: '/book/labour-service',
+      path: '/website/book/labour-service',
       features: language === 'gu'
-        ? ['1-5 કામદારો', 'કલાક મુજબ ભાવ', 'ઝડપી ઉપલબ્ધ']
+        ? ['1-5 àª•àª¾àª®àª¦àª¾àª°à«‹', 'àª•àª²àª¾àª• àª®à«àªœàª¬ àª­àª¾àªµ', 'àªàª¡àªªà«€ àª‰àªªàª²àª¬à«àª§']
         : language === 'hi'
-        ? ['1-5 मजदूर', 'प्रति घंटा मूल्य', 'तुरंत उपलब्ध']
-        : ['1–5 workers', 'Hourly pricing', 'Quick deployment'],
+        ? ['1-5 à¤®à¤œà¤¦à¥‚à¤°', 'à¤ªà¥à¤°à¤¤à¤¿ à¤˜à¤‚à¤Ÿà¤¾ à¤®à¥‚à¤²à¥à¤¯', 'à¤¤à¥à¤°à¤‚à¤¤ à¤‰à¤ªà¤²à¤¬à¥à¤§']
+        : ['1â€“5 workers', 'Hourly pricing', 'Quick deployment'],
     },
   ];
   const serviceTitleById = {
@@ -128,20 +128,20 @@ export default function ServicesSection() {
         >
           <span className="section-label text-[13px]">
             <Truck className="w-3.5 h-3.5" />
-            {language === 'gu' ? 'અમારી સેવાઓ' : language === 'hi' ? 'हमारी सेवाएं' : 'Our Services'}
+            {language === 'gu' ? 'àª…àª®àª¾àª°à«€ àª¸à«‡àªµàª¾àª“' : language === 'hi' ? 'à¤¹à¤®à¤¾à¤°à¥€ à¤¸à¥‡à¤µà¤¾à¤à¤‚' : 'Our Services'}
           </span>
           <h2 className="text-display-md md:text-display-lg font-black text-text-primary">
-            {language === 'gu' ? 'તમારી દરેક ' : language === 'hi' ? 'आपकी हर ' : 'Everything You Need to '}
+            {language === 'gu' ? 'àª¤àª®àª¾àª°à«€ àª¦àª°à«‡àª• ' : language === 'hi' ? 'à¤†à¤ªà¤•à¥€ à¤¹à¤° ' : 'Everything You Need to '}
             <span className="gradient-text">
-              {language === 'gu' ? 'જરૂરત પૂરી' : language === 'hi' ? 'जरूरत पूरी' : 'Move Hassle-Free'}
+              {language === 'gu' ? 'àªœàª°à«‚àª°àª¤ àªªà«‚àª°à«€' : language === 'hi' ? 'à¤œà¤°à¥‚à¤°à¤¤ à¤ªà¥‚à¤°à¥€' : 'Move Hassle-Free'}
             </span>
           </h2>
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary md:text-lg">
             {language === 'gu'
-              ? 'સ્થાનિક, આંતર-શહેરી અથવા ફક્ત મજૂરી — ત્રણ વિશેષ સેવાઓ, તમારી જરૂરિયાત મુજબ.'
+              ? 'àª¸à«àª¥àª¾àª¨àª¿àª•, àª†àª‚àª¤àª°-àª¶àª¹à«‡àª°à«€ àª…àª¥àªµàª¾ àª«àª•à«àª¤ àª®àªœà«‚àª°à«€ â€” àª¤à«àª°àª£ àªµàª¿àª¶à«‡àª· àª¸à«‡àªµàª¾àª“, àª¤àª®àª¾àª°à«€ àªœàª°à«‚àª°àª¿àª¯àª¾àª¤ àª®à«àªœàª¬.'
               : language === 'hi'
-              ? 'स्थानीय, अंतर-शहरी या सिर्फ मजदूरी — तीन विशेष सेवाएं, आपकी जरूरत के अनुसार।'
-              : 'Local, intercity, or just manpower — three specialized services tailored to exactly what you need.'}
+              ? 'à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯, à¤…à¤‚à¤¤à¤°-à¤¶à¤¹à¤°à¥€ à¤¯à¤¾ à¤¸à¤¿à¤°à¥à¤« à¤®à¤œà¤¦à¥‚à¤°à¥€ â€” à¤¤à¥€à¤¨ à¤µà¤¿à¤¶à¥‡à¤· à¤¸à¥‡à¤µà¤¾à¤à¤‚, à¤†à¤ªà¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤ à¤•à¥‡ à¤…à¤¨à¥à¤¸à¤¾à¤°à¥¤'
+              : 'Local, intercity, or just manpower â€” three specialized services tailored to exactly what you need.'}
           </p>
         </motion.div>
 
@@ -228,7 +228,7 @@ export default function ServicesSection() {
                   href={activeService.path}
                   className="btn-sky group/btn mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black"
                 >
-                  {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                  {language === 'gu' ? 'àª¬à«àª• àª•àª°à«‹' : language === 'hi' ? 'à¤¬à¥à¤• à¤•à¤°à¥‡à¤‚' : 'Book Service'}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
               </div>
@@ -298,7 +298,7 @@ export default function ServicesSection() {
                       </div>
                     </div>
                     <span className="relative z-10 mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-primary">
-                      {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                      {language === 'gu' ? 'àª¬à«àª• àª•àª°à«‹' : language === 'hi' ? 'à¤¬à¥à¤• à¤•à¤°à¥‡à¤‚' : 'Book Service'}
                       <ArrowRight className="h-4 w-4" />
                     </span>
                   </motion.div>
@@ -317,3 +317,4 @@ export default function ServicesSection() {
     </section>
   );
 }
+

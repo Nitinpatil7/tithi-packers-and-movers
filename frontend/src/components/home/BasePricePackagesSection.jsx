@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -10,9 +10,9 @@ import { useSiteSetting } from '@/hooks/useSiteSetting';
 import { formatCurrency } from '@/lib/utils';
 
 const SERVICE_META = {
-  local_shifting: { fallback: 'Local Shifting', href: '/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
-  intercity_moving: { fallback: 'Intercity Moving', href: '/book/intercity-moving?basePackage=1', icon: Route, tone: 'blue' },
-  porter_labour_service: { fallback: 'Labour & Porter', href: '/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
+  local_shifting: { fallback: 'Local Shifting', href: '/website/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
+  intercity_moving: { fallback: 'Intercity Moving', href: '/website/book/intercity-moving?basePackage=1', icon: Route, tone: 'blue' },
+  porter_labour_service: { fallback: 'Labour & Porter', href: '/website/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
 };
 
 const toneClass = {
@@ -229,7 +229,7 @@ function getInclusions(rule) {
     const employees = (rule.labourPricing?.employeeRates || []).filter((item) => item.isFree).sort((a, b) => Number(b.employees) - Number(a.employees))[0];
     const hours = (rule.labourPricing?.hourlyRates || []).filter((item) => item.isFree).sort((a, b) => Number(b.hours) - Number(a.hours))[0];
     return [
-      { icon: Truck, label: 'Truck included', value: truck ? `${truck.name}${truck.capacityKg ? ` · ${truck.capacityKg} kg` : ''}` : 'Set in admin pricing' },
+      { icon: Truck, label: 'Truck included', value: truck ? `${truck.name}${truck.capacityKg ? ` Â· ${truck.capacityKg} kg` : ''}` : 'Set in admin pricing' },
       { icon: Users, label: 'Workers included', value: employees ? `${employees.employees} employee(s)` : 'Set in admin pricing' },
       { icon: Clock, label: 'Time included', value: hours ? `${hours.hours} hour(s)` : 'Set in admin pricing' },
     ];
@@ -245,3 +245,4 @@ function getInclusions(rule) {
     { icon: CheckCircle2, label: 'Floor included', value: freeFloor ? freeFloor.label || `${freeFloor.fromFloor}-${freeFloor.toFloor || '+'} floor` : 'As per floor slabs' },
   ];
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -23,23 +23,23 @@ export default function Footer() {
   if (pathname.startsWith('/admin')) return null;
 
   const services = [
-    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9' },
-    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service', path: '/book/labour-service', color: '#38BDF8' },
+    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/website/book/local-shifting', color: '#0EA5E9' },
+    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/website/book/intercity-moving', color: '#0284C7' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service', path: '/website/book/labour-service', color: '#38BDF8' },
   ];
 
   const quickLinks = [
     { name: t.home || 'Home', path: '/' },
-    { name: t.aboutUs || 'About Us', path: '/about' },
-    { name: t.contact || 'Contact Us', path: '/contact' },
-    { name: t.trackBooking || 'Track My Booking', path: '/my-bookings' },
+    { name: t.aboutUs || 'About Us', path: '/website/about' },
+    { name: t.contact || 'Contact Us', path: '/website/contact' },
+    { name: t.trackBooking || 'Track My Booking', path: '/website/my-bookings' },
   ];
 
   const legalLinks = [
-    { name: 'Privacy Policy', path: '/legal/privacy-policy' },
-    { name: 'Terms & Conditions', path: '/legal/terms-conditions' },
-    { name: 'Refund Policy', path: '/legal/refund-policy' },
-    { name: 'Cancellation Policy', path: '/legal/cancellation-policy' },
+    { name: 'Privacy Policy', path: '/website/legal/privacy-policy' },
+    { name: 'Terms & Conditions', path: '/website/legal/terms-conditions' },
+    { name: 'Refund Policy', path: '/website/legal/refund-policy' },
+    { name: 'Cancellation Policy', path: '/website/legal/cancellation-policy' },
   ];
 
   return (
@@ -57,10 +57,10 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="text-left">
             <p className="text-white font-black text-xl" style={{ fontFamily: 'var(--font-heading)' }}>
-              {language === 'gu' ? 'શિફ્ટિંગ કરવા તૈયાર છો? આજે જ ફ્રી ભાવ મેળવો!' : language === 'hi' ? 'स्थानांतरण के लिए तैयार हैं? आज ही मुफ्त अनुमान प्राप्त करें!' : 'Ready to move? Get a free quote today!'}
+              {language === 'gu' ? 'àª¶àª¿àª«à«àªŸàª¿àª‚àª— àª•àª°àªµàª¾ àª¤à«ˆàª¯àª¾àª° àª›à«‹? àª†àªœà«‡ àªœ àª«à«àª°à«€ àª­àª¾àªµ àª®à«‡àª³àªµà«‹!' : language === 'hi' ? 'à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£ à¤•à¥‡ à¤²à¤¿à¤ à¤¤à¥ˆà¤¯à¤¾à¤° à¤¹à¥ˆà¤‚? à¤†à¤œ à¤¹à¥€ à¤®à¥à¤«à¥à¤¤ à¤…à¤¨à¥à¤®à¤¾à¤¨ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚!' : 'Ready to move? Get a free quote today!'}
             </p>
             <p className="text-white/50 text-sm font-medium mt-1">
-              {language === 'gu' ? '૨-કલાકમાં વોટ્સએપ જવાબ · કોઈ છુપા ચાર્જ નહીં' : language === 'hi' ? '2-घंटे में व्हाट्सएप जवाब · कोई छुपा शुल्क नहीं' : '2-hour WhatsApp response · Zero hidden charges'}
+              {language === 'gu' ? 'à«¨-àª•àª²àª¾àª•àª®àª¾àª‚ àªµà«‹àªŸà«àª¸àªàªª àªœàªµàª¾àª¬ Â· àª•à«‹àªˆ àª›à«àªªàª¾ àªšàª¾àª°à«àªœ àª¨àª¹à«€àª‚' : language === 'hi' ? '2-à¤˜à¤‚à¤Ÿà¥‡ à¤®à¥‡à¤‚ à¤µà¥à¤¹à¤¾à¤Ÿà¥à¤¸à¤à¤ª à¤œà¤µà¤¾à¤¬ Â· à¤•à¥‹à¤ˆ à¤›à¥à¤ªà¤¾ à¤¶à¥à¤²à¥à¤• à¤¨à¤¹à¥€à¤‚' : '2-hour WhatsApp response Â· Zero hidden charges'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -69,13 +69,13 @@ export default function Footer() {
               className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 hover:border-primary/50 active:scale-[.98] transition-all"
             >
                 <Phone className="w-4 h-4" />
-                {language === 'gu' ? 'ફોન કરો' : language === 'hi' ? 'कॉल करें' : 'Call Now'}
+                {language === 'gu' ? 'àª«à«‹àª¨ àª•àª°à«‹' : language === 'hi' ? 'à¤•à¥‰à¤² à¤•à¤°à¥‡à¤‚' : 'Call Now'}
             </a>}
             <Link
-              href="/book/local-shifting"
+              href="/website/book/local-shifting"
               className="btn-orange inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-bold active:scale-[.98] transition-transform"
             >
-              {t.bookNow || 'Book Now'} →
+              {t.bookNow || 'Book Now'} â†’
             </Link>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="flex flex-col gap-5 md:col-span-1">
-            <Link href="/" className="flex flex-col group group-items-start w-fit text-left">
+            <Link href="/website" className="flex flex-col group group-items-start w-fit text-left">
               <span className="text-3xl font-black tracking-wider text-white group-hover:text-primary transition-colors text-left" style={{ fontFamily: 'var(--font-heading)' }}>
                 {companyName}
               </span>
@@ -98,9 +98,9 @@ export default function Footer() {
 
             <p className="text-white/55 text-sm leading-relaxed font-medium text-left">
               {language === 'gu' 
-                ? 'સુરત સ્થિત પ્રીમિયમ પેકર્સ અને મૂવર્સ. ભારતભરમાં ઝડપી અને સુરક્ષિત સેવા.' 
+                ? 'àª¸à«àª°àª¤ àª¸à«àª¥àª¿àª¤ àªªà«àª°à«€àª®àª¿àª¯àª® àªªà«‡àª•àª°à«àª¸ àª…àª¨à«‡ àª®à«‚àªµàª°à«àª¸. àª­àª¾àª°àª¤àª­àª°àª®àª¾àª‚ àªàª¡àªªà«€ àª…àª¨à«‡ àª¸à«àª°àª•à«àª·àª¿àª¤ àª¸à«‡àªµàª¾.' 
                 : language === 'hi' 
-                  ? 'सूरत में स्थित प्रीमियम पैकर्स और मूवर्स। पूरे भारत में सुरक्षित और तीव्र स्थानांतरण।' 
+                  ? 'à¤¸à¥‚à¤°à¤¤ à¤®à¥‡à¤‚ à¤¸à¥à¤¥à¤¿à¤¤ à¤ªà¥à¤°à¥€à¤®à¤¿à¤¯à¤® à¤ªà¥ˆà¤•à¤°à¥à¤¸ à¤”à¤° à¤®à¥‚à¤µà¤°à¥à¤¸à¥¤ à¤ªà¥‚à¤°à¥‡ à¤­à¤¾à¤°à¤¤ à¤®à¥‡à¤‚ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤”à¤° à¤¤à¥€à¤µà¥à¤° à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£à¥¤' 
                   : 'Premium, hassle-free moving services based in Surat. Relocating you across India with speed, precision, and complete care.'}
             </p>
 
@@ -136,7 +136,7 @@ export default function Footer() {
           {/* Company links */}
           <div className="text-left">
             <h4 className="text-white font-black text-sm uppercase tracking-widest mb-5 text-left">
-              {language === 'gu' ? 'કંપની' : language === 'hi' ? 'कंपनी' : 'Company'}
+              {language === 'gu' ? 'àª•àª‚àªªàª¨à«€' : language === 'hi' ? 'à¤•à¤‚à¤ªà¤¨à¥€' : 'Company'}
             </h4>
             <ul className="flex flex-col gap-3 text-left">
               {quickLinks.map((link) => (
@@ -184,7 +184,7 @@ export default function Footer() {
           {/* Contact */}
           <div className="flex flex-col gap-4 text-left">
             <h4 className="text-white font-black text-sm uppercase tracking-widest text-left">
-              {language === 'gu' ? 'સંપર્ક માહિતી' : language === 'hi' ? 'संपर्क जानकारी' : 'Contact Info'}
+              {language === 'gu' ? 'àª¸àª‚àªªàª°à«àª• àª®àª¾àª¹àª¿àª¤à«€' : language === 'hi' ? 'à¤¸à¤‚à¤ªà¤°à¥à¤• à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€' : 'Contact Info'}
             </h4>
             <ul className="flex flex-col gap-4 text-left">
               {address && <li className="flex items-start gap-3 text-sm text-white/55 font-medium text-left">
@@ -210,13 +210,14 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/8 pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/35 font-medium text-center md:text-left">
-            © {new Date().getFullYear()} {language === 'gu' ? 'તીથિ પેકર્સ એન્ડ મૂવર્સ. સર્વાધિકાર સુરક્ષિત.' : language === 'hi' ? 'तीथि पैकर्स एंड मूवर्स। सर्वाधिकार सुरक्षित।' : 'Tithi Packers and Movers. All rights reserved.'}
+            Â© {new Date().getFullYear()} {language === 'gu' ? 'àª¤à«€àª¥àª¿ àªªà«‡àª•àª°à«àª¸ àªàª¨à«àª¡ àª®à«‚àªµàª°à«àª¸. àª¸àª°à«àªµàª¾àª§àª¿àª•àª¾àª° àª¸à«àª°àª•à«àª·àª¿àª¤.' : language === 'hi' ? 'à¤¤à¥€à¤¥à¤¿ à¤ªà¥ˆà¤•à¤°à¥à¤¸ à¤à¤‚à¤¡ à¤®à¥‚à¤µà¤°à¥à¤¸à¥¤ à¤¸à¤°à¥à¤µà¤¾à¤§à¤¿à¤•à¤¾à¤° à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤à¥¤' : 'Tithi Packers and Movers. All rights reserved.'}
           </p>
           <p className="text-xs text-white/35 flex items-center gap-1.5 font-medium">
-            Made with <span className="text-red-400 animate-pulse">❤️</span> {language === 'gu' ? 'સુરતમાં બનાવેલ' : language === 'hi' ? 'सूरत, गुजरात में बनाया गया' : 'in Surat, Gujarat'}
+            Made with <span className="text-red-400 animate-pulse">â¤ï¸</span> {language === 'gu' ? 'àª¸à«àª°àª¤àª®àª¾àª‚ àª¬àª¨àª¾àªµà«‡àª²' : language === 'hi' ? 'à¤¸à¥‚à¤°à¤¤, à¤—à¥à¤œà¤°à¤¾à¤¤ à¤®à¥‡à¤‚ à¤¬à¤¨à¤¾à¤¯à¤¾ à¤—à¤¯à¤¾' : 'in Surat, Gujarat'}
           </p>
         </div>
       </div>
     </footer>
   );
 }
+

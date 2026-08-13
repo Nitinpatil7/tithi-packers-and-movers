@@ -1,4 +1,4 @@
-// src/components/layout/Navbar.jsx
+﻿// src/components/layout/Navbar.jsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -40,18 +40,18 @@ export default function Navbar() {
 
   const navLinks = [
     { name: t.home || 'Home', path: '/' },
-    { name: t.aboutUs || 'About Us', path: '/about' },
-    { name: t.contact || 'Contact', path: '/contact' },
-    { name: t.trackBooking || 'Track Booking', path: '/my-bookings' },
+    { name: t.aboutUs || 'About Us', path: '/website/about' },
+    { name: t.contact || 'Contact', path: '/website/contact' },
+    { name: t.trackBooking || 'Track Booking', path: '/website/my-bookings' },
   ];
 
   const services = [
-    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', desc: t.hubSurat || 'Within Surat' },
-    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', desc: t.badgeZeroHidden || 'Pan India' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter', path: '/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Workers only' },
+    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/website/book/local-shifting', color: '#0EA5E9', desc: t.hubSurat || 'Within Surat' },
+    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/website/book/intercity-moving', color: '#0284C7', desc: t.badgeZeroHidden || 'Pan India' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter', path: '/website/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Workers only' },
   ];
 
-  const isBookingPage = pathname.startsWith('/book/');
+  const isBookingPage = pathname.startsWith('/website/book/');
   const isAdminPage = pathname.startsWith('/admin');
   if (isAdminPage) return null;
 
@@ -67,7 +67,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
-          <Link href="/" className="flex min-w-0 items-center group shrink-0">
+          <Link href="/website" className="flex min-w-0 items-center group shrink-0">
             {site.logoUrl && <Image unoptimized src={site.logoUrl} alt={site.companyName || 'Company logo'} width={32} height={32} className="mr-2.5 h-8 w-8 rounded-lg object-contain" />}
             <span className="flex max-w-[180px] flex-col leading-tight sm:max-w-[220px]">
             <span className={cn(
@@ -85,14 +85,14 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             <Link
-              href="/"
+              href="/website"
               className={cn(
                 "text-sm font-semibold transition-colors relative group py-1",
-                pathname === '/' ? "text-primary" : "text-text-secondary hover:text-text-primary"
+                pathname === '/website' ? "text-primary" : "text-text-secondary hover:text-text-primary"
               )}
             >
               Home
-              {pathname === '/' && (
+              {pathname === '/website' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
@@ -179,8 +179,8 @@ export default function Navbar() {
                 <div className="bg-white border border-bg-border rounded-xl shadow-lg p-1.5 flex flex-col gap-0.5">
                   {[
                     { code: 'en', label: 'English' },
-                    { code: 'hi', label: 'हिंदी (Hindi)' },
-                    { code: 'gu', label: 'ગુજરાતી' }
+                    { code: 'hi', label: 'à¤¹à¤¿à¤‚à¤¦à¥€ (Hindi)' },
+                    { code: 'gu', label: 'àª—à«àªœàª°àª¾àª¤à«€' }
                   ].map((lang) => (
                     <button
                       key={lang.code}
@@ -231,10 +231,10 @@ export default function Navbar() {
             </div>
 
             <Link
-              href="/book/local-shifting"
+              href="/website/book/local-shifting"
               className="btn-orange inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold"
             >
-              {t.bookNow || 'Book Now'} →
+              {t.bookNow || 'Book Now'} â†’
             </Link>
           </div>
 
@@ -261,7 +261,7 @@ export default function Navbar() {
             className="lg:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
           >
             <div className="px-5 py-6 flex flex-col gap-5">
-              <Link href="/" className={cn("text-base font-bold", pathname === '/' ? "text-primary" : "text-text-secondary")}>
+              <Link href="/website" className={cn("text-base font-bold", pathname === '/website' ? "text-primary" : "text-text-secondary")}>
                 {t.home || 'Home'}
               </Link>
 
@@ -284,7 +284,7 @@ export default function Navbar() {
 
               <div className="flex flex-col gap-2">
                 <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  {language === 'gu' ? 'સામાન્ય' : language === 'hi' ? 'सामान्य' : 'General'}
+                  {language === 'gu' ? 'àª¸àª¾àª®àª¾àª¨à«àª¯' : language === 'hi' ? 'à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯' : 'General'}
                 </span>
                 {navLinks.slice(1).map((link) => (
                   <Link
@@ -300,13 +300,13 @@ export default function Navbar() {
               {/* Mobile Language Selector */}
               <div className="flex flex-col gap-2 pt-2 border-t border-bg-border">
                 <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  Language / ભાષા / भाषा
+                  Language / àª­àª¾àª·àª¾ / à¤­à¤¾à¤·à¤¾
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { code: 'en', label: 'English' },
-                    { code: 'hi', label: 'हिंदी' },
-                    { code: 'gu', label: 'ગુજરાતી' }
+                    { code: 'hi', label: 'à¤¹à¤¿à¤‚à¤¦à¥€' },
+                    { code: 'gu', label: 'àª—à«àªœàª°àª¾àª¤à«€' }
                   ].map((lang) => (
                     <button
                       key={lang.code}
@@ -327,7 +327,7 @@ export default function Navbar() {
               {/* Mobile Theme Selector */}
               <div className="flex flex-col gap-2 pt-2 border-t border-bg-border">
                 <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  Theme / થીમ / थीम
+                  Theme / àª¥à«€àª® / à¤¥à¥€à¤®
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   {[
@@ -358,10 +358,10 @@ export default function Navbar() {
 
               <div className="pt-4 border-t border-bg-border flex flex-col gap-3">
                 <Link
-                  href="/book/local-shifting"
+                  href="/website/book/local-shifting"
                   className="btn-orange flex w-full items-center justify-center py-3 rounded-xl font-bold text-sm"
                 >
-                  {t.bookNow || 'Book Now'} →
+                  {t.bookNow || 'Book Now'} â†’
                 </Link>
               </div>
             </div>
@@ -371,3 +371,4 @@ export default function Navbar() {
     </header>
   );
 }
+

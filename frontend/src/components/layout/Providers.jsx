@@ -1,4 +1,4 @@
-// src/components/layout/Providers.jsx
+﻿// src/components/layout/Providers.jsx
 'use client';
 
 import React, { useEffect } from 'react';
@@ -130,3 +130,4 @@ export default function Providers({ children }) {
     </QueryClientProvider>
   );
 }
+
