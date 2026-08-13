@@ -138,13 +138,25 @@ export function calculateBookingPrice(bookingData = {}) {
   const pickupFloorCharge = isLabour ? 0 : getSingleFloorCharge(pickupLocation.floor, pickupLocation.liftAvailable, rule);
   const dropFloorCharge = isLabour ? 0 : getSingleFloorCharge(dropLocation.floor, dropLocation.liftAvailable, rule);
   const floorTotalCharge = pickupFloorCharge + dropFloorCharge;
-  const distanceCharge = rule?.distancePricing?.enabled ? getDistanceCharges(distance, rule) : 0;
-  const hourlyRate = (rule.labourPricing?.hourlyRates || []).find((item) => toNumber(item.hours) === toNumber(bookingData.hoursCount));
-  const hourlyPrice = useBasePackage && hourlyRate?.isFree ? 0 : toNumber(hourlyRate?.price ?? bookingData.hourlyRatePerEmployee);
-  const employeeRate = (rule.labourPricing?.employeeRates || []).find((item) => toNumber(item.employees) === toNumber(bookingData.employeeCount));
-  const employeeTotal = isLabour && !useBasePackage ? hourlyPrice * Math.max(1, toNumber(bookingData.employeeCount, 1)) : 0;
-  const truck = (rule.labourPricing?.trucks || []).find((item) => item.key === (bookingData.selectedTruck || bookingData.truckType) || item.id === (bookingData.selectedTruck || bookingData.truckType));
-  const truckTotal = isLabour && !useBasePackage ? toNumber(truck?.price) : 0;
+  const distanceCharge = isLabour && useBasePackage
+    ? 0
+    : rule?.distancePricing?.enabled
+      ? getDistanceCharges(distance, rule)
+      : 0;
+  const labourPricing = rule.labourPricing || {};
+  const selectedHours = toNumber(bookingData.hoursCount || bookingData.hours, 0);
+  const selectedEmployees = Math.max(1, toNumber(bookingData.employeeCount, 1));
+  const selectedTruckKey = String(bookingData.selectedTruck || bookingData.truckType || '');
+  const hourlyRate = (labourPricing.hourlyRates || []).find((item) => toNumber(item.hours) === selectedHours);
+  const hourlyPrice = toNumber(hourlyRate?.price ?? bookingData.hourlyRatePerEmployee);
+  const employeeRate = (labourPricing.employeeRates || []).find((item) => toNumber(item.employees) === selectedEmployees);
+  const selectedTruckData = bookingData.selectedTruckData || {};
+  const truck = (labourPricing.trucks || []).find((item) => {
+    const values = [item.key, item.id, item._id, item.name].filter(Boolean).map(String);
+    return values.includes(selectedTruckKey);
+  }) || (selectedTruckData.id || selectedTruckData.name ? selectedTruckData : null);
+  const employeeTotal = isLabour && !useBasePackage ? hourlyPrice * selectedEmployees : 0;
+  const truckTotal = isLabour && !useBasePackage ? toNumber(truck?.price ?? selectedTruckData.price) : 0;
   const addOnTotal = isLabour ? 0 : (bookingData.specialServices || []).reduce((sum, service) => sum + toNumber(service.total ?? ((service.charge || service.price || service.unitPrice) * (service.quantity || 1))), 0);
   const subtotal = basePrice + itemsExtraCharge + floorTotalCharge + distanceCharge + employeeTotal + truckTotal + addOnTotal;
   const dateValue = bookingData.scheduledDate || bookingData.scheduledate;

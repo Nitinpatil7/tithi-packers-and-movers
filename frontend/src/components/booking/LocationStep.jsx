@@ -50,15 +50,63 @@ function isCoordinateAddress(value = '') {
 }
 
 function cleanReadableAddress(value = '') {
-  const text = String(value || '').trim();
+  const text = stripPlusCodePrefix(value);
   return isReadableAddress(text) ? text : '';
 }
 
+function stripPlusCodePrefix(value = '') {
+  return String(value || '')
+    .replace(/^\s*[A-Z0-9]{2,}\+[A-Z0-9]{2,}\s*,?\s*/i, '')
+    .trim();
+}
+
 function isReadableAddress(value = '') {
-  const text = String(value || '').trim();
+  const text = stripPlusCodePrefix(value);
   if (text.length < 8 || isCoordinateAddress(text)) return false;
   if (/^[A-Z0-9+]{4,}\s*[A-Z0-9+]*$/i.test(text)) return false;
   return /[a-z]/i.test(text);
+}
+
+function composeAddressFromComponents(place = {}) {
+  const component = (type) => getAddressComponent(place, type);
+  const premise = [
+    component('premise'),
+    component('subpremise'),
+    component('establishment'),
+  ].filter(Boolean);
+  const street = [
+    component('street_number'),
+    component('route'),
+  ].filter(Boolean).join(' ');
+  const area = [
+    component('neighborhood'),
+    component('sublocality_level_2'),
+    component('sublocality_level_1'),
+    component('sublocality'),
+  ].filter(Boolean);
+  const city = component('locality')
+    || component('postal_town')
+    || component('administrative_area_level_3')
+    || component('administrative_area_level_2');
+  const state = component('administrative_area_level_1');
+  const pincode = getAddressComponentShort(place, 'postal_code') || component('postal_code');
+  const country = component('country');
+
+  return [...premise, street, ...area, city, state, pincode, country]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+    .filter((part, index, parts) => parts.findIndex((item) => item.toLowerCase() === part.toLowerCase()) === index)
+    .join(', ');
+}
+
+function readableAddressFromPlace(place = {}) {
+  if (!place) return '';
+  const formatted = cleanReadableAddress(stripPlusCodePrefix(place.formatted_address));
+  if (formatted) return formatted;
+  const composed = cleanReadableAddress(composeAddressFromComponents(place));
+  if (composed) return composed;
+  const compoundCode = cleanReadableAddress(stripPlusCodePrefix(place.plus_code?.compound_code));
+  return compoundCode;
 }
 
 function placeRank(place) {
@@ -73,7 +121,7 @@ function placeRank(place) {
 
 function chooseReadablePlace(results = []) {
   return [...results]
-    .filter((place) => cleanReadableAddress(place?.formatted_address))
+    .filter((place) => readableAddressFromPlace(place))
     .sort((a, b) => placeRank(a) - placeRank(b))[0] || null;
 }
 
@@ -168,6 +216,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
+  const geocodeRequestRef = useRef(0);
   const initialValueLat = initialValue?.lat;
   const initialValueLng = initialValue?.lng;
   const initialValueAddress = initialValue?.address;
@@ -195,6 +244,72 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     setPlaceForAddress(null);
     setError('');
 
+    const fallbackToNearbyPlace = (latLng, sourceStatus, requestId) => {
+      const places = window.google?.maps?.places;
+      const map = mapInstanceRef.current;
+      if (!places?.PlacesService || !map) {
+        console.info('[MapPicker] places fallback unavailable', { sourceStatus, latLng });
+        setAddress('');
+        setPlaceForAddress(null);
+        setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
+        return;
+      }
+
+      const service = new places.PlacesService(map);
+      service.nearbySearch({
+        location: latLng,
+        rankBy: places.RankBy.DISTANCE,
+      }, (nearbyResults, nearbyStatus) => {
+        if (cancelled || requestId !== geocodeRequestRef.current) return;
+        console.info('[MapPicker] places nearby result', {
+          sourceStatus,
+          status: nearbyStatus,
+          latLng,
+          resultCount: nearbyResults?.length || 0,
+          firstPlace: nearbyResults?.[0]?.name || '',
+        });
+
+        const nearest = nearbyStatus === places.PlacesServiceStatus.OK
+          ? nearbyResults?.find((place) => place.place_id)
+          : null;
+
+        if (!nearest) {
+          setLoadingAddress(false);
+          setAddress('');
+          setPlaceForAddress(null);
+          setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
+          return;
+        }
+
+        service.getDetails({
+          placeId: nearest.place_id,
+          fields: ['formatted_address', 'geometry', 'address_components', 'name', 'vicinity'],
+        }, (details, detailsStatus) => {
+          if (cancelled || requestId !== geocodeRequestRef.current) return;
+          setLoadingAddress(false);
+          const detailsAddress = readableAddressFromPlace(details)
+            || cleanReadableAddress(details?.vicinity)
+            || cleanReadableAddress(nearest.vicinity)
+            || cleanReadableAddress(nearest.name);
+          console.info('[MapPicker] places details result', {
+            sourceStatus,
+            status: detailsStatus,
+            latLng,
+            address: detailsAddress,
+          });
+
+          if (detailsStatus === places.PlacesServiceStatus.OK && detailsAddress) {
+            setAddress(detailsAddress);
+            setPlaceForAddress({ ...details, formatted_address: detailsAddress });
+          } else {
+            setAddress('');
+            setPlaceForAddress(null);
+            setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
+          }
+        });
+      });
+    };
+
     const reverseGeocode = (latLng) => {
       const validation = validateLatLng(latLng, serviceType, role);
       if (validation) {
@@ -202,20 +317,31 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         return;
       }
       setError('');
-      if (!window.google?.maps?.Geocoder) return;
+      if (!window.google?.maps?.Geocoder) {
+        setError('Google Maps geocoder is not available yet. Please try again.');
+        return;
+      }
       setLoadingAddress(true);
+      const requestId = geocodeRequestRef.current + 1;
+      geocodeRequestRef.current = requestId;
       const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ location: latLng }, (results, status) => {
-        setLoadingAddress(false);
+      geocoder.geocode({ location: latLng, region: 'IN', language: 'en' }, (results, status) => {
+        if (cancelled || requestId !== geocodeRequestRef.current) return;
         const readablePlace = status === 'OK' ? chooseReadablePlace(results) : null;
-        const readable = cleanReadableAddress(readablePlace?.formatted_address);
+        const readable = readableAddressFromPlace(readablePlace);
+        console.info('[MapPicker] reverse geocode result', {
+          status,
+          latLng,
+          rawResultCount: results?.length || 0,
+          firstFormattedAddress: results?.[0]?.formatted_address || '',
+          address: readable,
+        });
         if (readablePlace && readable) {
+          setLoadingAddress(false);
           setAddress(readable);
-          setPlaceForAddress(readablePlace);
+          setPlaceForAddress({ ...readablePlace, formatted_address: readable });
         } else {
-          setAddress('');
-          setPlaceForAddress(null);
-          setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
+          fallbackToNearbyPlace(latLng, status, requestId);
         }
       });
     };
@@ -230,7 +356,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         if (!readablePlace) return;
         const location = readablePlace.geometry.location;
         const latLng = toLatLngLiteral(location);
-        const readable = cleanReadableAddress(readablePlace.formatted_address);
+        const readable = readableAddressFromPlace(readablePlace);
         if (!latLng || !readable) return;
         setSelected(latLng);
         setAddress(readable);
@@ -282,6 +408,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const updateSelection = (location) => {
         const latLng = toLatLngLiteral(location);
         if (!latLng) return;
+        console.info('[MapPicker] selected coordinates', latLng);
         setSelected(latLng);
         marker.setPosition(latLng);
         reverseGeocode(latLng);
@@ -307,6 +434,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
 
     return () => {
       cancelled = true;
+      geocodeRequestRef.current += 1;
       window.clearInterval(timer);
       mapInstanceRef.current = null;
       markerRef.current = null;
@@ -326,6 +454,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       setError('Please wait for the readable map address, or choose a nearby road/building.');
       return;
     }
+    console.info('[MapPicker] use this location', { address: readable, lat: selected.lat, lng: selected.lng });
     onPick({ address: readable, lat: selected.lat, lng: selected.lng, place: placeForAddress });
   };
   const readableAddress = cleanReadableAddress(address);
@@ -345,7 +474,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         <div ref={mapRef} className="h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]" />
         <div className="border-t border-bg-border p-4 sm:p-5">
           <div className="rounded-2xl bg-bg-section p-3 text-sm font-semibold text-text-secondary">
-            {loadingAddress ? 'Finding address...' : readableAddress || 'Pick a point on the map'}
+            {loadingAddress ? 'Finding address...' : readableAddress ? `Selected: ${readableAddress}` : 'Pick a point on the map'}
           </div>
           {error && <p className="mt-2 flex items-center gap-1 text-xs font-bold text-red-600"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -434,9 +563,10 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     setIsSelected(true);
     selectedRef.current = true;
     setHasBlurred(false);
-    setMapOpen(false);
     clearError?.(role);
+    console.info('[MapPicker] input updated from map', { role, address: readable, lat, lng });
     onChange(nextLocation);
+    setMapOpen(false);
   };
 
   useEffect(() => {
@@ -535,7 +665,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
           setLocating(false);
           if (status === 'OK' && results?.[0]) {
             const readablePlace = chooseReadablePlace(results);
-            if (readablePlace) acceptPlace(readablePlace);
+            if (readablePlace) acceptPlace({ ...readablePlace, formatted_address: readableAddressFromPlace(readablePlace) });
             else setInvalid('Could not identify a readable address. Please search it manually.');
           } else {
             setInvalid('Could not identify your current address. Please search it manually.');

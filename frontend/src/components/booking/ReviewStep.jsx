@@ -8,7 +8,6 @@ import { ArrowLeft, ArrowRight, Box, Calendar, CheckCircle2, Clock, IndianRupee,
 import Button from '@/components/ui/Button';
 import { formatCurrency } from '@/lib/utils';
 import { getTruckImageSrc } from '@/lib/truckVisuals';
-import { deriveFreeAllowanceItems } from '@/lib/freeAllowanceDisplay';
 
 const SERVICE_LABELS = {
   local: 'Local Shifting',
@@ -112,7 +111,8 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
   const itemBreakdown = pricingBreakdown.itemBreakdown || {};
   const selectedTruck = pricingBreakdown.selectedTruck?.name ? pricingBreakdown.selectedTruck : null;
   const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
-  const freeAllowanceItems = deriveFreeAllowanceItems(items, itemBreakdown);
+  const pickupFloorSelected = Number(pickupLocation?.floor || 0) > 0;
+  const dropFloorSelected = Number(dropLocation?.floor || 0) > 0;
   const formattedDate = scheduledDate
     ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : '';
@@ -174,17 +174,11 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
 
           <QuoteLine icon={MapPin} label="Distance charge" detail={distance ? `${distance} km route distance` : 'Route distance unavailable or not applicable'} value={distanceCharge > 0 ? formatCurrency(distanceCharge) : 'Included'} muted={distanceCharge <= 0} />
 
-          {floorTotalCharge > 0 ? (
-            <>
-              {pickupFloorCharge > 0 && <QuoteLine icon={MapPin} label="Pickup lift/floor charge" detail={`Floor ${pickupLocation?.floor ?? 0}${pickupLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(pickupFloorCharge)} />}
-              {dropFloorCharge > 0 && <QuoteLine icon={MapPin} label="Drop lift/floor charge" detail={`Floor ${dropLocation?.floor ?? 0}${dropLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(dropFloorCharge)} />}
-            </>
-          ) : !isLabour ? (
-            <QuoteLine icon={MapPin} label="Lift/floor charge" detail="No billable floor or lift charge applied." value="Included" muted />
-          ) : null}
+          {!isLabour && pickupFloorSelected && <QuoteLine icon={MapPin} label="Pickup lift/floor charge" detail={`Floor ${pickupLocation?.floor}${pickupLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={pickupFloorCharge > 0 ? formatCurrency(pickupFloorCharge) : 'Included'} muted={pickupFloorCharge <= 0} />}
+          {!isLabour && dropFloorSelected && <QuoteLine icon={MapPin} label="Drop lift/floor charge" detail={`Floor ${dropLocation?.floor}${dropLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={dropFloorCharge > 0 ? formatCurrency(dropFloorCharge) : 'Included'} muted={dropFloorCharge <= 0} />}
 
           {!isLabour && itemBreakdown.selectedCount > 0 && (
-            <QuoteLine icon={Box} label="Free-allowance value adjustment" detail={freeAllowanceItems.length ? `${freeAllowanceItems.map((item) => item.name).join(', ')} included under free allowance. Charged beyond allowance: ${itemBreakdown.chargedCount || 0}.` : `Selected ${itemBreakdown.selectedCount || totalItems} item(s). Charged beyond allowance: ${itemBreakdown.chargedCount || 0}.`} value={itemBreakdown.includedCount > 0 ? 'Applied' : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
+            <QuoteLine icon={Box} label="Free item allowance" value={itemBreakdown.includedCount > 0 ? `${itemBreakdown.includedCount} included` : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
           )}
 
           {!isLabour && itemsExtraCharge > 0 && <QuoteLine icon={Box} label="Additional item charges" detail="Items beyond the free allowance." value={formatCurrency(itemsExtraCharge)} />}

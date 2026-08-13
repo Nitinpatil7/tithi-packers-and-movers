@@ -16,6 +16,7 @@ const normalizeTruckOption = (truck = {}) => {
     name: truck.name || 'Truck',
     capacityKg,
     image: truck.image || '',
+    price: Number(truck.price || 0),
     bestFor: capacityKg ? `${capacityKg.toLocaleString('en-IN')} kg capacity` : truck.capacityLabel || truck.bestFor || 'Capacity not set',
     example: truck.example || '',
     isFree: truck.isFree,
@@ -34,7 +35,7 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
       return;
     }
     const selectedTruckData = options.find((truck) => truck.id === selectedTruck) || null;
-    onSubmit({ selectedTruck, truckType: selectedTruck, selectedTruckData });
+    onSubmit({ useBasePackage: false, selectedTruck, truckType: selectedTruck, selectedTruckData, truckTotal: Number(selectedTruckData?.price || 0) });
   };
 
   return (

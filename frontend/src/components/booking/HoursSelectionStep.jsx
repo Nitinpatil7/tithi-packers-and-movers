@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 const PACKAGES = [
   { hours: 1, perEmployee: 300 }, { hours: 2, perEmployee: 500 },
@@ -20,7 +21,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
   const total = selectedPackage ? selectedPackage.perEmployee * employeeCount : 0;
 
   const handleNext = () => {
-    if (selectedPackage) onSubmit({ hoursCount: selectedHours, hourlyRatePerEmployee: selectedPackage.perEmployee, hoursTotal: total, employeeTotal: total, grandTotal: total });
+    if (selectedPackage) onSubmit({ useBasePackage: false, hoursCount: selectedHours, hourlyRatePerEmployee: selectedPackage.perEmployee, hoursTotal: total, employeeTotal: total, grandTotal: total });
   };
 
   return (
@@ -36,7 +37,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
             <button key={option.hours} type="button" onClick={() => setSelectedHours(option.hours)} className={cn('relative rounded-2xl border-2 p-4 flex flex-col items-center gap-2 transition-all', selected ? 'border-primary bg-primary-soft shadow-sky' : 'border-bg-border bg-white hover:border-primary/40')}>
               <Clock className={cn('w-5 h-5', selected ? 'text-primary' : 'text-text-secondary')} />
               <span className="text-xl font-black text-text-primary">{option.label || `${option.hours}h`}</span>
-              <span className="text-[10px] text-text-tertiary">Duration package</span>
+              <span className="text-[10px] text-text-tertiary">{formatCurrency(option.perEmployee || 0)} / employee</span>
               {selected && <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-primary" />}
             </button>
           );

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import { useLanguageStore } from '@/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -72,6 +72,17 @@ export default function WhyChooseUsSection() {
   const selectBenefit = (index) => setActiveBenefit((index + benefits.length) % benefits.length);
   const previousBenefit = () => selectBenefit(activeBenefit - 1);
   const nextBenefit = () => selectBenefit(activeBenefit + 1);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return undefined;
+
+    const timer = window.setInterval(() => {
+      setActiveBenefit((current) => (current + 1) % benefits.length);
+    }, 2000);
+
+    return () => window.clearInterval(timer);
+  }, [prefersReducedMotion, benefits.length]);
+
   const desktopPeekX = (offset) => {
     if (offset === 0) return '-50%';
     return `calc(-50% ${offset > 0 ? '+' : '-'} clamp(250px, 28vw, 330px))`;
@@ -210,13 +221,7 @@ export default function WhyChooseUsSection() {
                 animate={prefersReducedMotion ? undefined : { rotate: 360 }}
                 transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
               />
-              <div className="relative z-10 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Trust carousel</p>
-                  <h3 className="mt-1 text-lg font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-                    Tap through proof cards
-                  </h3>
-                </div>
+              <div className="relative z-10 flex items-center justify-end gap-3">
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={previousBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95" aria-label="Previous trust point">
                     <ChevronLeft className="h-4.5 w-4.5" />
@@ -265,9 +270,6 @@ export default function WhyChooseUsSection() {
                           </p>
                         </div>
                       </div>
-                      <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[10px] font-black uppercase tracking-wider text-primary">
-                        {offset === 0 ? 'Shown in feature card' : 'Tap to feature'} <ArrowRight className="h-3 w-3" />
-                      </span>
                     </motion.button>
                   );
                 })}
@@ -289,13 +291,7 @@ export default function WhyChooseUsSection() {
                 animate={prefersReducedMotion ? undefined : { rotate: 360 }}
                 transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
               />
-              <div className="relative z-10 flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Interactive trust points</p>
-                  <h3 className="mt-1 text-xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-                    Rotate and select a proof card
-                  </h3>
-                </div>
+              <div className="relative z-10 flex items-center justify-end gap-4">
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={previousBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95" aria-label="Previous trust point">
                     <ChevronLeft className="h-5 w-5" />
@@ -343,9 +339,6 @@ export default function WhyChooseUsSection() {
                           </p>
                         </div>
                       </div>
-                      <span className="mt-auto inline-flex items-center gap-1 pt-5 text-[10px] font-black uppercase tracking-wider text-primary">
-                        {offset === 0 ? 'Featured now' : 'Select card'} <ArrowRight className="h-3 w-3" />
-                      </span>
                     </motion.button>
                   );
                 })}

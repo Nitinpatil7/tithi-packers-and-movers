@@ -15,7 +15,7 @@ export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = 
   const selectedRate = employeeRates.find((item) => Number(item.employees) === resolvedCount);
 
   const handleNext = () => {
-    if (resolvedCount > 0) onSubmit({ employeeCount: resolvedCount, employeeRatePrice: Number(selectedRate?.price || 0), employeeTotal: 0 });
+    if (resolvedCount > 0) onSubmit({ useBasePackage: false, employeeCount: resolvedCount, employeeRatePrice: Number(selectedRate?.price || 0), employeeTotal: 0 });
   };
 
   return (
