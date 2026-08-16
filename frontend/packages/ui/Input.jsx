@@ -27,7 +27,7 @@ const Input = React.forwardRef(({
           type={type}
           className={cn(
             "booking-input",
-            Icon && "pl-11",
+            Icon && "has-leading-icon",
             error && "border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]",
             className
           )}

@@ -3,13 +3,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Layers, Loader2, Map as MapIcon, MapPin, Truck, Users, X } from 'lucide-react';
 import { cn } from '@utils/utils';
+import BookingActionBar from './BookingActionBar';
 
 const SURAT_BOUNDS = { north: 21.35, south: 20.97, east: 73.08, west: 72.65 };
 const configuredMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableMapsKey = Boolean(configuredMapsKey && !configuredMapsKey.includes('PLACEHOLDER'));
+const debugMaps = process.env.NEXT_PUBLIC_DEBUG_MAPS === 'true';
 
 const SURAT_CENTER = { lat: 21.1702, lng: 72.8311 };
 const needsSurat = (serviceType, role) => serviceType === 'local' || serviceType === 'labour' || role === 'pickup';
+
+function debugMapLog(message, meta) {
+  if (debugMaps) console.info(message, meta);
+}
 
 const toLatLngLiteral = (location) => {
   if (!location) return null;
@@ -248,7 +254,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const places = window.google?.maps?.places;
       const map = mapInstanceRef.current;
       if (!places?.PlacesService || !map) {
-        console.info('[MapPicker] places fallback unavailable', { sourceStatus, latLng });
+        debugMapLog('[MapPicker] places fallback unavailable', { sourceStatus, latLng });
         setAddress('');
         setPlaceForAddress(null);
         setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
@@ -261,7 +267,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         rankBy: places.RankBy.DISTANCE,
       }, (nearbyResults, nearbyStatus) => {
         if (cancelled || requestId !== geocodeRequestRef.current) return;
-        console.info('[MapPicker] places nearby result', {
+        debugMapLog('[MapPicker] places nearby result', {
           sourceStatus,
           status: nearbyStatus,
           latLng,
@@ -291,7 +297,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             || cleanReadableAddress(details?.vicinity)
             || cleanReadableAddress(nearest.vicinity)
             || cleanReadableAddress(nearest.name);
-          console.info('[MapPicker] places details result', {
+          debugMapLog('[MapPicker] places details result', {
             sourceStatus,
             status: detailsStatus,
             latLng,
@@ -329,7 +335,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         if (cancelled || requestId !== geocodeRequestRef.current) return;
         const readablePlace = status === 'OK' ? chooseReadablePlace(results) : null;
         const readable = readableAddressFromPlace(readablePlace);
-        console.info('[MapPicker] reverse geocode result', {
+        debugMapLog('[MapPicker] reverse geocode result', {
           status,
           latLng,
           rawResultCount: results?.length || 0,
@@ -408,7 +414,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const updateSelection = (location) => {
         const latLng = toLatLngLiteral(location);
         if (!latLng) return;
-        console.info('[MapPicker] selected coordinates', latLng);
+        debugMapLog('[MapPicker] selected coordinates', latLng);
         setSelected(latLng);
         marker.setPosition(latLng);
         reverseGeocode(latLng);
@@ -454,7 +460,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       setError('Please wait for the readable map address, or choose a nearby road/building.');
       return;
     }
-    console.info('[MapPicker] use this location', { address: readable, lat: selected.lat, lng: selected.lng });
+    debugMapLog('[MapPicker] use this location', { address: readable, lat: selected.lat, lng: selected.lng });
     onPick({ address: readable, lat: selected.lat, lng: selected.lng, place: placeForAddress });
   };
   const readableAddress = cleanReadableAddress(address);
@@ -487,7 +493,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   );
 }
 
-function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, onError, clearError }) {
+function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, onError, clearError, optional = false }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const selectedRef = useRef(Boolean(visibleAddress(value) && value?.lat && value?.lng));
@@ -521,6 +527,11 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
   }, [value?.address, value?.mapAddress, value?.lat, value?.lng]);
 
   const setInvalid = (message) => {
+    if (optional && !inputVal.trim()) {
+      setValidationMsg('');
+      clearError?.(role);
+      return;
+    }
     selectedRef.current = false;
     setValidationMsg(message);
     setIsSelected(false);
@@ -564,7 +575,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     selectedRef.current = true;
     setHasBlurred(false);
     clearError?.(role);
-    console.info('[MapPicker] input updated from map', { role, address: readable, lat, lng });
+    debugMapLog('[MapPicker] input updated from map', { role, address: readable, lat, lng });
     onChange(nextLocation);
     setMapOpen(false);
   };
@@ -699,19 +710,21 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     : 'Search a drop address anywhere in India';
 
   return (
-    <div className={cn('flex flex-col gap-4 p-6 rounded-2xl border-2 transition-colors',
-      isSelected ? 'bg-sky-50 border-primary/30' : validationMsg ? 'bg-red-50 border-red-300' : 'bg-bg-section border-bg-border')}>
-      <div className="flex items-center gap-2">
+    <div className={cn('flex min-w-0 flex-col gap-4 rounded-2xl border-2 p-4 shadow-sm transition-colors sm:p-6',
+      isSelected ? 'border-primary/30 bg-gradient-to-br from-sky-50 to-white shadow-sky-sm' : validationMsg ? 'border-red-300 bg-red-50' : 'border-sky-100 bg-white hover:border-primary/25')}>
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', isSelected ? 'bg-primary text-white' : 'bg-primary-soft')}>
           {isSelected ? <CheckCircle2 className="w-4 h-4" /> : icon}
         </div>
-        <h3 className="text-base font-black text-text-primary">{title}</h3>
-        {isSelected && <span className="ml-auto text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase">Google verified</span>}
+        <h3 className="min-w-0 flex-1 text-base font-black leading-snug text-text-primary">{title}</h3>
+        {optional && !isSelected && <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-bold uppercase text-primary ring-1 ring-sky-100 sm:ml-auto">Optional</span>}
+        {isSelected && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase sm:ml-auto">Google verified</span>}
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address *
+        <label className="flex min-w-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text-secondary">
+          <MapPin className="w-3.5 h-3.5 text-primary" /> Full Address{optional ? '' : ' *'}
+          {optional && <span className="font-semibold normal-case tracking-normal text-text-tertiary">(optional)</span>}
         </label>
         <div className="relative">
           <input
@@ -721,6 +734,15 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
             onChange={(event) => {
               const nextValue = isCoordinateAddress(event.target.value) ? '' : event.target.value;
               setInputVal(nextValue);
+              if (optional && !nextValue.trim()) {
+                selectedRef.current = false;
+                setIsSelected(false);
+                setValidationMsg('');
+                setHasBlurred(false);
+                clearError?.(role);
+                onChange(null);
+                return;
+              }
               if (mapsState === 'error') {
                 const error = validateManualAddress(nextValue, serviceType, role);
                 if (!error) {
@@ -745,6 +767,15 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
               // Let a Google suggestion click finish before showing guidance.
               window.setTimeout(() => {
                 const currentAddress = inputRef.current?.value || '';
+                if (optional && !currentAddress.trim()) {
+                  selectedRef.current = false;
+                  setIsSelected(false);
+                  setHasBlurred(false);
+                  setValidationMsg('');
+                  clearError?.(role);
+                  onChange(null);
+                  return;
+                }
                 if (mapsState === 'error' && currentAddress.trim()) {
                   const error = validateManualAddress(currentAddress, serviceType, role);
                   if (error) {
@@ -777,13 +808,13 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
           )}
         </div>
         {mapsState === 'error' && (
-          <p className="text-xs text-amber-700 font-semibold flex items-center gap-1 mt-1">
-            <AlertCircle className="w-3.5 h-3.5" /> Maps autocomplete is unavailable. Enter the complete address manually.
+          <p className="mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-amber-700">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="min-w-0">Maps autocomplete is unavailable. Enter the complete address manually.</span>
           </p>
         )}
         {validationMsg && mapsState !== 'error' && (hasBlurred || validationMsg !== 'Select the exact address from Google Maps suggestions.') && (
-          <p className="text-xs text-red-600 font-semibold flex items-center gap-1 mt-1">
-            <AlertCircle className="w-3.5 h-3.5" /> {validationMsg}
+          <p className="mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-red-600">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="min-w-0">{validationMsg}</span>
           </p>
         )}
         <p className="text-[11px] text-primary font-medium mt-0.5">
@@ -797,16 +828,16 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-primary" /> Floor Level</label>
+          <label className="flex min-w-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text-secondary"><Layers className="w-3.5 h-3.5 text-primary" /> Floor Level</label>
           <select value={floor} onChange={(event) => setFloor(Number(event.target.value))} className="booking-input text-sm appearance-none">
             {floorOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Service Lift</label>
-          <label className="booking-input flex items-center gap-3 cursor-pointer select-none h-[50px]">
+          <label className="booking-input flex h-[50px] cursor-pointer select-none items-center gap-3">
             <input type="checkbox" checked={liftAvailable} onChange={(event) => setLiftAvailable(event.target.checked)} className="w-4 h-4 accent-primary" />
             <span className="text-sm font-semibold text-text-secondary">Lift Available</span>
           </label>
@@ -847,6 +878,8 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   const [distanceLoading, setDistanceLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
+  const labour = serviceType === 'labour';
+  const dropOptional = labour;
 
   const handleError = (role, message) => setErrors((previous) => ({ ...previous, [role]: message }));
   const clearError = (role) => setErrors((previous) => {
@@ -873,23 +906,27 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   const handleSubmit = (extra = {}) => {
     setSubmitError('');
     if (!pickupData?.address || (!pickupData?.manual && (!pickupData?.lat || !pickupData?.lng))) return setSubmitError('Enter or select a valid pickup location.');
-    if (!dropData?.address || (!dropData?.manual && (!dropData?.lat || !dropData?.lng))) return setSubmitError('Enter or select a valid drop location.');
+    if (!dropOptional && (!dropData?.address || (!dropData?.manual && (!dropData?.lat || !dropData?.lng)))) return setSubmitError('Enter or select a valid drop location.');
     if (Object.keys(errors).length) return setSubmitError('Please fix the location errors before continuing.');
-    onSubmit({ pickupLocation: pickupData, dropLocation: dropData, ...(distanceKm ? { distance: distanceKm, distanceKm } : {}), ...extra });
+    onSubmit({
+      pickupLocation: pickupData,
+      dropLocation: dropData?.address ? dropData : null,
+      ...(distanceKm && dropData?.address ? { distance: distanceKm, distanceKm } : {}),
+      ...extra,
+    });
   };
 
   const labels = {
     local: { pickup: 'Pickup Location (Surat only)', drop: 'Drop Location (Surat only)' },
     intercity: { pickup: 'Pickup Location (Surat)', drop: 'Drop Location (Anywhere in India)' },
-    labour: { pickup: 'Pickup / Work Location (Surat only)', drop: 'Drop / Work End Location (Surat only)' },
+    labour: { pickup: 'Pickup / Work Location (Surat only)', drop: 'Drop / Work End Location (optional)' },
   }[serviceType] || { pickup: 'Pickup Location (Surat)', drop: 'Drop Location (Anywhere in India)' };
-  const labour = serviceType === 'labour';
   const freeTruck = pricingRule?.labourPricing?.trucks?.find((item) => item.isFree);
   const freeEmployees = pricingRule?.labourPricing?.employeeRates?.filter((item) => item.isFree).sort((a, b) => Number(b.employees) - Number(a.employees))[0];
   const freeHours = pricingRule?.labourPricing?.hourlyRates?.filter((item) => item.isFree).sort((a, b) => Number(b.hours) - Number(a.hours))[0];
 
   return (
-    <div className="flex flex-col gap-6 text-left">
+    <div className="flex min-w-0 flex-col gap-6 text-left">
       <div className="flex flex-col gap-1">
         <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Pickup &amp; Drop Locations</h3>
         <p className="text-sm text-text-secondary font-medium">Search and select an exact Google Maps address, or use your current location.</p>
@@ -898,7 +935,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         value={pickupData} onChange={setPickupData} onError={handleError} clearError={clearError} />
       <div className="flex items-center gap-3"><div className="flex-1 h-px bg-bg-border" /><ArrowRight className="w-4 h-4 text-primary" /><div className="flex-1 h-px bg-bg-border" /></div>
       <PlacesAddressBlock title={labels.drop} icon={<Building2 className="w-4 h-4 text-primary" />} role="drop" serviceType={serviceType}
-        value={dropData} onChange={setDropData} onError={handleError} clearError={clearError} />
+        value={dropData} onChange={setDropData} onError={handleError} clearError={clearError} optional={dropOptional} />
       {(distanceLoading || distanceKm) && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/15 bg-sky-50 px-4 py-3 text-sm font-bold text-primary">
           <span>{distanceLoading ? 'Calculating route distance from Google Maps...' : 'Google route distance'}</span>
@@ -920,12 +957,10 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         </div>
       )}
       {submitError && <div className="flex items-center gap-2 p-4 bg-red-50 rounded-xl border border-red-200 text-sm font-semibold text-red-700"><AlertCircle className="w-4 h-4" />{submitError}</div>}
-      <div className="p-4 bg-sky-50 rounded-xl border border-primary/15 text-xs font-bold text-primary">
-        {serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
+      <div className="rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
+        {labour ? 'Pickup/work location is required. Drop/work-end location is optional for labour-only bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
       </div>
-      <div className="flex flex-col gap-3 border-t border-bg-border pt-4 sm:flex-row sm:justify-end">
-        <button type="button" onClick={() => handleSubmit()} className="btn-sky px-7 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 text-sm">{labour ? 'Customize Package' : 'Next Step'} <ArrowRight className="w-4 h-4" /></button>
-      </div>
+      <BookingActionBar onBack={undefined} onNext={() => handleSubmit()} nextLabel={labour ? 'Customize Package' : 'Next Step'} />
     </div>
   );
 }

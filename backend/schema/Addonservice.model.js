@@ -43,11 +43,24 @@ const addOnServiceSchema = new mongoose.Schema(
       },
     ],
 
+    triggerCategoryIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ItemCategory",
+      },
+    ],
 
     triggerGroupIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ItemGroup",
+      },
+    ],
+
+    triggerItemIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
       },
     ],
 
@@ -71,7 +84,9 @@ const addOnServiceSchema = new mongoose.Schema(
 );
 
 addOnServiceSchema.index({ appliesToServiceTypes: 1 });
+addOnServiceSchema.index({ triggerCategoryIds: 1 });
 addOnServiceSchema.index({ triggerGroupIds: 1 });
+addOnServiceSchema.index({ triggerItemIds: 1 });
 addOnServiceSchema.index({ isActive: 1, sortOrder: 1 });
 
 module.exports = mongoose.model("AddOnService", addOnServiceSchema);

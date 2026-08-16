@@ -19,7 +19,7 @@ Normal response:
 
 Always read `payload.data`. Use `payload.message` for toast/error text.
 
-Admin APIs require the HTTP-only `admin_session` cookie:
+Admin APIs require HTTP-only cookies. `admin_session` is the short-lived access cookie; `admin_refresh` is the longer refresh cookie used by `/api/admin-auth/refresh`:
 
 ```js
 const response = await fetch(`${API_URL}/api/items/admin/catalog`, {
@@ -114,7 +114,7 @@ async function draftRequest(path, method = "GET", body, draftToken) {
 Access legend:
 
 - **Public**: no login/header required.
-- **Admin**: send `credentials: "include"`; browser automatically sends `admin_session`.
+- **Admin**: send `credentials: "include"`; browser automatically sends `admin_session`, and the frontend helper refreshes it once with `admin_refresh` on `401`.
 - **Draft**: send `x-draft-token`; this is not admin authentication.
 - **Public (current)**: route currently has no auth middleware even if used by an admin screen.
 
@@ -218,9 +218,10 @@ Access legend:
 
 | Method/API | Access | Frontend sends | Success status/message | Successful `data` |
 |---|---|---|---|---|
-| `POST /api/admin-auth/login` | Public/rate-limited | `email`, `password` | `200`, `Admin login successful` | `admin`, `expiresAt`; sets cookie |
+| `POST /api/admin-auth/login` | Public/rate-limited | `email`, `password` | `200`, `Admin login successful` | `admin`, `accessExpiresAt`, `expiresAt`; sets `admin_session` and `admin_refresh` cookies |
 | `GET /api/admin-auth/me` | Admin | Nothing | `200`, `Admin session fetched` | Current admin |
-| `POST /api/admin-auth/logout` | Admin | Nothing | `200`, `Admin logged out` | `null`; clears cookie |
+| `POST /api/admin-auth/refresh` | Refresh cookie | Nothing | `200`, `Admin session refreshed` | `admin`, `accessExpiresAt`, `expiresAt`; rotates `admin_session` |
+| `POST /api/admin-auth/logout` | Admin | Nothing | `200`, `Admin logged out` | `null`; clears both cookies |
 | `PATCH /api/admin-auth/change-password` | Admin | `currentPassword`, `newPassword` | `200`, `Password changed. Please log in again` | Admin; sessions revoked |
 | `PATCH /api/admin-auth/profile` | Admin | `currentPassword`, optional `name`, `email` | `200`, `Admin profile updated` | Updated admin |
 | `GET /api/admin-analytics/dashboard` | Public (current) | Nothing | `200`, `Admin dashboard statistics fetched` | Cards, graph, most-used service, recent bookings |

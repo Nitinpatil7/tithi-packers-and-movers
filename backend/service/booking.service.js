@@ -195,7 +195,7 @@ const trackBooking = async (bookingid, mobileInput) => {
   const filter = { bookingid, status: { $ne: "draft" } };
   if (mobileInput) filter["customer.mobile"] = normalizeMobile(mobileInput);
   const booking = await Booking.findOne(filter).select(
-    "bookingid serviceType status currentStep scheduledate timeslot pickuplocation droplocation pricing quoteSnapshot statusHistory confirmedAt createdAt",
+    "bookingid customer serviceType status currentStep scheduledate timeslot pickuplocation droplocation distanceKm items selectedAddons porterLabourDetails pricing quoteSnapshot statusHistory confirmedAt createdAt",
   );
   if (!booking) throw new ApiError(404, "Booking not found");
   return booking;
@@ -228,7 +228,20 @@ const getAllBookings = async (query = {}) => {
       filter.scheduledate = { $gte: dayStart, $lt: dayEnd };
     }
   }
-  const sort = query.scheduledDate || query.delayOnly === "true" ? { scheduledate: 1, timeslot: 1, createdAt: -1 } : { createdAt: -1 };
+  if (query.createdDate) {
+    const dayStart = new Date(`${query.createdDate}T00:00:00+05:30`);
+    if (!Number.isNaN(dayStart.getTime())) {
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+      filter.createdAt = { $gte: dayStart, $lt: dayEnd };
+    }
+  }
+  if (query.upcomingMinutes) {
+    const minutes = Math.min(Math.max(Number(query.upcomingMinutes) || 60, 1), 1440);
+    const now = new Date();
+    filter.status = { $nin: ["draft", "completed", "cancelled"] };
+    filter.scheduledate = { $gte: now, $lte: new Date(now.getTime() + minutes * 60 * 1000) };
+  }
+  const sort = query.scheduledDate || query.delayOnly === "true" || query.upcomingMinutes ? { scheduledate: 1, timeslot: 1, createdAt: -1 } : { createdAt: -1 };
   return Booking.find(filter).sort(sort).limit(Math.min(Number(query.limit) || 100, 200));
 };
 

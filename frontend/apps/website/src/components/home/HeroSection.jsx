@@ -8,12 +8,22 @@ import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, 
 import AnimatedCounter from '@ui/AnimatedCounter';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@hooks/useSiteSetting';
+import { usePublicTestimonials } from '@hooks/useTestimonials';
 import { useLanguageStore } from '@store/languageStore';
 
 export default function HeroSection() {
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS.en;
   const { data: site = {} } = useSiteSetting();
+  const { data: testimonialData = [] } = usePublicTestimonials({});
+  const testimonials = Array.isArray(testimonialData) ? testimonialData : [];
+  const averageRating = testimonials.length
+    ? (
+        testimonials.reduce((sum, item) => sum + Number(item.rating || 0), 0) /
+        testimonials.length
+      ).toFixed(1)
+    : '5.0';
+  const verifiedReviewCount = testimonials.length + 50;
 
   const stats = [
     { value: site.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
@@ -23,9 +33,9 @@ export default function HeroSection() {
   ];
 
   const services = [
-    { name: site.serviceLabels?.local_shifting || t.localShifting , path: '/website/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/website/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { name: site.serviceLabels?.porter_labour_service || t.labourService , path: '/website/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { name: site.serviceLabels?.local_shifting || t.localShifting , path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
+    { name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
+    { name: site.serviceLabels?.porter_labour_service || t.labourService , path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [
@@ -49,7 +59,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
+    <section className="relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-20 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
@@ -73,8 +83,8 @@ export default function HeroSection() {
                 <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
               ))}
             </div>
-            <span className="text-sm font-bold text-text-primary">4.9</span>
-            <span className="text-sm text-text-secondary">234 {t.verifiedReviews || 'verified reviews'}</span>
+            <span className="text-sm font-bold text-text-primary">{averageRating}</span>
+            <span className="text-sm text-text-secondary">{verifiedReviewCount} {t.verifiedReviews || 'verified reviews'}</span>
           </motion.div>
 
           <motion.h1
@@ -104,13 +114,13 @@ export default function HeroSection() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-            <Link href="/website/book/local-shifting" className="w-full sm:w-auto">
+            <Link href="/book/local-shifting" className="w-full sm:w-auto">
               <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto">
                 {t.btnQuote || 'Get Free Quote'}
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
-            <Link href="/website/my-bookings" className="w-full sm:w-auto">
+            <Link href="/my-bookings" className="w-full sm:w-auto">
               <button className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto">
                 {t.btnTrack || 'Track My Booking'}
               </button>
@@ -147,15 +157,15 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-20 mt-6 w-full px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-2 sm:gap-4">
+      <div className="relative z-[60] mt-4 w-full px-4 sm:mt-6 sm:px-6 lg:z-20 lg:px-8">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 items-stretch gap-2 sm:gap-4">
           {services.map((service) => (
-            <Link key={service.name} href={service.path}>
+            <Link key={service.name} href={service.path} className="h-full min-w-0">
               <motion.div
                 whileHover={{ y: -4, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ scale: { type: 'spring', stiffness: 300, damping: 20 } }}
-                className="hero-service-card group flex min-h-[94px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/90 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[118px] sm:gap-3 sm:p-4"
+                className="hero-service-card group flex h-full min-h-[108px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/95 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[132px] sm:gap-3 sm:p-4"
                 style={{ '--hover-color': service.color }}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
@@ -177,9 +187,8 @@ export default function HeroSection() {
         width={620}
         height={360}
         sizes="(min-width: 768px) 520px, 82vw"
-        className="pointer-events-none absolute bottom-[-15%] right-[-15%] z-50 w-[84vw] max-w-[420px] object-contain drop-shadow-[0_20px_28px_rgba(15,23,42,0.20)] sm:-bottom-52 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[500px] lg:hidden"
+        className="pointer-events-none absolute bottom-[-15%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-56 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[520px] lg:hidden"
       />
     </section>
   );
 }
-

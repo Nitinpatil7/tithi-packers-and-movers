@@ -7,19 +7,17 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { enableQueryPersistence, queryClient } from '@lib/queryClient';
 import Toast from '@ui/Toast';
 import { useThemeStore } from '@store/themeStore';
-import { useLanguageStore } from '@store/languageStore';
 import { useBookingStore } from '@store/bookingStore';
 
 export default function Providers({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const { initializeTheme } = useThemeStore();
-  const { initializeLanguage } = useLanguageStore();
+  const appName = process.env.NEXT_PUBLIC_TITHI_APP || 'website';
 
   useEffect(() => {
     initializeTheme();
-    initializeLanguage();
-  }, [initializeTheme, initializeLanguage]);
+  }, [initializeTheme]);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,7 +29,7 @@ export default function Providers({ children }) {
       if (cancelled) return;
       cleanupPersistence = enableQueryPersistence();
 
-      const isAdminRoute = window.location.pathname.startsWith('/admin');
+      const isAdminRoute = appName === 'admin' || window.location.pathname.startsWith('/admin');
       if (isAdminRoute) return;
 
       try {
@@ -61,7 +59,7 @@ export default function Providers({ children }) {
     // Warm the three main booking routes as soon as the browser is idle so
     // service-card and navbar clicks feel immediate.
     const prefetchServices = () => {
-      if (pathname?.startsWith('/admin') || pathname?.startsWith('/monitoring')) return;
+      if (appName !== 'website' || pathname?.startsWith('/admin') || pathname?.startsWith('/monitoring')) return;
       [
         '/book/local-shifting',
         '/book/intercity-moving',
@@ -79,7 +77,7 @@ export default function Providers({ children }) {
     }
     const timer = window.setTimeout(prefetchServices, 250);
     return () => window.clearTimeout(timer);
-  }, [pathname, router]);
+  }, [appName, pathname, router]);
 
   useEffect(() => {
     let socket;

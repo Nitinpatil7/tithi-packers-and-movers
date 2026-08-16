@@ -1,3 +1,5 @@
+const logger = require("../utility/logger");
+
 const requestlogger = (req,res, next)=>{
     const starttime = Date.now();
 
@@ -5,19 +7,18 @@ const requestlogger = (req,res, next)=>{
         const duration = Date.now() - starttime;
 
         const log = {
-            //requestid = req.requestId,
+            requestId: req.requestId,
             method : req.method,
             url: req.originalUrl,
             statusCode : res.statusCode,
-            duration: `${duration}ms`,
+            duration,
             ip: req.ip,
             userAgent: req.get("user-agent"),
-            timestamp : new Date().toISOString(),
         };
         if(duration > 1000){
-            console.warn("Slow API:", log);
+            logger.warn("Slow API request", log);
         }else{
-            console.log("API Log:",log);
+            logger.info("API request", log);
         }
     });
 

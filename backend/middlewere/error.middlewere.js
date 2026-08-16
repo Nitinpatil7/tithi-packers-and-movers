@@ -1,3 +1,5 @@
+const logger = require("../utility/logger");
+
 const errorMiddleware = (err , req , res , next) =>{
     const statuscode = err.statuscode || err.status || 500;
     const message =
@@ -16,10 +18,9 @@ const errorMiddleware = (err , req , res , next) =>{
         params: req.params,
         query: req.query,
         stack: err.stack,
-        timestamp: new Date().toISOString(),
     };
 
-    console.error("API Error: ", errorLog);
+    logger.error("API error", errorLog);
 
     return res.status(statuscode).json({
         success:false,

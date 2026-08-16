@@ -15,7 +15,7 @@ const Button = React.forwardRef(({
   iconPosition = 'left',
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-page active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50';
+  const baseStyles = 'inline-flex min-w-0 items-center justify-center text-center font-bold rounded-xl transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-page active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 whitespace-normal break-words leading-snug';
 
   const variants = {
     primary: 'bg-gradient-to-br from-primary to-primary-dark text-white hover:from-primary-light hover:to-primary shadow-orange focus:ring-primary',
@@ -43,9 +43,9 @@ const Button = React.forwardRef(({
       {...props}
     >
       {loading && <Spinner size="sm" className="mr-1" />}
-      {!loading && Icon && iconPosition === 'left' && <Icon className="w-4 h-4" />}
-      {children}
-      {!loading && Icon && iconPosition === 'right' && <Icon className="w-4 h-4" />}
+      {!loading && Icon && iconPosition === 'left' && <Icon className="w-4 h-4 shrink-0" />}
+      <span className="min-w-0">{children}</span>
+      {!loading && Icon && iconPosition === 'right' && <Icon className="w-4 h-4 shrink-0" />}
     </button>
   );
 });

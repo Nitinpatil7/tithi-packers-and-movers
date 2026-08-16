@@ -55,7 +55,7 @@ const getDashboardSummary = async () => {
     InAppNotification.countDocuments({ isRead: false }),
     Booking.find({
       scheduledate: { $gte: startOfToday, $lte: endOfToday },
-      status: { $nin: ["draft", "cancelled"] },
+      status: { $ne: "draft" },
     })
       .select("bookingid customer serviceType status scheduledate timeslot pickuplocation droplocation")
       .sort({ scheduledate: 1 }),

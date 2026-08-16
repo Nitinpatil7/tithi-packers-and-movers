@@ -6,11 +6,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Globe, Sun, Moon, Monitor } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
+import { Menu, X, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
 import { useThemeStore } from '@store/themeStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { cn } from '@utils/utils';
+import { resolveSiteAssetUrl } from '@utils/siteAssets';
 import { useSiteSetting } from '@hooks/useSiteSetting';
 
 export default function Navbar() {
@@ -19,16 +19,16 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const pathname = usePathname();
-  const { language, setLanguage, initializeLanguage } = useLanguageStore();
+  const language = 'en';
   const { theme, setTheme } = useThemeStore();
   const { data: site = {} } = useSiteSetting();
+  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
 
   useEffect(() => {
-    initializeLanguage();
     const handleScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [initializeLanguage]);
+  }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -40,18 +40,18 @@ export default function Navbar() {
 
   const navLinks = [
     { name: t.home || 'Home', path: '/' },
-    { name: t.aboutUs || 'About Us', path: '/website/about' },
-    { name: t.contact || 'Contact', path: '/website/contact' },
-    { name: t.trackBooking || 'Track Booking', path: '/website/my-bookings' },
+    { name: t.aboutUs || 'About Us', path: '/about' },
+    { name: t.contact || 'Contact', path: '/contact' },
+    { name: t.trackBooking || 'Track Booking', path: '/my-bookings' },
   ];
 
   const services = [
-    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/website/book/local-shifting', color: '#0EA5E9', desc: t.hubSurat || 'Within Surat' },
-    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/website/book/intercity-moving', color: '#0284C7', desc: t.badgeZeroHidden || 'Pan India' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter', path: '/website/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Workers only' },
+    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', desc: t.hubSurat || 'Within Surat' },
+    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', desc: t.badgeZeroHidden || 'Pan India' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter', path: '/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Workers only' },
   ];
 
-  const isBookingPage = pathname.startsWith('/website/book/');
+  const isBookingPage = pathname.startsWith('/book/');
   const isAdminPage = pathname.startsWith('/admin');
   if (isAdminPage) return null;
 
@@ -60,39 +60,28 @@ export default function Navbar() {
       className={cn(
         'fixed top-0 left-0 right-0 z-40 w-full backdrop-blur-lg transition-all duration-400',
         scrolled
-          ? 'border-b border-bg-border/50 bg-bg-page/65 py-1.5'
-          : 'border-b border-transparent bg-bg-page/20 py-2.5'
+          ? 'border-b border-bg-border/50 bg-bg-page/65 py-2.5 sm:py-2'
+          : 'border-b border-transparent bg-bg-page/20 py-3.5 sm:py-3'
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
-          <Link href="/website" className="flex min-w-0 items-center group shrink-0">
-            {site.logoUrl && <Image unoptimized src={site.logoUrl} alt={site.companyName || 'Company logo'} width={32} height={32} className="mr-2.5 h-8 w-8 rounded-lg object-contain" />}
-            <span className="flex max-w-[180px] flex-col leading-tight sm:max-w-[220px]">
-            <span className={cn(
-              "truncate text-base font-black tracking-wide transition-colors font-heading sm:text-lg",
-              scrolled ? "text-text-primary" : "text-text-primary"
-            )}>
-              {site.companyName || 'TITHI'}
-            </span>
-            <span className="truncate text-[8px] uppercase font-bold tracking-[0.22em] text-primary sm:text-[9px] sm:tracking-[0.3em]">
-              {site.tagline || 'Packers & Movers'}
-            </span>
-            </span>
+          <Link href="/" className="flex min-w-0 items-center group shrink-0" aria-label={site.companyName || 'Home'}>
+            {logoSrc && <Image unoptimized src={logoSrc} alt={site.companyName || 'Company logo'} width={220} height={68} className="h-14 w-auto max-w-[220px] object-contain sm:max-w-[230px]" />}
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             <Link
-              href="/website"
+              href="/"
               className={cn(
                 "text-sm font-semibold transition-colors relative group py-1",
-                pathname === '/website' ? "text-primary" : "text-text-secondary hover:text-text-primary"
+                pathname === '/' ? "text-primary" : "text-text-secondary hover:text-text-primary"
               )}
             >
               Home
-              {pathname === '/website' && (
+              {pathname === '/' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
@@ -166,37 +155,6 @@ export default function Navbar() {
 
           {/* CTAs */}
           <div className="hidden lg:flex items-center gap-3 shrink-0">
-            {/* Desktop Language Selector */}
-            <div className="relative group shrink-0 flex items-center">
-              <button
-                className="flex items-center gap-1.5 text-text-secondary hover:text-primary transition-colors px-3 py-2 rounded-xl bg-bg-section border border-bg-border text-xs font-bold focus:outline-none"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span className="uppercase">{language}</span>
-                <ChevronDown className="w-3 h-3 text-text-tertiary" />
-              </button>
-              <div className="absolute right-0 top-full pt-2 w-28 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-50">
-                <div className="bg-white border border-bg-border rounded-xl shadow-lg p-1.5 flex flex-col gap-0.5">
-                  {[
-                    { code: 'en', label: 'English' },
-                    { code: 'hi', label: 'हिंदी (Hindi)' },
-                    { code: 'gu', label: 'ગુજરાતી' }
-                  ].map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => setLanguage(lang.code)}
-                      className={cn(
-                        "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors",
-                        language === lang.code ? "bg-primary-soft text-primary" : "text-text-secondary hover:bg-bg-section"
-                      )}
-                    >
-                      {lang.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* Desktop Theme Selector */}
             <div className="relative group shrink-0 flex items-center">
               <button
@@ -231,7 +189,7 @@ export default function Navbar() {
             </div>
 
             <Link
-              href="/website/book/local-shifting"
+              href="/book/local-shifting"
               className="btn-orange inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold"
             >
               {t.bookNow || 'Book Now'} →
@@ -240,12 +198,12 @@ export default function Navbar() {
 
           {/* Mobile Hamburger */}
           <div className="lg:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl border border-bg-border bg-white text-text-secondary hover:text-primary hover:border-primary/30 transition-all"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="min-h-[52px] min-w-[52px] rounded-2xl border border-bg-border bg-white p-3 text-text-secondary transition-all hover:border-primary/30 hover:text-primary"
+              >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
           </div>
         </div>
       </div>
@@ -261,7 +219,7 @@ export default function Navbar() {
             className="lg:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
           >
             <div className="px-5 py-6 flex flex-col gap-5">
-              <Link href="/website" className={cn("text-base font-bold", pathname === '/website' ? "text-primary" : "text-text-secondary")}>
+              <Link href="/" className={cn("text-base font-bold", pathname === '/' ? "text-primary" : "text-text-secondary")}>
                 {t.home || 'Home'}
               </Link>
 
@@ -284,7 +242,7 @@ export default function Navbar() {
 
               <div className="flex flex-col gap-2">
                 <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  {language === 'gu' ? 'સામાન્ય' : language === 'hi' ? 'सामान्य' : 'General'}
+                  General
                 </span>
                 {navLinks.slice(1).map((link) => (
                   <Link
@@ -297,37 +255,10 @@ export default function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile Language Selector */}
-              <div className="flex flex-col gap-2 pt-2 border-t border-bg-border">
-                <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  Language / ભાષા / भाषा
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { code: 'en', label: 'English' },
-                    { code: 'hi', label: 'हिंदी' },
-                    { code: 'gu', label: 'ગુજરાતી' }
-                  ].map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => setLanguage(lang.code)}
-                      className={cn(
-                        "py-2 text-center rounded-xl text-xs font-bold border transition-all",
-                        language === lang.code 
-                          ? "bg-primary text-white border-primary shadow-orange"
-                          : "bg-bg-section border-bg-border text-text-secondary"
-                      )}
-                    >
-                      {lang.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Mobile Theme Selector */}
               <div className="flex flex-col gap-2 pt-2 border-t border-bg-border">
                 <span className="text-xs uppercase font-bold tracking-widest text-text-tertiary">
-                  Theme / થીમ / थीम
+                  Theme
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   {[
@@ -358,7 +289,7 @@ export default function Navbar() {
 
               <div className="pt-4 border-t border-bg-border flex flex-col gap-3">
                 <Link
-                  href="/website/book/local-shifting"
+                  href="/book/local-shifting"
                   className="btn-orange flex w-full items-center justify-center py-3 rounded-xl font-bold text-sm"
                 >
                   {t.bookNow || 'Book Now'} →

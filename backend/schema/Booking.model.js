@@ -261,9 +261,6 @@ const bookingSchema = new mongoose.Schema(
         type: String,
         lowercase: true,
         trim: true,
-        required: function () {
-          return this.status !== "draft" && this.serviceType === PORTER_LABOUR_SERVICE;
-        },
       },
       employeeCount: {
         type: Number,

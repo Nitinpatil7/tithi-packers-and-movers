@@ -1,3 +1,5 @@
+import { authFetch } from './authFetch';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 const queryString = (filters = {}) => {
@@ -9,7 +11,7 @@ const queryString = (filters = {}) => {
 };
 
 async function addonRequest(path, options = {}) {
-  const response = await fetch(`${API_URL}/api/addon${path}`, {
+  const response = await authFetch(`${API_URL}/api/addon${path}`, {
     cache: 'no-store', ...options,
     headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
   });
@@ -28,6 +30,7 @@ const withGeneratedKey = (data = {}) => ({ ...data, key: data.key || addonKeyFro
 export const getAvailableAddons = (filters) => addonRequest(`/available${queryString(filters)}`).then(list);
 export const getAdminAddons = (filters = {}) => addonRequest(`/admin/all${queryString(filters)}`, { credentials: 'include' }).then(list);
 export const getTriggerGroups = (filters = {}) => addonRequest(`/admin/trigger-groups${queryString(filters)}`, { credentials: 'include' }).then(list);
+export const getTriggerItems = (filters = {}) => addonRequest(`/admin/trigger-items${queryString(filters)}`, { credentials: 'include' }).then(list);
 export const createAddon = (data) => addonRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(withGeneratedKey(data)) });
 export const updateAddon = (id, data) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deleteAddon = (id) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });

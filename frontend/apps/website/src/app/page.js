@@ -22,7 +22,7 @@ const CTABannerSection = dynamic(() => import('@/components/home/CTABannerSectio
 
 export default function Home() {
   return (
-    <div className="flex flex-col w-full overflow-hidden bg-bg-page text-text-primary">
+    <div className="flex flex-col w-full overflow-visible bg-bg-page text-text-primary">
       {/* 1. HeroSection */}
       <HeroSection />
 

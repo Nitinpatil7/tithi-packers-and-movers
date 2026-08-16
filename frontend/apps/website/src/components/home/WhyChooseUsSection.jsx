@@ -78,7 +78,7 @@ export default function WhyChooseUsSection() {
 
     const timer = window.setInterval(() => {
       setActiveBenefit((current) => (current + 1) % benefits.length);
-    }, 2000);
+    }, 5000);
 
     return () => window.clearInterval(timer);
   }, [prefersReducedMotion, benefits.length]);

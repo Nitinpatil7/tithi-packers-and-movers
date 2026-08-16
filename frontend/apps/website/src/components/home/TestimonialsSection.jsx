@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  ChevronLeft,
-  ChevronRight,
   MessageSquareQuote,
   Quote,
   Star,
@@ -21,10 +19,10 @@ const serviceLabels = {
   ordinary_services: "Ordinary Services",
 };
 
-function TestimonialCard({ item, active }) {
+function TestimonialCard({ item }) {
   return (
     <article
-      className={`group flex h-[342px] w-[86vw] max-w-[390px] shrink-0 snap-center flex-col justify-between rounded-3xl border bg-white p-6 transition-all duration-300 sm:w-[360px] md:p-7 ${active ? "border-orange-200 shadow-xl sm:-translate-y-1" : "border-sky-100 shadow-card hover:border-orange-100 hover:-translate-y-1 hover:shadow-md active:scale-[.99]"}`}
+      className="group flex h-[342px] w-[86vw] max-w-[390px] shrink-0 flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-orange-100 hover:shadow-md active:scale-[.99] sm:w-[360px] md:p-7"
     >
       <div className="min-h-0">
         <div className="flex items-start justify-between">
@@ -40,7 +38,7 @@ function TestimonialCard({ item, active }) {
             ))}
           </div>
           <Quote
-            className={`h-9 w-9 transition-colors ${active ? "text-orange-300" : "text-primary/15 group-hover:text-orange-200"}`}
+            className="h-9 w-9 text-primary/15 transition-colors group-hover:text-orange-200"
           />
         </div>
         <p className="mt-5 line-clamp-6 text-[15px] font-medium leading-7 text-text-secondary">
@@ -84,36 +82,12 @@ export default function TestimonialsSection() {
   const [hydrated, setHydrated] = useState(false);
   const { data = [], isLoading, isError } = usePublicTestimonials({});
   const testimonials = useMemo(() => (Array.isArray(data) ? data : []), [data]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const trackRef = useRef(null);
+  const carouselItems = useMemo(() => [...testimonials, ...testimonials], [testimonials]);
   const displayLoading = !hydrated || isLoading;
 
   useEffect(() => {
     setHydrated(true);
   }, []);
-  useEffect(() => {
-    if (activeIndex >= testimonials.length) setActiveIndex(0);
-  }, [activeIndex, testimonials.length]);
-  useEffect(() => {
-    if (paused || testimonials.length < 2) return;
-    const timer = window.setInterval(
-      () => setActiveIndex((index) => (index + 1) % testimonials.length),
-      2800,
-    );
-    return () => window.clearInterval(timer);
-  }, [paused, testimonials.length]);
-  useEffect(() => {
-    const track = trackRef.current;
-    const card = track?.children?.[activeIndex];
-    if (track && card)
-      track.scrollTo({
-        left:
-          card.offsetLeft -
-          Math.max(0, (track.clientWidth - card.clientWidth) / 2),
-        behavior: "smooth",
-      });
-  }, [activeIndex]);
 
   if (!displayLoading && (isError || testimonials.length === 0)) return null;
   const average = testimonials.length
@@ -122,12 +96,7 @@ export default function TestimonialsSection() {
         testimonials.length
       ).toFixed(1)
     : "5.0";
-  const previous = () =>
-    setActiveIndex((index) =>
-      index === 0 ? testimonials.length - 1 : index - 1,
-    );
-  const next = () =>
-    setActiveIndex((index) => (index + 1) % testimonials.length);
+  const publishedReviewCount = testimonials.length + 50;
 
   return (
     <section className="dotted-light-bg relative overflow-hidden py-20 md:py-32">
@@ -170,7 +139,7 @@ export default function TestimonialsSection() {
                 ))}
               </div>
               <span className="border-l border-orange-100 pl-4 text-xs font-bold text-text-secondary">
-                {testimonials.length} published reviews
+                {publishedReviewCount} published reviews
               </span>
             </div>
           )}
@@ -186,60 +155,55 @@ export default function TestimonialsSection() {
             ))}
           </div>
         ) : (
-          <div
-            className="relative"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            onFocus={() => setPaused(true)}
-            onBlur={() => setPaused(false)}
-          >
-            <button
-              onClick={previous}
-              className="absolute left-0 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-orange-100 bg-bg-white text-text-primary shadow-md transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 active:scale-95 sm:left-2"
-              aria-label="Previous testimonial"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={next}
-              className="absolute right-0 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-orange-100 bg-bg-white text-text-primary shadow-md transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 active:scale-95 sm:right-2"
-              aria-label="Next testimonial"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-            <div
-              ref={trackRef}
-              className="scrollbar-none flex snap-x snap-mandatory gap-5 overflow-x-auto px-[7vw] py-5 sm:px-16"
-            >
-              {testimonials.map((item, index) => (
-                <div
-                  key={item._id || `${item.name}-${index}`}
-                  onClick={() => setActiveIndex(index)}
-                >
-                  <TestimonialCard item={item} active={index === activeIndex} />
-                </div>
+          <div className="testimonial-marquee relative overflow-hidden py-5">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#f8fcff] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#f8fcff] to-transparent" />
+            <div className="testimonial-marquee-track flex w-max gap-5 px-4">
+              {carouselItems.map((item, index) => (
+                <TestimonialCard
+                  key={`${item._id || item.name}-${index}`}
+                  item={item}
+                />
               ))}
             </div>
           </div>
         )}
-
-        {!displayLoading && testimonials.length > 1 && (
-          <div
-            className="mt-7 flex items-center justify-center gap-2"
-            aria-label="Select testimonial"
-          >
-            {testimonials.map((item, index) => (
-              <button
-                key={item._id || index}
-                onClick={() => setActiveIndex(index)}
-                aria-label={`Show testimonial ${index + 1}`}
-                aria-current={activeIndex === index ? "true" : undefined}
-                className={`h-2.5 rounded-full transition-all ${activeIndex === index ? "w-8 bg-primary" : "w-2.5 bg-bg-border hover:bg-text-tertiary"}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
+      <style jsx>{`
+        .testimonial-marquee {
+          mask-image: linear-gradient(
+            90deg,
+            transparent,
+            #000 8%,
+            #000 92%,
+            transparent
+          );
+        }
+
+        .testimonial-marquee-track {
+          animation: testimonial-scroll 34s linear infinite;
+        }
+
+        .testimonial-marquee:hover .testimonial-marquee-track,
+        .testimonial-marquee:focus-within .testimonial-marquee-track {
+          animation-play-state: paused;
+        }
+
+        @keyframes testimonial-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .testimonial-marquee-track {
+            animation: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

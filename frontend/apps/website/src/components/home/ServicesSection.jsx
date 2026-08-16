@@ -4,11 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
 import { useSiteSetting } from '@hooks/useSiteSetting';
 
 export default function ServicesSection() {
-  const { language } = useLanguageStore();
   const { data: site = {} } = useSiteSetting();
   const [hydrated, setHydrated] = useState(false);
   const stableSite = hydrated ? site : {};
@@ -20,57 +18,33 @@ export default function ServicesSection() {
   const services = [
     {
       id: 'local',
-      title: language === 'gu' ? 'લોકલ શિફ્ટિંગ' : language === 'hi' ? 'लोकल शिफ्टिंग' : 'Local Shifting',
-      description: language === 'gu'
-        ? 'સુરત શહેરની અંદર ઘર અથવા ઓફિસ શિફ્ટ. સ્થાવર ટ્રાફિક મુક્ત, ઝડપી અને ભરોસાપાત્ર.'
-        : language === 'hi'
-        ? 'सूरत शहर के अंदर घर या ऑफिस शिफ्ट। उसी दिन उपलब्ध, तेज़ और भरोसेमंद।'
-        : 'Home or office relocation within Surat. Same-day shifting, flexible schedules with expert packers.',
+      title: 'Local Shifting',
+      description: 'Home or office relocation within Surat. Same-day shifting, flexible schedules with expert packers.',
       icon: Truck,
       color: '#0EA5E9',
       softBg: '#E0F2FE',
-      path: '/website/book/local-shifting',
-      features: language === 'gu'
-        ? ['તે જ દિવસે ઉપલબ્ધ', 'તાલીમબદ્ધ ટીમ', 'ફ્લોર-ટુ-ફ્લોર સર્વિસ']
-        : language === 'hi'
-        ? ['उसी दिन उपलब्ध', 'प्रशिक्षित टीम', 'फ्लोर-टू-फ्लोर सेवा']
-        : ['Same-day available', 'Trained crew', 'Floor-to-floor service'],
+      path: '/book/local-shifting',
+      features: ['Same-day available', 'Trained crew', 'Floor-to-floor service'],
     },
     {
       id: 'intercity',
-      title: language === 'gu' ? 'આંતર-શહેરી મૂવિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
-      description: language === 'gu'
-        ? 'સુરતથી ભારત ભરમાં ક્યાંય પણ નિર્વિઘ્ન શિફ્ટ. ફ્ક‍્ત-ટ્રક અથવા સસ્તા ભાગ-ભાર સાથે GPS ટ્રેકિંગ.'
-        : language === 'hi'
-        ? 'सूरत से पूरे भारत में कहीं भी निर्बाध स्थानांतरण। पूर्ण कंटेनर या किफायती आंशिक-लोड।'
-        : 'Seamless shifting from Surat to anywhere in India. Full container or economical part-loads with GPS tracking.',
+      title: 'Intercity Moving',
+      description: 'Seamless shifting from Surat to anywhere in India. Full container or economical part-loads with GPS tracking.',
       icon: Navigation,
       color: '#0284C7',
       softBg: '#BAE6FD',
-      path: '/website/book/intercity-moving',
-      features: language === 'gu'
-        ? ['સમગ્ર ભારત રૂટ', 'જીપીએસ ટ્રેકિંગ', 'કાર્ગો વીમો']
-        : language === 'hi'
-        ? ['अखिल भारत मार्ग', 'जीपीएस ट्रैकिंग', 'कार्गो बीमा']
-        : ['Pan-India routes', 'GPS tracking', 'Cargo insurance'],
+      path: '/book/intercity-moving',
+      features: ['Pan-India routes', 'GPS tracking', 'Cargo insurance'],
     },
     {
       id: 'labour',
-      title: language === 'gu' ? 'મજૂરી અને પોર્ટર સેવા' : language === 'hi' ? 'लेबर और पोर्टर सेवा' : 'Labour & Porter Service',
-      description: language === 'gu'
-        ? 'ટ્રક વગર ફક્ત કુશળ કામદારો. ભારે સામાન ઉઠાવવો, ખસેડવો અથવા ગોઠવવો — કલાક પ્રમાણે ભાડું.'
-        : language === 'hi'
-        ? 'ट्रक के बिना सिर्फ कुशल मजदूर। भारी सामान उठाना, शिफ्ट करना या व्यवस्थित करना — प्रति घंटे भाड़ा।'
-        : 'Expert manpower only — no truck needed. Lifting, shifting, or arranging heavy items. Charged per hour.',
+      title: 'Labour & Porter Service',
+      description: 'Expert manpower only, no truck needed. Lifting, shifting, or arranging heavy items. Charged per hour.',
       icon: Users,
       color: '#38BDF8',
       softBg: '#E0F2FE',
-      path: '/website/book/labour-service',
-      features: language === 'gu'
-        ? ['1-5 કામદારો', 'કલાક મુજબ ભાવ', 'ઝડપી ઉપલબ્ધ']
-        : language === 'hi'
-        ? ['1-5 मजदूर', 'प्रति घंटा मूल्य', 'तुरंत उपलब्ध']
-        : ['1–5 workers', 'Hourly pricing', 'Quick deployment'],
+      path: '/book/labour-service',
+      features: ['1-5 workers', 'Hourly pricing', 'Quick deployment'],
     },
   ];
   const serviceTitleById = {
@@ -112,7 +86,7 @@ export default function ServicesSection() {
   };
 
   return (
-    <section id="services" className="relative z-10 overflow-visible bg-hero-gradient pt-28 pb-14 md:pt-24 md:pb-24">
+    <section id="services" className="relative z-10 overflow-x-clip overflow-y-visible bg-hero-gradient pt-28 pb-14 md:pt-28 md:pb-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
@@ -128,20 +102,16 @@ export default function ServicesSection() {
         >
           <span className="section-label text-[13px]">
             <Truck className="w-3.5 h-3.5" />
-            {language === 'gu' ? 'અમારી સેવાઓ' : language === 'hi' ? 'हमारी सेवाएं' : 'Our Services'}
+            Our Services
           </span>
           <h2 className="text-display-md md:text-display-lg font-black text-text-primary">
-            {language === 'gu' ? 'તમારી દરેક ' : language === 'hi' ? 'आपकी हर ' : 'Everything You Need to '}
+            Everything You Need to{' '}
             <span className="gradient-text">
-              {language === 'gu' ? 'જરૂરત પૂરી' : language === 'hi' ? 'जरूरत पूरी' : 'Move Hassle-Free'}
+              Move Hassle-Free
             </span>
           </h2>
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary md:text-lg">
-            {language === 'gu'
-              ? 'સ્થાનિક, આંતર-શહેરી અથવા ફક્ત મજૂરી — ત્રણ વિશેષ સેવાઓ, તમારી જરૂરિયાત મુજબ.'
-              : language === 'hi'
-              ? 'स्थानीय, अंतर-शहरी या सिर्फ मजदूरी — तीन विशेष सेवाएं, आपकी जरूरत के अनुसार।'
-              : 'Local, intercity, or just manpower — three specialized services tailored to exactly what you need.'}
+            Local, intercity, or just manpower - three specialized services tailored to exactly what you need.
           </p>
         </motion.div>
 
@@ -195,7 +165,7 @@ export default function ServicesSection() {
             initial={{ opacity: 0, x: 24, scale: 0.98 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
+            className="relative overflow-visible rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
           >
             <div className="absolute inset-0 services-panel-route opacity-90" />
             <div className="relative z-10 grid min-h-[380px] grid-cols-[0.95fr_1.05fr] items-center gap-6">
@@ -228,7 +198,7 @@ export default function ServicesSection() {
                   href={activeService.path}
                   className="btn-sky group/btn mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black"
                 >
-                  {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                  Book Service
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
               </div>
@@ -256,16 +226,6 @@ export default function ServicesSection() {
         </motion.div>
 
         <div className="md:hidden">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Swipe services</span>
-            <motion.span
-              className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              Drag <ArrowRight className="h-3 w-3" />
-            </motion.span>
-          </div>
           <div className="scroll-hint-fade relative -mx-4">
             <div ref={mobileTrackRef} onScroll={updateMobileServiceIndex} className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
             {services.map((service, index) => {
@@ -298,7 +258,7 @@ export default function ServicesSection() {
                       </div>
                     </div>
                     <span className="relative z-10 mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-primary">
-                      {language === 'gu' ? 'બુક કરો' : language === 'hi' ? 'बुक करें' : 'Book Service'}
+                      Book Service
                       <ArrowRight className="h-4 w-4" />
                     </span>
                   </motion.div>

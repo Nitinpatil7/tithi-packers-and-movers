@@ -125,4 +125,18 @@ const verifyOtp = async ({ mobile: mobileInput, otp, purpose = "booking" }) => {
   };
 };
 
-module.exports = { sendOtp, verifyOtp, normalizeMobile };
+const assertVerifiedOtp = async ({ verificationId, mobile: mobileInput, purpose = "booking" }) => {
+  const mobile = normalizeMobile(mobileInput);
+  if (!verificationId) throw new ApiError(400, "OTP verification is required");
+  const otpRecord = await Otp.findOne({
+    _id: verificationId,
+    mobile,
+    purpose,
+    verifiedAt: { $ne: null },
+    expiresAt: { $gt: new Date() },
+  });
+  if (!otpRecord) throw new ApiError(400, "OTP verification is invalid or expired");
+  return otpRecord;
+};
+
+module.exports = { sendOtp, verifyOtp, assertVerifiedOtp, normalizeMobile };

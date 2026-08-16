@@ -40,7 +40,7 @@ export default function ServiceDetailSection() {
         'Ceiling fan, wall mount TV, and basic furniture disassembly',
         'Placement of large items at your designated spots in the new home',
       ],
-      path: '/website/book/local-shifting'
+      path: '/book/local-shifting'
     },
     intercity: {
       name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving',
@@ -66,7 +66,7 @@ export default function ServiceDetailSection() {
         'Direct door-to-door loading and unloading at destination',
         'Movers checklist tracking matching invoice listings',
       ],
-      path: '/website/book/intercity-moving'
+      path: '/book/intercity-moving'
     },
     labour: {
       name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service',
@@ -92,7 +92,7 @@ export default function ServiceDetailSection() {
         'Safe lifting of heavy furniture, wardrobes, or heavy boxes',
         'Quick deployment for local shifting or loading tasks',
       ],
-      path: '/website/book/labour-service'
+      path: '/book/labour-service'
     }
   };
 

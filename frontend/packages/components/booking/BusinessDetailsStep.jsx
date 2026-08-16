@@ -3,9 +3,10 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Briefcase, ArrowRight, Building2, Users, Maximize2, Package } from 'lucide-react';
+import { Building2, Users, Maximize2, Package } from 'lucide-react';
+import BookingActionBar from './BookingActionBar';
 
-export default function BusinessDetailsStep({ onSubmit, initialData = {} }) {
+export default function BusinessDetailsStep({ onSubmit, onBack, initialData = {} }) {
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       businessType: initialData.businessDetails?.businessType || '',
@@ -122,11 +123,9 @@ export default function BusinessDetailsStep({ onSubmit, initialData = {} }) {
         </div>
       </div>
 
-      <div className="pt-4 flex justify-end border-t border-bg-border">
-        <button type="submit" className="btn-orange px-6 py-3 rounded-xl font-bold flex items-center gap-2">
-          Next Step <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      <BookingActionBar onBack={onBack} tone="orange" summary="Commercial details">
+        <button type="submit" className="btn-orange inline-flex min-h-11 shrink-0 items-center justify-center rounded-2xl px-4 text-xs font-bold sm:min-h-12 sm:rounded-xl sm:px-5 sm:text-sm">Next Step</button>
+      </BookingActionBar>
     </form>
   );
 }

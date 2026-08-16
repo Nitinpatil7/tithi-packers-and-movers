@@ -2,10 +2,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRight, Box, Sparkles, Truck } from 'lucide-react';
+import { Box, Sparkles, Truck } from 'lucide-react';
 import { cn } from '@utils/utils';
+import BookingActionBar from './BookingActionBar';
 
-export default function PackingSubTypeStep({ onSubmit, initialData = {} }) {
+export default function PackingSubTypeStep({ onSubmit, onBack, initialData = {} }) {
   const [subType, setSubType] = useState(initialData.packingSubType || null);
   const [error, setError] = useState('');
 
@@ -106,11 +107,7 @@ export default function PackingSubTypeStep({ onSubmit, initialData = {} }) {
 
       {error && <p className="text-sm text-red-500 font-bold text-center">⚠ {error}</p>}
 
-      <div className="pt-4 flex justify-end border-t border-bg-border">
-        <button onClick={handleNext} className="btn-orange px-6 py-3 rounded-xl font-bold flex items-center gap-2">
-          Next Step <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={handleNext} tone="orange" summary={subType ? options.find((item) => item.id === subType)?.title : 'Choose package'} />
     </div>
   );
 }

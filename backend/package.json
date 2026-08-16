@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "node server.js",
     "test": "echo \"No automated backend test suite configured yet\" && exit 0",
-    "import:items": "node scripts/importItemCatalog.js"
+    "import:items": "node scripts/importItemCatalog.js",
+    "seed": "node scripts/seedProduction.js",
+    "backfill:item-icons": "node scripts/backfillItemIcons.js"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +28,7 @@
     "ioredis": "^6.0.0",
     "mongoose": "^9.7.1",
     "morgan": "^1.11.0",
+    "multer": "^2.2.0",
     "socket.io": "^4.8.3"
   }
 }

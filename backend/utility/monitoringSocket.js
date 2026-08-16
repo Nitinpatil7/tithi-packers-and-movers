@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
+const IORedis = require("ioredis");
 const { Server } = require("socket.io");
 const { setContentEmitter } = require("./contentEvents");
 const { setAdminBookingEmitter } = require("./bookingEvents");
 const bookingService = require("../service/booking.service");
-const { getRedisClient, getRedisUrl } = require("../config/redis");
+const { getRedisUrl } = require("../config/redis");
 
 const CHECK_INTERVAL_MS = 5000;
 
-const endpoints = [
+const baseEndpoints = [
   {
     group: "Core",
     name: "API Root",
@@ -81,12 +82,12 @@ const endpoints = [
     target: "pricing",
   },
   {
-    group: "Tracking",
-    name: "Booking Tracking Probe",
+    group: "Core",
+    name: "Redis Health",
     method: "GET",
-    path: "/api/bookings/track?mobile=9876543210",
+    path: "/api/v1/health/redis",
     public: true,
-    target: "booking",
+    target: "server",
   },
   {
     group: "Admin",
@@ -113,6 +114,22 @@ const endpoints = [
     target: "admin",
   },
 ];
+
+const buildMonitoringEndpoints = () => {
+  const trackingProbeMobile = String(process.env.MONITORING_TRACKING_PROBE_MOBILE || "").replace(/\D/g, "");
+  if (!trackingProbeMobile) return baseEndpoints;
+  return [
+    ...baseEndpoints,
+    {
+      group: "Tracking",
+      name: "Booking Tracking Probe",
+      method: "GET",
+      path: `/api/bookings/track?mobile=${trackingProbeMobile}`,
+      public: true,
+      target: "booking",
+    },
+  ];
+};
 
 const asApiUrl = (baseUrl, path) =>
   path === "/" ? baseUrl : `${baseUrl}${path}`;
@@ -163,13 +180,18 @@ const checkEndpoint = async (baseUrl, endpoint) => {
 
 const checkRedis = async () => {
   const started = performance.now();
+  const redis = new IORedis(getRedisUrl(), {
+    lazyConnect: true,
+    connectTimeout: 1200,
+    maxRetriesPerRequest: 1,
+    enableReadyCheck: true,
+    retryStrategy: null,
+  });
+
+  redis.on("error", () => {});
+
   try {
-    const redis = await Promise.race([
-      getRedisClient(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Redis connection timed out")), 1200),
-      ),
-    ]);
+    await redis.connect();
     const pong = await Promise.race([
       redis.ping(),
       new Promise((_, reject) =>
@@ -194,13 +216,15 @@ const checkRedis = async () => {
       message: error.message,
       checkedAt: new Date().toISOString(),
     };
+  } finally {
+    redis.disconnect();
   }
 };
 
 const buildSnapshot = async (port) => {
   const baseUrl = process.env.MONITORING_SELF_URL || `http://127.0.0.1:${port}`;
   const [results, redis] = await Promise.all([
-    Promise.all(endpoints.map((endpoint) => checkEndpoint(baseUrl, endpoint))),
+    Promise.all(buildMonitoringEndpoints().map((endpoint) => checkEndpoint(baseUrl, endpoint))),
     checkRedis(),
   ]);
   const failed = results.filter(

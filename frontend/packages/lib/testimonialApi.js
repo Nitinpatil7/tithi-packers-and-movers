@@ -1,7 +1,9 @@
+import { authFetch } from './authFetch';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 async function testimonialRequest(path = '', options = {}) {
-  const response = await fetch(`${API_URL}/api/testimonial${path}`, {
+  const response = await authFetch(`${API_URL}/api/testimonial${path}`, {
     cache: 'no-store',
     ...options,
     headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },

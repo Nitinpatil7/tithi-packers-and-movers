@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
-import Button from '@ui/Button';
+import { CheckCircle2, Clock } from 'lucide-react';
 import { cn } from '@utils/utils';
 import { formatCurrency } from '@utils/utils';
+import BookingActionBar from './BookingActionBar';
 
 const PACKAGES = [
   { hours: 1, perEmployee: 300 }, { hours: 2, perEmployee: 500 },
@@ -48,10 +48,7 @@ export default function HoursSelectionStep({ onSubmit, onBack, initialData = {},
           <div className="flex items-center gap-3"><Clock className="w-5 h-5 text-primary" /><div><p className="font-black text-text-primary">Duration selected</p><p className="text-xs text-text-secondary">{selectedPackage.label || `${selectedPackage.hours} hour(s)`} for {employeeCount} employee{employeeCount === 1 ? '' : 's'}</p></div></div><CheckCircle2 className="h-5 w-5 text-primary" />
         </div>
       )}
-      <div className="flex items-center justify-between pt-4 border-t border-bg-border">
-        <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button onClick={handleNext} disabled={!selectedPackage} className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50">Next Step <ArrowRight className="w-4 h-4" /></button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={handleNext} disabled={!selectedPackage} />
     </div>
   );
 }

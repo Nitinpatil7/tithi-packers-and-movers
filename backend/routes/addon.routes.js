@@ -8,6 +8,7 @@ router.get("/available", addOnController.getAvailableAddOns);
 
 router.get("/admin/all", adminAuth, addOnController.getAllAddOnsForAdmin);
 router.get("/admin/trigger-groups", adminAuth, addOnController.getTriggerGroups);
+router.get("/admin/trigger-items", adminAuth, addOnController.getTriggerItems);
 
 router.get("/:id", adminAuth, addOnController.getAddOnById);
 

@@ -10,9 +10,9 @@ import { useSiteSetting } from '@hooks/useSiteSetting';
 import { formatCurrency } from '@utils/utils';
 
 const SERVICE_META = {
-  local_shifting: { fallback: 'Local Shifting', href: '/website/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
-  intercity_moving: { fallback: 'Intercity Moving', href: '/website/book/intercity-moving?basePackage=1', icon: Route, tone: 'blue' },
-  porter_labour_service: { fallback: 'Labour & Porter', href: '/website/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
+  local_shifting: { fallback: 'Local Shifting', href: '/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
+  intercity_moving: { fallback: 'Intercity Moving', href: '/book/intercity-moving?basePackage=1', icon: Route, tone: 'blue' },
+  porter_labour_service: { fallback: 'Labour & Porter', href: '/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
 };
 
 const toneClass = {
@@ -82,17 +82,6 @@ export default function BasePricePackagesSection() {
             See each service starting price and what is included in the base package. Select one, add pickup and drop details, review, verify, and confirm.
           </p>
         </motion.div>
-
-        <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
-          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">Swipe quote packages</span>
-          <motion.span
-            className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-white/80 px-3 py-1 text-[10px] font-bold text-text-secondary shadow-xs"
-            animate={{ x: [0, 5, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            Drag <ArrowRight className="h-3 w-3" />
-          </motion.span>
-        </div>
 
         <div ref={packageTrackRef} onScroll={updatePackageIndex} className="scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
           {showLoading

@@ -15,4 +15,14 @@ const updatesetting = asynchandler(async(req,res)=>{
     return res.status(200).json( new apiresponse(200, setting , "site setting update successfully"))
 })
 
-module.exports = { getsetting , updatesetting};
+const uploadlogo = asynchandler(async(req,res)=>{
+    if (!req.file?.filename) {
+        return res.status(400).json(new apiresponse(400, null, "Please select a logo image to upload"));
+    }
+
+    const setting = await sitesettingservice.updateLogo(`/logo/${req.file.filename}`);
+
+    return res.status(200).json(new apiresponse(200, setting, "Logo uploaded successfully"));
+})
+
+module.exports = { getsetting , updatesetting, uploadlogo};

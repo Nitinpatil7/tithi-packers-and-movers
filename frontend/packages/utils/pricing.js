@@ -24,8 +24,10 @@ export function getDistanceKM(lat1, lon1, lat2, lon2) {
 }
 
 function estimateManualDistanceKM(pickupLocation = {}, dropLocation = {}, serviceType) {
-  const pickupText = String(pickupLocation.address || '').toLowerCase();
-  const dropText = String(dropLocation.address || '').toLowerCase();
+  const pickup = pickupLocation || {};
+  const drop = dropLocation || {};
+  const pickupText = String(pickup.address || '').toLowerCase();
+  const dropText = String(drop.address || '').toLowerCase();
   if (!pickupText || !dropText) return 0;
   const isLocal = normalizeServiceType(serviceType) === 'local_shifting';
   const pickupCity = pickupText.includes('surat') ? 'surat' : '';

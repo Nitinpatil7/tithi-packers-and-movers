@@ -1,16 +1,17 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin, ArrowRight, MessageCircle } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
+import { resolveSiteAssetUrl } from '@utils/siteAssets';
 import { useSiteSetting } from '@hooks/useSiteSetting';
 
 export default function Footer() {
   const pathname = usePathname();
-  const { language } = useLanguageStore();
+  const language = 'en';
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
   const { data: site = {} } = useSiteSetting();
   const companyName = site.companyName || 'Tithi Packers and Movers';
@@ -19,27 +20,28 @@ export default function Footer() {
   const email = site.email || '';
   const address = site.address || '';
   const serviceLabels = site.serviceLabels || {};
+  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
 
   if (pathname.startsWith('/admin')) return null;
 
   const services = [
-    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/website/book/local-shifting', color: '#0EA5E9' },
-    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/website/book/intercity-moving', color: '#0284C7' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service', path: '/website/book/labour-service', color: '#38BDF8' },
+    { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9' },
+    { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service', path: '/book/labour-service', color: '#38BDF8' },
   ];
 
   const quickLinks = [
     { name: t.home || 'Home', path: '/' },
-    { name: t.aboutUs || 'About Us', path: '/website/about' },
-    { name: t.contact || 'Contact Us', path: '/website/contact' },
-    { name: t.trackBooking || 'Track My Booking', path: '/website/my-bookings' },
+    { name: t.aboutUs || 'About Us', path: '/about' },
+    { name: t.contact || 'Contact Us', path: '/contact' },
+    { name: t.trackBooking || 'Track My Booking', path: '/my-bookings' },
   ];
 
   const legalLinks = [
-    { name: 'Privacy Policy', path: '/website/legal/privacy-policy' },
-    { name: 'Terms & Conditions', path: '/website/legal/terms-conditions' },
-    { name: 'Refund Policy', path: '/website/legal/refund-policy' },
-    { name: 'Cancellation Policy', path: '/website/legal/cancellation-policy' },
+    { name: 'Privacy Policy', path: '/legal/privacy-policy' },
+    { name: 'Terms & Conditions', path: '/legal/terms-conditions' },
+    { name: 'Refund Policy', path: '/legal/refund-policy' },
+    { name: 'Cancellation Policy', path: '/legal/cancellation-policy' },
   ];
 
   return (
@@ -57,10 +59,10 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="text-left">
             <p className="text-white font-black text-xl" style={{ fontFamily: 'var(--font-heading)' }}>
-              {language === 'gu' ? 'શિફ્ટિંગ કરવા તૈયાર છો? આજે જ ફ્રી ભાવ મેળવો!' : language === 'hi' ? 'स्थानांतरण के लिए तैयार हैं? आज ही मुफ्त अनुमान प्राप्त करें!' : 'Ready to move? Get a free quote today!'}
+              Ready to move? Get a free quote today!
             </p>
             <p className="text-white/50 text-sm font-medium mt-1">
-              {language === 'gu' ? '૨-કલાકમાં વોટ્સએપ જવાબ · કોઈ છુપા ચાર્જ નહીં' : language === 'hi' ? '2-घंटे में व्हाट्सएप जवाब · कोई छुपा शुल्क नहीं' : '2-hour WhatsApp response · Zero hidden charges'}
+              2-hour WhatsApp response · Zero hidden charges
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -69,10 +71,10 @@ export default function Footer() {
               className="flex items-center gap-2 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/10 hover:border-primary/50 active:scale-[.98] transition-all"
             >
                 <Phone className="w-4 h-4" />
-                {language === 'gu' ? 'ફોન કરો' : language === 'hi' ? 'कॉल करें' : 'Call Now'}
+                Call Now
             </a>}
             <Link
-              href="/website/book/local-shifting"
+              href="/book/local-shifting"
               className="btn-orange inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-bold active:scale-[.98] transition-transform"
             >
               {t.bookNow || 'Book Now'} →
@@ -87,21 +89,21 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="flex flex-col gap-5 md:col-span-1">
-            <Link href="/website" className="flex flex-col group group-items-start w-fit text-left">
-              <span className="text-3xl font-black tracking-wider text-white group-hover:text-primary transition-colors text-left" style={{ fontFamily: 'var(--font-heading)' }}>
-                {companyName}
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-primary text-left">
-                Packers & Movers
-              </span>
+            <Link href="/" className="flex w-fit flex-col text-left" aria-label={companyName}>
+              {logoSrc && (
+                <Image
+                  unoptimized
+                  src={logoSrc}
+                  alt={`${companyName} logo`}
+                  width={170}
+                  height={52}
+                  className="h-12 w-auto max-w-[180px] object-contain"
+                />
+              )}
             </Link>
 
             <p className="text-white/55 text-sm leading-relaxed font-medium text-left">
-              {language === 'gu' 
-                ? 'સુરત સ્થિત પ્રીમિયમ પેકર્સ અને મૂવર્સ. ભારતભરમાં ઝડપી અને સુરક્ષિત સેવા.' 
-                : language === 'hi' 
-                  ? 'सूरत में स्थित प्रीमियम पैकर्स और मूवर्स। पूरे भारत में सुरक्षित और तीव्र स्थानांतरण।' 
-                  : 'Premium, hassle-free moving services based in Surat. Relocating you across India with speed, precision, and complete care.'}
+              Premium, hassle-free moving services based in Surat. Relocating you across India with speed, precision, and complete care.
             </p>
 
             {/* Social links */}
@@ -136,7 +138,7 @@ export default function Footer() {
           {/* Company links */}
           <div className="text-left">
             <h4 className="text-white font-black text-sm uppercase tracking-widest mb-5 text-left">
-              {language === 'gu' ? 'કંપની' : language === 'hi' ? 'कंपनी' : 'Company'}
+              Company
             </h4>
             <ul className="flex flex-col gap-3 text-left">
               {quickLinks.map((link) => (
@@ -184,7 +186,7 @@ export default function Footer() {
           {/* Contact */}
           <div className="flex flex-col gap-4 text-left">
             <h4 className="text-white font-black text-sm uppercase tracking-widest text-left">
-              {language === 'gu' ? 'સંપર્ક માહિતી' : language === 'hi' ? 'संपर्क जानकारी' : 'Contact Info'}
+              Contact Info
             </h4>
             <ul className="flex flex-col gap-4 text-left">
               {address && <li className="flex items-start gap-3 text-sm text-white/55 font-medium text-left">
@@ -210,10 +212,10 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/8 pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/35 font-medium text-center md:text-left">
-            © {new Date().getFullYear()} {language === 'gu' ? 'તીથિ પેકર્સ એન્ડ મૂવર્સ. સર્વાધિકાર સુરક્ષિત.' : language === 'hi' ? 'तीथि पैकर्स एंड मूवर्स। सर्वाधिकार सुरक्षित।' : 'Tithi Packers and Movers. All rights reserved.'}
+            © {new Date().getFullYear()} Tithi Packers and Movers. All rights reserved.
           </p>
           <p className="text-xs text-white/35 flex items-center gap-1.5 font-medium">
-            Made with <span className="text-red-400 animate-pulse">❤️</span> {language === 'gu' ? 'સુરતમાં બનાવેલ' : language === 'hi' ? 'सूरत, गुजरात में बनाया गया' : 'in Surat, Gujarat'}
+            Made with <span className="text-red-400 animate-pulse">❤️</span> in Surat, Gujarat
           </p>
         </div>
       </div>

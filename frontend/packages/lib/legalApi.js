@@ -1,7 +1,9 @@
+import { authFetch } from './authFetch';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 async function legalRequest(path = '', options = {}) {
-  const response = await fetch(`${API_URL}/api/legal${path}`, {
+  const response = await authFetch(`${API_URL}/api/legal${path}`, {
     cache: 'no-store',
     ...options,
     headers: {
@@ -33,4 +35,3 @@ export const getLegalPageById = (id) => legalRequest(`/id/${encodeURIComponent(i
 export const createLegalPage = (data) => legalRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(data) });
 export const updateLegalPage = (id, data) => legalRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const unpublishLegalPage = (id) => legalRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
-

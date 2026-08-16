@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "npm run build:website && npm run build:admin && npm run build:monitoring",
     "build:website": "npm --prefix apps/website run build",
     "build:admin": "npm --prefix apps/admin run build",
     "build:monitoring": "npm --prefix apps/monitoring run build"

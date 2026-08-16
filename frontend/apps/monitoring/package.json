@@ -1,0 +1,36 @@
+{
+    "name":  "@tithi/monitoring",
+    "version":  "0.1.0",
+    "private":  true,
+    "scripts":  {
+                    "dev":  "next dev -p 3002",
+                    "build":  "next build",
+                    "postbuild":  "node ../../scripts/prepareStandalone.mjs monitoring",
+                    "prestart":  "node ../../scripts/prepareStandalone.mjs monitoring",
+                    "start":  "node -e \"process.env.PORT=process.env.PORT||'3002'; process.env.HOSTNAME=process.env.HOSTNAME||'127.0.0.1'; require('./.next/standalone/apps/monitoring/server.js')\"",
+                    "lint":  "next lint"
+                },
+    "dependencies":  {
+                         "@tanstack/react-query":  "^5.101.1",
+                         "axios":  "^1.18.1",
+                         "canvas-confetti":  "^1.9.4",
+                         "clsx":  "^2.1.1",
+                         "framer-motion":  "^12.41.0",
+                         "lucide-react":  "^1.21.0",
+                         "next":  "14.2.35",
+                         "react":  "^18",
+                         "react-dom":  "^18",
+                         "react-hook-form":  "^7.80.0",
+                         "react-hot-toast":  "^2.6.0",
+                         "recharts":  "^3.9.0",
+                         "socket.io-client":  "^4.8.3",
+                         "tailwind-merge":  "^3.6.0",
+                         "zustand":  "^5.0.14"
+                     },
+    "devDependencies":  {
+                            "eslint":  "^8",
+                            "eslint-config-next":  "14.2.35",
+                            "postcss":  "^8",
+                            "tailwindcss":  "^3.4.1"
+                        }
+}

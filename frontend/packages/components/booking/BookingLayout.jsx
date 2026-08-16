@@ -16,24 +16,23 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
   };
 
   useEffect(() => {
-    const top = contentTopRef.current?.getBoundingClientRect().top + window.scrollY - 96;
-    window.scrollTo({ top: Math.max(0, top || 0), behavior: 'smooth' });
-  }, [currentStep]);
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }, [currentStep, prefersReducedMotion]);
 
   return (
-    <div className="min-h-screen bg-bg-page pt-24 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-bg-page to-white pt-24 pb-24 sm:pt-28">
       <div className="absolute top-0 left-0 right-0 h-72 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
       <div className="booking-flow-bg pointer-events-none absolute inset-x-0 top-16 h-64" />
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="mb-4 flex items-center max-w-6xl mx-auto min-h-8">
-            {showBackButton ? (
-              <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold text-text-secondary hover:text-primary transition-colors group">
-                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back
-              </button>
-            ) : <div />}
-        </div>
+        {showBackButton && (
+          <div className="mb-2 flex items-center max-w-6xl mx-auto min-h-7 sm:mb-3 sm:min-h-8">
+            <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold text-text-secondary hover:text-primary transition-colors group">
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back
+            </button>
+          </div>
+        )}
 
-        <div className="relative overflow-hidden bg-white rounded-2xl border border-bg-border shadow-sm p-4 mb-5 w-full max-w-6xl mx-auto">
+        <div className="relative overflow-hidden rounded-2xl border border-sky-100 bg-white/95 p-2.5 shadow-sm backdrop-blur mb-3 w-full max-w-6xl mx-auto sm:p-4 sm:mb-5">
           <motion.div
             className="pointer-events-none absolute right-5 top-3 hidden h-10 w-28 items-center sm:flex"
             animate={prefersReducedMotion ? undefined : { x: [-8, 8, -8] }}
@@ -45,17 +44,17 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
             </span>
           </motion.div>
           <div>
-            <div className="flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
+            <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
               {steps.map((step, idx) => {
                 const isActive = idx === currentStep;
                 const isCompleted = idx < currentStep;
                 return (
                   <React.Fragment key={step}>
                     <div className="flex items-center gap-2 shrink-0">
-                      <div className={cn('w-8 h-8 rounded-xl font-bold flex items-center justify-center text-xs border transition-all duration-300', isActive ? 'bg-primary text-white border-primary shadow-sky-sm scale-105' : isCompleted ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-bg-section border-bg-border text-text-tertiary')}>
+                      <div className={cn('w-7 h-7 rounded-xl font-bold flex items-center justify-center text-[11px] border transition-all duration-300 sm:h-8 sm:w-8 sm:text-xs', isActive ? 'bg-primary text-white border-primary shadow-sky-sm scale-105' : isCompleted ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-bg-section border-bg-border text-text-tertiary')}>
                         {isCompleted ? <CheckCircle className="w-4 h-4 text-white" /> : <span>{idx + 1}</span>}
                       </div>
-                      <span className={cn('text-xs font-bold transition-all duration-300', isActive ? 'text-primary scale-102' : isCompleted ? 'text-emerald-600 font-bold' : 'text-text-tertiary')}>{step}</span>
+                      <span className={cn('max-w-[76px] truncate text-[11px] font-bold transition-all duration-300 sm:max-w-none sm:text-xs', isActive ? 'text-primary scale-102' : isCompleted ? 'text-emerald-600 font-bold' : 'text-text-tertiary')}>{step}</span>
                     </div>
                     {idx < steps.length - 1 && (
                       <div className="flex-1 min-w-[20px] h-0.5 bg-bg-border mx-2 relative rounded-full">
@@ -69,9 +68,9 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
           </div>
         </div>
 
-        <div ref={contentTopRef} className="bg-white rounded-3xl border border-bg-border shadow-card overflow-hidden w-full max-w-6xl mx-auto">
+        <div ref={contentTopRef} className="w-full max-w-6xl mx-auto overflow-hidden rounded-[1.35rem] border border-sky-100 bg-white shadow-[0_20px_60px_rgba(14,165,233,0.10)] sm:rounded-3xl">
           <AnimatePresence mode="wait">
-            <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" className="p-8 md:p-10">
+            <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" className="p-4 sm:p-6 md:p-10">
               {children}
             </motion.div>
           </AnimatePresence>

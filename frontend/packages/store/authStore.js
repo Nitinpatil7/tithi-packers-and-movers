@@ -7,8 +7,7 @@ export const useAuthStore = create((set) => ({
   isAdmin: false,
   
   setUser: (user, token) => {
-    // If name or mobile hints at admin, flag as admin for demonstration purposes
-    const isAdminUser = user?.mobile === '9999999999' || user?.email === 'admin@tithipacking.com' || user?.name === 'Admin User';
+    const isAdminUser = Boolean(user?.isAdmin || user?.role === 'admin' || user?.role === 'super_admin');
     
     // Save to localStorage for simple session persistence on refresh
     if (typeof window !== 'undefined') {

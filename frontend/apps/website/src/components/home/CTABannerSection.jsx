@@ -74,7 +74,7 @@ export default function CTABannerSection() {
             {/* Right CTA */}
             <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-72 md:gap-4">
               <MotionLink
-                href="/website/book/local-shifting"
+                href="/book/local-shifting"
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-black text-primary shadow-xl transition-all hover:shadow-2xl sm:text-base md:w-auto md:px-8"
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}

@@ -57,6 +57,13 @@ const getTriggerGroups = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, groups, "Searchable add-on trigger groups fetched successfully"));
 });
 
+const getTriggerItems = asyncHandler(async (req, res) => {
+  const groups = await addOnService.getTriggerItems(req.query);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, groups, "Searchable add-on trigger items fetched successfully"));
+});
+
 module.exports = {
   createAddOn,
   getAllAddOnsForAdmin,
@@ -64,5 +71,6 @@ module.exports = {
   updateAddOn,
   deleteAddOn,
   getTriggerGroups,
+  getTriggerItems,
   getAvailableAddOns,
 };

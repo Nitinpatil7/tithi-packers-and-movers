@@ -4,10 +4,10 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Box, Calendar, CheckCircle2, Clock, IndianRupee, MapPin, ShieldCheck, Sparkles, Sun, Truck, Users } from 'lucide-react';
-import Button from '@ui/Button';
+import { Box, Calendar, CheckCircle2, Clock, IndianRupee, MapPin, ShieldCheck, Sparkles, Sun, Truck, User, Users } from 'lucide-react';
 import { formatCurrency } from '@utils/utils';
 import { getTruckImageSrc } from '@utils/truckVisuals';
+import BookingActionBar from './BookingActionBar';
 
 const SERVICE_LABELS = {
   local: 'Local Shifting',
@@ -65,6 +65,10 @@ function ContextChip({ icon: Icon, label, value }) {
   );
 }
 
+function cleanText(value) {
+  return String(value || '').replace(/\\r\\n|\\n|\\r/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function TruckContext({ truck }) {
   if (!truck?.name) return null;
   const capacity = truck.capacityKg ? `${Number(truck.capacityKg).toLocaleString('en-IN')} kg` : truck.capacityLabel || 'Capacity not set';
@@ -96,23 +100,22 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     distanceCharge = 0,
     pickupFloorCharge = 0,
     dropFloorCharge = 0,
-    floorTotalCharge = 0,
     employeeTotal = 0,
     truckTotal = 0,
     addOnTotal = 0,
     sundayHike = 0,
     grandTotal = 0,
     pricingBreakdown = {},
-    useBasePackage = false,
+    contactDetails = {},
   } = bookingData;
 
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
   const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-  const itemBreakdown = pricingBreakdown.itemBreakdown || {};
   const selectedTruck = pricingBreakdown.selectedTruck?.name ? pricingBreakdown.selectedTruck : null;
   const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
   const pickupFloorSelected = Number(pickupLocation?.floor || 0) > 0;
   const dropFloorSelected = Number(dropLocation?.floor || 0) > 0;
+  const movingCharge = Number(basePrice || 0) + Number(itemsExtraCharge || 0);
   const formattedDate = scheduledDate
     ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : '';
@@ -141,15 +144,22 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Final quote</p>
               <h3 className="mt-1 text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Review Your Booking Cost</h3>
-              <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-text-secondary">Only the final computed quotation is shown here. Charges below are calculated from your selected route, access details, inventory, add-ons, and labour choices.</p>
+              <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-text-secondary">Review the booking details and the payable charge lines before confirming your phone number.</p>
             </div>
           </div>
           <div className="rounded-2xl border border-orange-100 bg-white/90 px-4 py-3 text-right shadow-xs">
-            <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">Total quotation</span>
+            <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">Estimated total</span>
             <strong className="mt-1 block font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
           </div>
         </div>
       </motion.header>
+
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ContextChip icon={User} label="Customer" value={cleanText(contactDetails?.name || 'Guest customer')} />
+        <ContextChip icon={Truck} label="Service" value={cleanText(SERVICE_LABELS[serviceType] || serviceType)} />
+        <ContextChip icon={MapPin} label="Pickup" value={cleanText(pickupLocation?.address)} />
+        <ContextChip icon={MapPin} label="Drop" value={cleanText(dropLocation?.address)} />
+      </section>
 
       <motion.section
         className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"
@@ -160,54 +170,44 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         <div className="border-b border-orange-100 bg-gradient-to-r from-orange-50 to-sky-50 px-5 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h4 className="text-base font-black text-text-primary">Cost Breakdown</h4>
-              <p className="mt-0.5 text-xs font-semibold text-text-tertiary">Line-by-line charges applied to this booking.</p>
+              <h4 className="text-base font-black text-text-primary">Booking Cost Summary</h4>
+              <p className="mt-0.5 text-xs font-semibold text-text-tertiary">Only applicable payable charges are shown.</p>
             </div>
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
         </div>
 
         <div className="px-5 sm:px-6">
-          {(!isLabour || useBasePackage || basePrice > 0) && (
-            <QuoteLine icon={CheckCircle2} label={isLabour && useBasePackage ? 'Base labour package' : 'Base shifting fare'} detail={isLabour && useBasePackage ? 'Configured base package selected.' : 'Starting fare from the active pricing rule.'} value={formatCurrency(basePrice)} />
+          {!isLabour && movingCharge > 0 && (
+            <QuoteLine icon={CheckCircle2} label="Moving service and selected items" detail={`${totalItems || 0} item(s) selected`} value={formatCurrency(movingCharge)} />
           )}
 
-          <QuoteLine icon={MapPin} label="Distance charge" detail={distance ? `${distance} km route distance` : 'Route distance unavailable or not applicable'} value={distanceCharge > 0 ? formatCurrency(distanceCharge) : 'Included'} muted={distanceCharge <= 0} />
+          {distanceCharge > 0 && <QuoteLine icon={MapPin} label="Distance charge" detail={distance ? `${distance} km route distance` : ''} value={formatCurrency(distanceCharge)} />}
 
-          {!isLabour && pickupFloorSelected && <QuoteLine icon={MapPin} label="Pickup lift/floor charge" detail={`Floor ${pickupLocation?.floor}${pickupLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={pickupFloorCharge > 0 ? formatCurrency(pickupFloorCharge) : 'Included'} muted={pickupFloorCharge <= 0} />}
-          {!isLabour && dropFloorSelected && <QuoteLine icon={MapPin} label="Drop lift/floor charge" detail={`Floor ${dropLocation?.floor}${dropLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={dropFloorCharge > 0 ? formatCurrency(dropFloorCharge) : 'Included'} muted={dropFloorCharge <= 0} />}
+          {!isLabour && pickupFloorSelected && pickupFloorCharge > 0 && <QuoteLine icon={MapPin} label="Pickup floor/lift charge" detail={`Floor ${pickupLocation?.floor}${pickupLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(pickupFloorCharge)} />}
+          {!isLabour && dropFloorSelected && dropFloorCharge > 0 && <QuoteLine icon={MapPin} label="Drop floor/lift charge" detail={`Floor ${dropLocation?.floor}${dropLocation?.liftAvailable ? ' with lift' : ' without lift'}`} value={formatCurrency(dropFloorCharge)} />}
 
-          {!isLabour && itemBreakdown.selectedCount > 0 && (
-            <QuoteLine icon={Box} label="Free item allowance" value={itemBreakdown.includedCount > 0 ? `${itemBreakdown.includedCount} included` : 'Not applicable'} muted={itemBreakdown.includedCount <= 0} />
-          )}
-
-          {!isLabour && itemsExtraCharge > 0 && <QuoteLine icon={Box} label="Additional item charges" detail="Items beyond the free allowance." value={formatCurrency(itemsExtraCharge)} />}
-          {!isLabour && itemBreakdown.selectedCount > 0 && itemsExtraCharge <= 0 && <QuoteLine icon={Box} label="Additional item charges" detail="All selected items are covered by the allowance." value="Included" muted />}
-
-          {addonLines.length > 0 ? addonLines.map((service) => (
+          {addonLines.length > 0 && addonLines.map((service) => (
             <QuoteLine key={service.name} icon={Sparkles} label={service.quantity > 1 ? `${service.name} x ${service.quantity}` : service.name} detail="Add-on service charge" value={formatCurrency(service.total)} />
-          )) : !isLabour && <QuoteLine icon={Sparkles} label="Add-on service charges" detail="No paid add-ons selected." value="None" muted />}
+          ))}
 
           {isLabour && employeeTotal > 0 && <QuoteLine icon={Users} label="Labour charge" detail={`${hoursCount || 1} hour package${employeeCount ? ` for ${employeeCount} employee(s)` : ''}${labourPerEmployee ? `, ${formatCurrency(labourPerEmployee)} per employee` : ''}`} value={formatCurrency(employeeTotal)} />}
           {isLabour && truckTotal > 0 && <QuoteLine icon={Truck} label="Truck charge" detail={selectedTruck?.name || 'Selected vehicle'} value={formatCurrency(truckTotal)} />}
-          {isLabour && useBasePackage && employeeTotal <= 0 && truckTotal <= 0 && <QuoteLine icon={Users} label="Labour/truck package adjustment" detail="Truck, employees, and hours are covered by the selected base package." value="Included" muted />}
-
           {sundayHike > 0 && <QuoteLine icon={Sun} label="Sunday booking adjustment" detail="Weekend crew availability adjustment." value={formatCurrency(sundayHike)} />}
         </div>
 
         <div className="border-t border-orange-100 bg-gradient-to-r from-orange-50 via-white to-sky-50 px-5 py-5 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <span>
-              <span className="block text-sm font-black text-text-primary">Total quotation price</span>
-              <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Inclusive of the charge lines above.</span>
+              <span className="block text-sm font-black text-text-primary">Estimated Booking Total</span>
+              <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Final payable amount based on selected details.</span>
             </span>
             <strong className="font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
           </div>
         </div>
       </motion.section>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <ContextChip icon={Truck} label="Service" value={SERVICE_LABELS[serviceType] || serviceType} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <ContextChip icon={Calendar} label="Move date" value={formattedDate} />
         <ContextChip icon={Clock} label="Time slot" value={TIME_SLOT_LABELS[timeSlot] || timeSlot} />
         <ContextChip icon={Box} label="Inventory" value={totalItems ? `${totalItems} item(s) selected` : isLabour ? `${employeeCount || 0} employee(s), ${hoursCount || 0} hour(s)` : 'No item checklist'} />
@@ -215,13 +215,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
 
       <TruckContext truck={selectedTruck} />
 
-      <div className="flex items-center justify-between pt-5 border-t border-bg-border">
-        <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button onClick={onSubmit} className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2">
-          Verify Phone (OTP)
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={onSubmit} nextLabel="Verify Phone" />
     </div>
   );
 }

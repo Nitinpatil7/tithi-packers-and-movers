@@ -40,7 +40,7 @@ export default function IntercityMovingPage() {
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
-    if (currentStep >= STEPS.length && !createdBookingId) {
+    if (currentStep > STEPS.length && !createdBookingId) {
       resetBooking();
       updateBookingData({ serviceType: 'intercity' });
     }

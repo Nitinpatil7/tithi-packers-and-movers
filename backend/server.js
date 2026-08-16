@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const { bootstrapDefaultAdmin } = require("./service/adminAuth.service");
 const attachMonitoringSocket = require("./utility/monitoringSocket");
 const { startNotificationWorker } = require("./queue/notification.queue");
+const logger = require("./utility/logger");
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,8 +21,11 @@ const startServer = async () => {
     startNotificationWorker();
 
     server.listen(PORT , ()=>{
-        console.log(`server is running on port ${PORT}`);
+        logger.info("Server listening", { port: PORT, environment: process.env.NODE_ENV || "development" });
     })
 }
 
-startServer();
+startServer().catch((error) => {
+    logger.error("Server failed to start", { error: error.message, stack: error.stack });
+    process.exit(1);
+});

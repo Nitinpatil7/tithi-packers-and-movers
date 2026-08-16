@@ -1,4 +1,6 @@
 // src/lib/api.js
+import { authFetch } from './authFetch';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 const readResponse = async (response) => {
@@ -45,12 +47,15 @@ const normalizeLocation = (location = {}) => {
 
 export const normalizeBooking = (booking = {}) => {
   const customer = booking.customer || {};
-  const pricing = booking.pricing || booking.quoteSnapshot?.pricing || {};
+  const snapshot = booking.quoteSnapshot || {};
+  const pricing = booking.pricing || snapshot.pricing || {};
   const pickupLocation = booking.pickupLocation || booking.pickuplocation || {};
   const dropLocation = booking.dropLocation || booking.droplocation || {};
   const porterLabourDetails = booking.porterLabourDetails || {};
   const breakdown = pricing.breakdown || {};
   const bookingId = booking.bookingId || booking.bookingid || booking._id || '';
+  const items = Array.isArray(booking.items) && booking.items.length ? booking.items : snapshot.items || [];
+  const selectedAddons = Array.isArray(booking.selectedAddons) && booking.selectedAddons.length ? booking.selectedAddons : snapshot.selectedAddons || [];
   return {
     ...booking,
     bookingId,
@@ -72,17 +77,23 @@ export const normalizeBooking = (booking = {}) => {
     addOnTotal: Number(booking.addOnTotal ?? pricing.addOnTotal ?? 0),
     itemTotal: Number(booking.itemTotal ?? pricing.itemTotal ?? 0),
     totalAmount: Number(booking.totalAmount ?? pricing.totalAmount ?? 0),
+    distanceCharge: Number(booking.distanceCharge ?? breakdown.distanceCharge ?? 0),
+    floorTotalCharge: Number(booking.floorTotalCharge ?? breakdown.floorTotalCharge ?? 0),
+    itemsExtraCharge: Number(booking.itemsExtraCharge ?? breakdown.itemsExtraCharge ?? pricing.itemTotal ?? 0),
+    selectedAddons,
+    items,
+    pricingBreakdown: breakdown,
     pricing,
   };
 };
 
-export const checkMobile = async (mobile) => fetch(`${API_URL}/api/otp/send`, {
+export const checkMobile = async (mobile) => authFetch(`${API_URL}/api/otp/send`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ mobile, purpose: 'booking' }),
 }).then(readResponse).then((data) => ({ success: true, data }));
 
-export const verifyOTP = async (mobile, otp) => fetch(`${API_URL}/api/otp/verify`, {
+export const verifyOTP = async (mobile, otp) => authFetch(`${API_URL}/api/otp/verify`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ mobile, otp, purpose: 'booking' }),
@@ -96,17 +107,17 @@ export const createBooking = async () => {
   throw new Error('Use the booking draft APIs: /api/bookings/draft, /api/bookings/:bookingId/draft, and /api/bookings/:bookingId/confirm.');
 };
 
-export const getMyBookings = async (mobile) => fetch(`${API_URL}/api/bookings/track?mobile=${encodeURIComponent(mobile)}`, { cache: 'no-store' })
+export const getMyBookings = async (mobile) => authFetch(`${API_URL}/api/bookings/track?mobile=${encodeURIComponent(mobile)}`, { cache: 'no-store' })
   .then(readResponse)
   .then((payload) => asArray(payload, ['bookings', 'items', 'results']).map(normalizeBooking));
 
 export const getBookingById = async (id, token, mobile) => {
-  if (mobile) return fetch(`${API_URL}/api/bookings/track/${encodeURIComponent(id)}?mobile=${encodeURIComponent(mobile)}`, { cache: 'no-store' }).then(readResponse).then(normalizeBooking);
-  if (!token) return fetch(`${API_URL}/api/bookings/track/${encodeURIComponent(id)}`, { cache: 'no-store' }).then(readResponse).then(normalizeBooking);
-  return fetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, { credentials: 'include' }).then(readResponse).then(normalizeBooking);
+  if (mobile) return authFetch(`${API_URL}/api/bookings/track/${encodeURIComponent(id)}?mobile=${encodeURIComponent(mobile)}`, { cache: 'no-store' }).then(readResponse).then(normalizeBooking);
+  if (!token) return authFetch(`${API_URL}/api/bookings/track/${encodeURIComponent(id)}`, { cache: 'no-store' }).then(readResponse).then(normalizeBooking);
+  return authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, { credentials: 'include' }).then(readResponse).then(normalizeBooking);
 };
 
-export const getAdminStats = async () => fetch(`${API_URL}/api/admin-analytics/dashboard`, { credentials: 'include' })
+export const getAdminStats = async () => authFetch(`${API_URL}/api/admin-analytics/dashboard`, { credentials: 'include' })
   .then(readResponse)
   .then((payload) => {
     const stats = payload?.stats || {};
@@ -137,11 +148,11 @@ export const getAdminStats = async () => fetch(`${API_URL}/api/admin-analytics/d
       recentBookings: (payload?.recentBookings || []).map(normalizeBooking),
     };
   });
-export const getAdminAnalyticsOverview = async () => fetch(`${API_URL}/api/admin-analytics/overview`, { credentials: 'include' }).then(readResponse);
+export const getAdminAnalyticsOverview = async () => authFetch(`${API_URL}/api/admin-analytics/overview`, { credentials: 'include' }).then(readResponse);
 
 export const getAllBookings = async (filters = {}) => {
   const query = queryString(filters);
-  return fetch(`${API_URL}/api/bookings/admin/all${query ? `?${query}` : ''}`, { credentials: 'include' })
+  return authFetch(`${API_URL}/api/bookings/admin/all${query ? `?${query}` : ''}`, { credentials: 'include' })
     .then(readResponse)
     .then((payload) => {
       const bookings = asArray(payload, ['bookings', 'items', 'results'])
@@ -151,30 +162,30 @@ export const getAllBookings = async (filters = {}) => {
     });
 };
 
-export const updateBookingDetails = async (id, data) => fetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, {
+export const updateBookingDetails = async (id, data) => authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
   body: JSON.stringify(data),
 }).then(readResponse).then(normalizeBooking);
 
-export const updateBookingStatus = async (id, status, note = '') => fetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/status`, {
+export const updateBookingStatus = async (id, status, note = '') => authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/status`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
   body: JSON.stringify({ status, note }),
 }).then(readResponse);
 
-export const updateBookingQuote = async (id, data) => fetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/quote`, {
+export const updateBookingQuote = async (id, data) => authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/quote`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
   body: JSON.stringify(data),
 }).then(readResponse);
 
-export const getPricing = async () => fetch(`${API_URL}/api/booking-pricing-rules/admin/all`, { credentials: 'include' }).then(readResponse).then((payload) => asArray(payload, ['rules', 'pricing', 'items', 'results']));
+export const getPricing = async () => authFetch(`${API_URL}/api/booking-pricing-rules/admin/all`, { credentials: 'include' }).then(readResponse).then((payload) => asArray(payload, ['rules', 'pricing', 'items', 'results']));
 
-export const updatePricingItem = async (id, updateData) => fetch(`${API_URL}/api/booking-pricing-rules/admin/${encodeURIComponent(id)}`, {
+export const updatePricingItem = async (id, updateData) => authFetch(`${API_URL}/api/booking-pricing-rules/admin/${encodeURIComponent(id)}`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
@@ -183,19 +194,19 @@ export const updatePricingItem = async (id, updateData) => fetch(`${API_URL}/api
 
 export const getUsers = async (filters = {}) => {
   const query = queryString(filters);
-  return fetch(`${API_URL}/api/bookings/admin/customers${query ? `?${query}` : ''}`, { credentials: 'include' })
+  return authFetch(`${API_URL}/api/bookings/admin/customers${query ? `?${query}` : ''}`, { credentials: 'include' })
     .then(readResponse)
     .then((payload) => asArray(payload, ['users', 'customers', 'items', 'results']));
 };
 
 export const getNotifications = async (filters = {}) => {
   const query = queryString(filters);
-  return fetch(`${API_URL}/api/notification${query ? `?${query}` : ''}`, { credentials: 'include' })
+  return authFetch(`${API_URL}/api/notification${query ? `?${query}` : ''}`, { credentials: 'include' })
     .then(readResponse)
     .then((payload) => asArray(payload, ['notifications', 'items', 'results']));
 };
 
-export const sendNotification = async (data) => fetch(`${API_URL}/api/notification/send`, {
+export const sendNotification = async (data) => authFetch(`${API_URL}/api/notification/send`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
@@ -204,11 +215,11 @@ export const sendNotification = async (data) => fetch(`${API_URL}/api/notificati
 
 export const getInAppNotifications = async (filters = {}) => {
   const query = queryString(filters);
-  return fetch(`${API_URL}/api/in-app-notifications${query ? `?${query}` : ''}`, { credentials: 'include' })
+  return authFetch(`${API_URL}/api/in-app-notifications${query ? `?${query}` : ''}`, { credentials: 'include' })
     .then(readResponse)
     .then((payload) => asArray(payload, ['notifications', 'alerts', 'items', 'results']));
 };
 
-export const getInAppNotificationSummary = async () => fetch(`${API_URL}/api/in-app-notifications/summary`, { credentials: 'include' }).then(readResponse);
-export const markInAppNotificationRead = async (id) => fetch(`${API_URL}/api/in-app-notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH', credentials: 'include' }).then(readResponse);
-export const markAllInAppNotificationsRead = async () => fetch(`${API_URL}/api/in-app-notifications/read-all`, { method: 'PATCH', credentials: 'include' }).then(readResponse);
+export const getInAppNotificationSummary = async () => authFetch(`${API_URL}/api/in-app-notifications/summary`, { credentials: 'include' }).then(readResponse);
+export const markInAppNotificationRead = async (id) => authFetch(`${API_URL}/api/in-app-notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH', credentials: 'include' }).then(readResponse);
+export const markAllInAppNotificationsRead = async () => authFetch(`${API_URL}/api/in-app-notifications/read-all`, { method: 'PATCH', credentials: 'include' }).then(readResponse);

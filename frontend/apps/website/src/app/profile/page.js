@@ -56,7 +56,7 @@ export default function ProfilePage() {
   useEffect(() => {
     // If not authenticated, redirect to sign-in page
     if (!isAuthenticated) {
-      router.push('/website/my-bookings');
+      router.push('/my-bookings');
     }
   }, [isAuthenticated, router]);
 
@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
           <div className="border-t border-bg-border/60 pt-4 mt-2 flex flex-col gap-3">
             <Link
-              href="/website/my-bookings"
+              href="/my-bookings"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-bg-border bg-white px-5 py-2 text-xs font-bold text-text-primary shadow-xs transition-all duration-200 hover:border-primary/30 hover:text-primary active:scale-[0.98]"
             >
               <ClipboardList className="w-4 h-4" />

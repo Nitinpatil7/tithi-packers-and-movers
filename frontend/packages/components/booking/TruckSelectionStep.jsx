@@ -1,13 +1,24 @@
 // src/components/booking/TruckSelectionStep.jsx
 'use client';
 
-import React, { useState } from 'react';
-import { Info, ArrowRight, ArrowLeft, Truck } from 'lucide-react';
-import Button from '@ui/Button';
+import React, { useMemo, useState } from 'react';
+import { Info, Truck, Users } from 'lucide-react';
 import TruckGuideModal from './TruckGuideModal';
 import { TRUCK_OPTIONS } from '@data/truckOptions';
 import { cn } from '@utils/utils';
 import { getTruckImageSrc } from '@utils/truckVisuals';
+import BookingActionBar from './BookingActionBar';
+
+const NO_TRUCK_OPTION = {
+  id: 'no_truck',
+  name: 'No Truck - Labour Only',
+  capacityKg: 0,
+  image: '',
+  price: 0,
+  bestFor: 'Only labour/workers required',
+  example: 'Use this when you only need lifting, loading, unloading, or arranging.',
+  isNoTruck: true,
+};
 
 const normalizeTruckOption = (truck = {}) => {
   const capacityKg = Number(truck.capacityKg || 0);
@@ -20,22 +31,47 @@ const normalizeTruckOption = (truck = {}) => {
     bestFor: capacityKg ? `${capacityKg.toLocaleString('en-IN')} kg capacity` : truck.capacityLabel || truck.bestFor || 'Capacity not set',
     example: truck.example || '',
     isFree: truck.isFree,
+    isNoTruck: Boolean(truck.isNoTruck),
   };
 };
 
-export default function TruckSelectionStep({ onSubmit, onBack, initialData = {}, trucks = [] }) {
-  const options = (trucks.length ? trucks : TRUCK_OPTIONS).map(normalizeTruckOption);
-  const [selectedTruck, setSelectedTruck] = useState(initialData.selectedTruck || initialData.truckType || null);
+export default function TruckSelectionStep({ onSubmit, onBack, initialData = {}, trucks = [], allowNoTruck = false }) {
+  const options = useMemo(() => {
+    const truckOptions = (trucks.length ? trucks : TRUCK_OPTIONS).map(normalizeTruckOption);
+    return allowNoTruck ? [NO_TRUCK_OPTION, ...truckOptions] : truckOptions;
+  }, [allowNoTruck, trucks]);
+  const initialTruck = initialData.labourOnly ? NO_TRUCK_OPTION.id : initialData.selectedTruck || initialData.truckType || null;
+  const [selectedTruck, setSelectedTruck] = useState(initialTruck);
   const [guideOpen, setGuideOpen] = useState(false);
   const [error, setError] = useState('');
 
   const handleNext = () => {
     if (!selectedTruck) {
-      setError('Please select a truck size to continue.');
+      setError(allowNoTruck ? 'Please choose a truck or select labour only.' : 'Please select a truck size to continue.');
       return;
     }
+
     const selectedTruckData = options.find((truck) => truck.id === selectedTruck) || null;
-    onSubmit({ useBasePackage: false, selectedTruck, truckType: selectedTruck, selectedTruckData, truckTotal: Number(selectedTruckData?.price || 0) });
+    if (selectedTruckData?.isNoTruck) {
+      onSubmit({
+        useBasePackage: false,
+        selectedTruck: null,
+        truckType: null,
+        selectedTruckData: null,
+        truckTotal: 0,
+        labourOnly: true,
+      });
+      return;
+    }
+
+    onSubmit({
+      useBasePackage: false,
+      selectedTruck,
+      truckType: selectedTruck,
+      selectedTruckData,
+      truckTotal: Number(selectedTruckData?.price || 0),
+      labourOnly: false,
+    });
   };
 
   return (
@@ -46,7 +82,7 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
             <Truck className="mr-2 inline h-7 w-7 text-primary" /> Select Vehicle Size
           </h3>
           <p className="text-sm text-text-secondary font-medium">
-            Choose the truck by name and kg capacity from admin pricing rules.
+            {allowNoTruck ? 'Choose a truck, or continue with labour only if no vehicle is needed.' : 'Choose the truck by name and kg capacity from admin pricing rules.'}
           </p>
         </div>
         <button
@@ -73,12 +109,18 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
                   : 'border-bg-border bg-white hover:border-primary/30 hover:bg-bg-section shadow-xs'
               )}
             >
-              <img
-                src={getTruckImageSrc(truck)}
-                alt={truck.name}
-                className="h-20 w-24 shrink-0 rounded-xl border border-bg-border bg-bg-section object-cover"
-                onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }}
-              />
+              {truck.isNoTruck ? (
+                <span className="grid h-20 w-24 shrink-0 place-items-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700">
+                  <Users className="h-7 w-7" />
+                </span>
+              ) : (
+                <img
+                  src={getTruckImageSrc(truck)}
+                  alt={truck.name}
+                  className="h-20 w-24 shrink-0 rounded-xl border border-bg-border bg-bg-section object-cover"
+                  onError={(event) => { event.currentTarget.src = getTruckImageSrc({}); }}
+                />
+              )}
               <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className={cn('text-base font-black', isSelected ? 'text-primary' : 'text-text-primary')} style={{ fontFamily: 'var(--font-heading)' }}>
@@ -100,12 +142,7 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
 
       {error && <p className="text-sm text-red-500 font-bold text-center">{error}</p>}
 
-      <div className="flex items-center justify-between pt-4 border-t border-bg-border">
-        <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button onClick={handleNext} className="btn-orange px-6 py-3 rounded-xl font-bold flex items-center gap-2">
-          Next Step <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={handleNext} tone="orange" />
 
       <TruckGuideModal isOpen={guideOpen} onClose={() => setGuideOpen(false)} />
     </div>

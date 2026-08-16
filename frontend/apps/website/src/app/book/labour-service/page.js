@@ -38,7 +38,7 @@ export default function LabourServicePage() {
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
-    if (currentStep >= STEPS.length && !createdBookingId) {
+    if (currentStep > STEPS.length && !createdBookingId) {
       resetBooking();
       updateBookingData({ serviceType: 'labour' });
     }
@@ -119,7 +119,7 @@ export default function LabourServicePage() {
         <LocationStep onSubmit={handleLocationSubmit} initialData={bookingData} serviceType="labour" pricingRule={pricingRule} />
       )}
       {currentStep === 1 && (
-        <TruckSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} trucks={pricingRule?.labourPricing?.trucks || []} />
+        <TruckSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} trucks={pricingRule?.labourPricing?.trucks || []} allowNoTruck />
       )}
       {currentStep === 2 && (
         <EmployeeSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} serviceType="labour" employeeRates={pricingRule?.labourPricing?.employeeRates || []} />

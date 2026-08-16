@@ -1,3 +1,5 @@
+import { authFetch } from './authFetch';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 const queryString = (filters = {}) => {
@@ -9,7 +11,7 @@ const queryString = (filters = {}) => {
 };
 
 async function pricingRequest(path, options = {}) {
-  const response = await fetch(`${API_URL}/api/booking-pricing-rules${path}`, {
+  const response = await authFetch(`${API_URL}/api/booking-pricing-rules${path}`, {
     cache: 'no-store',
     ...options,
     headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
@@ -29,4 +31,3 @@ export const createDefaultPricingRules = () => pricingRequest('/admin/defaults',
 export const createPricingRule = (data) => pricingRequest('/admin', { method: 'POST', credentials: 'include', body: JSON.stringify(data) });
 export const updatePricingRule = (id, data) => pricingRequest(`/admin/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deletePricingRule = (id) => pricingRequest(`/admin/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
-

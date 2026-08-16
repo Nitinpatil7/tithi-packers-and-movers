@@ -7,6 +7,7 @@ import '@styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableGoogleMapsKey = Boolean(googleMapsKey && !googleMapsKey.includes('PLACEHOLDER'));
+const businessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE || '';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -59,7 +60,7 @@ const structuredData = {
   "name": "Tithi Packers and Movers",
   "description": "Professional packers and movers in Surat offering local shifting, intercity moving, packing services, and commercial relocation.",
   "url": "https://tithipacking.com",
-  "telephone": "+91-9876543210",
+  "telephone": businessPhone,
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "102, Shanti Complex, Opp. Star Bazaar, Adajan",
@@ -124,7 +125,9 @@ export default function RootLayout({ children }) {
         )}
       </head>
       <body className="bg-bg-page text-text-primary min-h-screen flex flex-col justify-between">
-        <Providers>`r`n          <WebsiteChrome>{children}</WebsiteChrome>`r`n        </Providers>
+        <Providers>
+          <WebsiteChrome>{children}</WebsiteChrome>
+        </Providers>
       </body>
     </html>
   );

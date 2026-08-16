@@ -256,6 +256,7 @@ const deleteRule = async (id) => {
 };
 
 module.exports = {
+  DEFAULTS_BY_SERVICE,
   getPublicRules,
   getPublicRuleByService,
   getAdminRules,

@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
@@ -27,6 +28,7 @@ const adminAuthRoutes = require("./routes/adminAuth.routes");
 const adminAnalyticsRoutes = require("./routes/adminAnalytics.routes");
 
 const app = express();
+app.set("trust proxy", 1);
 const requestBodyLimit = process.env.REQUEST_BODY_LIMIT || "2mb";
 
 const defaultAllowedOrigins = [
@@ -61,6 +63,17 @@ app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
 app.use(cookieParser());
 app.use(requestidmiddlewere);
 app.use(requestlogger);
+app.use(
+    "/logo",
+    express.static(path.join(__dirname, "public", "logo"), {
+        immutable: true,
+        maxAge: "365d",
+        setHeaders(res) {
+            res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        },
+    }),
+);
 
 if(process.env.NODE_ENV === "development"){
     app.use(morgan("dev"));

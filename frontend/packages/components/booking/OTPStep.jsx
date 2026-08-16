@@ -2,10 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Mail, Phone, User } from 'lucide-react';
-import Button from '@ui/Button';
+import { Mail, Phone, User } from 'lucide-react';
 import { useCheckMobile, useVerifyOTP } from '@hooks/useAuth';
 import toast from 'react-hot-toast';
+import BookingActionBar from './BookingActionBar';
 
 const DEFAULT_RESEND_SECONDS = 120;
 
@@ -17,6 +17,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(DEFAULT_RESEND_SECONDS);
   const [shake, setShake] = useState(false);
+  const sendingOtpRef = useRef(false);
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
   const checkMobileMutation = useCheckMobile();
   const verifyOTPMutation = useVerifyOTP();
@@ -28,8 +29,10 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   }, [otpSent, timer]);
 
   const sendOtp = async () => {
+    if (sendingOtpRef.current || checkMobileMutation.isPending) return;
     if (!name.trim()) return toast.error('Please enter your full name.');
     if (!/^[6-9]\d{9}$/.test(mobile)) return toast.error('Please enter a valid 10-digit Indian mobile number.');
+    sendingOtpRef.current = true;
     try {
       const response = await checkMobileMutation.mutateAsync(mobile);
       setOtpSent(true);
@@ -39,6 +42,8 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
       window.setTimeout(() => otpRefs[0]?.current?.focus(), 100);
     } catch (error) {
       toast.error(error.message || 'Error sending OTP');
+    } finally {
+      sendingOtpRef.current = false;
     }
   };
 
@@ -100,13 +105,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
               <p className="mt-2 text-xs font-medium text-text-tertiary">OTP will be sent to this number for booking confirmation.</p>
             </div>
           </div>
-          <div className="flex items-center justify-between pt-2">
-            <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-            <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="btn-orange px-6 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-60">
-              {checkMobileMutation.isPending ? 'Sending...' : 'Send OTP'}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          <BookingActionBar onBack={onBack} onNext={sendOtp} tone="orange" nextLabel={checkMobileMutation.isPending ? 'Sending...' : 'Send OTP'} disabled={checkMobileMutation.isPending} />
         </div>
       ) : (
         <div className="flex flex-col gap-6">
@@ -123,13 +122,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
             <span className="text-sm font-medium text-text-tertiary">Didn&apos;t get the code?</span>
             {timer > 0 ? <span className="font-mono text-sm font-bold text-text-secondary">Resend in {timer}s</span> : <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="text-sm font-bold text-primary hover:underline disabled:opacity-60">{checkMobileMutation.isPending ? 'Sending...' : 'Resend OTP'}</button>}
           </div>
-          <div className="flex items-center justify-between border-t border-bg-border pt-4">
-            <Button variant="secondary" onClick={() => setOtpSent(false)} icon={ArrowLeft}>Edit details</Button>
-            <button onClick={verifyOtp} disabled={verifyOTPMutation.isPending} className="btn-orange px-6 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-60">
-              {verifyOTPMutation.isPending ? 'Verifying...' : 'Verify & Confirm'}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          <BookingActionBar onBack={() => setOtpSent(false)} backLabel="Edit" onNext={verifyOtp} tone="orange" nextLabel={verifyOTPMutation.isPending ? 'Verifying...' : 'Verify & Confirm'} disabled={verifyOTPMutation.isPending} summary={`+91 ${mobile}`} />
         </div>
       )}
     </div>

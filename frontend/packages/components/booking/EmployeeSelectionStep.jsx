@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Users } from 'lucide-react';
-import Button from '@ui/Button';
+import { CheckCircle2, Users } from 'lucide-react';
 import { cn } from '@utils/utils';
+import BookingActionBar from './BookingActionBar';
 
 export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = {}, employeeRates = [] }) {
   const initialCount = Number(initialData.employeeCount || 0);
@@ -50,10 +50,7 @@ export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = 
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-4 border-t border-bg-border">
-        <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button onClick={handleNext} disabled={!resolvedCount} className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50">Next Step <ArrowRight className="w-4 h-4" /></button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={handleNext} disabled={!resolvedCount} />
     </div>
   );
 }

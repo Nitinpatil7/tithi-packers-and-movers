@@ -194,7 +194,7 @@ function TrackingContent() {
                 <BookingCard
                   key={booking._id || booking.bookingid || booking.bookingId}
                   booking={booking}
-                  onOpen={() => router.push(`/website/my-bookings/${booking.bookingid || booking.bookingId || booking._id}`)}
+                  onOpen={() => router.push(`/my-bookings/${booking.bookingid || booking.bookingId || booking._id}`)}
                 />
               ))}
             </div>

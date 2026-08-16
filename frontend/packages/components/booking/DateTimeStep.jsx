@@ -3,10 +3,10 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Clock, ArrowRight, ArrowLeft, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
-import Button from '@ui/Button';
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
 import Spinner from '@ui/Spinner';
 import { cn } from '@utils/utils';
+import BookingActionBar from './BookingActionBar';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -257,7 +257,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           <Clock className="w-4 h-4 text-primary" />
           Preferred Arrival Time *
         </label>
-        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
+        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pr-[18vw] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
           {TIME_SLOTS.map((item) => {
             const isSelected = slot === item.id;
             return (
@@ -266,7 +266,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 type="button"
                 onClick={() => { setSlot(item.id); setError(''); }}
                 className={cn(
-                  "flex min-w-[78vw] snap-start flex-col items-center justify-center text-center p-5 rounded-2xl border-2 cursor-pointer select-none transition-all duration-200 sm:min-w-0",
+                  "flex min-w-[62vw] max-w-[240px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-4 text-center cursor-pointer select-none transition-all duration-200 sm:min-w-0 sm:max-w-none sm:p-5",
                   isSelected
                     ? "border-primary bg-primary-soft shadow-sky"
                     : "border-bg-border bg-white hover:border-primary/30 hover:bg-sky-50 shadow-xs"
@@ -306,15 +306,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-bg-border">
-        <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>Back</Button>
-        <button
-          onClick={handleNext}
-          className="btn-sky px-6 py-3 rounded-xl font-bold flex items-center gap-2"
-        >
-          Next Step <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      <BookingActionBar onBack={onBack} onNext={handleNext} />
     </div>
   );
 }
