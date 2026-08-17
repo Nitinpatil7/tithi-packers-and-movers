@@ -88,17 +88,17 @@
   --truck-shadow: #64748b;
   --truck-brand-shadow: rgba(125, 211, 252, .2);
   /* Backgrounds — Dark Polish */
-  --color-bg-page: #0A0F1A;        /* Dark navy background */
-  --color-bg-white: #0F1724;       /* Card backgrounds */
-  --color-bg-section: #141F2E;     /* Section alternates */
-  --color-bg-elevated: #1A2740;    /* Elevated surfaces */
-  --color-bg-border: #1E3050;      /* Borders, dividers */
-  --color-bg-hover: #1E2D3D;       /* Hover state background */
+  --color-bg-page: #07111f;        /* Dark navy background */
+  --color-bg-white: #0d1b2d;       /* Card backgrounds */
+  --color-bg-section: #10243a;     /* Section alternates */
+  --color-bg-elevated: #173657;    /* Elevated surfaces */
+  --color-bg-border: #255077;      /* Borders, dividers */
+  --color-bg-hover: #173b5e;       /* Hover state background */
 
   /* Text */
-  --color-text-primary: #E2F0F9;   /* Muted white — main text */
-  --color-text-secondary: #7BA8CC; /* Muted sky text */
-  --color-text-tertiary: #4A6882;  /* Placeholder, disabled */
+  --color-text-primary: #F4FBFF;   /* Bright white — main text */
+  --color-text-secondary: #B7D7F2; /* Readable sky text */
+  --color-text-tertiary: #7EA6C7;  /* Placeholder, disabled */
   --color-text-inverse: #0A0F1A;   /* On light backgrounds */
 
   /* Soft Background for Sky Blue */
@@ -110,16 +110,16 @@
   --shadow-md: 0 10px 25px rgba(0,0,0,0.45);
   --shadow-lg: 0 20px 40px rgba(0,0,0,0.55);
   --shadow-xl: 0 32px 64px rgba(0,0,0,0.65);
-  --shadow-card: 0 2px 8px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.03);
+  --shadow-card: 0 18px 45px rgba(0,0,0,0.34), 0 0 0 1px rgba(125,211,252,0.13), 0 0 28px rgba(14,165,233,0.10);
 
   /* Glassmorphism for dark theme */
-  --glass-bg: rgba(10, 15, 26, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(8, 20, 34, 0.78);
+  --glass-border: rgba(125, 211, 252, 0.18);
 
   /* Responsive Gradients — Dark */
-  --color-bg-hero: linear-gradient(135deg, #0A0F1A 0%, #0F1724 50%, #0D1C30 100%);
-  --color-bg-section-grad: linear-gradient(180deg, #141F2E 0%, #0F1724 100%);
-  --color-bg-card-grad: linear-gradient(145deg, #0F1724 0%, #141F2E 100%);
+  --color-bg-hero: linear-gradient(135deg, #06101d 0%, #0b2138 48%, #072a3f 100%);
+  --color-bg-section-grad: linear-gradient(180deg, #10243a 0%, #07111f 100%);
+  --color-bg-card-grad: linear-gradient(145deg, #0d1b2d 0%, #12395a 100%);
 }
 
 /* Theme overrides safety net */
@@ -153,6 +153,287 @@
 /* Safe card hover in dark mode */
 .dark .hover\:bg-white:hover {
   background-color: var(--color-bg-white) !important;
+}
+
+/* Public website dark theme polish: opacity utilities need explicit dark
+   surfaces or they stay pale and wash out cards, stats, and booking steps. */
+.dark .public-theme [class*="bg-white/"],
+.dark .public-theme .bg-white,
+.dark .public-theme .glass-card {
+  background-color: rgba(9, 25, 43, .86) !important;
+  border-color: rgba(125, 211, 252, .18) !important;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, .34), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 34px rgba(14, 165, 233, .10) !important;
+}
+
+.dark .public-theme [class*="bg-sky-50"],
+.dark .public-theme [class*="bg-sky-100"],
+.dark .public-theme [class*="bg-primary/5"] {
+  background-color: rgba(14, 165, 233, .13) !important;
+}
+
+.dark .public-theme [class*="border-sky-100"],
+.dark .public-theme [class*="border-orange-100"],
+.dark .public-theme [class*="ring-sky-100"] {
+  border-color: rgba(125, 211, 252, .2) !important;
+  --tw-ring-color: rgba(125, 211, 252, .18) !important;
+}
+
+.dark .public-theme .hover\:bg-sky-50:hover,
+.dark .public-theme .hover\:bg-white:hover,
+.dark .public-theme .group:hover [class*="group-hover:bg-sky-900"] {
+  background-color: rgba(14, 165, 233, .22) !important;
+}
+
+.dark .public-theme .section-label {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .22), rgba(125, 211, 252, .14));
+  border-color: rgba(125, 211, 252, .38);
+  color: #7dd3fc;
+  box-shadow: 0 0 26px rgba(14, 165, 233, .18);
+}
+
+.dark .public-theme .why-choice-bg,
+.dark .public-theme .services-sky-bg,
+.dark .public-theme .section-texture,
+.dark .public-theme .section-topography,
+.dark .public-theme .motion-check-bg {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(14, 165, 233, .22), transparent 26%),
+    radial-gradient(circle at 82% 28%, rgba(249, 115, 22, .14), transparent 24%),
+    linear-gradient(90deg, rgba(125, 211, 252, .055) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125, 211, 252, .045) 1px, transparent 1px),
+    linear-gradient(135deg, #06101d 0%, #0b2138 48%, #07111f 100%) !important;
+  background-size: auto, auto, 30px 30px, 30px 30px, auto !important;
+}
+
+.dark .public-theme .theme-navy-blueprint {
+  background:
+    radial-gradient(circle at 76% 12%, rgba(14, 165, 233, .26), transparent 24%),
+    radial-gradient(circle at 18% 82%, rgba(249, 115, 22, .18), transparent 28%),
+    linear-gradient(90deg, rgba(125,211,252,.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125,211,252,.06) 1px, transparent 1px),
+    linear-gradient(135deg, #04111f 0%, #092a46 48%, #061420 100%);
+}
+
+.dark .public-theme .services-panel-route {
+  background:
+    radial-gradient(circle at 78% 28%, rgba(56,189,248,.28), transparent 25%),
+    radial-gradient(circle at 28% 84%, rgba(249,115,22,.18), transparent 24%),
+    repeating-linear-gradient(135deg, rgba(125,211,252,.075) 0 1px, transparent 1px 22px);
+}
+
+.dark .public-theme .hero-service-card,
+.dark .public-theme .service-hover-card,
+.dark .public-theme .trust-card-3d,
+.dark .public-theme .why-tab-card {
+  background: linear-gradient(145deg, rgba(11, 31, 53, .94), rgba(7, 21, 37, .9)) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, .34), 0 0 34px rgba(14, 165, 233, .12) !important;
+}
+
+.dark .public-theme .hero-service-card:hover,
+.dark .public-theme .service-hover-card:hover,
+.dark .public-theme .trust-card-3d:hover {
+  border-color: rgba(125, 211, 252, .55) !important;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, .42), 0 0 46px rgba(14, 165, 233, .25), 0 0 26px rgba(249, 115, 22, .12) !important;
+}
+
+.dark .public-theme .hero-service-card::after {
+  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, .28), transparent);
+}
+
+.dark .public-theme .service-hover-card::before {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(14, 165, 233, .28), transparent 30%),
+    linear-gradient(135deg, rgba(15, 52, 85, .64), rgba(7, 24, 42, .36));
+}
+
+.dark .public-theme .why-3d-orbit {
+  border-color: rgba(125, 211, 252, .3);
+  box-shadow: inset 0 0 44px rgba(14, 165, 233, .16), 0 0 38px rgba(14, 165, 233, .12);
+}
+
+.dark .public-theme .icon-surface {
+  border-color: rgba(125, 211, 252, .28);
+  background: rgba(14, 165, 233, .16);
+  color: #7dd3fc;
+  box-shadow: 0 12px 24px rgba(14, 165, 233, .13);
+}
+
+.dark .public-theme .group:hover .icon-surface,
+.dark .public-theme .group:focus-within .icon-surface,
+.dark .public-theme .icon-surface[data-active="true"] {
+  border-color: rgba(251, 146, 60, .48);
+  background: linear-gradient(135deg, rgba(14, 165, 233, .32), rgba(249, 115, 22, .22));
+  color: #e0f2fe;
+  box-shadow: 0 18px 36px rgba(14, 165, 233, .28), 0 0 22px rgba(249, 115, 22, .14);
+}
+
+.dark .public-theme .booking-layout-shell {
+  background:
+    radial-gradient(circle at 16% 10%, rgba(14, 165, 233, .20), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, .12), transparent 24%),
+    linear-gradient(180deg, #06101d 0%, #0b2138 46%, #07111f 100%) !important;
+}
+
+.dark .public-theme .booking-steps-panel,
+.dark .public-theme .booking-content-panel {
+  background: rgba(9, 25, 43, .9) !important;
+  border-color: rgba(125, 211, 252, .24) !important;
+  box-shadow: 0 24px 68px rgba(0, 0, 0, .42), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 42px rgba(14, 165, 233, .13) !important;
+}
+
+.dark .public-theme .booking-flow-bg {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(14, 165, 233, .24), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, .16), transparent 24%),
+    repeating-linear-gradient(135deg, rgba(125,211,252,.07) 0 1px, transparent 1px 20px);
+}
+
+.dark .public-theme .quote-packages-section,
+.dark .public-theme .testimonials-section,
+.dark .public-theme .faq-section,
+.dark .public-theme .cta-section {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(14, 165, 233, .18), transparent 27%),
+    radial-gradient(circle at 84% 20%, rgba(249, 115, 22, .13), transparent 25%),
+    linear-gradient(90deg, rgba(125, 211, 252, .055) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125, 211, 252, .045) 1px, transparent 1px),
+    linear-gradient(135deg, #06101d 0%, #08233b 50%, #07111f 100%) !important;
+  background-size: auto, auto, 34px 34px, 34px 34px, auto !important;
+}
+
+.dark .public-theme .quote-package-card {
+  --tw-gradient-from: rgba(12, 42, 68, .96) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(7, 20, 36, .94) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), rgba(10, 31, 52, .98) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+  color: var(--color-text-primary) !important;
+  border-color: rgba(125, 211, 252, .24) !important;
+  box-shadow: 0 24px 68px rgba(0, 0, 0, .42), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 44px rgba(14, 165, 233, .13) !important;
+}
+
+.dark .public-theme .quote-package-card:hover {
+  border-color: rgba(251, 146, 60, .46) !important;
+  box-shadow: 0 30px 78px rgba(0, 0, 0, .48), 0 0 50px rgba(14, 165, 233, .22), 0 0 30px rgba(249, 115, 22, .15) !important;
+}
+
+.dark .public-theme .quote-package-card [class*="ring-white"],
+.dark .public-theme .quote-package-card [class*="ring-orange-100"],
+.dark .public-theme .quote-package-card [class*="ring-bg-border"] {
+  --tw-ring-color: rgba(125, 211, 252, .18) !important;
+}
+
+.dark .public-theme .quote-package-card [class*="text-sky-700"],
+.dark .public-theme .quote-package-card [class*="text-blue-700"],
+.dark .public-theme .quote-package-card [class*="text-emerald-700"] {
+  color: var(--color-text-primary) !important;
+}
+
+.dark .public-theme .quote-package-card [class*="bg-white"],
+.dark .public-theme .quote-package-card [class*="bg-white/"] {
+  background-color: rgba(13, 31, 51, .88) !important;
+}
+
+.dark .public-theme .testimonial-card,
+.dark .public-theme .faq-card {
+  background: linear-gradient(145deg, rgba(9, 25, 43, .94), rgba(7, 20, 36, .9)) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, .36), 0 0 0 1px rgba(125, 211, 252, .1), 0 0 34px rgba(14, 165, 233, .1) !important;
+}
+
+.dark .public-theme .testimonial-card:hover,
+.dark .public-theme .faq-card:hover {
+  border-color: rgba(251, 146, 60, .42) !important;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, .42), 0 0 42px rgba(14, 165, 233, .2), 0 0 24px rgba(249, 115, 22, .12) !important;
+}
+
+.dark .public-theme .testimonial-card footer {
+  border-color: rgba(125, 211, 252, .18) !important;
+}
+
+.dark .public-theme .testimonial-card [class*="bg-amber-50"],
+.dark .public-theme .faq-section [class*="bg-orange-50"] {
+  background-color: rgba(249, 115, 22, .12) !important;
+  border-color: rgba(251, 146, 60, .25) !important;
+  --tw-ring-color: rgba(251, 146, 60, .22) !important;
+}
+
+.dark .public-theme .testimonial-card [class*="border-white"] {
+  border-color: rgba(125, 211, 252, .28) !important;
+}
+
+.dark .public-theme .testimonial-fade-left {
+  --tw-gradient-from: #07111f var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(7, 17, 31, 0) var(--tw-gradient-to-position) !important;
+}
+
+.dark .public-theme .testimonial-fade-right {
+  --tw-gradient-from: #07111f var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(7, 17, 31, 0) var(--tw-gradient-to-position) !important;
+}
+
+.dark .public-theme .faq-section .trust-marquee {
+  background: transparent;
+}
+
+.dark .public-theme .faq-section [class*="border-orange-100"],
+.dark .public-theme .testimonials-section [class*="border-orange-100"] {
+  border-color: rgba(251, 146, 60, .24) !important;
+}
+
+.dark .public-theme .cta-panel {
+  border: 1px solid rgba(251, 146, 60, .42);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .46), 0 0 58px rgba(249, 115, 22, .18), 0 0 42px rgba(14, 165, 233, .14);
+}
+
+.dark .public-theme .cta-panel > div:first-child {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 46%, #0ea5e9 130%) !important;
+}
+
+.dark .public-theme .cta-panel a.bg-white {
+  background-color: rgba(255, 255, 255, .96) !important;
+  color: #0284c7 !important;
+}
+
+.dark .public-theme .process-section {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(14, 165, 233, .16), transparent 30%),
+    radial-gradient(circle at 18% 30%, rgba(249, 115, 22, .13), transparent 26%),
+    linear-gradient(90deg, rgba(125, 211, 252, .055) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125, 211, 252, .045) 1px, transparent 1px),
+    linear-gradient(135deg, #06101d 0%, #073448 48%, #07111f 100%) !important;
+  background-size: auto, auto, 34px 34px, 34px 34px, auto !important;
+}
+
+.dark .public-theme .process-card {
+  background: linear-gradient(145deg, rgba(8, 23, 39, .88), rgba(7, 18, 32, .72)) !important;
+  border-color: rgba(125, 211, 252, .18) !important;
+  box-shadow: 0 24px 68px rgba(0, 0, 0, .34), 0 0 32px rgba(14, 165, 233, .1);
+}
+
+.dark .public-theme .process-card:hover {
+  border-color: rgba(251, 146, 60, .5) !important;
+  background: linear-gradient(145deg, rgba(11, 35, 58, .92), rgba(8, 22, 38, .78)) !important;
+  box-shadow: 0 30px 78px rgba(0, 0, 0, .44), 0 0 48px rgba(249, 115, 22, .18), 0 0 34px rgba(14, 165, 233, .16);
+}
+
+.dark .public-theme .process-step-number {
+  background: #07111f !important;
+  color: #fb923c !important;
+  border-color: rgba(251, 146, 60, .36) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .32), 0 0 24px rgba(249, 115, 22, .2) !important;
+  --tw-ring-color: rgba(251, 146, 60, .32) !important;
+}
+
+.dark .public-theme .process-start-link {
+  background: rgba(249, 115, 22, .14) !important;
+  color: #fb923c !important;
+  border: 1px solid rgba(251, 146, 60, .3);
+}
+
+.dark .public-theme .process-start-link:hover {
+  background: rgba(14, 165, 233, .22) !important;
+  color: #e0f2fe !important;
+  border-color: rgba(125, 211, 252, .4);
 }
 
 /* Hero vehicle stays free-floating; only its rendering adapts to the active theme. */

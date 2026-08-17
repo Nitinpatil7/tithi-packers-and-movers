@@ -573,7 +573,7 @@ Use `data[].id` as dropdown value.
 }
 ```
 
-Valid unit: `per_unit | per_room | per_item | flat | percentage`.
+Valid unit: `global | flat | per_unit | per_item | per_group | per_category | per_room | percentage`.
 
 | Method | API | Query/body | Result |
 |---|---|---|---|

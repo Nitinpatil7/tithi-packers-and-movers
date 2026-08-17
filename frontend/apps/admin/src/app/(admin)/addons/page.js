@@ -8,7 +8,18 @@ import { useAdminSections } from '@hooks/useItems';
 import { useAdminAddons, useCreateAddon, useDeleteAddon, useTriggerGroups, useTriggerItems, useUpdateAddon } from '@hooks/useAddons';
 import { ItemIcon } from '@utils/itemIcons';
 
-const EMPTY = { name: '', description: '', unit: 'per_item', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true, sortOrder: 0 };
+const ADDON_UNITS = [
+  ['global', 'Global / one price'],
+  ['flat', 'Flat charge'],
+  ['per_unit', 'Per selected unit'],
+  ['per_item', 'Per selected item'],
+  ['per_group', 'Per matched group'],
+  ['per_category', 'Per matched category'],
+  ['per_room', 'Per room'],
+  ['percentage', 'Percentage of quote'],
+];
+
+const EMPTY = { name: '', description: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true, sortOrder: 0 };
 const categoryId = (value) => String(value?._id || value?.id || value || '');
 const groupId = (value) => String(value?._id || value?.id || value || '');
 const itemId = (value) => String(value?._id || value?.id || value || '');
@@ -144,7 +155,7 @@ function AddonEditor({ record, onClose, onSave, busy }) {
         <Field label="Name *"><input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field>
         <Field label="Description"><textarea rows={3} value={form.description || ''} onChange={(event) => setForm({ ...form, description: event.target.value })} className="admin-field resize-y" /></Field>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Unit"><select value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} className="admin-field">{['per_unit','per_room','per_item','flat','percentage'].map((unit) => <option key={unit}>{unit}</option>)}</select></Field>
+          <Field label="Unit"><select value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} className="admin-field">{ADDON_UNITS.map(([unit, label]) => <option key={unit} value={unit}>{label}</option>)}</select></Field>
           <Field label="Price *"><input required type="number" min="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} className="admin-field" /></Field>
           <Field label="Sort order"><input type="number" min="0" value={form.sortOrder} onChange={(event) => setForm({ ...form, sortOrder: event.target.value })} className="admin-field" /></Field>
         </div>

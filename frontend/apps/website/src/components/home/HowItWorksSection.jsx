@@ -40,7 +40,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="theme-dark-flow py-20 md:py-32 relative overflow-hidden">
+    <section className="process-section theme-dark-flow py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       <div className="process-network pointer-events-none absolute inset-0 opacity-75" />
       
@@ -134,7 +134,7 @@ export default function HowItWorksSection() {
                 transition={{ duration: 0.5, delay: idx * 0.18 }}
               >
                 <motion.div
-                  className="group grid w-full grid-cols-[96px_1fr] gap-4 rounded-3xl border border-white/10 bg-transparent p-0 text-white transition-all duration-300 hover:border-white/25 hover:bg-white/[.03] active:scale-[.99] md:flex md:flex-col md:items-center md:p-4"
+                  className="process-card group grid w-full grid-cols-[96px_1fr] gap-4 rounded-3xl border border-white/10 bg-transparent p-0 text-white transition-all duration-300 hover:border-white/25 hover:bg-white/[.03] active:scale-[.99] md:flex md:flex-col md:items-center md:p-4"
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -153,7 +153,7 @@ export default function HowItWorksSection() {
                       <Icon className="h-9 w-9 md:h-11 md:w-11 transition-colors" strokeWidth={1.7} />
                     </div>
                     <div
-                      className="absolute -bottom-3 left-1/2 w-10 h-10 -translate-x-1/2 rounded-full flex items-center justify-center bg-white text-orange-500 text-sm font-black shadow-md ring-2 ring-white"
+                      className="process-step-number absolute -bottom-3 left-1/2 w-10 h-10 -translate-x-1/2 rounded-full flex items-center justify-center bg-white text-orange-500 text-sm font-black shadow-md ring-2 ring-white"
                     >
                       {step.num}
                     </div>
@@ -170,7 +170,7 @@ export default function HowItWorksSection() {
                     {idx === 0 && (
                       <Link href="/book/local-shifting">
                         <div
-                          className="inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white text-orange-600 transition-all hover:bg-sky-900 hover:text-sky-200 hover:shadow-sm"
+                          className="process-start-link inline-flex items-center gap-1 mt-5 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white text-orange-600 transition-all hover:bg-sky-900 hover:text-sky-200 hover:shadow-sm"
                         >
                           {t.startHere || 'Start Here'} <ArrowRight className="h-3.5 w-3.5" />
                         </div>

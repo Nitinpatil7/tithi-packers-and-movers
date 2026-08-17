@@ -61,7 +61,7 @@ export default function BasePricePackagesSection() {
   };
 
   return (
-    <section className="section-texture relative overflow-hidden py-20 md:py-28">
+    <section className="quote-packages-section section-texture relative overflow-hidden py-20 md:py-28">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -108,7 +108,7 @@ function PackageSkeletonCard({ serviceType }) {
   const Icon = meta.icon;
 
   return (
-    <article className={`flex h-full min-h-[500px] w-[88vw] max-w-[430px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
+    <article className={`quote-package-card flex h-full min-h-[500px] w-[88vw] max-w-[430px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="icon-surface h-14 w-14 rounded-2xl">
           <Icon className="h-7 w-7" strokeWidth={1.8} />
@@ -154,7 +154,7 @@ function PackageCard({ rule, site, index }) {
       transition={{ delay: index * 0.08, duration: 0.45 }}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.99 }}
-      className={`group relative flex h-full w-[88vw] max-w-[430px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
+      className={`quote-package-card group relative flex h-full w-[88vw] max-w-[430px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
     >
       {index === 0 && (
         <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">

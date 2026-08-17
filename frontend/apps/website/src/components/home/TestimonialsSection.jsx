@@ -22,7 +22,7 @@ const serviceLabels = {
 function TestimonialCard({ item }) {
   return (
     <article
-      className="group flex h-[342px] w-[86vw] max-w-[390px] shrink-0 flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-orange-100 hover:shadow-md active:scale-[.99] sm:w-[360px] md:p-7"
+      className="testimonial-card group flex h-[342px] w-[86vw] max-w-[390px] shrink-0 flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-orange-100 hover:shadow-md active:scale-[.99] sm:w-[360px] md:p-7"
     >
       <div className="min-h-0">
         <div className="flex items-start justify-between">
@@ -99,7 +99,7 @@ export default function TestimonialsSection() {
   const publishedReviewCount = testimonials.length + 50;
 
   return (
-    <section className="dotted-light-bg relative overflow-hidden py-20 md:py-32">
+    <section className="testimonials-section dotted-light-bg relative overflow-hidden py-20 md:py-32">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <Image
         src="/back_truck.png"
@@ -119,7 +119,7 @@ export default function TestimonialsSection() {
             <MessageSquareQuote className="h-3.5 w-3.5 text-orange-500" />{" "}
             Verified customer reviews
           </span>
-          <h2 className="mt-2 text-display-md font-black text-[#063642] md:text-display-lg">
+          <h2 className="mt-2 text-display-md font-black text-text-primary md:text-display-lg">
             Words of appreciation from{" "}
             <span className="text-orange-500">our customers</span>
           </h2>
@@ -129,7 +129,7 @@ export default function TestimonialsSection() {
           </p>
           {!displayLoading && (
             <div className="mt-2 inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-white/90 px-5 py-3 shadow-card">
-              <strong className="text-2xl text-[#063642]">{average}</strong>
+              <strong className="text-2xl text-text-primary">{average}</strong>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -156,8 +156,8 @@ export default function TestimonialsSection() {
           </div>
         ) : (
           <div className="testimonial-marquee relative overflow-hidden py-5">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#f8fcff] to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#f8fcff] to-transparent" />
+            <div className="testimonial-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#f8fcff] to-transparent" />
+            <div className="testimonial-fade-right pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#f8fcff] to-transparent" />
             <div className="testimonial-marquee-track flex w-max gap-5 px-4">
               {carouselItems.map((item, index) => (
                 <TestimonialCard

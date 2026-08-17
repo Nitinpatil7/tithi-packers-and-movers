@@ -11,7 +11,7 @@ export default function WebsiteChrome({ children }) {
   return (
     <>
       <Navbar />
-      <div className="flex-1 w-full">
+      <div className="public-theme flex-1 w-full">
         {children}
       </div>
       {!isBookingPage && <Footer />}

@@ -18,11 +18,11 @@ export default function CTABannerSection() {
   const whatsapp = site.whatsappNumber || '';
 
   return (
-    <section className="section-texture-warm relative overflow-hidden py-12 md:py-24">
+    <section className="cta-section section-texture-warm relative overflow-hidden py-12 md:py-24">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
-          className="relative overflow-hidden rounded-3xl md:rounded-[2rem]"
+          className="cta-panel relative overflow-hidden rounded-3xl md:rounded-[2rem]"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

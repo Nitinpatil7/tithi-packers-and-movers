@@ -89,15 +89,23 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
       options: { sizeVariantId: item.sizeVariantId || item.sizeId, groupId: item.groupId },
     };
   });
-  const selectedAddons = (bookingData.specialServices || []).map((addon) => ({
-    addonid: addon.addonId || addon._id,
-    key: addon.key,
-    name: addon.name,
-    unit: addon.unit,
-    quantity: Number(addon.quantity || 1),
-    pricesnapshot: Number(addon.unitPrice ?? addon.price ?? addon.charge ?? 0),
-    total: Number(addon.total ?? ((addon.unitPrice ?? addon.price ?? addon.charge ?? 0) * (addon.quantity || 1))),
-  }));
+  const addOnBreakdown = pricing.breakdown?.addOnBreakdown || [];
+  const selectedAddons = (bookingData.specialServices || []).map((addon) => {
+    const line = addOnBreakdown.find((item) => (
+      (addon.addonId || addon._id) && (item.addonId === addon.addonId || item.addonId === addon._id || item._id === addon.addonId || item._id === addon._id)
+    ) || (addon.key && item.key === addon.key) || item.name === addon.name);
+    const unitPrice = Number(line?.unitPrice ?? addon.unitPrice ?? addon.price ?? addon.charge ?? 0);
+    const quantity = Number(line?.quantity ?? addon.quantity ?? 1);
+    return {
+      addonid: addon.addonId || addon._id,
+      key: addon.key,
+      name: addon.name,
+      unit: line?.unit || addon.unit,
+      quantity,
+      pricesnapshot: unitPrice,
+      total: Number(line?.total ?? addon.total ?? (unitPrice * quantity)),
+    };
+  });
   return {
     ...(pickupLocation ? { pickuplocation: pickupLocation } : {}),
     ...(dropLocation ? { droplocation: dropLocation } : serviceType === 'porter_labour_service' ? { droplocation: null } : {}),

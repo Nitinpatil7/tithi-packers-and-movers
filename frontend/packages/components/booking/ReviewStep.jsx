@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Box, Calendar, CheckCircle2, Clock, IndianRupee, MapPin, ShieldCheck, Sparkles, Sun, Truck, User, Users } from 'lucide-react';
 import { formatCurrency } from '@utils/utils';
+import { calculateAddOnLineTotal } from '@utils/pricing';
 import { getTruckImageSrc } from '@utils/truckVisuals';
 import BookingActionBar from './BookingActionBar';
 
@@ -100,6 +101,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     distanceCharge = 0,
     pickupFloorCharge = 0,
     dropFloorCharge = 0,
+    floorTotalCharge = Number(pickupFloorCharge || 0) + Number(dropFloorCharge || 0),
     employeeTotal = 0,
     truckTotal = 0,
     addOnTotal = 0,
@@ -120,11 +122,17 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : '';
 
-  const addonLines = specialServices
+  const addOnBaseAmount = Number(pricingBreakdown.addOnBaseAmount ?? (
+    Number(basePrice || 0) + Number(itemsExtraCharge || 0) + Number(floorTotalCharge || 0) + Number(distanceCharge || 0) + Number(employeeTotal || 0) + Number(truckTotal || 0)
+  ));
+  const addonSource = Array.isArray(pricingBreakdown.addOnBreakdown) && pricingBreakdown.addOnBreakdown.length
+    ? pricingBreakdown.addOnBreakdown
+    : specialServices;
+  const addonLines = addonSource
     .map((service) => ({
       name: service.name,
       quantity: Number(service.quantity || 1),
-      total: Number(service.total ?? ((service.charge || service.price || service.unitPrice || 0) * (service.quantity || 1))),
+      total: Number(service.total ?? calculateAddOnLineTotal(service, addOnBaseAmount)),
     }))
     .filter((service) => service.total > 0);
 

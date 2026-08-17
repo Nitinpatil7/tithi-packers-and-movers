@@ -122,6 +122,28 @@ export function calculateItemsBreakdown(selectedItems = [], rule) {
   };
 }
 
+const addonUnit = (service = {}) => String(service.unit || 'global').toLowerCase();
+const addonPrice = (service = {}) => toNumber(service.unitPrice ?? service.price ?? service.charge ?? service.pricesnapshot);
+const addonQuantity = (service = {}) => Math.max(1, toNumber(service.quantity, 1));
+
+export function calculateAddOnLineTotal(service = {}, baseAmount = 0) {
+  const unit = addonUnit(service);
+  const price = addonPrice(service);
+  if (unit === 'percentage') return Math.round(Math.max(0, toNumber(baseAmount)) * price / 100);
+  if (['global', 'flat'].includes(unit)) return price;
+  return price * addonQuantity(service);
+}
+
+export function calculateAddOnBreakdown(addons = [], baseAmount = 0) {
+  return (addons || []).map((service) => ({
+    ...service,
+    unit: addonUnit(service),
+    quantity: addonQuantity(service),
+    unitPrice: addonPrice(service),
+    total: calculateAddOnLineTotal(service, baseAmount),
+  }));
+}
+
 export function calculateBookingPrice(bookingData = {}) {
   const serviceType = normalizeServiceType(bookingData.serviceType);
   const rule = bookingData.pricingRule || fallbackPricingRule(serviceType);
@@ -159,7 +181,9 @@ export function calculateBookingPrice(bookingData = {}) {
   }) || (selectedTruckData.id || selectedTruckData.name ? selectedTruckData : null);
   const employeeTotal = isLabour && !useBasePackage ? hourlyPrice * selectedEmployees : 0;
   const truckTotal = isLabour && !useBasePackage ? toNumber(truck?.price ?? selectedTruckData.price) : 0;
-  const addOnTotal = isLabour ? 0 : (bookingData.specialServices || []).reduce((sum, service) => sum + toNumber(service.total ?? ((service.charge || service.price || service.unitPrice) * (service.quantity || 1))), 0);
+  const addOnBaseAmount = basePrice + itemsExtraCharge + floorTotalCharge + distanceCharge + employeeTotal + truckTotal;
+  const addOnBreakdown = isLabour ? [] : calculateAddOnBreakdown(bookingData.specialServices || [], addOnBaseAmount);
+  const addOnTotal = addOnBreakdown.reduce((sum, service) => sum + toNumber(service.total), 0);
   const subtotal = basePrice + itemsExtraCharge + floorTotalCharge + distanceCharge + employeeTotal + truckTotal + addOnTotal;
   const dateValue = bookingData.scheduledDate || bookingData.scheduledate;
   const sundayHike = dateValue && new Date(`${dateValue}T00:00:00`).getDay() === 0 ? Math.round(subtotal * 0.05) : 0;
@@ -184,6 +208,8 @@ export function calculateBookingPrice(bookingData = {}) {
       selectedTruck: truck || null,
       employeeRate: employeeRate || null,
       hourlyRate: hourlyRate || null,
+      addOnBaseAmount,
+      addOnBreakdown,
       distanceSlabs: rule.distancePricing?.slabs || [],
       floorSlabs: rule.floorPricing?.slabs || [],
     },

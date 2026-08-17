@@ -8,6 +8,9 @@ import BookingActionBar from './BookingActionBar';
 
 const SERVICE_TYPES = { local: 'local_shifting', intercity: 'intercity_moving', local_shifting: 'local_shifting', intercity_moving: 'intercity_moving' };
 const formatAddonPrice = (addon) => `₹${Number(addon.price || 0).toLocaleString('en-IN')}`;
+const selectedItemId = (item) => String(item.itemId || item._id || item.id || '');
+const selectedGroupId = (item) => String(item.groupId || item.group?._id || item.group?.id || '');
+const selectedCategoryId = (item) => String(item.sectionId || item.categoryId || item.category?._id || item.category?.id || '');
 
 export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}, serviceType }) {
   const selectedItems = initialData.items || [];
@@ -37,35 +40,53 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
     if (matched.length) return matched.filter(Boolean).map(String);
     return (addon.triggerCategoryIds || []).map((category) => category?._id || category?.id || category).filter(Boolean).map(String);
   };
-  const autoQuantity = (addon) => {
-    const unit = String(addon.unit || '').toLowerCase();
-    if (!['per_item', 'per_unit'].includes(unit)) return 1;
+  const matchedItemsForAddon = (addon) => {
     const triggerItemIds = new Set(addonItemIds(addon));
-    const triggerIds = new Set(addonGroupIds(addon));
+    const triggerGroupIds = new Set(addonGroupIds(addon));
     const triggerCategoryIds = new Set(addonCategoryIds(addon));
-    const matchedItems = triggerItemIds.size
-      ? selectedItems.filter((item) => triggerItemIds.has(String(item.itemId || item._id || '')))
-      : triggerIds.size
-        ? selectedItems.filter((item) => triggerIds.has(String(item.groupId || '')))
+    return triggerItemIds.size
+      ? selectedItems.filter((item) => triggerItemIds.has(selectedItemId(item)))
+      : triggerGroupIds.size
+        ? selectedItems.filter((item) => triggerGroupIds.has(selectedGroupId(item)))
         : triggerCategoryIds.size
-          ? selectedItems.filter((item) => triggerCategoryIds.has(String(item.sectionId || item.categoryId || '')))
+          ? selectedItems.filter((item) => triggerCategoryIds.has(selectedCategoryId(item)))
         : selectedItems;
-    const totalQuantity = matchedItems.reduce((sum, item) => sum + Math.max(0, Number(item.quantity || 0)), 0);
-    return Math.max(1, totalQuantity);
+  };
+  const autoQuantity = (addon) => {
+    const unit = String(addon.unit || 'global').toLowerCase();
+    const matchedItems = matchedItemsForAddon(addon);
+    if (['per_item', 'per_unit'].includes(unit)) {
+      const totalQuantity = matchedItems.reduce((sum, item) => sum + Math.max(0, Number(item.quantity || 0)), 0);
+      return Math.max(1, totalQuantity);
+    }
+    if (unit === 'per_group') {
+      const groups = new Set(matchedItems.map(selectedGroupId).filter(Boolean));
+      return Math.max(1, groups.size);
+    }
+    if (unit === 'per_category') {
+      const categories = new Set(matchedItems.map(selectedCategoryId).filter(Boolean));
+      return Math.max(1, categories.size);
+    }
+    if (unit === 'per_room') {
+      const rooms = new Set(matchedItems.map((item) => item.room || item.roomName || item.location).filter(Boolean).map(String));
+      return Math.max(1, rooms.size || 1);
+    }
+    return 1;
   };
   const addonSnapshot = (addon) => {
     const quantity = autoQuantity(addon);
     const price = Number(addon.price) || 0;
+    const unit = String(addon.unit || 'global').toLowerCase();
     return {
       addonId: addon._id,
       key: addon.key,
       name: addon.name,
-      unit: addon.unit,
+      unit,
       unitPrice: price,
       price,
       charge: price,
       quantity,
-      total: quantity * price,
+      total: unit === 'percentage' ? 0 : quantity * price,
       matchedTriggerCategoryIds: addonCategoryIds(addon),
       matchedTriggerGroupIds: addonGroupIds(addon),
       matchedTriggerItemIds: addonItemIds(addon),

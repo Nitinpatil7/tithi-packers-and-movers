@@ -32,7 +32,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="dotted-light-bg py-20 md:py-32 relative overflow-hidden">
+    <section id="faq" className="faq-section dotted-light-bg py-20 md:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <Image src="/back_truck.png" alt="" width={560} height={370} className="pointer-events-none absolute -left-32 top-28 z-0 w-[300px] opacity-35 drop-shadow-[0_22px_34px_rgba(15,23,42,.16)] sm:-left-40 sm:top-24 sm:w-[380px] md:top-16 md:w-[460px] md:opacity-55 lg:-left-44 lg:w-[560px] lg:opacity-80" />
 
@@ -50,7 +50,7 @@ export default function FAQSection() {
             <HelpCircle className="w-3.5 h-3.5 text-orange-500" />
             {language === 'gu' ? 'પ્રશ્નો' : language === 'hi' ? 'एफएक्यू' : 'FAQs'}
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-[#063642] mt-2">
+          <h2 className="text-display-md md:text-display-lg font-black text-text-primary mt-2">
             Answers to your{' '}
             <span className="text-orange-500">moving questions</span>
           </h2>
@@ -100,7 +100,7 @@ export default function FAQSection() {
                 transition={{ duration: 0.4, delay: idx * 0.06 }}
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.99 }}
-                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                className={`faq-card rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isOpen
                     ? 'border-orange-200 bg-white shadow-md'
                     : 'border-bg-border bg-white/95 hover:border-orange-200 hover:shadow-xs active:border-orange-200'

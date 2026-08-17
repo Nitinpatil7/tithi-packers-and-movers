@@ -20,7 +20,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
   }, [currentStep, prefersReducedMotion]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-bg-page to-white pt-24 pb-24 sm:pt-28">
+    <div className="booking-layout-shell min-h-screen bg-gradient-to-b from-sky-50 via-bg-page to-white pt-24 pb-24 sm:pt-28">
       <div className="absolute top-0 left-0 right-0 h-72 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
       <div className="booking-flow-bg pointer-events-none absolute inset-x-0 top-16 h-64" />
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -32,7 +32,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
           </div>
         )}
 
-        <div className="relative overflow-hidden rounded-2xl border border-sky-100 bg-white/95 p-2.5 shadow-sm backdrop-blur mb-3 w-full max-w-6xl mx-auto sm:p-4 sm:mb-5">
+        <div className="booking-steps-panel relative overflow-hidden rounded-2xl border border-sky-100 bg-white/95 p-2.5 shadow-sm backdrop-blur mb-3 w-full max-w-6xl mx-auto sm:p-4 sm:mb-5">
           <motion.div
             className="pointer-events-none absolute right-5 top-3 hidden h-10 w-28 items-center sm:flex"
             animate={prefersReducedMotion ? undefined : { x: [-8, 8, -8] }}
@@ -68,7 +68,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
           </div>
         </div>
 
-        <div ref={contentTopRef} className="w-full max-w-6xl mx-auto overflow-hidden rounded-[1.35rem] border border-sky-100 bg-white shadow-[0_20px_60px_rgba(14,165,233,0.10)] sm:rounded-3xl">
+        <div ref={contentTopRef} className="booking-content-panel w-full max-w-6xl mx-auto overflow-hidden rounded-[1.35rem] border border-sky-100 bg-white shadow-[0_20px_60px_rgba(14,165,233,0.10)] sm:rounded-3xl">
           <AnimatePresence mode="wait">
             <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" className="p-4 sm:p-6 md:p-10">
               {children}
