@@ -3,6 +3,11 @@ import path from 'path';
 
 const appName = process.argv[2];
 
+if (process.env.VERCEL === '1') {
+  console.log(`Skipping standalone preparation for ${appName || 'app'} on Vercel.`);
+  process.exit(0);
+}
+
 if (!appName) {
   console.error('Usage: node ../../scripts/prepareStandalone.mjs <app-name>');
   process.exit(1);

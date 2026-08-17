@@ -2,10 +2,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isVercel = process.env.VERCEL === '1';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  ...(isVercel ? {} : { output: 'standalone' }),
   transpilePackages: [
     '@tithi/ui',
     '@tithi/components',
