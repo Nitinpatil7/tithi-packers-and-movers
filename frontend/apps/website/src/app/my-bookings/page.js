@@ -18,11 +18,11 @@ import {
   TicketCheck,
   Truck,
 } from 'lucide-react';
-import Badge from '@ui/Badge';
-import Card from '@ui/Card';
-import Spinner from '@ui/Spinner';
-import { getBookingById, getMyBookings } from '@lib/api';
-import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getServiceLabel } from '@utils/utils';
+import Badge from '@tithi/ui/Badge';
+import Card from '@tithi/ui/Card';
+import Spinner from '@tithi/ui/Spinner';
+import { getBookingById, getMyBookings } from '@tithi/lib/api';
+import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getServiceLabel } from '@tithi/utils/utils';
 
 const makeCaptcha = () => String(Math.floor(1000 + Math.random() * 9000));
 

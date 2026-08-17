@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function ServicesSection() {
   const { data: site = {} } = useSiteSetting();

@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronRight, ArrowLeft, Bell, Clock, Menu } from 'lucide-react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 import { useInAppNotificationSummary } from '@/hooks/useAdmin';
 
 export default function AdminHeader({ onToggleSidebar }) {

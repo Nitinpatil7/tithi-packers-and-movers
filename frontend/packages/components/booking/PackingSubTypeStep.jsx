@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { Box, Sparkles, Truck } from 'lucide-react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 import BookingActionBar from './BookingActionBar';
 
 export default function PackingSubTypeStep({ onSubmit, onBack, initialData = {} }) {

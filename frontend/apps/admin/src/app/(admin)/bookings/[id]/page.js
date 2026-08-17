@@ -16,16 +16,16 @@ import {
   Send 
 } from 'lucide-react';
 import { useUpdateBookingStatus } from '@/hooks/useAdmin';
-import { getBookingById } from '@lib/api'; // direct fallback
-import { useAuthStore } from '@store/authStore';
-import Card, { CardHeader, CardContent, CardFooter } from '@ui/Card';
-import Badge from '@ui/Badge';
-import Button from '@ui/Button';
-import Input from '@ui/Input';
-import Spinner from '@ui/Spinner';
+import { getBookingById } from '@tithi/lib/api'; // direct fallback
+import { useAuthStore } from '@tithi/store/authStore';
+import Card, { CardHeader, CardContent, CardFooter } from '@tithi/ui/Card';
+import Badge from '@tithi/ui/Badge';
+import Button from '@tithi/ui/Button';
+import Input from '@tithi/ui/Input';
+import Spinner from '@tithi/ui/Spinner';
 import QuoteModal from '@/components/admin/QuoteModal';
-import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getBookingScheduledDate } from '@utils/utils';
-import { deriveFreeAllowanceItems } from '@utils/freeAllowanceDisplay';
+import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getBookingScheduledDate } from '@tithi/utils/utils';
+import { deriveFreeAllowanceItems } from '@tithi/utils/freeAllowanceDisplay';
 import toast from 'react-hot-toast';
 
 const TIME_SLOT_LABELS = {

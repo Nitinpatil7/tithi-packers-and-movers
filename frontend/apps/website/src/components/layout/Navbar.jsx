@@ -7,11 +7,11 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
-import { useThemeStore } from '@store/themeStore';
+import { useThemeStore } from '@tithi/store/themeStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { cn } from '@utils/utils';
-import { resolveSiteAssetUrl } from '@utils/siteAssets';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { cn } from '@tithi/utils/utils';
+import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

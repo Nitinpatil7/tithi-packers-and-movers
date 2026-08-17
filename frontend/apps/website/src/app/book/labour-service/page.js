@@ -3,23 +3,23 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useBookingStore } from '@store/bookingStore';
-import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@hooks/useBookingDraft';
-import { usePublicPricingRule } from '@hooks/useBookingPricingRules';
-import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@utils/bookingPayload';
-import BookingLayout from '@shared-components/booking/BookingLayout';
+import { useBookingStore } from '@tithi/store/bookingStore';
+import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
+import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
+import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@tithi/utils/bookingPayload';
+import BookingLayout from '@tithi/components/booking/BookingLayout';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Truck', 'Employees', 'Hours', 'Schedule', 'Review', 'Verify OTP'];
 const stepLoader = () => <div className="min-h-[360px] rounded-3xl border border-sky-100 bg-white/80" />;
-const LocationStep = dynamic(() => import('@shared-components/booking/LocationStep'), { ssr: false, loading: stepLoader });
-const TruckSelectionStep = dynamic(() => import('@shared-components/booking/TruckSelectionStep'), { ssr: false, loading: stepLoader });
-const EmployeeSelectionStep = dynamic(() => import('@shared-components/booking/EmployeeSelectionStep'), { ssr: false, loading: stepLoader });
-const HoursSelectionStep = dynamic(() => import('@shared-components/booking/HoursSelectionStep'), { ssr: false, loading: stepLoader });
-const DateTimeStep = dynamic(() => import('@shared-components/booking/DateTimeStep'), { ssr: false, loading: stepLoader });
-const ReviewStep = dynamic(() => import('@shared-components/booking/ReviewStep'), { ssr: false, loading: stepLoader });
-const OTPStep = dynamic(() => import('@shared-components/booking/OTPStep'), { ssr: false, loading: stepLoader });
-const SuccessStep = dynamic(() => import('@shared-components/booking/SuccessStep'), { ssr: false, loading: stepLoader });
+const LocationStep = dynamic(() => import('@tithi/components/booking/LocationStep'), { ssr: false, loading: stepLoader });
+const TruckSelectionStep = dynamic(() => import('@tithi/components/booking/TruckSelectionStep'), { ssr: false, loading: stepLoader });
+const EmployeeSelectionStep = dynamic(() => import('@tithi/components/booking/EmployeeSelectionStep'), { ssr: false, loading: stepLoader });
+const HoursSelectionStep = dynamic(() => import('@tithi/components/booking/HoursSelectionStep'), { ssr: false, loading: stepLoader });
+const DateTimeStep = dynamic(() => import('@tithi/components/booking/DateTimeStep'), { ssr: false, loading: stepLoader });
+const ReviewStep = dynamic(() => import('@tithi/components/booking/ReviewStep'), { ssr: false, loading: stepLoader });
+const OTPStep = dynamic(() => import('@tithi/components/booking/OTPStep'), { ssr: false, loading: stepLoader });
+const SuccessStep = dynamic(() => import('@tithi/components/booking/SuccessStep'), { ssr: false, loading: stepLoader });
 
 export default function LabourServicePage() {
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();

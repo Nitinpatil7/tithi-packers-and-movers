@@ -2,18 +2,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useBookingStore } from '@store/bookingStore';
-import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@hooks/useBookingDraft';
-import { usePublicPricingRule } from '@hooks/useBookingPricingRules';
-import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@utils/bookingPayload';
-import BookingLayout from '@shared-components/booking/BookingLayout';
-import LocationStep from '@shared-components/booking/LocationStep';
-import ItemSelectionStep from '@shared-components/booking/ItemSelectionStep';
-import SpecialServicesStep from '@shared-components/booking/SpecialServicesStep';
-import DateTimeStep from '@shared-components/booking/DateTimeStep';
-import ReviewStep from '@shared-components/booking/ReviewStep';
-import OTPStep from '@shared-components/booking/OTPStep';
-import SuccessStep from '@shared-components/booking/SuccessStep';
+import { useBookingStore } from '@tithi/store/bookingStore';
+import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
+import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
+import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@tithi/utils/bookingPayload';
+import BookingLayout from '@tithi/components/booking/BookingLayout';
+import LocationStep from '@tithi/components/booking/LocationStep';
+import ItemSelectionStep from '@tithi/components/booking/ItemSelectionStep';
+import SpecialServicesStep from '@tithi/components/booking/SpecialServicesStep';
+import DateTimeStep from '@tithi/components/booking/DateTimeStep';
+import ReviewStep from '@tithi/components/booking/ReviewStep';
+import OTPStep from '@tithi/components/booking/OTPStep';
+import SuccessStep from '@tithi/components/booking/SuccessStep';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];

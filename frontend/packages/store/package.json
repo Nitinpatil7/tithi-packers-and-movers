@@ -1,5 +1,15 @@
 {
   "name": "@tithi/store",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./authStore": "./authStore.js",
+    "./bookingStore": "./bookingStore.js",
+    "./languageStore": "./languageStore.js",
+    "./themeStore": "./themeStore.js"
+  },
+  "dependencies": {
+    "@tithi/utils": "*"
+  }
 }

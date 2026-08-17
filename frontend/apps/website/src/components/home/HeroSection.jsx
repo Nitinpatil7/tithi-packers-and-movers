@@ -5,11 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
-import AnimatedCounter from '@ui/AnimatedCounter';
+import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { useSiteSetting } from '@hooks/useSiteSetting';
-import { usePublicTestimonials } from '@hooks/useTestimonials';
-import { useLanguageStore } from '@store/languageStore';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
+import { useLanguageStore } from '@tithi/store/languageStore';
 
 export default function HeroSection() {
   const { language } = useLanguageStore();

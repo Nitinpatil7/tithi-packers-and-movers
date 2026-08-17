@@ -4,11 +4,11 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Phone, LogOut, ClipboardList } from 'lucide-react';
-import { useAuthStore } from '@store/authStore';
-import Card from '@ui/Card';
-import Button from '@ui/Button';
+import { useAuthStore } from '@tithi/store/authStore';
+import Card from '@tithi/ui/Card';
+import Button from '@tithi/ui/Button';
 import Link from 'next/link';
-import { useLanguageStore } from '@store/languageStore';
+import { useLanguageStore } from '@tithi/store/languageStore';
 
 const PROFILE_TRANSLATIONS = {
   en: {

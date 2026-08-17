@@ -1,5 +1,10 @@
 {
   "name": "@tithi/data",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./itemCatalog": "./itemCatalog.js",
+    "./truckOptions": "./truckOptions.js"
+  }
 }

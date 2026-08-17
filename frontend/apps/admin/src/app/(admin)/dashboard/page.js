@@ -13,11 +13,11 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useAdminStats, useAllBookings } from '@/hooks/useAdmin';
-import { useAuthStore } from '@store/authStore';
+import { useAuthStore } from '@tithi/store/authStore';
 import StatCard from '@/components/admin/StatCard';
 import BookingTable from '@/components/admin/BookingTable';
 import dynamic from 'next/dynamic';
-import Card from '@ui/Card';
+import Card from '@tithi/ui/Card';
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,

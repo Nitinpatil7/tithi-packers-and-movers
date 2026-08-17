@@ -5,9 +5,9 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Box, Calendar, CheckCircle2, Clock, IndianRupee, MapPin, ShieldCheck, Sparkles, Sun, Truck, User, Users } from 'lucide-react';
-import { formatCurrency } from '@utils/utils';
-import { calculateAddOnLineTotal } from '@utils/pricing';
-import { getTruckImageSrc } from '@utils/truckVisuals';
+import { formatCurrency } from '@tithi/utils/utils';
+import { calculateAddOnLineTotal } from '@tithi/utils/pricing';
+import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
 import BookingActionBar from './BookingActionBar';
 
 const SERVICE_LABELS = {

@@ -1,6 +1,6 @@
 // src/components/ui/Button.jsx
 import React from 'react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 import Spinner from './Spinner';
 
 const Button = React.forwardRef(({

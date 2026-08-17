@@ -1,5 +1,10 @@
 {
   "name": "@tithi/styles",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./globals": "./globals.css",
+    "./globals.css": "./globals.css"
+  }
 }

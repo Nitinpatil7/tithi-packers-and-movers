@@ -4,9 +4,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Phone, MessageCircle, Star } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
+import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 const MotionLink = motion(Link);
 

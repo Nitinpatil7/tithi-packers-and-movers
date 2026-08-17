@@ -1,6 +1,0 @@
-{
-  "framework": "nextjs",
-  "installCommand": "npm install && mkdir -p apps/website/node_modules apps/admin/node_modules apps/monitoring/node_modules && cp -R node_modules/next apps/website/node_modules/next && cp -R node_modules/next apps/admin/node_modules/next && cp -R node_modules/next apps/monitoring/node_modules/next",
-  "buildCommand": "npm run build:website && rm -rf .next && cp -R apps/website/.next .next",
-  "outputDirectory": ".next"
-}

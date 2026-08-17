@@ -4,8 +4,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Eye, Edit3, Trash2 } from 'lucide-react';
-import Badge from '@ui/Badge';
-import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate } from '@utils/utils';
+import Badge from '@tithi/ui/Badge';
+import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate } from '@tithi/utils/utils';
 
 const TIME_SLOT_LABELS = {
   morning: 'Morning',

@@ -4,9 +4,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Users, Milestone, Award } from 'lucide-react';
-import Card from '@ui/Card';
-import { useLanguageStore } from '@store/languageStore';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import Card from '@tithi/ui/Card';
+import { useLanguageStore } from '@tithi/store/languageStore';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 const ABOUT_TRANSLATIONS = {
   en: {

@@ -4,9 +4,9 @@
 import React, { useMemo, useState } from 'react';
 import { Info, Truck, Users } from 'lucide-react';
 import TruckGuideModal from './TruckGuideModal';
-import { TRUCK_OPTIONS } from '@data/truckOptions';
-import { cn } from '@utils/utils';
-import { getTruckImageSrc } from '@utils/truckVisuals';
+import { TRUCK_OPTIONS } from '@tithi/data/truckOptions';
+import { cn } from '@tithi/utils/utils';
+import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
 import BookingActionBar from './BookingActionBar';
 
 const NO_TRUCK_OPTION = {

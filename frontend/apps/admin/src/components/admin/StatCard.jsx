@@ -2,10 +2,10 @@
 'use client';
 
 import React from 'react';
-import Card from '@ui/Card';
-import AnimatedCounter from '@ui/AnimatedCounter';
+import Card from '@tithi/ui/Card';
+import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 export default function StatCard({ 
   title, 

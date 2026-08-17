@@ -1,9 +1,9 @@
 // apps/website/src/app/layout.js
 import React from 'react';
 import localFont from 'next/font/local';
-import Providers from '@shared-components/layout/Providers';
+import Providers from '@tithi/components/layout/Providers';
 import WebsiteChrome from '@/components/layout/WebsiteChrome';
-import '@styles/globals.css';
+import '@tithi/styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableGoogleMapsKey = Boolean(googleMapsKey && !googleMapsKey.includes('PLACEHOLDER'));

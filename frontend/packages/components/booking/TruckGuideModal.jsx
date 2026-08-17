@@ -2,8 +2,8 @@
 'use client';
 
 import React from 'react';
-import Modal from '@ui/Modal';
-import { TRUCK_OPTIONS } from '@data/truckOptions';
+import Modal from '@tithi/ui/Modal';
+import { TRUCK_OPTIONS } from '@tithi/data/truckOptions';
 import { Truck } from 'lucide-react';
 
 export default function TruckGuideModal({ isOpen, onClose }) {

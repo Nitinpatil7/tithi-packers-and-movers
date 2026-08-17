@@ -1,5 +1,15 @@
 {
   "name": "@tithi/utils",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./bookingPayload": "./bookingPayload.js",
+    "./freeAllowanceDisplay": "./freeAllowanceDisplay.js",
+    "./itemIcons": "./itemIcons.jsx",
+    "./pricing": "./pricing.js",
+    "./siteAssets": "./siteAssets.js",
+    "./truckVisuals": "./truckVisuals.js",
+    "./utils": "./utils.js"
+  }
 }

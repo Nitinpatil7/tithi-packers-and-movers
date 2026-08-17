@@ -2,10 +2,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Modal from '@ui/Modal';
-import Input from '@ui/Input';
-import Button from '@ui/Button';
-import { formatCurrency } from '@utils/utils';
+import Modal from '@tithi/ui/Modal';
+import Input from '@tithi/ui/Input';
+import Button from '@tithi/ui/Button';
+import { formatCurrency } from '@tithi/utils/utils';
 import { useUpdateBookingQuote } from '@/hooks/useAdmin';
 import toast from 'react-hot-toast';
 

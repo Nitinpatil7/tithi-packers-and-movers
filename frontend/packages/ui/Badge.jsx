@@ -1,6 +1,6 @@
 // src/components/ui/Badge.jsx
 import React from 'react';
-import { cn, getStatusColorClass, getStatusLabel, getServiceLabel } from '@utils/utils';
+import { cn, getStatusColorClass, getStatusLabel, getServiceLabel } from '@tithi/utils/utils';
 
 export default function Badge({ 
   children, 

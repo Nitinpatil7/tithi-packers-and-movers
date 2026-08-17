@@ -4,10 +4,10 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { createQueryClient, enableQueryPersistence } from '@lib/queryClient';
-import Toast from '@ui/Toast';
-import { useThemeStore } from '@store/themeStore';
-import { useBookingStore } from '@store/bookingStore';
+import { createQueryClient, enableQueryPersistence } from '@tithi/lib/queryClient';
+import Toast from '@tithi/ui/Toast';
+import { useThemeStore } from '@tithi/store/themeStore';
+import { useBookingStore } from '@tithi/store/bookingStore';
 
 export default function Providers({ children }) {
   const [queryClient] = useState(() => createQueryClient());

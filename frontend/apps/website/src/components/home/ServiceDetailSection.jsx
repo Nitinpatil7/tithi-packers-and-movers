@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { CheckCircle2, Info } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
+import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function ServiceDetailSection() {
   const [activeTab, setActiveTab] = useState('local');

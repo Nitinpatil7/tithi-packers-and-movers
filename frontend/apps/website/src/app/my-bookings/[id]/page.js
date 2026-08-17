@@ -4,17 +4,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuthStore } from '@store/authStore';
-import { getBookingById } from '@lib/api';
-import Card from '@ui/Card';
-import Badge from '@ui/Badge';
-import Spinner from '@ui/Spinner';
-import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate, getServiceLabel } from '@utils/utils';
+import { useAuthStore } from '@tithi/store/authStore';
+import { getBookingById } from '@tithi/lib/api';
+import Card from '@tithi/ui/Card';
+import Badge from '@tithi/ui/Badge';
+import Spinner from '@tithi/ui/Spinner';
+import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate, getServiceLabel } from '@tithi/utils/utils';
 import { ArrowLeft, MapPin, Truck, DollarSign, CalendarDays, Clock, User, PackageCheck, Sparkles, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useLanguageStore } from '@store/languageStore';
-import { getTruckImageSrc } from '@utils/truckVisuals';
-import { ItemIcon } from '@utils/itemIcons';
+import { useLanguageStore } from '@tithi/store/languageStore';
+import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
+import { ItemIcon } from '@tithi/utils/itemIcons';
 
 const DETAIL_TRANSLATIONS = {
   en: {

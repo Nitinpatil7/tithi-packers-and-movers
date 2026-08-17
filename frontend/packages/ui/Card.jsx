@@ -1,6 +1,6 @@
 // src/components/ui/Card.jsx
 import React from 'react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 export default function Card({
   children,

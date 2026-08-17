@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
-import AnimatedCounter from '@ui/AnimatedCounter';
-import { useLanguageStore } from '@store/languageStore';
+import AnimatedCounter from '@tithi/ui/AnimatedCounter';
+import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function WhyChooseUsSection() {
   const { language } = useLanguageStore();

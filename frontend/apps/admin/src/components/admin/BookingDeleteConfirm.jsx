@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, AlertTriangle } from 'lucide-react';
-import { formatBookingDate, formatBookingTimeSlot } from '@utils/utils';
+import { formatBookingDate, formatBookingTimeSlot } from '@tithi/utils/utils';
 
 export default function BookingDeleteConfirm({ booking, isOpen, onClose, onConfirm }) {
   const [deleting, setDeleting] = useState(false);

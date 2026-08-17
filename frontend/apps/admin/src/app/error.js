@@ -1,6 +1,6 @@
 'use client';
 
-import Button from '@ui/Button';
+import Button from '@tithi/ui/Button';
 
 export default function RootError({ error, reset }) {
   return (

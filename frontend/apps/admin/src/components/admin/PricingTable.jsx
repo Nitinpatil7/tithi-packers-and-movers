@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useUpdatePricingItem } from '@/hooks/useAdmin';
-import Badge from '@ui/Badge';
-import Input from '@ui/Input';
+import Badge from '@tithi/ui/Badge';
+import Input from '@tithi/ui/Input';
 import toast from 'react-hot-toast';
-import { formatCurrency } from '@utils/utils';
+import { formatCurrency } from '@tithi/utils/utils';
 import { Check, Edit2, X } from 'lucide-react';
 
 export default function PricingTable({ pricing = [], token }) {

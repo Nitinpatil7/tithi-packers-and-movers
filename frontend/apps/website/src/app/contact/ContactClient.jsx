@@ -4,14 +4,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, MessageSquare, Send } from 'lucide-react';
-import Card from '@ui/Card';
-import Input from '@ui/Input';
-import Button from '@ui/Button';
+import Card from '@tithi/ui/Card';
+import Input from '@tithi/ui/Input';
+import Button from '@tithi/ui/Button';
 import toast from 'react-hot-toast';
-import { useLanguageStore } from '@store/languageStore';
-import { submitContact } from '@lib/contactApi';
-import { useSiteSetting } from '@hooks/useSiteSetting';
-import { useBranches, useMainBranch } from '@hooks/useBranches';
+import { useLanguageStore } from '@tithi/store/languageStore';
+import { submitContact } from '@tithi/lib/contactApi';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { useBranches, useMainBranch } from '@tithi/hooks/useBranches';
 
 const CONTACT_TRANSLATIONS = {
   en: {

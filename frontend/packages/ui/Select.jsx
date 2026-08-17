@@ -1,6 +1,6 @@
 // src/components/ui/Select.jsx
 import React from 'react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 const Select = React.forwardRef(({
   className,

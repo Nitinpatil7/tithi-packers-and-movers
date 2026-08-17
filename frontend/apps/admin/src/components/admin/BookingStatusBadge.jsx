@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import Badge from '@ui/Badge';
+import Badge from '@tithi/ui/Badge';
 
 export default function BookingStatusBadge({ status }) {
   return (

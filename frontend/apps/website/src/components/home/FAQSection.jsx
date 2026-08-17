@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown, HelpCircle } from 'lucide-react';
-import { useLanguageStore } from '@store/languageStore';
+import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { useFaqDetail, useFaqs } from '@hooks/useFaq';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { useFaqDetail, useFaqs } from '@tithi/hooks/useFaq';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function FAQSection() {
   const [openId, setOpenId] = useState(null);

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createBooking, getMyBookings, getBookingById } from '@lib/api';
+import { createBooking, getMyBookings, getBookingById } from '@tithi/lib/api';
 
 export function useCreateBooking() {
   const queryClient = useQueryClient();

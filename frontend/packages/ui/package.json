@@ -1,5 +1,20 @@
 {
   "name": "@tithi/ui",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./AnimatedCounter": "./AnimatedCounter.jsx",
+    "./Badge": "./Badge.jsx",
+    "./Button": "./Button.jsx",
+    "./Card": "./Card.jsx",
+    "./Input": "./Input.jsx",
+    "./Modal": "./Modal.jsx",
+    "./Select": "./Select.jsx",
+    "./Spinner": "./Spinner.jsx",
+    "./Toast": "./Toast.jsx"
+  },
+  "dependencies": {
+    "@tithi/utils": "*"
+  }
 }

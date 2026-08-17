@@ -4,10 +4,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAdminUsers } from '@/hooks/useAdmin';
-import Card from '@ui/Card';
-import Spinner from '@ui/Spinner';
-import Badge from '@ui/Badge';
-import { formatCurrency, formatDate } from '@utils/utils';
+import Card from '@tithi/ui/Card';
+import Spinner from '@tithi/ui/Spinner';
+import Badge from '@tithi/ui/Badge';
+import { formatCurrency, formatDate } from '@tithi/utils/utils';
 import { MessageSquare } from 'lucide-react';
 
 export default function AdminUsersPage() {

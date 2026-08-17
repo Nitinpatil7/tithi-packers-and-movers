@@ -2,25 +2,25 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useBookingStore } from '@store/bookingStore';
-import { useCreateBooking } from '@hooks/useBooking';
-import BookingLayout from '@shared-components/booking/BookingLayout';
-import BusinessDetailsStep from '@shared-components/booking/BusinessDetailsStep';
-import LocationStep from '@shared-components/booking/LocationStep';
-import TruckSelectionStep from '@shared-components/booking/TruckSelectionStep';
-import SpecialServicesStep from '@shared-components/booking/SpecialServicesStep';
-import DateTimeStep from '@shared-components/booking/DateTimeStep';
-import ReviewStep from '@shared-components/booking/ReviewStep';
-import OTPStep from '@shared-components/booking/OTPStep';
-import SuccessStep from '@shared-components/booking/SuccessStep';
-import Input from '@ui/Input';
+import { useBookingStore } from '@tithi/store/bookingStore';
+import { useCreateBooking } from '@tithi/hooks/useBooking';
+import BookingLayout from '@tithi/components/booking/BookingLayout';
+import BusinessDetailsStep from '@tithi/components/booking/BusinessDetailsStep';
+import LocationStep from '@tithi/components/booking/LocationStep';
+import TruckSelectionStep from '@tithi/components/booking/TruckSelectionStep';
+import SpecialServicesStep from '@tithi/components/booking/SpecialServicesStep';
+import DateTimeStep from '@tithi/components/booking/DateTimeStep';
+import ReviewStep from '@tithi/components/booking/ReviewStep';
+import OTPStep from '@tithi/components/booking/OTPStep';
+import SuccessStep from '@tithi/components/booking/SuccessStep';
+import Input from '@tithi/ui/Input';
 import { Package } from 'lucide-react';
-import Button from '@ui/Button';
-import Card from '@ui/Card';
+import Button from '@tithi/ui/Button';
+import Card from '@tithi/ui/Card';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, ArrowRight, ClipboardCheck, Plus, Minus } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 export default function CommercialMovingPage() {
   const { 

@@ -1,5 +1,9 @@
 {
   "name": "@tithi/config",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./legacy-route-group-middleware": "./legacy-route-group-middleware.js"
+  }
 }

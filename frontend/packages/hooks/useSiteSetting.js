@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getSiteSetting, updateSiteSetting, uploadSiteLogo } from "@lib/siteSettingApi";
+import { getSiteSetting, updateSiteSetting, uploadSiteLogo } from "@tithi/lib/siteSettingApi";
 
 export const useSiteSetting = () =>
   useQuery({

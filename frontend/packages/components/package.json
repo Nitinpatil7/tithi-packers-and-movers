@@ -1,5 +1,33 @@
 {
   "name": "@tithi/components",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./booking/BookingActionBar": "./booking/BookingActionBar.jsx",
+    "./booking/BookingLayout": "./booking/BookingLayout.jsx",
+    "./booking/BusinessDetailsStep": "./booking/BusinessDetailsStep.jsx",
+    "./booking/DateTimeStep": "./booking/DateTimeStep.jsx",
+    "./booking/EmployeeSelectionStep": "./booking/EmployeeSelectionStep.jsx",
+    "./booking/HoursSelectionStep": "./booking/HoursSelectionStep.jsx",
+    "./booking/ItemSelectionStep": "./booking/ItemSelectionStep.jsx",
+    "./booking/LocationStep": "./booking/LocationStep.jsx",
+    "./booking/OTPStep": "./booking/OTPStep.jsx",
+    "./booking/PackingSubTypeStep": "./booking/PackingSubTypeStep.jsx",
+    "./booking/ReviewStep": "./booking/ReviewStep.jsx",
+    "./booking/SpecialServicesStep": "./booking/SpecialServicesStep.jsx",
+    "./booking/StepIndicator": "./booking/StepIndicator.jsx",
+    "./booking/SuccessStep": "./booking/SuccessStep.jsx",
+    "./booking/TruckGuideModal": "./booking/TruckGuideModal.jsx",
+    "./booking/TruckSelectionStep": "./booking/TruckSelectionStep.jsx",
+    "./layout/Providers": "./layout/Providers.jsx"
+  },
+  "dependencies": {
+    "@tithi/data": "*",
+    "@tithi/hooks": "*",
+    "@tithi/lib": "*",
+    "@tithi/store": "*",
+    "@tithi/ui": "*",
+    "@tithi/utils": "*"
+  }
 }

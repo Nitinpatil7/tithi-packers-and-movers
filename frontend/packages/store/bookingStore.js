@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { calculateBookingPrice } from '@utils/pricing';
+import { calculateBookingPrice } from '@tithi/utils/pricing';
 
 const initialBookingData = {
   serviceType: null,         // 'local' | 'intercity' | 'labour'

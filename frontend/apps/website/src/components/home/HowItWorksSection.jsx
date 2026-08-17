@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Layers, ClipboardList, PhoneCall, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useLanguageStore } from '@store/languageStore';
+import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 
 export default function HowItWorksSection() {

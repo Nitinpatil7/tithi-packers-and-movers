@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Bell, CalendarDays, CheckCircle2, MessageSquare, Radio, Send, Smartphone } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Card from '@ui/Card';
-import Button from '@ui/Button';
-import Input from '@ui/Input';
+import Card from '@tithi/ui/Card';
+import Button from '@tithi/ui/Button';
+import Input from '@tithi/ui/Input';
 import { useInAppNotifications, useMarkInAppNotificationRead, useNotifications, useSendNotification } from '@/hooks/useAdmin';
 
 export default function AdminMessagingPage() {

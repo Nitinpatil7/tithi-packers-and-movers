@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import AdminHeader from '@/components/layout/AdminHeader';
-import Spinner from '@ui/Spinner';
+import Spinner from '@tithi/ui/Spinner';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
-import { useThemeStore } from '@store/themeStore';
+import { useThemeStore } from '@tithi/store/themeStore';
 import useAdminRealtime from '@/hooks/useAdminRealtime';
 
 export default function AdminLayout({ children }) {

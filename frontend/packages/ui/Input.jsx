@@ -1,6 +1,6 @@
 // src/components/ui/Input.jsx
 import React from 'react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 const Input = React.forwardRef(({
   className,

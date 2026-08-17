@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { checkMobile, verifyOTP, registerUser } from '@lib/api';
-import { useAuthStore } from '@store/authStore';
+import { checkMobile, verifyOTP, registerUser } from '@tithi/lib/api';
+import { useAuthStore } from '@tithi/store/authStore';
 
 export function useCheckMobile() {
   return useMutation({

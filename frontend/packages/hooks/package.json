@@ -1,5 +1,23 @@
 {
   "name": "@tithi/hooks",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./useAddons": "./useAddons.js",
+    "./useAuth": "./useAuth.js",
+    "./useBooking": "./useBooking.js",
+    "./useBookingDraft": "./useBookingDraft.js",
+    "./useBookingPricingRules": "./useBookingPricingRules.js",
+    "./useBranches": "./useBranches.js",
+    "./useFaq": "./useFaq.js",
+    "./useItems": "./useItems.js",
+    "./useLegalPages": "./useLegalPages.js",
+    "./useSiteSetting": "./useSiteSetting.js",
+    "./useTestimonials": "./useTestimonials.js"
+  },
+  "dependencies": {
+    "@tithi/lib": "*",
+    "@tithi/store": "*"
+  }
 }

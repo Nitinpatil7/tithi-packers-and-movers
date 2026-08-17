@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { formatCurrency } from '@utils/utils';
+import { formatCurrency } from '@tithi/utils/utils';
 
 export default function RevenueChart({ data = [] }) {
   const [mounted, setMounted] = useState(false);

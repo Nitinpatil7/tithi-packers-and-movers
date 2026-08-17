@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Globe2, Map, MapPin, Navigation2 } from 'lucide-react';
-import { usePublicTestimonials } from '@hooks/useTestimonials';
+import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 
 const SURAT_HUB = { name: 'Surat Hub', lat: 21.1702, lng: 72.8311 };
 

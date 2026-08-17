@@ -1,4 +1,4 @@
-import Spinner from '@ui/Spinner';
+import Spinner from '@tithi/ui/Spinner';
 
 export default function AdminLoading() {
   return (

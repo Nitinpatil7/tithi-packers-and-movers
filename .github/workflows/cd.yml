@@ -63,23 +63,7 @@ jobs:
           if [ -z "$DEPLOY_COMMAND" ]; then echo "DEPLOY_BACKEND_COMMAND not configured; skipping."; exit 0; fi
           eval "$DEPLOY_COMMAND"
 
-      - name: Deploy website
-        env:
-          DEPLOY_COMMAND: ${{ secrets.DEPLOY_WEBSITE_COMMAND }}
+      - name: Frontend deploy handled by Vercel Git integration
         run: |
-          if [ -z "$DEPLOY_COMMAND" ]; then echo "DEPLOY_WEBSITE_COMMAND not configured; skipping."; exit 0; fi
-          eval "$DEPLOY_COMMAND"
-
-      - name: Deploy admin
-        env:
-          DEPLOY_COMMAND: ${{ secrets.DEPLOY_ADMIN_COMMAND }}
-        run: |
-          if [ -z "$DEPLOY_COMMAND" ]; then echo "DEPLOY_ADMIN_COMMAND not configured; skipping."; exit 0; fi
-          eval "$DEPLOY_COMMAND"
-
-      - name: Deploy monitoring
-        env:
-          DEPLOY_COMMAND: ${{ secrets.DEPLOY_MONITORING_COMMAND }}
-        run: |
-          if [ -z "$DEPLOY_COMMAND" ]; then echo "DEPLOY_MONITORING_COMMAND not configured; skipping."; exit 0; fi
-          eval "$DEPLOY_COMMAND"
+          echo "Website, admin, and monitoring are deployed by their Vercel projects."
+          echo "GitHub Actions keeps build verification only to avoid duplicate frontend deployments."

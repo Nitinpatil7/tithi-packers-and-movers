@@ -20,9 +20,9 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
-import { useSiteSetting } from '@hooks/useSiteSetting';
-import { cn } from '@utils/utils';
-import { resolveSiteAssetUrl } from '@utils/siteAssets';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { cn } from '@tithi/utils/utils';
+import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
 
 const adminLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },

@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin, ArrowRight, MessageCircle } from 'lucide-react';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { resolveSiteAssetUrl } from '@utils/siteAssets';
-import { useSiteSetting } from '@hooks/useSiteSetting';
+import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function Footer() {
   const pathname = usePathname();

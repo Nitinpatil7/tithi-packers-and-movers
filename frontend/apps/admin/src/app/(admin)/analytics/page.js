@@ -4,10 +4,10 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { Coins, LineChart, Sparkles, TrendingUp } from 'lucide-react';
 import { useAdminAnalyticsOverview, useAdminStats } from '@/hooks/useAdmin';
-import Card from '@ui/Card';
-import Spinner from '@ui/Spinner';
-import Badge from '@ui/Badge';
-import { formatCurrency } from '@utils/utils';
+import Card from '@tithi/ui/Card';
+import Spinner from '@tithi/ui/Spinner';
+import Badge from '@tithi/ui/Badge';
+import { formatCurrency } from '@tithi/utils/utils';
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,

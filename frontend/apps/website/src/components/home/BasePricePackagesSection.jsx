@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Boxes, CheckCircle2, Clock, MapPinned, Route, Sparkles, Truck, Users } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { getPublicPricingRules } from '@lib/bookingPricingApi';
-import { useSiteSetting } from '@hooks/useSiteSetting';
-import { formatCurrency } from '@utils/utils';
+import { getPublicPricingRules } from '@tithi/lib/bookingPricingApi';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { formatCurrency } from '@tithi/utils/utils';
 
 const SERVICE_META = {
   local_shifting: { fallback: 'Local Shifting', href: '/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 export default function StepIndicator({ steps = [], currentStep = 0 }) {
   return (

@@ -1,6 +1,6 @@
 // src/components/ui/Spinner.jsx
 import React from 'react';
-import { cn } from '@utils/utils';
+import { cn } from '@tithi/utils/utils';
 
 export default function Spinner({ size = 'md', className }) {
   const sizes = {

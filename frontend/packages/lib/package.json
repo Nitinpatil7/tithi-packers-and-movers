@@ -1,5 +1,21 @@
 {
   "name": "@tithi/lib",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./addonApi": "./addonApi.js",
+    "./api": "./api.js",
+    "./authFetch": "./authFetch.js",
+    "./bookingDraftApi": "./bookingDraftApi.js",
+    "./bookingPricingApi": "./bookingPricingApi.js",
+    "./branchApi": "./branchApi.js",
+    "./contactApi": "./contactApi.js",
+    "./faqApi": "./faqApi.js",
+    "./itemApi": "./itemApi.js",
+    "./legalApi": "./legalApi.js",
+    "./queryClient": "./queryClient.js",
+    "./siteSettingApi": "./siteSettingApi.js",
+    "./testimonialApi": "./testimonialApi.js"
+  }
 }

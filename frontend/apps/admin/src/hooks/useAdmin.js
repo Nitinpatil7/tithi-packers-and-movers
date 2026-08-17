@@ -14,7 +14,7 @@ import {
   getInAppNotificationSummary,
   markInAppNotificationRead,
   markAllInAppNotificationsRead
-} from '@lib/api';
+} from '@tithi/lib/api';
 
 export function useAdminStats(token) {
   return useQuery({

@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { Search } from 'lucide-react';
-import Input from '@ui/Input';
-import Select from '@ui/Select';
+import Input from '@tithi/ui/Input';
+import Select from '@tithi/ui/Select';
 
 export default function BookingFilters({ filters = {}, onFilterChange }) {
   const serviceOptions = [

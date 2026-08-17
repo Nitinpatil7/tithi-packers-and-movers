@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, Clock, Edit3, IndianRupee, Tag, X } from 'lucide-react';
-import { getBookingTimeSlot, toDateInputValue, getBookingScheduledDate } from '@utils/utils';
+import { getBookingTimeSlot, toDateInputValue, getBookingScheduledDate } from '@tithi/utils/utils';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: '#F59E0B' },

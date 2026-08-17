@@ -4,8 +4,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
-import Spinner from '@ui/Spinner';
-import { cn } from '@utils/utils';
+import Spinner from '@tithi/ui/Spinner';
+import { cn } from '@tithi/utils/utils';
 import BookingActionBar from './BookingActionBar';
 
 const MONTH_NAMES = [
