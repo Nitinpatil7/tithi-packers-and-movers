@@ -1,5 +1,6 @@
 {
   "framework": "nextjs",
+  "installCommand": "npm install && npm install --prefix apps/website --package-lock=false --no-save && npm install --prefix apps/admin --package-lock=false --no-save && npm install --prefix apps/monitoring --package-lock=false --no-save",
   "buildCommand": "npm run build:website && rm -rf .next && cp -R apps/website/.next .next",
   "outputDirectory": ".next"
 }
