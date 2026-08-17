@@ -1,15 +1,16 @@
 // src/components/layout/Providers.jsx
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { enableQueryPersistence, queryClient } from '@lib/queryClient';
+import { createQueryClient, enableQueryPersistence } from '@lib/queryClient';
 import Toast from '@ui/Toast';
 import { useThemeStore } from '@store/themeStore';
 import { useBookingStore } from '@store/bookingStore';
 
 export default function Providers({ children }) {
+  const [queryClient] = useState(() => createQueryClient());
   const router = useRouter();
   const pathname = usePathname();
   const { initializeTheme } = useThemeStore();
@@ -27,7 +28,7 @@ export default function Providers({ children }) {
 
     const hydrateDeferredState = () => {
       if (cancelled) return;
-      cleanupPersistence = enableQueryPersistence();
+      cleanupPersistence = enableQueryPersistence(queryClient);
 
       const isAdminRoute = appName === 'admin' || window.location.pathname.startsWith('/admin');
       if (isAdminRoute) return;
@@ -53,7 +54,7 @@ export default function Providers({ children }) {
       if (timer) window.clearTimeout(timer);
       cleanupPersistence();
     };
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
     // Warm the three main booking routes as soon as the browser is idle so
@@ -114,7 +115,7 @@ export default function Providers({ children }) {
       if (idleId) window.cancelIdleCallback(idleId);
       socket?.disconnect();
     };
-  }, []);
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>

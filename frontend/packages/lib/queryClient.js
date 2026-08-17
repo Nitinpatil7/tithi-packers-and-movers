@@ -14,20 +14,22 @@ function getHydratableClientState(clientState) {
   };
 }
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      refetchOnMount: true,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 30 * 60 * 1000,
+export function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 30 * 60 * 1000,
+      },
     },
-  },
-});
+  });
+}
 
 let persistenceEnabled = false;
-export function enableQueryPersistence() {
+export function enableQueryPersistence(queryClient) {
   if (typeof window === 'undefined' || persistenceEnabled) return () => {};
   persistenceEnabled = true;
   try {
