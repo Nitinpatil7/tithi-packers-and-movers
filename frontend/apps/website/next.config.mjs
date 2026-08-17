@@ -21,8 +21,6 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    externalDir: true,
-    outputFileTracingRoot: path.join(__dirname, '../../'),
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 };
