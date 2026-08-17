@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build:website",
-  "outputDirectory": "apps/website/.next"
+  "buildCommand": "npm run build:website && rm -rf .next && cp -R apps/website/.next .next",
+  "outputDirectory": ".next"
 }
