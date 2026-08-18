@@ -104,13 +104,24 @@ const getItems = (query = {}, publicOnly = false) => Item.find(itemFilter(query,
   .populate("sizes.sizeId", "key label description isActive sortOrder")
   .sort({ section: 1, group: 1, sortOrder: 1, name: 1 });
 
+const publicItemSelect = "key categoryId section groupId group name icon sizes sortOrder";
+const publicSectionSelect = "key name description sortOrder";
+const publicGroupSelect = "key categoryId section name description sortOrder";
+const activeVariant = (variant) => variant.isActive !== false;
+const publicItemShape = (item) => ({
+  ...item,
+  sizes: (item.sizes || []).filter(activeVariant).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+});
+
 const getCatalog = async (query = {}, publicOnly = false) => {
   const sectionFilter = {};
   if (query.sectionId || query.categoryId) sectionFilter._id = query.sectionId || query.categoryId;
   if (query.section) sectionFilter.name = exactText(query.section);
   if (publicOnly || query.isActive === "true") sectionFilter.isActive = true;
   if (!publicOnly && query.isActive === "false") sectionFilter.isActive = false;
-  const sections = await ItemCategory.find(sectionFilter).sort({ sortOrder: 1, name: 1 }).lean();
+  const sectionsQuery = ItemCategory.find(sectionFilter).sort({ sortOrder: 1, name: 1 });
+  if (publicOnly) sectionsQuery.select(publicSectionSelect);
+  const sections = await sectionsQuery.lean();
   const sectionIds = sections.map((section) => section._id);
 
   const groupFilter = { categoryId: { $in: sectionIds } };
@@ -118,22 +129,25 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   if (query.group) groupFilter.name = exactText(query.group);
   if (publicOnly || query.isActive === "true") groupFilter.isActive = true;
   if (!publicOnly && query.isActive === "false") groupFilter.isActive = false;
-  const groups = await ItemGroup.find(groupFilter).sort({ sortOrder: 1, name: 1 }).lean();
+  const groupsQuery = ItemGroup.find(groupFilter).sort({ sortOrder: 1, name: 1 });
+  if (publicOnly) groupsQuery.select(publicGroupSelect);
+  const groups = await groupsQuery.lean();
   const groupIds = groups.map((group) => group._id);
 
   const itemQuery = { ...query };
   delete itemQuery.group;
   const itemMongoFilter = itemFilter(itemQuery, publicOnly);
   itemMongoFilter.groupId = { $in: groupIds };
-  const items = await Item.find(itemMongoFilter)
-    .populate("sizes.sizeId", "key label description isActive sortOrder")
-    .sort({ sortOrder: 1, name: 1 }).lean();
+  const itemsQuery = Item.find(itemMongoFilter).sort({ sortOrder: 1, name: 1 });
+  if (publicOnly) itemsQuery.select(publicItemSelect);
+  else itemsQuery.populate("sizes.sizeId", "key label description isActive sortOrder");
+  const items = await itemsQuery.lean();
 
   const itemsByGroup = new Map();
   items.forEach((item) => {
     const id = String(item.groupId);
     if (!itemsByGroup.has(id)) itemsByGroup.set(id, []);
-    itemsByGroup.get(id).push(item);
+    itemsByGroup.get(id).push(publicOnly ? publicItemShape(item) : item);
   });
   const groupsBySection = new Map();
   groups.forEach((group) => {

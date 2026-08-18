@@ -2,10 +2,27 @@ import { authFetch } from '@lib/authFetch';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const ADMIN_REQUEST_TIMEOUT_MS = 5000;
+const ADMIN_ACCESS_TOKEN_KEY = 'tithi_admin_access_token';
+
+const getStoredAccessToken = () => {
+  if (typeof window === 'undefined') return '';
+  return window.sessionStorage.getItem(ADMIN_ACCESS_TOKEN_KEY) || '';
+};
+
+export const storeAdminAccessToken = (token) => {
+  if (typeof window === 'undefined') return;
+  if (token) window.sessionStorage.setItem(ADMIN_ACCESS_TOKEN_KEY, token);
+};
+
+export const clearAdminAccessToken = () => {
+  if (typeof window === 'undefined') return;
+  window.sessionStorage.removeItem(ADMIN_ACCESS_TOKEN_KEY);
+};
 
 async function adminRequest(path, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ADMIN_REQUEST_TIMEOUT_MS);
+  const accessToken = getStoredAccessToken();
 
   try {
     const response = await authFetch(`${API_URL}/api/admin-auth${path}`, {
@@ -15,6 +32,7 @@ async function adminRequest(path, options = {}) {
       signal: options.signal || controller.signal,
       headers: {
         ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...options.headers,
       },
     });

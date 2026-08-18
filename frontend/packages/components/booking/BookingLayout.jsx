@@ -7,6 +7,8 @@ import { cn } from '@utils/utils';
 
 export default function BookingLayout({ title, steps = [], currentStep = 0, onBack, children }) {
   const contentTopRef = useRef(null);
+  const stepsTrackRef = useRef(null);
+  const activeStepRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
   const showBackButton = currentStep > 0 && currentStep < steps.length - 1;
   const slideVariants = {
@@ -17,6 +19,17 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }, [currentStep, prefersReducedMotion]);
+
+  useEffect(() => {
+    const track = stepsTrackRef.current;
+    const active = activeStepRef.current;
+    if (!track || !active) return;
+    const nextLeft = active.offsetLeft - (track.clientWidth - active.clientWidth) / 2;
+    track.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
   }, [currentStep, prefersReducedMotion]);
 
   return (
@@ -44,13 +57,13 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
             </span>
           </motion.div>
           <div>
-            <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div ref={stepsTrackRef} className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
               {steps.map((step, idx) => {
                 const isActive = idx === currentStep;
                 const isCompleted = idx < currentStep;
                 return (
                   <React.Fragment key={step}>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div ref={isActive ? activeStepRef : undefined} className="flex items-center gap-2 shrink-0">
                       <div className={cn('w-7 h-7 rounded-xl font-bold flex items-center justify-center text-[11px] border transition-all duration-300 sm:h-8 sm:w-8 sm:text-xs', isActive ? 'bg-primary text-white border-primary shadow-sky-sm scale-105' : isCompleted ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-bg-section border-bg-border text-text-tertiary')}>
                         {isCompleted ? <CheckCircle className="w-4 h-4 text-white" /> : <span>{idx + 1}</span>}
                       </div>

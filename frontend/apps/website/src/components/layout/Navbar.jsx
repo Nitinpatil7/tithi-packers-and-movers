@@ -58,7 +58,7 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-40 w-full backdrop-blur-lg transition-all duration-400',
+        'navbar-shell fixed top-0 left-0 right-0 z-40 w-full backdrop-blur-lg transition-all duration-400',
         scrolled
           ? 'border-b border-bg-border/50 bg-bg-page/65 py-2.5 sm:py-2'
           : 'border-b border-transparent bg-bg-page/20 py-3.5 sm:py-3'
@@ -200,7 +200,7 @@ export default function Navbar() {
           <div className="lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="min-h-[52px] min-w-[52px] rounded-2xl border border-bg-border bg-white p-3 text-text-secondary transition-all hover:border-primary/30 hover:text-primary"
+              className="navbar-menu-button min-h-[52px] min-w-[52px] rounded-2xl border border-bg-border bg-white p-3 text-text-secondary transition-all hover:border-primary/30 hover:text-primary"
               >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
@@ -216,7 +216,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="lg:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
+            className="navbar-mobile-menu lg:hidden bg-white border-b border-bg-border overflow-y-auto max-h-[calc(100vh-80px)] shadow-xl"
           >
             <div className="px-5 py-6 flex flex-col gap-5">
               <Link href="/" className={cn("text-base font-bold", pathname === '/' ? "text-primary" : "text-text-secondary")}>

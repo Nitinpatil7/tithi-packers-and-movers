@@ -710,7 +710,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     : 'Search a drop address anywhere in India';
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-4 rounded-2xl border-2 p-4 shadow-sm transition-colors sm:p-6',
+    <div className={cn('booking-location-card flex min-w-0 flex-col gap-4 rounded-2xl border-2 p-4 shadow-sm transition-colors sm:p-6',
       isSelected ? 'border-primary/30 bg-gradient-to-br from-sky-50 to-white shadow-sky-sm' : validationMsg ? 'border-red-300 bg-red-50' : 'border-sky-100 bg-white hover:border-primary/25')}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', isSelected ? 'bg-primary text-white' : 'bg-primary-soft')}>
@@ -808,12 +808,12 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
           )}
         </div>
         {mapsState === 'error' && (
-          <p className="mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-amber-700">
+          <p className="booking-location-warning mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-amber-700">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="min-w-0">Maps autocomplete is unavailable. Enter the complete address manually.</span>
           </p>
         )}
         {validationMsg && mapsState !== 'error' && (hasBlurred || validationMsg !== 'Select the exact address from Google Maps suggestions.') && (
-          <p className="mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-red-600">
+          <p className="booking-location-error mt-1 flex min-w-0 items-start gap-1 text-xs font-semibold text-red-600">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="min-w-0">{validationMsg}</span>
           </p>
         )}
@@ -821,7 +821,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
           {needsSurat(serviceType, role) ? 'Surat city locations only' : 'Drop can be anywhere within India'}
         </p>
         {mapsState !== 'error' && (
-          <button type="button" onClick={() => setMapOpen(true)} className="mt-2 inline-flex w-fit items-center gap-2 rounded-xl border border-primary/20 bg-white px-3 py-2 text-xs font-black text-primary shadow-xs transition hover:bg-primary-soft">
+          <button type="button" onClick={() => setMapOpen(true)} className="booking-map-button mt-2 inline-flex w-fit items-center gap-2 rounded-xl border border-primary/20 bg-white px-3 py-2 text-xs font-black text-primary shadow-xs transition hover:bg-primary-soft">
             <MapIcon className="h-3.5 w-3.5" />
             Choose from map
           </button>
@@ -943,7 +943,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         </div>
       )}
       {labour && pricingRule && (
-        <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+        <div className="booking-base-package rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Base package includes</p>
           <p className="mt-1 text-sm font-semibold text-text-secondary">Use this package directly, or customize truck, employees, and hours in the next steps.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -956,8 +956,8 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
           )}
         </div>
       )}
-      {submitError && <div className="flex items-center gap-2 p-4 bg-red-50 rounded-xl border border-red-200 text-sm font-semibold text-red-700"><AlertCircle className="w-4 h-4" />{submitError}</div>}
-      <div className="rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
+      {submitError && <div className="booking-submit-error flex items-center gap-2 p-4 bg-red-50 rounded-xl border border-red-200 text-sm font-semibold text-red-700"><AlertCircle className="w-4 h-4" />{submitError}</div>}
+      <div className="booking-location-note rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
         {labour ? 'Pickup/work location is required. Drop/work-end location is optional for labour-only bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
       </div>
       <BookingActionBar onBack={undefined} onNext={() => handleSubmit()} nextLabel={labour ? 'Customize Package' : 'Next Step'} />
@@ -968,5 +968,5 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
 export { LocationStep };
 
 function BaseChip({ icon: Icon, label, value }) {
-  return <div className="flex items-start gap-3 rounded-2xl bg-white px-3 py-3 ring-1 ring-emerald-100"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><Icon className="h-4.5 w-4.5" /></span><span><span className="block text-[10px] font-black uppercase tracking-wide text-emerald-600">{label}</span><span className="mt-0.5 block text-sm font-bold text-text-primary">{value}</span></span></div>;
+  return <div className="booking-base-chip flex items-start gap-3 rounded-2xl bg-white px-3 py-3 ring-1 ring-emerald-100"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><Icon className="h-4.5 w-4.5" /></span><span><span className="block text-[10px] font-black uppercase tracking-wide text-emerald-600">{label}</span><span className="mt-0.5 block text-sm font-bold text-text-primary">{value}</span></span></div>;
 }

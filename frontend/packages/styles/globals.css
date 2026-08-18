@@ -150,6 +150,20 @@
   background-color: rgba(10, 15, 26, 0.97) !important;
 }
 
+.dark .navbar-shell {
+  background: linear-gradient(180deg, rgba(4, 17, 31, .96), rgba(6, 25, 43, .9)) !important;
+  border-color: rgba(125, 211, 252, .18) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .28), inset 0 -1px 0 rgba(125, 211, 252, .08);
+}
+
+.dark .navbar-menu-button,
+.dark .navbar-mobile-menu {
+  background: rgba(7, 22, 38, .96) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+  color: #dff6ff !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, .34), 0 0 24px rgba(14, 165, 233, .12);
+}
+
 /* Safe card hover in dark mode */
 .dark .hover\:bg-white:hover {
   background-color: var(--color-bg-white) !important;
@@ -221,6 +235,60 @@
     repeating-linear-gradient(135deg, rgba(125,211,252,.075) 0 1px, transparent 1px 22px);
 }
 
+.dark .public-theme .services-detail-card {
+  background: linear-gradient(145deg, rgba(8, 25, 43, .96), rgba(5, 18, 32, .94)) !important;
+  border-color: rgba(125, 211, 252, .3) !important;
+  box-shadow: 0 30px 82px rgba(0, 0, 0, .48), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 54px rgba(14, 165, 233, .16) !important;
+}
+
+.dark .public-theme .services-detail-card:hover,
+.dark .public-theme .services-detail-card:focus-within {
+  border-color: rgba(125, 211, 252, .52) !important;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, .52), 0 0 54px rgba(14, 165, 233, .25), 0 0 30px rgba(249, 115, 22, .14) !important;
+}
+
+.dark .public-theme .services-active-badge {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .28), rgba(56, 189, 248, .14)) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 24px rgba(14, 165, 233, .18);
+  --tw-ring-color: rgba(125, 211, 252, .34) !important;
+}
+
+.dark .public-theme .services-feature-pill {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .22), rgba(14, 165, 233, .1)) !important;
+  color: #dff6ff !important;
+  border: 1px solid rgba(125, 211, 252, .22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 10px 24px rgba(0, 0, 0, .18);
+  --tw-ring-color: rgba(125, 211, 252, .18) !important;
+}
+
+.dark .public-theme .services-feature-pill svg {
+  color: #38bdf8 !important;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, .4));
+}
+
+.dark .public-theme .services-detail-card:hover .services-feature-pill,
+.dark .public-theme .services-detail-card:focus-within .services-feature-pill {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .3), rgba(249, 115, 22, .12)) !important;
+  border-color: rgba(125, 211, 252, .34);
+}
+
+.dark .public-theme .services-orbit {
+  border-color: rgba(251, 146, 60, .5) !important;
+  box-shadow: inset 0 0 38px rgba(14, 165, 233, .14), 0 0 28px rgba(249, 115, 22, .12);
+}
+
+.dark .public-theme .services-icon-aura {
+  background: radial-gradient(circle, rgba(56, 189, 248, .3), rgba(14, 165, 233, .08) 68%, transparent 72%) !important;
+}
+
+.dark .public-theme .services-fast-quote {
+  background: rgba(7, 17, 31, .9) !important;
+  border-color: rgba(251, 146, 60, .34) !important;
+  color: #fb923c !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, .34), 0 0 24px rgba(249, 115, 22, .12) !important;
+}
+
 .dark .public-theme .hero-service-card,
 .dark .public-theme .service-hover-card,
 .dark .public-theme .trust-card-3d,
@@ -270,23 +338,142 @@
 
 .dark .public-theme .booking-layout-shell {
   background:
-    radial-gradient(circle at 16% 10%, rgba(14, 165, 233, .20), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, .12), transparent 24%),
-    linear-gradient(180deg, #06101d 0%, #0b2138 46%, #07111f 100%) !important;
+    radial-gradient(circle at 16% 9%, rgba(14, 165, 233, .18), transparent 25%),
+    radial-gradient(circle at 86% 14%, rgba(249, 115, 22, .10), transparent 22%),
+    linear-gradient(90deg, rgba(125, 211, 252, .045) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125, 211, 252, .035) 1px, transparent 1px),
+    linear-gradient(180deg, #03101d 0%, #062036 48%, #04111f 100%) !important;
+  background-size: auto, auto, 28px 28px, 28px 28px, auto !important;
 }
 
 .dark .public-theme .booking-steps-panel,
 .dark .public-theme .booking-content-panel {
-  background: rgba(9, 25, 43, .9) !important;
+  background: linear-gradient(145deg, rgba(6, 24, 42, .96), rgba(4, 15, 29, .96)) !important;
   border-color: rgba(125, 211, 252, .24) !important;
   box-shadow: 0 24px 68px rgba(0, 0, 0, .42), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 42px rgba(14, 165, 233, .13) !important;
 }
 
 .dark .public-theme .booking-flow-bg {
   background:
-    radial-gradient(circle at 18% 10%, rgba(14, 165, 233, .24), transparent 26%),
-    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, .16), transparent 24%),
-    repeating-linear-gradient(135deg, rgba(125,211,252,.07) 0 1px, transparent 1px 20px);
+    radial-gradient(circle at 18% 10%, rgba(14, 165, 233, .16), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, .09), transparent 22%),
+    repeating-linear-gradient(135deg, rgba(125,211,252,.055) 0 1px, transparent 1px 20px),
+    linear-gradient(135deg, rgba(7, 35, 57, .7), rgba(4, 15, 29, .2));
+  opacity: .9;
+}
+
+.dark .public-theme .booking-review-hero,
+.dark .public-theme .booking-review-summary,
+.dark .public-theme .booking-review-chip,
+.dark .public-theme .booking-review-total {
+  background: linear-gradient(145deg, rgba(8, 29, 50, .97), rgba(5, 18, 32, .96)) !important;
+  border-color: rgba(125, 211, 252, .28) !important;
+  color: #f4fbff !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .36), 0 0 0 1px rgba(125, 211, 252, .08), 0 0 28px rgba(14, 165, 233, .10) !important;
+}
+
+.dark .public-theme .booking-review-hero {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(14, 165, 233, .28), transparent 26%),
+    radial-gradient(circle at 88% 82%, rgba(249, 115, 22, .15), transparent 28%),
+    linear-gradient(145deg, rgba(8, 32, 54, .98), rgba(5, 18, 32, .96)) !important;
+}
+
+.dark .public-theme .booking-review-total {
+  background: linear-gradient(135deg, rgba(13, 48, 76, .98), rgba(8, 24, 42, .98)) !important;
+  border-color: rgba(56, 189, 248, .32) !important;
+}
+
+.dark .public-theme .booking-review-chip {
+  background: rgba(6, 24, 42, .92) !important;
+  border-color: rgba(125, 211, 252, .26) !important;
+}
+
+.dark .public-theme .booking-review-chip > span:first-child {
+  background: rgba(14, 165, 233, .18) !important;
+  color: #7dd3fc !important;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, .2);
+}
+
+.dark .public-theme .booking-review-summary-head,
+.dark .public-theme .booking-review-summary-foot {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .16), rgba(249, 115, 22, .08), rgba(8, 24, 42, .94)) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+}
+
+.dark .public-theme .booking-location-card {
+  background: linear-gradient(145deg, rgba(8, 24, 42, .94), rgba(6, 18, 32, .9)) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .04) !important;
+}
+
+.dark .public-theme .booking-location-card:hover,
+.dark .public-theme .booking-location-card:focus-within {
+  border-color: rgba(125, 211, 252, .42) !important;
+  box-shadow: 0 24px 58px rgba(0, 0, 0, .38), 0 0 32px rgba(14, 165, 233, .14) !important;
+}
+
+.dark .public-theme .booking-location-card[class*="border-red"] {
+  background: linear-gradient(145deg, rgba(48, 16, 22, .72), rgba(8, 24, 42, .92)) !important;
+  border-color: rgba(248, 113, 113, .52) !important;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, .4), 0 0 34px rgba(248, 113, 113, .12) !important;
+}
+
+.dark .public-theme .booking-input,
+.dark .public-theme select.booking-input,
+.dark .public-theme label.booking-input {
+  background: rgba(6, 18, 32, .92) !important;
+  border-color: rgba(125, 211, 252, .24) !important;
+  color: #f4fbff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04) !important;
+}
+
+.dark .public-theme .booking-input::placeholder {
+  color: #86b7d9 !important;
+}
+
+.dark .public-theme .booking-input:focus {
+  border-color: rgba(56, 189, 248, .72) !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, .18), 0 0 24px rgba(14, 165, 233, .14) !important;
+}
+
+.dark .public-theme .booking-location-warning {
+  color: #fbbf24 !important;
+}
+
+.dark .public-theme .booking-location-error {
+  color: #fca5a5 !important;
+}
+
+.dark .public-theme .booking-map-button,
+.dark .public-theme .booking-location-note,
+.dark .public-theme .booking-submit-error {
+  background: rgba(8, 24, 42, .88) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .24) !important;
+}
+
+.dark .public-theme .booking-map-button:hover {
+  background: rgba(14, 165, 233, .22) !important;
+  border-color: rgba(125, 211, 252, .42) !important;
+}
+
+.dark .public-theme .booking-submit-error {
+  border-color: rgba(248, 113, 113, .42) !important;
+  color: #fca5a5 !important;
+}
+
+.dark .public-theme .booking-base-package {
+  background: linear-gradient(145deg, rgba(6, 45, 43, .55), rgba(8, 24, 42, .92)) !important;
+  border-color: rgba(52, 211, 153, .28) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .28), 0 0 28px rgba(16, 185, 129, .08) !important;
+}
+
+.dark .public-theme .booking-base-chip {
+  background: rgba(6, 18, 32, .78) !important;
+  border-color: rgba(52, 211, 153, .18) !important;
+  --tw-ring-color: rgba(52, 211, 153, .2) !important;
 }
 
 .dark .public-theme .quote-packages-section,
@@ -765,6 +952,76 @@ svg[aria-label$="coverage map"] path[stroke-dasharray] {
   border-radius: .85rem;
   background: color-mix(in srgb, var(--color-primary-soft) 70%, transparent) !important;
   padding: .25rem !important;
+}
+
+.dark .public-theme .booking-items-ui header > div > span,
+.dark .public-theme .booking-group-toggle span span:first-child {
+  background: rgba(14, 165, 233, .16) !important;
+  color: #7dd3fc !important;
+  border-color: rgba(125, 211, 252, .24) !important;
+}
+
+.dark .public-theme .booking-category-tabs > button:not(.bg-primary) {
+  background: rgba(7, 24, 42, .92) !important;
+  border-color: rgba(125, 211, 252, .26) !important;
+  color: #b7d7f2 !important;
+}
+
+.dark .public-theme .booking-category-tabs > button:not(.bg-primary):hover {
+  background: rgba(14, 165, 233, .18) !important;
+  border-color: rgba(125, 211, 252, .42) !important;
+  color: #e0f2fe !important;
+}
+
+.dark .public-theme .booking-group-card {
+  background: linear-gradient(145deg, rgba(8, 31, 52, .94), rgba(5, 18, 32, .96)) !important;
+  border-color: rgba(125, 211, 252, .24) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .04) !important;
+}
+
+.dark .public-theme .booking-group-toggle:hover {
+  background: rgba(14, 165, 233, .14) !important;
+}
+
+.dark .public-theme .booking-item-list {
+  background: linear-gradient(180deg, rgba(4, 17, 31, .75), rgba(8, 27, 47, .9)) !important;
+  border-color: rgba(125, 211, 252, .18) !important;
+}
+
+.dark .public-theme .booking-item-row {
+  background: linear-gradient(135deg, rgba(8, 29, 50, .96), rgba(6, 22, 39, .96)) !important;
+  border-color: rgba(125, 211, 252, .22) !important;
+}
+
+.dark .public-theme .booking-item-row:hover {
+  border-color: rgba(56, 189, 248, .44) !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .28), 0 0 24px rgba(14, 165, 233, .12) !important;
+}
+
+.dark .public-theme .booking-item-row[class*="border-primary"] {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .22), rgba(8, 29, 50, .96)) !important;
+  border-color: rgba(56, 189, 248, .56) !important;
+}
+
+.dark .public-theme .booking-item-row > div:first-child {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .18), rgba(249, 115, 22, .08)) !important;
+}
+
+.dark .public-theme .booking-item-main > span:first-child,
+.dark .public-theme .booking-item-add,
+.dark .public-theme .booking-item-row .booking-item-qty {
+  background: rgba(14, 165, 233, .18) !important;
+  color: #7dd3fc !important;
+}
+
+.dark .public-theme .booking-item-add:hover {
+  background: #0ea5e9 !important;
+  color: #fff !important;
+}
+
+.dark .public-theme .booking-item-row .booking-item-qty button {
+  background: rgba(4, 17, 31, .92) !important;
+  border: 1px solid rgba(125, 211, 252, .16);
 }
 
 @media (min-width: 640px) {

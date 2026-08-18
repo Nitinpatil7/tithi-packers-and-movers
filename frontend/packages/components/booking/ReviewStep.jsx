@@ -34,7 +34,7 @@ function cn(...classes) {
 
 function QuoteLine({ icon: Icon, label, detail, value, muted = false }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-sky-100/80 py-4 last:border-0">
+    <div className="flex min-w-0 flex-col gap-2 border-b border-sky-100/80 py-4 last:border-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div className="flex min-w-0 items-start gap-3">
         <span className={cn('mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl', muted ? 'bg-bg-section text-text-tertiary' : 'bg-orange-50 text-primary')}>
           <Icon className="h-4.5 w-4.5" />
@@ -44,7 +44,7 @@ function QuoteLine({ icon: Icon, label, detail, value, muted = false }) {
           {detail && <span className="mt-0.5 block text-xs font-semibold leading-5 text-text-tertiary">{detail}</span>}
         </span>
       </div>
-      <span className={cn('shrink-0 pt-1 text-right font-mono text-sm font-black', muted ? 'text-text-tertiary' : 'text-text-primary')}>
+      <span className={cn('shrink-0 pt-1 text-left font-mono text-sm font-black sm:text-right', muted ? 'text-text-tertiary' : 'text-text-primary')}>
         {value}
       </span>
     </div>
@@ -54,13 +54,13 @@ function QuoteLine({ icon: Icon, label, detail, value, muted = false }) {
 function ContextChip({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-orange-100 bg-white/85 px-3 py-2 shadow-xs">
+    <div className="booking-review-chip flex min-w-0 items-center gap-2 rounded-2xl border border-orange-100 bg-white/85 px-3 py-2 shadow-xs">
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-orange-50 text-primary">
         <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0">
         <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">{label}</span>
-        <span className="block truncate text-xs font-bold text-text-primary">{value}</span>
+        <span className="block break-words text-xs font-bold leading-5 text-text-primary sm:truncate">{value}</span>
       </span>
     </div>
   );
@@ -74,7 +74,7 @@ function TruckContext({ truck }) {
   if (!truck?.name) return null;
   const capacity = truck.capacityKg ? `${Number(truck.capacityKg).toLocaleString('en-IN')} kg` : truck.capacityLabel || 'Capacity not set';
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-white/85 p-3 shadow-xs">
+    <div className="booking-review-chip flex items-center gap-3 rounded-2xl border border-orange-100 bg-white/85 p-3 shadow-xs">
       <Image unoptimized src={getTruckImageSrc(truck)} alt={truck.name} width={80} height={56} className="h-14 w-20 shrink-0 rounded-xl border border-bg-border object-cover" />
       <span className="min-w-0">
         <span className="block truncate text-sm font-black text-text-primary">{truck.name}</span>
@@ -137,32 +137,32 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
     .filter((service) => service.total > 0);
 
   return (
-    <div className="flex flex-col gap-6 text-left">
+    <div className="booking-review-ui flex min-w-0 flex-col gap-6 text-left">
       <motion.header
-        className="rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/80 via-white to-sky-50/80 p-5 shadow-card sm:p-6"
+        className="booking-review-hero rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/80 via-white to-sky-50/80 p-5 shadow-card sm:p-6"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary text-white shadow-sky">
               <IndianRupee className="h-6 w-6" />
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Final quote</p>
               <h3 className="mt-1 text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Review Your Booking Cost</h3>
               <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-text-secondary">Review the booking details and the payable charge lines before confirming your phone number.</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-orange-100 bg-white/90 px-4 py-3 text-right shadow-xs">
+          <div className="booking-review-total w-full rounded-2xl border border-orange-100 bg-white/90 px-4 py-3 text-left shadow-xs sm:w-auto sm:min-w-[220px] sm:text-right">
             <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">Estimated total</span>
             <strong className="mt-1 block font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
           </div>
         </div>
       </motion.header>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ContextChip icon={User} label="Customer" value={cleanText(contactDetails?.name || 'Guest customer')} />
         <ContextChip icon={Truck} label="Service" value={cleanText(SERVICE_LABELS[serviceType] || serviceType)} />
         <ContextChip icon={MapPin} label="Pickup" value={cleanText(pickupLocation?.address)} />
@@ -170,12 +170,12 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
       </section>
 
       <motion.section
-        className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"
+        className="booking-review-summary min-w-0 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.08, duration: 0.35 }}
       >
-        <div className="border-b border-orange-100 bg-gradient-to-r from-orange-50 to-sky-50 px-5 py-4 sm:px-6">
+        <div className="booking-review-summary-head border-b border-orange-100 bg-gradient-to-r from-orange-50 to-sky-50 px-5 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h4 className="text-base font-black text-text-primary">Booking Cost Summary</h4>
@@ -204,18 +204,18 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
           {sundayHike > 0 && <QuoteLine icon={Sun} label="Sunday booking adjustment" detail="Weekend crew availability adjustment." value={formatCurrency(sundayHike)} />}
         </div>
 
-        <div className="border-t border-orange-100 bg-gradient-to-r from-orange-50 via-white to-sky-50 px-5 py-5 sm:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <span>
+        <div className="booking-review-summary-foot border-t border-orange-100 bg-gradient-to-r from-orange-50 via-white to-sky-50 px-5 py-5 sm:px-6">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span className="min-w-0">
               <span className="block text-sm font-black text-text-primary">Estimated Booking Total</span>
               <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Final payable amount based on selected details.</span>
             </span>
-            <strong className="font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
+            <strong className="shrink-0 font-mono text-2xl font-black text-primary sm:text-3xl">{formatCurrency(grandTotal)}</strong>
           </div>
         </div>
       </motion.section>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <ContextChip icon={Calendar} label="Move date" value={formattedDate} />
         <ContextChip icon={Clock} label="Time slot" value={TIME_SLOT_LABELS[timeSlot] || timeSlot} />
         <ContextChip icon={Box} label="Inventory" value={totalItems ? `${totalItems} item(s) selected` : isLabour ? `${employeeCount || 0} employee(s), ${hoursCount || 0} hour(s)` : 'No item checklist'} />

@@ -165,12 +165,12 @@ export default function ServicesSection() {
             initial={{ opacity: 0, x: 24, scale: 0.98 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-visible rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
+            className="services-detail-card relative overflow-visible rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
           >
             <div className="absolute inset-0 services-panel-route opacity-90" />
             <div className="relative z-10 grid min-h-[380px] grid-cols-[0.95fr_1.05fr] items-center gap-6">
               <div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
+                <span className="services-active-badge inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
                   <ActiveIcon className="h-3.5 w-3.5" />
                   Active service
                 </span>
@@ -187,7 +187,7 @@ export default function ServicesSection() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.06, duration: 0.25 }}
-                      className="flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-2 text-sm font-bold text-sky-900 ring-1 ring-sky-100"
+                      className="services-feature-pill flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-2 text-sm font-bold text-sky-900 ring-1 ring-sky-100"
                     >
                       <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
                       {feat}
@@ -205,19 +205,19 @@ export default function ServicesSection() {
 
               <div className="relative grid min-h-[300px] place-items-center">
                 <motion.div
-                  className="absolute h-64 w-64 rounded-full border border-dashed border-orange-300/70"
+                  className="services-orbit absolute h-64 w-64 rounded-full border border-dashed border-orange-300/70"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
                 />
                 <motion.div
-                  className="absolute h-44 w-44 rounded-full bg-sky-100/80"
+                  className="services-icon-aura absolute h-44 w-44 rounded-full bg-sky-100/80"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <div className="icon-surface relative h-32 w-32 rounded-[28px]" data-active="true">
                   <ActiveIcon className="h-14 w-14 text-sky-100" strokeWidth={1.6} />
                 </div>
-                <div className="absolute bottom-4 right-0 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-orange-600 shadow-card">
+                <div className="services-fast-quote absolute bottom-4 right-0 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-orange-600 shadow-card">
                   Fast quote
                 </div>
               </div>

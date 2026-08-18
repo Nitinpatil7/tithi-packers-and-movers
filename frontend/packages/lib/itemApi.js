@@ -28,6 +28,7 @@ const asList = (payload, keys = []) => {
 };
 
 export const getItemCatalog = (filters = {}) => itemRequest(`/catalog${queryString(filters)}`).then((data) => asList(data, ['sections', 'catalog', 'items']));
+export const getItemSections = (filters = {}) => itemRequest(`/sections${queryString(filters)}`).then((data) => asList(data, ['sections', 'items']));
 export const getAdminItemCatalog = (filters = {}) => itemRequest(`/admin/catalog${queryString(filters)}`, { credentials: 'include' }).then((data) => asList(data, ['sections', 'catalog', 'items']));
 export const getAdminSections = (filters = {}) => itemRequest(`/admin/sections${queryString(filters)}`, { credentials: 'include' }).then((data) => asList(data, ['sections', 'items']));
 export const getAdminGroups = (filters = {}) => itemRequest(`/admin/groups${queryString(filters)}`, { credentials: 'include' }).then((data) => asList(data, ['groups', 'items']));

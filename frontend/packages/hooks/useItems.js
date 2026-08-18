@@ -1,14 +1,42 @@
+import { useCallback } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as api from '@lib/itemApi';
 
-export const useItemCatalog = (filters = {}) => useQuery({ queryKey: ['items', 'catalog', filters], queryFn: () => api.getItemCatalog(filters), staleTime: 5 * 60 * 1000, retry: 1 });
+const ITEM_CATALOG_STALE_TIME = 10 * 60 * 1000;
+const ITEM_CATALOG_GC_TIME = 30 * 60 * 1000;
+
+export const itemCatalogQueryKey = (filters = {}) => ['items', 'catalog', filters];
+export const useItemCatalog = (filters = {}, options = {}) => useQuery({
+  queryKey: itemCatalogQueryKey(filters),
+  queryFn: () => api.getItemCatalog(filters),
+  staleTime: ITEM_CATALOG_STALE_TIME,
+  gcTime: ITEM_CATALOG_GC_TIME,
+  retry: 1,
+  ...options,
+});
+export const useItemSections = (filters = {}) => useQuery({
+  queryKey: ['items', 'sections', filters],
+  queryFn: () => api.getItemSections(filters),
+  staleTime: ITEM_CATALOG_STALE_TIME,
+  gcTime: ITEM_CATALOG_GC_TIME,
+  retry: 1,
+});
+export const usePrefetchItemCatalog = () => {
+  const client = useQueryClient();
+  return useCallback((filters = {}) => client.prefetchQuery({
+    queryKey: itemCatalogQueryKey(filters),
+    queryFn: () => api.getItemCatalog(filters),
+    staleTime: ITEM_CATALOG_STALE_TIME,
+    gcTime: ITEM_CATALOG_GC_TIME,
+  }), [client]);
+};
 export const useAdminItemCatalog = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'catalog', filters], queryFn: () => api.getAdminItemCatalog(filters), placeholderData: keepPreviousData });
 export const useAdminSections = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sections', filters], queryFn: () => api.getAdminSections(filters), placeholderData: keepPreviousData });
 export const useAdminSizes = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sizes', filters], queryFn: () => api.getAdminSizes(filters), placeholderData: keepPreviousData });
 
 function useItemMutation(mutationFn) {
   const client = useQueryClient();
-  return useMutation({ mutationFn, onSuccess: () => { client.invalidateQueries({ queryKey: ['admin', 'items'] }); client.invalidateQueries({ queryKey: ['items', 'catalog'] }); } });
+  return useMutation({ mutationFn, onSuccess: () => { client.invalidateQueries({ queryKey: ['admin', 'items'] }); client.invalidateQueries({ queryKey: ['items'] }); } });
 }
 
 export const useCreateSection = () => useItemMutation(api.createSection);

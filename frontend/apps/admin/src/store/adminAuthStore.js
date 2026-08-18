@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { adminLogin, adminLogout, getAdminMe } from '@/lib/adminAuth';
+import { adminLogin, adminLogout, clearAdminAccessToken, getAdminMe, storeAdminAccessToken } from '@/lib/adminAuth';
 
 const extractAdmin = (data) => data?.admin || data?.user || data?.data?.admin || data?.data?.user || data?.data || data;
 const SESSION_MAX_AGE = 5 * 60 * 1000;
@@ -17,10 +17,12 @@ export const useAdminAuthStore = create((set, get) => ({
     set({ status: 'loading' });
     try {
       const data = await getAdminMe();
+      storeAdminAccessToken(data?.accessToken || data?.data?.accessToken);
       const admin = extractAdmin(data);
       set({ admin, status: 'authenticated', checkedAt: Date.now() });
       return admin;
     } catch (error) {
+      clearAdminAccessToken();
       set({ admin: null, status: 'unauthenticated', checkedAt: Date.now() });
       return null;
     }
@@ -28,6 +30,7 @@ export const useAdminAuthStore = create((set, get) => ({
 
   login: async (email, password) => {
     const data = await adminLogin(email, password);
+    storeAdminAccessToken(data?.accessToken || data?.data?.accessToken);
     const admin = extractAdmin(data);
     set({ admin, status: 'authenticated', checkedAt: Date.now() });
     return admin;
@@ -37,6 +40,7 @@ export const useAdminAuthStore = create((set, get) => ({
     try {
       await adminLogout();
     } finally {
+      clearAdminAccessToken();
       set({ admin: null, status: 'unauthenticated', checkedAt: Date.now() });
     }
   },
