@@ -2,13 +2,21 @@ const asyncHandler = require("../middlewere/asyncHandler");
 const ApiResponse = require("../utility/apiresponse");
 const adminAuthService = require("../service/adminAuth.service");
 
-const cookieOptions = (expiresAt) => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production" || process.env.ADMIN_COOKIE_SAME_SITE === "none",
-  sameSite: process.env.ADMIN_COOKIE_SAME_SITE || "lax",
-  expires: expiresAt,
-  path: "/",
-});
+const getAdminCookieSameSite = () => {
+  if (process.env.NODE_ENV === "production") return "none";
+  return process.env.ADMIN_COOKIE_SAME_SITE || "lax";
+};
+
+const cookieOptions = (expiresAt) => {
+  const sameSite = getAdminCookieSameSite();
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production" || sameSite === "none",
+    sameSite,
+    expires: expiresAt,
+    path: "/",
+  };
+};
 
 const login = asyncHandler(async (req, res) => {
   const result = await adminAuthService.login(req.body, {
