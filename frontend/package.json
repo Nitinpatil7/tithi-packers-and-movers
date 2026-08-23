@@ -10,7 +10,8 @@
     "build": "npm run build:website && npm run build:admin && npm run build:monitoring",
     "build:website": "npm --prefix apps/website run build",
     "build:admin": "npm --prefix apps/admin run build",
-    "build:monitoring": "npm --prefix apps/monitoring run build"
+    "build:monitoring": "npm --prefix apps/monitoring run build",
+    "lint": "npm run lint --workspaces --if-present"
   },
   "dependencies": {
     "@flaticon/flaticon-uicons": "^3.3.1",
@@ -31,7 +32,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "eslint": "^8",
+    "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"

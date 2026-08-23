@@ -7,7 +7,7 @@
     "build": "next build",
     "prestart": "node ../../scripts/prepareStandalone.mjs monitoring",
     "start": "node -e \"process.env.PORT=process.env.PORT||'3002'; process.env.HOSTNAME=process.env.HOSTNAME||'127.0.0.1'; require('./.next/standalone/apps/monitoring/server.js')\"",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.1",
@@ -30,7 +30,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "eslint": "^8",
+    "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"
