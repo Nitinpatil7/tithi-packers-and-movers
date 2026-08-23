@@ -172,7 +172,7 @@ export default function WhyChooseUsSection() {
             whileTap={{ scale: 0.995 }}
             className="group relative overflow-hidden rounded-[32px] border border-sky-100 bg-white/92 p-6 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm transition-all duration-300 will-change-transform hover:border-sky-300 md:p-8"
           >
-            <div className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full bg-orange-100/60 dark:bg-sky-400/10 dark:ring-1 dark:ring-sky-300/20" />
+            <div className="why-active-halo pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full" />
             <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
             <div className="pointer-events-none absolute bottom-5 right-5 hidden h-32 w-32 place-items-center md:grid">
               <motion.div

@@ -187,7 +187,7 @@ export default function ServicesSection() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.06, duration: 0.25 }}
-                      className="services-feature-pill flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-2 text-sm font-bold text-sky-900 ring-1 ring-sky-100"
+                      className="services-feature-pill service-feature-chip flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-2 text-sm font-bold text-sky-900 ring-1 ring-sky-100"
                     >
                       <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
                       {feat}
@@ -251,7 +251,7 @@ export default function ServicesSection() {
                       <p className="mt-3 text-sm font-medium leading-7 text-text-secondary dark:text-text-primary">{service.description}</p>
                       <div className="mt-5 flex flex-col gap-2">
                         {service.features.map((feat) => (
-                          <span key={feat} className="rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-900 ring-1 ring-sky-100 dark:bg-sky-400/15 dark:text-text-primary dark:ring-sky-300/20">
+                          <span key={feat} className="service-feature-chip rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-900 ring-1 ring-sky-100 dark:bg-sky-400/15 dark:text-white dark:ring-sky-300/20">
                             {feat}
                           </span>
                         ))}
