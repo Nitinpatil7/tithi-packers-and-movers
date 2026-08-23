@@ -113,9 +113,9 @@ export default function HowItWorksSection() {
           </div>
           <div className="md:hidden absolute left-12 top-10 bottom-10 z-0 w-1 overflow-hidden rounded-full bg-white/10">
             <motion.div
-              className="w-full rounded-full bg-gradient-to-b from-orange-500 via-sky-300 to-orange-500"
-              initial={{ height: '0%' }}
-              whileInView={{ height: '100%' }}
+              className="h-full w-full origin-top rounded-full bg-gradient-to-b from-orange-500 via-sky-300 to-orange-500 will-change-transform"
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: prefersReducedMotion ? 0.01 : 1.45, ease: [0.22, 1, 0.36, 1] }}
             />

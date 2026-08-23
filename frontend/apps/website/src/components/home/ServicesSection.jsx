@@ -110,7 +110,7 @@ export default function ServicesSection() {
               Move Hassle-Free
             </span>
           </h2>
-          <p className="max-w-xl text-base font-medium leading-7 text-text-secondary md:text-lg">
+          <p className="max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
             Local, intercity, or just manpower - three specialized services tailored to exactly what you need.
           </p>
         </motion.div>
@@ -135,7 +135,7 @@ export default function ServicesSection() {
                   onMouseEnter={() => setActiveServiceId(service.id)}
                   onFocus={() => setActiveServiceId(service.id)}
                   onClick={() => setActiveServiceId(service.id)}
-                  className={`service-hover-card group rounded-3xl border p-4 text-left shadow-card transition-all duration-300 ${isActive ? 'border-sky-300 bg-white shadow-[0_24px_56px_rgba(3,105,161,.16)]' : 'border-sky-100 bg-white/82 hover:border-sky-300 hover:bg-white'}`}
+                  className={`service-hover-card group rounded-3xl border p-4 text-left shadow-card transition-all duration-300 will-change-transform ${isActive ? 'border-sky-300 bg-white shadow-[0_24px_56px_rgba(3,105,161,.16)]' : 'border-sky-100 bg-white/82 hover:border-sky-300 hover:bg-white'}`}
                   whileHover={{ y: -6, rotateX: 1.4, rotateY: -1.8 }}
                   whileTap={{ scale: 0.99 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 22 }}
@@ -146,10 +146,10 @@ export default function ServicesSection() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">0{index + 1}</span>
-                      <span className="mt-1 block text-lg font-black text-text-primary transition-colors group-hover:text-sky-900">
+                      <span className="mt-1 block text-lg font-black text-text-primary transition-colors group-hover:text-sky-900 dark:group-hover:text-text-primary">
                         {serviceTitleById[service.id] || service.title}
                       </span>
-                      <span className="mt-1 line-clamp-2 block text-sm font-medium leading-6 text-text-secondary">
+                      <span className="mt-1 line-clamp-2 block text-sm font-medium leading-6 text-text-secondary dark:text-text-primary">
                         {service.description}
                       </span>
                     </span>
@@ -168,7 +168,7 @@ export default function ServicesSection() {
             className="services-detail-card relative overflow-visible rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
           >
             <div className="absolute inset-0 services-panel-route opacity-90" />
-            <div className="relative z-10 grid min-h-[380px] grid-cols-[0.95fr_1.05fr] items-center gap-6">
+            <div className="relative z-10 grid grid-cols-[0.95fr_1.05fr] items-center gap-6">
               <div>
                 <span className="services-active-badge inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
                   <ActiveIcon className="h-3.5 w-3.5" />
@@ -177,7 +177,7 @@ export default function ServicesSection() {
                 <h3 className="mt-5 text-3xl font-black leading-tight text-text-primary">
                   {serviceTitleById[activeService.id] || activeService.title}
                 </h3>
-                <p className="mt-4 text-base font-medium leading-7 text-text-secondary">
+                <p className="mt-4 text-base font-medium leading-7 text-text-secondary dark:text-text-primary">
                   {activeService.description}
                 </p>
                 <div className="mt-6 flex flex-col gap-2">
@@ -233,7 +233,7 @@ export default function ServicesSection() {
               return (
                 <Link key={service.id} href={service.path} className="block w-[88vw] max-w-[430px] shrink-0 snap-center">
                   <motion.div
-                    className="service-hover-card group flex min-h-[390px] flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)]"
+                    className="service-hover-card group flex h-auto flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] will-change-transform"
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-60px' }}
@@ -245,13 +245,13 @@ export default function ServicesSection() {
                         <div className="icon-surface h-14 w-14 rounded-2xl" data-active="true">
                           <Icon className="h-7 w-7" strokeWidth={1.8} />
                         </div>
-                        <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100">0{index + 1}</span>
+                        <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100 dark:bg-orange-400/15 dark:text-orange-200 dark:ring-orange-300/20">0{index + 1}</span>
                       </div>
                       <h3 className="mt-5 text-xl font-black text-text-primary">{serviceTitleById[service.id] || service.title}</h3>
-                      <p className="mt-3 text-sm font-medium leading-7 text-text-secondary">{service.description}</p>
+                      <p className="mt-3 text-sm font-medium leading-7 text-text-secondary dark:text-text-primary">{service.description}</p>
                       <div className="mt-5 flex flex-col gap-2">
                         {service.features.map((feat) => (
-                          <span key={feat} className="rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-900 ring-1 ring-sky-100">
+                          <span key={feat} className="rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-900 ring-1 ring-sky-100 dark:bg-sky-400/15 dark:text-text-primary dark:ring-sky-300/20">
                             {feat}
                           </span>
                         ))}

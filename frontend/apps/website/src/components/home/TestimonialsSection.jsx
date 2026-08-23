@@ -22,7 +22,7 @@ const serviceLabels = {
 function TestimonialCard({ item }) {
   return (
     <article
-      className="testimonial-card group flex h-[342px] w-[86vw] max-w-[390px] shrink-0 flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-orange-100 hover:shadow-md active:scale-[.99] sm:w-[360px] md:p-7"
+      className="testimonial-card group flex min-h-[342px] w-[86vw] max-w-[390px] shrink-0 flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-card transition-all duration-300 will-change-transform hover:-translate-y-1 hover:border-orange-100 hover:shadow-md active:scale-[.99] sm:w-[360px] md:p-7"
     >
       <div className="min-h-0">
         <div className="flex items-start justify-between">
@@ -41,7 +41,7 @@ function TestimonialCard({ item }) {
             className="h-9 w-9 text-primary/15 transition-colors group-hover:text-orange-200"
           />
         </div>
-        <p className="mt-5 line-clamp-6 text-[15px] font-medium leading-7 text-text-secondary">
+        <p className="mt-5 text-[15px] font-medium leading-7 text-text-secondary dark:text-text-primary">
           “{item.content}”
         </p>
       </div>
@@ -65,12 +65,12 @@ function TestimonialCard({ item }) {
             <h3 className="truncate text-sm font-black text-text-primary">
               {item.name}
             </h3>
-            <p className="truncate text-xs font-semibold text-text-tertiary">
+            <p className="truncate text-xs font-semibold text-text-tertiary dark:text-text-secondary">
               {item.location || "Verified customer"}
             </p>
           </div>
         </div>
-        <span className="shrink-0 rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-[9px] font-bold uppercase text-orange-600">
+        <span className="shrink-0 rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-[9px] font-bold uppercase text-orange-600 dark:bg-orange-400/15 dark:text-orange-200 dark:border-orange-300/25">
           {serviceLabels[item.serviceType] || "General"}
         </span>
       </footer>
@@ -123,12 +123,12 @@ export default function TestimonialsSection() {
             Words of appreciation from{" "}
             <span className="text-orange-500">our customers</span>
           </h2>
-          <p className="text-base font-medium leading-7 text-text-secondary md:text-lg">
+          <p className="text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
             Real experiences from families and businesses who trusted Tithi with
             their move.
           </p>
           {!displayLoading && (
-            <div className="mt-2 inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-white/90 px-5 py-3 shadow-card">
+            <div className="mt-2 inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-white/90 px-5 py-3 shadow-card dark:border-orange-300/25 dark:bg-sky-400/10">
               <strong className="text-2xl text-text-primary">{average}</strong>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -138,7 +138,7 @@ export default function TestimonialsSection() {
                   />
                 ))}
               </div>
-              <span className="border-l border-orange-100 pl-4 text-xs font-bold text-text-secondary">
+              <span className="border-l border-orange-100 pl-4 text-xs font-bold text-text-secondary dark:border-orange-300/25 dark:text-text-primary">
                 {publishedReviewCount} published reviews
               </span>
             </div>

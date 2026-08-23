@@ -125,7 +125,7 @@ export default function WhyChooseUsSection() {
             {t.whyTitle || 'Why Surat Families '}{' '}
             <span className="gradient-text">{t.whyTitleHighlight || 'Trust Tithi'}</span>
           </h2>
-          <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium">
+          <p className="text-lg text-text-secondary max-w-xl leading-relaxed font-medium dark:text-text-primary">
             {t.whySubhead || 'Delivering consistency, safety, and modern convenience to home movers across Gujarat and India.'}
           </p>
         </motion.div>
@@ -170,9 +170,9 @@ export default function WhyChooseUsSection() {
             transition={{ duration: 0.35 }}
             whileHover={{ y: -5, scale: 1.015, rotateX: 1, rotateY: -1.2 }}
             whileTap={{ scale: 0.995 }}
-            className="group relative overflow-hidden rounded-[32px] border border-sky-100 bg-white/92 p-6 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm transition-all duration-300 hover:border-sky-300 md:p-8"
+            className="group relative overflow-hidden rounded-[32px] border border-sky-100 bg-white/92 p-6 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm transition-all duration-300 will-change-transform hover:border-sky-300 md:p-8"
           >
-            <div className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full bg-orange-100/60" />
+            <div className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full bg-orange-100/60 dark:bg-sky-400/10 dark:ring-1 dark:ring-sky-300/20" />
             <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
             <div className="pointer-events-none absolute bottom-5 right-5 hidden h-32 w-32 place-items-center md:grid">
               <motion.div
@@ -181,7 +181,7 @@ export default function WhyChooseUsSection() {
                 transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
               />
               <motion.div
-                className="h-16 w-16 rounded-2xl border border-sky-100 bg-white/80 shadow-card"
+                className="h-16 w-16 rounded-2xl border border-sky-100 bg-white/80 shadow-card dark:border-sky-300/30 dark:bg-sky-400/15 dark:shadow-[0_18px_38px_rgba(14,165,233,.18)]"
                 animate={prefersReducedMotion ? undefined : { rotateX: [0, 8, 0], rotateY: [0, -10, 0], y: [0, -5, 0] }}
                 transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
                 style={{ transformStyle: 'preserve-3d' }}
@@ -199,14 +199,14 @@ export default function WhyChooseUsSection() {
                 <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
                   {active.title}
                 </h3>
-                <p className="mt-3 text-sm font-medium leading-7 text-text-secondary md:text-base">
+                <p className="mt-3 text-sm font-medium leading-7 text-text-secondary dark:text-text-primary md:text-base">
                   {active.desc}
                 </p>
               </div>
             </div>
             <div className="relative z-10 mt-6 grid grid-cols-2 gap-2">
               {[benefits[0]?.title, benefits[5]?.title].filter(Boolean).map((label) => (
-                <div key={label} className="rounded-2xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-primary">
+                <div key={label} className="rounded-2xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-primary dark:bg-sky-400/15 dark:text-sky-100">
                   {label}
                 </div>
               ))}
@@ -223,10 +223,10 @@ export default function WhyChooseUsSection() {
               />
               <div className="relative z-10 flex items-center justify-end gap-3">
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={previousBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95" aria-label="Previous trust point">
+                  <button type="button" onClick={previousBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95 dark:border-sky-300/25 dark:bg-sky-400/15 dark:text-sky-100" aria-label="Previous trust point">
                     <ChevronLeft className="h-4.5 w-4.5" />
                   </button>
-                  <button type="button" onClick={nextBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95" aria-label="Next trust point">
+                  <button type="button" onClick={nextBenefit} className="grid h-9 w-9 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition active:scale-95 dark:border-sky-300/25 dark:bg-sky-400/15 dark:text-sky-100" aria-label="Next trust point">
                     <ChevronRight className="h-4.5 w-4.5" />
                   </button>
                 </div>
@@ -243,7 +243,7 @@ export default function WhyChooseUsSection() {
                       key={benefit.title}
                       type="button"
                       onClick={() => selectBenefit(idx)}
-                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[238px] w-[82vw] max-w-[350px] flex-col rounded-[26px] border bg-white/95 p-4 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100'}`}
+                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[238px] w-[82vw] max-w-[350px] flex-col rounded-[26px] border bg-white/95 p-4 text-left shadow-card transition-colors will-change-transform ${offset === 0 ? 'border-sky-300' : 'border-sky-100'}`}
                       animate={{
                         x: `calc(-50% + ${offset * 72}px)`,
                         y: Math.abs(offset) * 22,
@@ -265,7 +265,7 @@ export default function WhyChooseUsSection() {
                           <h4 className="text-base font-black leading-snug text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
                             {benefit.title}
                           </h4>
-                          <p className="mt-2 line-clamp-5 text-sm font-medium leading-6 text-text-secondary">
+                          <p className="mt-2 line-clamp-5 text-sm font-medium leading-6 text-text-secondary dark:text-text-primary">
                             {benefit.desc}
                           </p>
                         </div>
@@ -277,7 +277,7 @@ export default function WhyChooseUsSection() {
 
               <div className="relative z-10 mt-2 flex justify-center gap-2" aria-label="Trust point mobile carousel progress">
                 {benefits.map((benefit, index) => (
-                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} aria-label={`Show ${benefit.title}`} />
+                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary dark:bg-sky-300' : 'w-2 bg-sky-200 dark:bg-sky-400/25'}`} aria-label={`Show ${benefit.title}`} />
                 ))}
               </div>
             </div>
@@ -293,10 +293,10 @@ export default function WhyChooseUsSection() {
               />
               <div className="relative z-10 flex items-center justify-end gap-4">
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={previousBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95" aria-label="Previous trust point">
+                  <button type="button" onClick={previousBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95 dark:border-sky-300/25 dark:bg-sky-400/15 dark:text-sky-100 dark:hover:bg-sky-400/25" aria-label="Previous trust point">
                     <ChevronLeft className="h-5 w-5" />
                   </button>
-                  <button type="button" onClick={nextBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95" aria-label="Next trust point">
+                  <button type="button" onClick={nextBenefit} className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-100 bg-white text-primary shadow-xs transition hover:border-sky-300 hover:bg-sky-50 active:scale-95 dark:border-sky-300/25 dark:bg-sky-400/15 dark:text-sky-100 dark:hover:bg-sky-400/25" aria-label="Next trust point">
                     <ChevronRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -313,7 +313,7 @@ export default function WhyChooseUsSection() {
                       key={benefit.title}
                       type="button"
                       onClick={() => selectBenefit(idx)}
-                      className={`trust-card-3d group absolute left-1/2 top-4 flex min-h-[242px] w-[min(72%,430px)] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
+                      className={`trust-card-3d group absolute left-1/2 top-4 flex min-h-[242px] w-[min(72%,430px)] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors will-change-transform ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
                       animate={{
                         x: desktopPeekX(offset),
                         y: Math.abs(offset) * 22,
@@ -331,10 +331,10 @@ export default function WhyChooseUsSection() {
                           <Icon className="h-5.5 w-5.5" strokeWidth={1.7} />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-base font-black leading-snug text-text-primary group-hover:text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+                          <h4 className="text-base font-black leading-snug text-text-primary group-hover:text-primary dark:group-hover:text-sky-100" style={{ fontFamily: 'var(--font-heading)' }}>
                             {benefit.title}
                           </h4>
-                          <p className="mt-2 line-clamp-4 text-sm font-medium leading-6 text-text-secondary">
+                          <p className="mt-2 line-clamp-4 text-sm font-medium leading-6 text-text-secondary dark:text-text-primary">
                             {benefit.desc}
                           </p>
                         </div>
@@ -346,7 +346,7 @@ export default function WhyChooseUsSection() {
 
               <div className="relative z-10 mt-3 flex justify-center gap-2" aria-label="Trust point carousel progress">
                 {benefits.map((benefit, index) => (
-                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary' : 'w-2 bg-sky-200 hover:bg-sky-300'}`} aria-label={`Show ${benefit.title}`} />
+                  <button key={benefit.title} type="button" onClick={() => selectBenefit(index)} className={`h-2 rounded-full transition-all duration-300 ${index === activeBenefit ? 'w-8 bg-primary dark:bg-sky-300' : 'w-2 bg-sky-200 hover:bg-sky-300 dark:bg-sky-400/25 dark:hover:bg-sky-300/60'}`} aria-label={`Show ${benefit.title}`} />
                 ))}
               </div>
             </div>

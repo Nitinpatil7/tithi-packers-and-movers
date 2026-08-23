@@ -1096,7 +1096,8 @@ svg[aria-label$="coverage map"] path[stroke-dasharray] {
 /* Keep the visual language professional: Lucide assets remain outline-only. */
 svg.lucide { fill: none !important; }
 
-html {
+html,
+body {
   scroll-behavior: smooth;
 }
 
@@ -1545,6 +1546,13 @@ input:focus, select:focus, textarea:focus {
 
 .process-route-spark {
   animation: sparkRun 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
 }
 
 @media (max-width: 767px) {
