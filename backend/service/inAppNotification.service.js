@@ -29,6 +29,39 @@ const createNewBookingNotification = async (bookingOrId) => {
   );
 };
 
+const createContactQueryNotification = async (inquiry) => {
+  if (!inquiry?._id) throw new ApiError(400, "Contact inquiry is required");
+
+  const isItemSearch = inquiry.source === "item_search" || inquiry.type === "item_search";
+  const contactName = inquiry.name || (isItemSearch ? "Website item search" : "Customer");
+  const searchedTerm = inquiry.searchedTerm || "";
+
+  return InAppNotification.findOneAndUpdate(
+    { type: "contact_query", "meta.contactId": inquiry._id },
+    {
+      $setOnInsert: {
+        type: "contact_query",
+        title: isItemSearch ? "Item search query received" : "New contact query received",
+        message: isItemSearch
+          ? `Visitor could not find item: ${searchedTerm || inquiry.subject || "Unknown item"}`
+          : `${contactName} submitted a contact query${inquiry.subject ? `: ${inquiry.subject}` : ""}`,
+        meta: {
+          contactId: inquiry._id,
+          source: inquiry.source || "contact_form",
+          contactType: inquiry.type || "general",
+          searchedTerm,
+          customerName: inquiry.name,
+          customerMobile: inquiry.mobile,
+          customerEmail: inquiry.email,
+          subject: inquiry.subject,
+          path: `/contacts?highlight=${inquiry._id}`,
+        },
+      },
+    },
+    { new: true, upsert: true, runValidators: true },
+  );
+};
+
 const getNotifications = async (query = {}) => {
   const filter = {};
   if (query.isRead === "true") filter.isRead = true;
@@ -102,6 +135,7 @@ const deleteNotification = async (id) => {
 
 module.exports = {
   createNewBookingNotification,
+  createContactQueryNotification,
   getNotifications,
   getDashboardSummary,
   markAsRead,

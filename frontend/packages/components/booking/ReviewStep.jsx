@@ -113,6 +113,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
 
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
   const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  const selectedItemNames = [...new Set(items.map((item) => cleanText(item.name)).filter(Boolean))];
   const selectedTruck = pricingBreakdown.selectedTruck?.name ? pricingBreakdown.selectedTruck : null;
   const labourPerEmployee = employeeCount > 0 ? employeeTotal / employeeCount : 0;
   const pickupFloorSelected = Number(pickupLocation?.floor || 0) > 0;
@@ -168,6 +169,29 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         <ContextChip icon={MapPin} label="Pickup" value={cleanText(pickupLocation?.address)} />
         <ContextChip icon={MapPin} label="Drop" value={cleanText(dropLocation?.address)} />
       </section>
+
+      {!isLabour && selectedItemNames.length > 0 && (
+        <motion.section
+          className="min-w-0 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.35 }}
+        >
+          <div className="border-b border-orange-100 bg-gradient-to-r from-orange-50 to-sky-50 px-5 py-4 sm:px-6">
+            <h4 className="text-base font-black text-text-primary">Selected Items</h4>
+            <p className="mt-0.5 text-xs font-semibold text-text-tertiary">Items to be moved in this booking.</p>
+          </div>
+          <div className="px-5 py-4 sm:px-6">
+            <div className="grid max-h-56 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+              {selectedItemNames.map((name) => (
+                <span key={name} className="rounded-2xl border border-sky-100 bg-sky-50/50 px-3 py-2 text-sm font-bold text-text-primary">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
 
       <motion.section
         className="booking-review-summary min-w-0 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-card"

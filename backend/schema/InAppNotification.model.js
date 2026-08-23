@@ -4,7 +4,7 @@ const inAppNotificationSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["new_booking", "booking_reminder", "system"],
+      enum: ["new_booking", "booking_reminder", "contact_query", "system"],
       required: true,
       index: true,
     },

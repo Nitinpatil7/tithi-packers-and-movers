@@ -1,16 +1,37 @@
 const mongoose = require("mongoose");
 const contactInquirySchema = new mongoose.Schema(
   {
+    source: {
+      type: String,
+      enum: ["contact_form", "item_search"],
+      default: "contact_form",
+      index: true,
+    },
+
+    type: {
+      type: String,
+      enum: ["general", "item_search"],
+      default: "general",
+      index: true,
+    },
+
+    searchedTerm: {
+      type: String,
+      trim: true,
+    },
+
     name: {
       type: String,
-      required: true,
+      required: function requiredName() { return this.source !== "item_search"; },
       trim: true,
+      default: "",
     },
 
     mobile: {
       type: String,
-      required: true,
+      required: function requiredMobile() { return this.source !== "item_search"; },
       trim: true,
+      default: "",
     },
 
     email: {

@@ -1,8 +1,23 @@
 const ContactInquiry = require("../schema/Contact.model");
 const ApiError = require("../utility/apierror");
+const inAppNotificationService = require("./inAppNotification.service");
 
 const createContactInquiry = async (payload) => {
-  const inquiry = await ContactInquiry.create(payload);
+  const source = payload.source === "item_search" || payload.type === "item_search"
+    ? "item_search"
+    : "contact_form";
+  const searchedTerm = String(payload.searchedTerm || payload.searchQuery || payload.itemQuery || "").trim();
+  const inquiry = await ContactInquiry.create({
+    ...payload,
+    source,
+    type: source === "item_search" ? "item_search" : (payload.type || "general"),
+    searchedTerm,
+    subject: payload.subject || (source === "item_search" ? "Item not found" : undefined),
+    message: payload.message || (source === "item_search" && searchedTerm
+      ? `Customer searched for "${searchedTerm}" in the booking item catalog, but no matching item was found.`
+      : payload.message),
+  });
+  await inAppNotificationService.createContactQueryNotification(inquiry);
   return inquiry;
 };
 

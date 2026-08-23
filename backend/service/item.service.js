@@ -99,13 +99,13 @@ const itemFilter = (query = {}, publicOnly = false) => {
 };
 
 const getItems = (query = {}, publicOnly = false) => Item.find(itemFilter(query, publicOnly))
-  .populate("categoryId", "key name description isActive sortOrder")
+  .populate("categoryId", "key name description icon isActive sortOrder")
   .populate("groupId", "key name description isActive sortOrder")
   .populate("sizes.sizeId", "key label description isActive sortOrder")
   .sort({ section: 1, group: 1, sortOrder: 1, name: 1 });
 
 const publicItemSelect = "key categoryId section groupId group name icon sizes sortOrder";
-const publicSectionSelect = "key name description sortOrder";
+const publicSectionSelect = "key name description icon sortOrder";
 const publicGroupSelect = "key categoryId section name description sortOrder";
 const activeVariant = (variant) => variant.isActive !== false;
 const publicItemShape = (item) => ({

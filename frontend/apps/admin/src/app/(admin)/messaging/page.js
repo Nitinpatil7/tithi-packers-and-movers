@@ -111,6 +111,8 @@ export default function AdminMessagingPage() {
 function InAppNotificationCard({ item, onRead, busy }) {
   const booking = item.bookingId;
   const bookingId = booking?.bookingid || item.meta?.bookingNumber;
+  const contactId = item.meta?.contactId;
+  const contactHref = item.meta?.path || (contactId ? `/contacts?highlight=${encodeURIComponent(contactId)}` : '/contacts');
   const scheduledAt = booking?.scheduledate || item.meta?.scheduledAt;
   const scheduledLabel = scheduledAt ? new Date(scheduledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Schedule not set';
 
@@ -125,12 +127,17 @@ function InAppNotificationCard({ item, onRead, busy }) {
           <p className="mt-2 text-sm font-medium leading-6 text-slate-600">{item.message}</p>
           <div className="mt-3 grid gap-2 text-xs font-semibold text-slate-500 sm:grid-cols-2 lg:grid-cols-4">
             <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-sky-600" />{scheduledLabel}</span>
-            <span>Customer: {booking?.customer?.name || item.meta?.customerName || 'Customer'}</span>
+            <span>Customer: {booking?.customer?.name || item.meta?.customerName || (item.type === 'contact_query' ? 'Website visitor' : 'Customer')}</span>
             <span>Status: {booking?.status?.replaceAll('_', ' ') || 'Not linked'}</span>
-            <span>Service: {booking?.serviceType?.replaceAll('_', ' ') || item.meta?.serviceType?.replaceAll('_', ' ') || '-'}</span>
+            <span>Service: {booking?.serviceType?.replaceAll('_', ' ') || item.meta?.serviceType?.replaceAll('_', ' ') || item.meta?.source?.replaceAll('_', ' ') || '-'}</span>
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-2">
+          {item.type === 'contact_query' && (
+            <Link href={contactHref} className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-black text-amber-700 transition hover:bg-amber-50">
+              View query
+            </Link>
+          )}
           {bookingId && (
             <Link href={`/bookings/${encodeURIComponent(bookingId)}`} className="rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-black text-sky-700 transition hover:bg-sky-100">
               View booking

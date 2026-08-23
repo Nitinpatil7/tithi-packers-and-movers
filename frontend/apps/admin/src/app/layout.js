@@ -2,6 +2,7 @@
 import React from 'react';
 import localFont from 'next/font/local';
 import Providers from '@tithi/components/layout/Providers';
+import '@flaticon/flaticon-uicons/css/regular/rounded.css';
 import '@tithi/styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
