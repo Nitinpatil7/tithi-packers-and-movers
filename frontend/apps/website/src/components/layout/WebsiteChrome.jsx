@@ -2,6 +2,7 @@
 
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import SiteStructuredData from '@/components/layout/SiteStructuredData';
 import { usePathname } from 'next/navigation';
 
 export default function WebsiteChrome({ children }) {
@@ -10,6 +11,7 @@ export default function WebsiteChrome({ children }) {
 
   return (
     <>
+      <SiteStructuredData />
       <Navbar />
       <div className="public-theme flex-1 w-full">
         {children}

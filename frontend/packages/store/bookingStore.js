@@ -24,13 +24,13 @@ const initialBookingData = {
   items: [],                 // List of items { name, quantity, tag, price }
   specialServices: [],       // List of selected add-ons { name, quantity, price, unit }
 
-  // Employee & Hours (Labour service + shared)
+  // Employee & Hours (Labour & Vehicle service + shared)
   employeeCount: 0,
   employeeTotal: 0,
   selectedTruck: null,
   truckTotal: 0,
 
-  // Hours (Labour service only)
+  // Hours (Labour & Vehicle service only)
   hoursCount: 0,
   hoursTotal: 0,
 
@@ -86,11 +86,59 @@ const getInitialBookingData = () => ({
   itemsVolume: { ...initialBookingData.itemsVolume },
 });
 
+const hasAddress = (location) => Boolean(String(location?.address || '').trim());
+const hasSelectedItems = (bookingData) => (bookingData.items || []).some((item) => Number(item.quantity || 0) > 0);
+const hasSchedule = (bookingData) => Boolean(bookingData.scheduledDate && bookingData.timeSlot);
+const hasTruckChoice = (bookingData) => bookingData.labourOnly === true || Boolean(bookingData.selectedTruck || bookingData.truckType || bookingData.selectedTruckData);
+const hasEmployees = (bookingData) => Number(bookingData.employeeCount || 0) > 0;
+const hasHours = (bookingData) => Number(bookingData.hoursCount || 0) > 0;
+const hasPackingSubType = (bookingData) => Boolean(bookingData.packingSubType);
+const hasVolume = (bookingData) => {
+  const volume = bookingData.itemsVolume || {};
+  return Boolean(volume.propertySize) || Number(volume.fragileCount || 0) > 0 || Number(volume.boxCount || 0) > 0;
+};
+const hasBusinessDetails = (bookingData) => {
+  const details = bookingData.businessDetails || {};
+  return Boolean(String(details.businessType || '').trim() || String(details.employeeCount || '').trim() || String(details.premisesSize || '').trim());
+};
+
+const validators = {
+  location: (bookingData, rule = {}) => hasAddress(bookingData.pickupLocation) && (rule.dropOptional || hasAddress(bookingData.dropLocation)),
+  items: hasSelectedItems,
+  schedule: hasSchedule,
+  truck: hasTruckChoice,
+  employees: hasEmployees,
+  hours: hasHours,
+  packingSubType: hasPackingSubType,
+  volume: hasVolume,
+  businessDetails: hasBusinessDetails,
+  optional: () => true,
+};
+
+const normalizeStepRules = (stepRules = []) => Array.isArray(stepRules)
+  ? stepRules.map((rule) => (typeof rule === 'string' ? { type: rule } : rule || { type: 'optional' }))
+  : [];
+
+const firstReachableStep = (requestedStep, bookingData, stepRules = []) => {
+  const safeStep = Math.max(0, Number(requestedStep) || 0);
+  const rules = normalizeStepRules(stepRules);
+  if (!rules.length) return safeStep;
+
+  for (let index = 0; index < Math.min(safeStep, rules.length); index += 1) {
+    const rule = rules[index];
+    const validate = validators[rule.type || 'optional'] || validators.optional;
+    if (!validate(bookingData, rule)) return index;
+  }
+  return safeStep;
+};
+
 export const useBookingStore = create(persist((set) => ({
   currentStep: 0,
   bookingData: getInitialBookingData(),
 
-  setStep: (step) => set({ currentStep: step }),
+  setStep: (step, stepRules) => set((state) => ({
+    currentStep: firstReachableStep(step, state.bookingData, stepRules),
+  })),
 
   updateBookingData: (data) => set((state) => {
     const updatedData = { ...state.bookingData };
@@ -136,7 +184,9 @@ export const useBookingStore = create(persist((set) => ({
 
   resetBooking: () => set({ currentStep: 0, bookingData: getInitialBookingData() }),
 
-  nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
+  nextStep: (stepRules) => set((state) => ({
+    currentStep: firstReachableStep(state.currentStep + 1, state.bookingData, stepRules),
+  })),
 
   prevStep: () => set((state) => ({ currentStep: Math.max(0, state.currentStep - 1) })),
 }), {

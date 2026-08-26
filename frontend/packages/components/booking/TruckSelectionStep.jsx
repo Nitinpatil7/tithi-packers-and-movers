@@ -11,11 +11,11 @@ import BookingActionBar from './BookingActionBar';
 
 const NO_TRUCK_OPTION = {
   id: 'no_truck',
-  name: 'No Truck - Labour Only',
+  name: 'Without Vehicle',
   capacityKg: 0,
   image: '',
   price: 0,
-  bestFor: 'Only labour/workers required',
+  bestFor: 'Only workers required',
   example: 'Use this when you only need lifting, loading, unloading, or arranging.',
   isNoTruck: true,
 };
@@ -47,7 +47,7 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
 
   const handleNext = () => {
     if (!selectedTruck) {
-      setError(allowNoTruck ? 'Please choose a truck or select labour only.' : 'Please select a truck size to continue.');
+      setError(allowNoTruck ? 'Please choose with vehicle or without vehicle.' : 'Please select a truck size to continue.');
       return;
     }
 
@@ -82,7 +82,7 @@ export default function TruckSelectionStep({ onSubmit, onBack, initialData = {},
             <Truck className="mr-2 inline h-7 w-7 text-primary" /> Select Vehicle Size
           </h3>
           <p className="text-sm text-text-secondary font-medium">
-            {allowNoTruck ? 'Choose a truck, or continue with labour only if no vehicle is needed.' : 'Choose the truck by name and kg capacity from admin pricing rules.'}
+            {allowNoTruck ? 'Choose a vehicle, or continue without one if only workers are needed.' : 'Choose the truck by name and kg capacity from admin pricing rules.'}
           </p>
         </div>
         <button

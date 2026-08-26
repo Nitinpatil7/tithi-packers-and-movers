@@ -11,7 +11,7 @@ export default function BookingFilters({ filters = {}, onFilterChange }) {
     { value: 'all', label: 'All Services' },
     { value: 'local_shifting', label: 'Local Shifting' },
     { value: 'intercity_moving', label: 'Intercity Moving' },
-    { value: 'porter_labour_service', label: 'Porter & Labour' }
+    { value: 'porter_labour_service', label: 'Labour & Vehicle' }
   ];
 
   const statusOptions = [

@@ -18,7 +18,7 @@ export default function Footer() {
   const phone = site.phone || '';
   const whatsapp = site.whatsappNumber || '';
   const email = site.email || '';
-  const address = site.address || '';
+  const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
   const serviceLabels = site.serviceLabels || {};
   const logoSrc = resolveSiteAssetUrl(site.logoUrl);
 
@@ -27,7 +27,7 @@ export default function Footer() {
   const services = [
     { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9' },
     { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service', path: '/book/labour-service', color: '#38BDF8' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8' },
   ];
 
   const quickLinks = [

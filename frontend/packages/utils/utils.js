@@ -82,9 +82,9 @@ export function getServiceLabel(serviceKey) {
     local_shifting: 'Local Shifting',
     intercity: 'Intercity Moving',
     intercity_moving: 'Intercity Moving',
-    porter_labour_service: 'Porter & Labour Service',
-    labour: 'Porter & Labour Service',
-    'labour-service': 'Porter & Labour Service',
+    porter_labour_service: 'Labour & Vehicle',
+    labour: 'Labour & Vehicle',
+    'labour-service': 'Labour & Vehicle',
     packing: 'Packing Service',
     commercial: 'Commercial Relocation'
   };

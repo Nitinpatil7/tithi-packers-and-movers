@@ -632,7 +632,7 @@ Supported service types: `local_shifting | intercity_moving | porter_labour_serv
 Important behavior:
 
 - `local_shifting` and `intercity_moving` can use base price, free item allowance, distance slabs, floor slabs and lift rules.
-- `porter_labour_service` can use truck rates and hourly rates.
+- `porter_labour_service` can use vehicle rates and hourly rates.
 - Backend stores these rules. It does not automatically recalculate existing booking totals from these rules.
 - Item extra charge comes from selected item-size variant price in `/api/items/catalog` when quantity crosses the configured free allowance.
 
@@ -849,8 +849,8 @@ Request body:
 ```json
 {
   "serviceType": "porter_labour_service",
-  "name": "Porter labour pricing",
-  "description": "Truck and hourly-rate rules for porter labour bookings.",
+  "name": "Labour & Vehicle pricing",
+  "description": "Vehicle and hourly-rate rules for Labour & Vehicle bookings.",
   "currency": "INR",
   "basePrice": 0,
   "distancePricing": { "enabled": false, "slabs": [] },

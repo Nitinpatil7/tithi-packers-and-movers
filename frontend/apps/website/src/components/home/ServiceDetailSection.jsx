@@ -69,7 +69,7 @@ export default function ServiceDetailSection() {
       path: '/book/intercity-moving'
     },
     labour: {
-      name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter Service',
+      name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Vehicle',
       border: 'border-l-service-packing',
       bgGlow: 'from-service-packing/5 to-transparent',
       text: t.packingServiceText || 'Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.',
@@ -87,7 +87,7 @@ export default function ServiceDetailSection() {
         'स्थानीय सहायता के लिए तुरंत उपलब्धता',
       ] : [
         'Allocation of 1 to 5 trained loaders/workers',
-        'Manpower only — loading, unloading, and lifting (no truck included)',
+        'Workers with optional vehicle support for loading, unloading, and lifting',
         'Transparent hourly pricing with zero hidden charges',
         'Safe lifting of heavy furniture, wardrobes, or heavy boxes',
         'Quick deployment for local shifting or loading tasks',

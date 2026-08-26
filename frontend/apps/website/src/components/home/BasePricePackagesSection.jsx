@@ -12,7 +12,7 @@ import { formatCurrency } from '@tithi/utils/utils';
 const SERVICE_META = {
   local_shifting: { fallback: 'Local Shifting', href: '/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
   intercity_moving: { fallback: 'Intercity Moving', href: '/book/intercity-moving?basePackage=1', icon: Route, tone: 'blue' },
-  porter_labour_service: { fallback: 'Labour & Porter', href: '/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
+  porter_labour_service: { fallback: 'Labour & Vehicle', href: '/book/labour-service?basePackage=1', icon: Users, tone: 'emerald' },
 };
 
 const toneClass = {

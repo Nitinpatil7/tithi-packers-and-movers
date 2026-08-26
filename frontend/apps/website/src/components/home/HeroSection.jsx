@@ -1,15 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 import { useLanguageStore } from '@tithi/store/languageStore';
+import AnimatedServiceIcon from '@/components/hero/AnimatedServiceIcon';
+
+const SERVICE_ICONS = {
+  local: '/local_moving.lottie',
+  intercity: '/Intercity_moving.lottie',
+  labour: '/labour_service.lottie',
+};
 
 export default function HeroSection() {
   const { language } = useLanguageStore();
@@ -33,9 +40,9 @@ export default function HeroSection() {
   ];
 
   const services = [
-    { name: site.serviceLabels?.local_shifting || t.localShifting , path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { name: site.serviceLabels?.porter_labour_service || t.labourService , path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { key: 'local', name: site.serviceLabels?.local_shifting || t.localShifting, path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
+    { key: 'intercity', name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
+    { key: 'labour', name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [
@@ -157,26 +164,10 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-[60] mt-4 w-full px-4 sm:mt-6 sm:px-6 lg:z-20 lg:px-8">
-        <div className="mx-auto grid max-w-4xl grid-cols-3 items-stretch gap-2 sm:gap-4">
+      <div className="relative z-[60] mt-8 w-full px-4 sm:mt-10 sm:px-6 lg:z-20 lg:mt-12 lg:px-8">
+        <div className="mx-auto grid max-w-5xl grid-cols-3 items-stretch gap-3 sm:gap-5 lg:gap-6">
           {services.map((service) => (
-            <Link key={service.name} href={service.path} className="h-full min-w-0">
-              <motion.div
-                whileHover={{ y: -4, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ scale: { type: 'spring', stiffness: 300, damping: 20 } }}
-                className="hero-service-card group flex h-full min-h-[108px] cursor-pointer flex-col items-center justify-between gap-2 rounded-2xl border border-orange-100/80 bg-white/95 p-3 text-center shadow-card transition-all duration-300 hover:border-primary/25 hover:shadow-lg active:shadow-md sm:min-h-[132px] sm:gap-3 sm:p-4"
-                style={{ '--hover-color': service.color }}
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12" style={{ backgroundColor: service.bg, color: service.color }}>
-                  {React.createElement(service.icon, { className: 'h-5 w-5 transition-colors group-hover:text-sky-800 sm:h-6 sm:w-6', strokeWidth: 1.9 })}
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
-                  <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{t.bookNow || 'Book Now'}</span>
-                </div>
-              </motion.div>
-            </Link>
+            <HeroServiceCard key={service.key} service={service} cta={t.bookNow || 'Book Now'} />
           ))}
         </div>
       </div>
@@ -190,5 +181,56 @@ export default function HeroSection() {
         className="pointer-events-none absolute bottom-[-15%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-56 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[520px] lg:hidden"
       />
     </section>
+  );
+}
+
+function HeroServiceCard({ service, cta }) {
+  const [focused, setFocused] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const cardRef = useRef(null);
+  const isInView = useInView(cardRef, { amount: 0.35 });
+  const Icon = service.icon;
+  const iconSrc = SERVICE_ICONS[service.key];
+  const isActive = focused || pressed || isInView;
+
+  return (
+    <Link
+      href={service.path}
+      ref={cardRef}
+      className="h-full min-w-0 outline-none"
+      onMouseEnter={() => setFocused(true)}
+      onMouseLeave={() => setFocused(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerCancel={() => setPressed(false)}
+    >
+      <motion.div
+        animate={{ y: isActive ? -4 : 0, scale: isActive ? 1.04 : 1 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-all duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 ${
+          isActive
+            ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
+            : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
+        }`}
+      >
+        <div
+          className="grid h-14 w-14 place-items-center rounded-full bg-sky-50/80 p-0.5 transition-transform duration-300 group-hover:scale-105 dark:bg-sky-950/70 sm:h-16 sm:w-16 md:h-20 md:w-20"
+          style={{ color: service.color }}
+        >
+          {iconSrc ? (
+            <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-[108%] w-[108%] rounded-full" />
+          ) : (
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.9} />
+          )}
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
+          <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{cta}</span>
+        </div>
+      </motion.div>
+    </Link>
   );
 }

@@ -16,6 +16,7 @@ import SuccessStep from '@tithi/components/booking/SuccessStep';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
+const STEP_RULES = ['location', 'items', 'optional', 'schedule', 'optional', 'optional'];
 
 export default function LocalShiftingPage() {
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
@@ -43,7 +44,8 @@ export default function LocalShiftingPage() {
       resetBooking();
       updateBookingData({ serviceType: 'local' });
     }
-  }, [currentStep, createdBookingId, resetBooking, updateBookingData]);
+    setStep(currentStep, STEP_RULES);
+  }, [currentStep, createdBookingId, resetBooking, setStep, updateBookingData]);
 
   useEffect(() => {
     if (pricingRule?._id && bookingData.pricingRule?._id !== pricingRule._id) updateBookingData({ pricingRule });
@@ -51,8 +53,8 @@ export default function LocalShiftingPage() {
 
   const handleStepSubmit = (stepData) => {
     updateBookingData(stepData);
-    if (basePackageMode) setStep(4);
-    else nextStep();
+    if (basePackageMode) setStep(4, STEP_RULES);
+    else nextStep(STEP_RULES);
   };
   const handleLocationSubmit = async (stepData) => {
     const nextData = { ...bookingData, ...stepData, serviceType: 'local', pricingRule: pricingRule || bookingData.pricingRule };
@@ -66,7 +68,7 @@ export default function LocalShiftingPage() {
         return;
       }
     }
-    nextStep();
+    nextStep(STEP_RULES);
   };
 
   const handleOtpVerified = async (contactData) => {
@@ -84,7 +86,7 @@ export default function LocalShiftingPage() {
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: buildDraftUpdatePayload(finalData) });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: buildDraftUpdatePayload(finalData).pricing } });
       setCreatedBookingId(response.bookingid || response.booking?.bookingid || bookingId);
-      nextStep();
+      nextStep(STEP_RULES);
       useBookingStore.persist.clearStorage();
       toast.success('Local shifting scheduled successfully!');
     } catch (error) {
@@ -94,7 +96,7 @@ export default function LocalShiftingPage() {
 
   const handleReset = () => {
     resetBooking();
-    setStep(0);
+    setStep(0, STEP_RULES);
     setCreatedBookingId(null);
     updateBookingData({ serviceType: 'local' });
   };
@@ -119,7 +121,7 @@ export default function LocalShiftingPage() {
         <DateTimeStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} />
       )}
       {currentStep === 4 && (
-        <ReviewStep onSubmit={() => nextStep()} onBack={prevStep} bookingData={bookingData} />
+        <ReviewStep onSubmit={() => nextStep(STEP_RULES)} onBack={prevStep} bookingData={bookingData} />
       )}
       {currentStep === 5 && (
         <OTPStep onSubmit={handleOtpVerified} onBack={prevStep} initialData={bookingData} />

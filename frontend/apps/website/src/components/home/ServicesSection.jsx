@@ -38,8 +38,8 @@ export default function ServicesSection() {
     },
     {
       id: 'labour',
-      title: 'Labour & Porter Service',
-      description: 'Expert manpower only, no truck needed. Lifting, shifting, or arranging heavy items. Charged per hour.',
+      title: 'Labour & Vehicle',
+      description: 'Expert workers with optional vehicle support for lifting, loading, unloading, or arranging heavy items.',
       icon: Users,
       color: '#38BDF8',
       softBg: '#E0F2FE',
@@ -111,7 +111,7 @@ export default function ServicesSection() {
             </span>
           </h2>
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
-            Local, intercity, or just manpower - three specialized services tailored to exactly what you need.
+            Local, intercity, or Labour & Vehicle - three specialized services tailored to exactly what you need.
           </p>
         </motion.div>
 

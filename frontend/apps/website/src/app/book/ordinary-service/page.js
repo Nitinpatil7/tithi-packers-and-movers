@@ -19,6 +19,8 @@ import { useForm } from 'react-hook-form';
 import { ArrowLeft, ArrowRight, Box } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const STEP_RULES = ['packingSubType', { type: 'location', dropOptional: true }, 'volume', 'optional', 'schedule', 'optional', 'optional'];
+
 export default function OrdinaryServicePage() {
   const { 
     currentStep, 
@@ -49,10 +51,13 @@ export default function OrdinaryServicePage() {
     'Overview',
     'Verify OTP'
   ];
+  useEffect(() => {
+    setStep(currentStep, STEP_RULES);
+  }, [currentStep, setStep]);
 
   const handleStepSubmit = (stepData) => {
     updateBookingData(stepData);
-    nextStep();
+    nextStep(STEP_RULES);
   };
 
   const handleOtpVerified = async (contactData) => {
@@ -67,7 +72,7 @@ export default function OrdinaryServicePage() {
     try {
       const response = await createBookingMutation.mutateAsync(finalData);
       setCreatedBookingId(response.bookingId);
-      nextStep();
+      nextStep(STEP_RULES);
       toast.success('Ordinary service request registered successfully!');
     } catch (err) {
       toast.error('Error submitting service request.');
@@ -76,7 +81,7 @@ export default function OrdinaryServicePage() {
 
   const handleReset = () => {
     resetBooking();
-    setStep(0);
+    setStep(0, STEP_RULES);
     setCreatedBookingId(null);
     updateBookingData({ serviceType: 'packing' });
   };

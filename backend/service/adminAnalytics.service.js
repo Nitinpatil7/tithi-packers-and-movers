@@ -4,7 +4,7 @@ const BUSINESS_BOOKINGS = { status: { $nin: ["draft", "cancelled"] } };
 const SERVICE_LABELS = {
   local_shifting: "Local Shifting",
   intercity_moving: "Intercity Moving",
-  porter_labour_service: "Porter & Labour Service",
+  porter_labour_service: "Labour & Vehicle",
 };
 
 const startOfUtcDay = (date) => {

@@ -8,8 +8,6 @@ import '@tithi/styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableGoogleMapsKey = Boolean(googleMapsKey && !googleMapsKey.includes('PLACEHOLDER'));
-const businessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE || '';
-
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
   variable: '--font-display',
@@ -55,55 +53,6 @@ export const metadata = {
   }
 };
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "MovingCompany",
-  "name": "Tithi Packers and Movers",
-  "description": "Professional packers and movers in Surat offering local shifting, intercity moving, packing services, and commercial relocation.",
-  "url": "https://tithipacking.com",
-  "telephone": businessPhone,
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "102, Shanti Complex, Opp. Star Bazaar, Adajan",
-    "addressLocality": "Surat",
-    "addressRegion": "Gujarat",
-    "postalCode": "395009",
-    "addressCountry": "IN"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": "21.1702",
-    "longitude": "72.8311"
-  },
-  "openingHoursSpecification": {
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    "opens": "07:00",
-    "closes": "21:00"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "reviewCount": "234"
-  },
-  "priceRange": "₹₹",
-  "areaServed": ["Surat", "Gujarat", "India"],
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Moving Services",
-    "itemListElement": [
-      { "@type": "Offer", "name": "Local Shifting Surat" },
-      { "@type": "Offer", "name": "Intercity Moving" },
-      { "@type": "Offer", "name": "Ordinary Service" },
-      { "@type": "Offer", "name": "Business Relocation" }
-    ]
-  },
-  "sameAs": [
-    "https://instagram.com/tithipackers",
-    "https://facebook.com/tithipackers"
-  ]
-};
-
 export default function RootLayout({ children }) {
   return (
     <html
@@ -112,10 +61,6 @@ export default function RootLayout({ children }) {
       style={{ '--font-heading': 'var(--font-display)' }}
     >
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
         {/* Never load Google with a placeholder key: its SDK corrupts inputs
             with a repeating error image when authentication fails. */}
         {hasUsableGoogleMapsKey && (

@@ -17,6 +17,7 @@ import SuccessStep from '@tithi/components/booking/SuccessStep';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
+const STEP_RULES = ['location', 'items', 'optional', 'schedule', 'optional', 'optional'];
 
 export default function IntercityMovingPage() {
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
@@ -36,7 +37,6 @@ export default function IntercityMovingPage() {
       resetBooking();
       updateBookingData({ serviceType: 'intercity' });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
@@ -44,7 +44,8 @@ export default function IntercityMovingPage() {
       resetBooking();
       updateBookingData({ serviceType: 'intercity' });
     }
-  }, [currentStep, createdBookingId, resetBooking, updateBookingData]);
+    setStep(currentStep, STEP_RULES);
+  }, [currentStep, createdBookingId, resetBooking, setStep, updateBookingData]);
 
   useEffect(() => {
     if (pricingRule?._id && bookingData.pricingRule?._id !== pricingRule._id) updateBookingData({ pricingRule });
@@ -52,8 +53,8 @@ export default function IntercityMovingPage() {
 
   const handleStepSubmit = (stepData) => {
     updateBookingData(stepData);
-    if (basePackageMode) setStep(4);
-    else nextStep();
+    if (basePackageMode) setStep(4, STEP_RULES);
+    else nextStep(STEP_RULES);
   };
   const handleLocationSubmit = async (stepData) => {
     const nextData = { ...bookingData, ...stepData, serviceType: 'intercity', pricingRule: pricingRule || bookingData.pricingRule };
@@ -67,7 +68,7 @@ export default function IntercityMovingPage() {
         return;
       }
     }
-    nextStep();
+    nextStep(STEP_RULES);
   };
 
   const handleOtpVerified = async (contactData) => {
@@ -86,7 +87,7 @@ export default function IntercityMovingPage() {
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: draftPayload });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: draftPayload.pricing } });
       setCreatedBookingId(response.bookingid || response.booking?.bookingid || bookingId);
-      nextStep();
+      nextStep(STEP_RULES);
       useBookingStore.persist.clearStorage();
       toast.success('Intercity moving request scheduled!');
     } catch (error) {
@@ -96,7 +97,7 @@ export default function IntercityMovingPage() {
 
   const handleReset = () => {
     resetBooking();
-    setStep(0);
+    setStep(0, STEP_RULES);
     setCreatedBookingId(null);
     updateBookingData({ serviceType: 'intercity' });
   };
@@ -121,7 +122,7 @@ export default function IntercityMovingPage() {
         <DateTimeStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} />
       )}
       {currentStep === 4 && (
-        <ReviewStep onSubmit={() => nextStep()} onBack={prevStep} bookingData={bookingData} />
+        <ReviewStep onSubmit={() => nextStep(STEP_RULES)} onBack={prevStep} bookingData={bookingData} />
       )}
       {currentStep === 5 && (
         <OTPStep onSubmit={handleOtpVerified} onBack={prevStep} initialData={bookingData} />

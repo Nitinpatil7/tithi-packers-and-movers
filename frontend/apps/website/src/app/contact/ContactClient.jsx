@@ -120,10 +120,11 @@ export default function ContactClient() {
     }
   };
 
+  const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
   const contactDetails = [
     site.phone ? { title: t.detailLabels.call, value: site.phone, icon: Phone, href: `tel:${site.phone}` } : null,
     site.email ? { title: t.detailLabels.email, value: site.email, icon: Mail, href: `mailto:${site.email}` } : null,
-    site.address ? { title: t.detailLabels.hub, value: site.address, icon: MapPin, href: null } : null,
+    address ? { title: t.detailLabels.hub, value: address, icon: MapPin, href: null } : null,
   ].filter(Boolean);
 
   return (

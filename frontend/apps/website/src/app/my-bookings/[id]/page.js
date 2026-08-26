@@ -422,7 +422,7 @@ export default function CustomerBookingDetailPage() {
         {isLabour && (
           <Card className="p-4 bg-bg-white border border-bg-border/60 text-xs shadow-xs">
             <h4 className="font-bold text-text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5 text-left">
-              <Users className="w-4 h-4 text-primary" /> Labour Service Details
+              <Users className="w-4 h-4 text-primary" /> Labour & Vehicle Details
             </h4>
             <div className="grid gap-3 sm:grid-cols-3">
               <DetailMetric label="Employees" value={`${booking.employeeCount || 0}`} />

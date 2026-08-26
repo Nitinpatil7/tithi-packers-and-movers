@@ -9,7 +9,7 @@ import { useAdminTestimonials, useCreateTestimonial, useDeleteTestimonial, useRe
 
 const SERVICE_TYPES = [
   ['local_shifting', 'Local Movers'], ['intercity_moving', 'Intercity Movers'],
-  ['ordinary_services', 'Labour & Porter Service'],
+  ['ordinary_services', 'Labour & Vehicle'],
 ];
 const emptyForm = { name: '', location: '', rating: 5, content: '', imageUrl: '', serviceType: 'local_shifting', isFeatured: false, status: 'active', sortOrder: 0 };
 const REVIEW_MIN_LENGTH = 40;

@@ -72,8 +72,8 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "Surat",
     localShifting: "Local Shifting",
     intercityMoving: "Intercity Moving",
-    packingService: "Labour & Porter Service",
-    commercialMove: "Labour & Porter Service",
+    packingService: "Labour & Vehicle",
+    commercialMove: "Labour & Vehicle",
 
     // Hero Section
     heroBadge: "#1 Packers & Movers in Surat, Gujarat",
@@ -113,7 +113,7 @@ export const PAGE_TRANSLATIONS = {
     processTitleHighlight: "3 Simple Steps",
     processSubhead: "No long phone calls or back-and-forth negotiations. Start your stress-free move right now.",
     step1Title: "Choose Your Service",
-    step1Desc: "Select from Local Shifting, Intercity Moving, or Labour & Porter Service to get started.",
+    step1Desc: "Select from Local Shifting, Intercity Moving, or Labour & Vehicle to get started.",
     step2Title: "Fill Moving Details",
     step2Desc: "Enter your pickup & drop addresses, preferred date and time, inventory checklist, and verify with OTP.",
     step3Title: "Get Your Custom Quote",
@@ -208,8 +208,8 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "सूरत",
     localShifting: "लोकल शिफ्टिंग",
     intercityMoving: "इंटरसिटी मूविंग",
-    packingService: "लेबर और पोर्टर सेवा",
-    commercialMove: "लेबर और पोर्टर सेवा",
+    packingService: "लेबर और वाहन सेवा",
+    commercialMove: "लेबर और वाहन सेवा",
 
     // Hero Section
     heroBadge: "#1 पैकर्स एंड मूवर्स सूरत, गुजरात",
@@ -344,8 +344,8 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "સુરત",
     localShifting: "લોકલ શિફ્ટિંગ",
     intercityMoving: "આંતર-શહેરી શિફ્ટિંગ",
-    packingService: "મજૂરી અને પોર્ટર સેવા",
-    commercialMove: "મજૂરી અને પોર્ટર સેવા",
+    packingService: "મજૂરી અને વાહન સેવા",
+    commercialMove: "મજૂરી અને વાહન સેવા",
 
     // Hero Section
     heroBadge: "#1 પેકર્સ એન્ડ મૂવર્સ સુરત, ગુજરાત",

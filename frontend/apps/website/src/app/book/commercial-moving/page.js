@@ -22,6 +22,8 @@ import { ArrowLeft, ArrowRight, ClipboardCheck, Plus, Minus } from 'lucide-react
 import toast from 'react-hot-toast';
 import { cn } from '@tithi/utils/utils';
 
+const STEP_RULES = ['businessDetails', 'location', 'truck', 'items', 'optional', 'schedule', 'optional', 'optional'];
+
 export default function CommercialMovingPage() {
   const { 
     currentStep, 
@@ -53,9 +55,13 @@ export default function CommercialMovingPage() {
     'Verify OTP'
   ];
 
+  useEffect(() => {
+    setStep(currentStep, STEP_RULES);
+  }, [currentStep, setStep]);
+
   const handleStepSubmit = (stepData) => {
     updateBookingData(stepData);
-    nextStep();
+    nextStep(STEP_RULES);
   };
 
   const handleOtpVerified = async (contactData) => {
@@ -70,7 +76,7 @@ export default function CommercialMovingPage() {
     try {
       const response = await createBookingMutation.mutateAsync(finalData);
       setCreatedBookingId(response.bookingId);
-      nextStep();
+      nextStep(STEP_RULES);
       toast.success('Corporate shifting request scheduled!');
     } catch (err) {
       toast.error('Error submitting shifting request.');
@@ -79,7 +85,7 @@ export default function CommercialMovingPage() {
 
   const handleReset = () => {
     resetBooking();
-    setStep(0);
+    setStep(0, STEP_RULES);
     setCreatedBookingId(null);
     updateBookingData({ serviceType: 'commercial' });
   };

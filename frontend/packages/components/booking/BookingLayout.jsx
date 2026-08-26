@@ -82,7 +82,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
         </div>
 
         <div ref={contentTopRef} className="booking-content-panel w-full max-w-6xl mx-auto overflow-hidden rounded-[1.35rem] border border-sky-100 bg-white shadow-[0_20px_60px_rgba(14,165,233,0.10)] sm:rounded-3xl">
-          <AnimatePresence mode="wait">
+          <AnimatePresence initial={false}>
             <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" className="p-4 sm:p-6 md:p-10">
               {children}
             </motion.div>

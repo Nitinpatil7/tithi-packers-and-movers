@@ -9,7 +9,7 @@ export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = 
   const initialCount = Number(initialData.employeeCount || 0);
   const configuredCounts = employeeRates.length ? employeeRates.map((item) => Number(item.employees)).filter(Boolean) : [1, 2, 3, 4, 5];
   const quickCounts = [...new Set(configuredCounts)].sort((a, b) => a - b);
-  const [selectedCount, setSelectedCount] = useState(initialCount && quickCounts.includes(initialCount) ? initialCount : initialCount ? 'custom' : quickCounts[0]);
+  const [selectedCount, setSelectedCount] = useState(initialCount && quickCounts.includes(initialCount) ? initialCount : initialCount ? 'custom' : null);
   const [customCount, setCustomCount] = useState(initialCount && !quickCounts.includes(initialCount) ? initialCount : Math.max(...quickCounts, 5) + 1);
   const resolvedCount = selectedCount === 'custom' ? Number(customCount) : Number(selectedCount);
   const selectedRate = employeeRates.find((item) => Number(item.employees) === resolvedCount);
@@ -28,7 +28,6 @@ export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {quickCounts.map((count) => {
           const selected = selectedCount === count;
-          const rate = employeeRates.find((item) => Number(item.employees) === count);
           return (
             <button key={count} type="button" onClick={() => setSelectedCount(count)} className={cn('relative rounded-2xl border-2 p-5 flex flex-col items-center gap-3 transition-all', selected ? 'border-primary bg-primary-soft shadow-sky' : 'border-bg-border bg-white hover:border-primary/40')}>
               <Users className={cn('w-7 h-7', selected ? 'text-primary' : 'text-text-secondary')} />
@@ -49,6 +48,8 @@ export default function EmployeeSelectionStep({ onSubmit, onBack, initialData = 
           <input type="number" min="1" max="50" value={customCount} onChange={(event) => setCustomCount(event.target.value)} className="booking-input" />
         </div>
       )}
+
+      {!resolvedCount && <p className="text-center text-sm font-bold text-red-500">Please select the number of employees to continue.</p>}
 
       <BookingActionBar onBack={onBack} onNext={handleNext} disabled={!resolvedCount} />
     </div>

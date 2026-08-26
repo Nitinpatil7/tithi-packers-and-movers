@@ -17,7 +17,7 @@ import { formatCurrency } from '@utils/utils';
 const SERVICES = [
   { value: 'local', api: 'local_shifting', title: 'Local Shifting', desc: 'Surat city pickup and drop with items, add-ons and schedule.', icon: PackageCheck },
   { value: 'intercity', api: 'intercity_moving', title: 'Intercity Moving', desc: 'Surat pickup to another city with dynamic distance pricing.', icon: Truck },
-  { value: 'labour', api: 'porter_labour_service', title: 'Porter / Labour', desc: 'Truck selection, employee count and hourly package quote.', icon: Sparkles },
+  { value: 'labour', api: 'porter_labour_service', title: 'Labour & Vehicle', desc: 'Vehicle selection, employee count and hourly package quote.', icon: Sparkles },
 ];
 
 const baseData = {

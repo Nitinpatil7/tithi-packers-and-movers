@@ -48,7 +48,7 @@ export default function Navbar() {
   const services = [
     { name: serviceLabels.local_shifting || t.localShifting || 'Local Shifting', path: '/book/local-shifting', color: '#0EA5E9', desc: t.hubSurat || 'Within Surat' },
     { name: serviceLabels.intercity_moving || t.intercityMoving || 'Intercity Moving', path: '/book/intercity-moving', color: '#0284C7', desc: t.badgeZeroHidden || 'Pan India' },
-    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Porter', path: '/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Workers only' },
+    { name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8', desc: t.packingServiceDesc || 'Labour with optional vehicle' },
   ];
 
   const isBookingPage = pathname.startsWith('/book/');

@@ -221,7 +221,6 @@ function validateManualAddress(address, serviceType, role) {
 function MapPickerModal({ open, title, role, serviceType, initialValue, onClose, onPick }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const markerRef = useRef(null);
   const geocodeRequestRef = useRef(0);
   const initialValueLat = initialValue?.lat;
   const initialValueLng = initialValue?.lng;
@@ -240,6 +239,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const [placeForAddress, setPlaceForAddress] = useState(null);
   const [error, setError] = useState('');
   const [loadingAddress, setLoadingAddress] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -352,7 +352,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       });
     };
 
-    const centerFromTypedArea = (map, marker) => {
+    const centerFromTypedArea = (map) => {
       const typedAddress = String(initialReadableAddress).trim();
       if (!typedAddress || initialLatLng || !window.google?.maps?.Geocoder) return;
       const geocoder = new window.google.maps.Geocoder();
@@ -367,7 +367,6 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         setSelected(latLng);
         setAddress(readable);
         setPlaceForAddress(readablePlace);
-        marker.setPosition(latLng);
         map.setCenter(latLng);
         map.setZoom(needsSurat(serviceType, role) ? 15 : 12);
       });
@@ -387,8 +386,10 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         zoom: needsSurat(serviceType, role) ? 14 : 7,
         mapTypeId: 'roadmap',
         streetViewControl: false,
-        fullscreenControl: true,
+        fullscreenControl: false,
         mapTypeControl: true,
+        zoomControl: false,
+        gestureHandling: 'greedy',
         mapTypeControlOptions: {
           mapTypeIds: ['roadmap', 'satellite', 'terrain'],
         },
@@ -404,32 +405,22 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           }
           : undefined,
       });
-      const marker = new window.google.maps.Marker({
-        position: start,
-        map,
-        draggable: true,
-        title: title || 'Selected location',
-      });
-
-      const updateSelection = (location) => {
-        const latLng = toLatLngLiteral(location);
+      const updateSelectionFromCenter = () => {
+        const latLng = toLatLngLiteral(map.getCenter());
         if (!latLng) return;
-        debugMapLog('[MapPicker] selected coordinates', latLng);
+        debugMapLog('[MapPicker] selected center coordinates', latLng);
         setSelected(latLng);
-        marker.setPosition(latLng);
         reverseGeocode(latLng);
       };
 
-      map.addListener('click', (event) => updateSelection(event.latLng));
-      marker.addListener('dragend', (event) => updateSelection(event.latLng));
+      map.addListener('idle', updateSelectionFromCenter);
       mapInstanceRef.current = map;
-      markerRef.current = marker;
       window.setTimeout(() => {
         window.google?.maps?.event?.trigger(map, 'resize');
         map.setCenter(start);
       }, 0);
       reverseGeocode(start);
-      centerFromTypedArea(map, marker);
+      centerFromTypedArea(map);
     };
 
     initialise();
@@ -443,7 +434,6 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       geocodeRequestRef.current += 1;
       window.clearInterval(timer);
       mapInstanceRef.current = null;
-      markerRef.current = null;
     };
   }, [initialLatLng, initialReadableAddress, open, role, serviceType, title]);
 
@@ -464,6 +454,37 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     onPick({ address: readable, lat: selected.lat, lng: selected.lng, place: placeForAddress });
   };
   const readableAddress = cleanReadableAddress(address);
+  const adjustZoom = (delta) => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    map.setZoom(Math.max(3, Math.min(21, Number(map.getZoom() || 12) + delta)));
+  };
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Browser location is not available. Please pan the map manually.');
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocating(false);
+        const nextCenter = { lat: coords.latitude, lng: coords.longitude };
+        const validation = validateLatLng(nextCenter, serviceType, role);
+        if (validation) {
+          setError(validation);
+          return;
+        }
+        mapInstanceRef.current?.setCenter(nextCenter);
+        mapInstanceRef.current?.setZoom(16);
+        setSelected(nextCenter);
+      },
+      () => {
+        setLocating(false);
+        setError('Location permission was denied. Please pan the map manually.');
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-[2147483000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
@@ -471,21 +492,35 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         <div className="flex items-start justify-between gap-3 border-b border-bg-border p-4 sm:p-5">
           <div>
             <h3 className="text-base font-black text-text-primary">{title || 'Choose location from map'}</h3>
-            <p className="mt-1 text-xs font-semibold text-text-secondary">Map opens in default road view. Tap map or drag marker for exact home location.</p>
+            <p className="mt-1 text-xs font-semibold text-text-secondary">Pan the map until the fixed pin is on the exact location, then confirm it.</p>
           </div>
           <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-bg-border text-text-secondary">
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div ref={mapRef} className="h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]" />
+        <div className="relative h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]">
+          <div ref={mapRef} className="absolute inset-0" />
+          <div className="pointer-events-none absolute inset-0 grid place-items-center">
+            <MapPin className="h-11 w-11 -translate-y-5 fill-red-500 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,.25)]" />
+            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 translate-y-2 rounded-full bg-slate-950/25 blur-[2px]" />
+          </div>
+          <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded-2xl border border-bg-border bg-white shadow-lg">
+            <button type="button" onClick={() => adjustZoom(1)} className="grid h-11 w-11 place-items-center border-b border-bg-border text-xl font-black text-text-primary">+</button>
+            <button type="button" onClick={() => adjustZoom(-1)} className="grid h-11 w-11 place-items-center text-xl font-black text-text-primary">-</button>
+          </div>
+          <button type="button" onClick={useCurrentLocation} disabled={locating} className="absolute bottom-3 left-3 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-2 text-xs font-black text-primary shadow-lg disabled:opacity-60">
+            {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crosshair className="h-4 w-4" />}
+            Use my current location
+          </button>
+        </div>
         <div className="border-t border-bg-border p-4 sm:p-5">
           <div className="rounded-2xl bg-bg-section p-3 text-sm font-semibold text-text-secondary">
-            {loadingAddress ? 'Finding address...' : readableAddress ? `Selected: ${readableAddress}` : 'Pick a point on the map'}
+            {loadingAddress ? <span className="flex items-center gap-2"><span className="h-4 w-4 animate-pulse rounded bg-sky-200" /> Finding address under pin...</span> : readableAddress ? `Selected: ${readableAddress}` : 'Pan the map to place the pin'}
           </div>
           {error && <p className="mt-2 flex items-center gap-1 text-xs font-bold text-red-600"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-xl border border-bg-border px-5 py-3 text-sm font-bold text-text-secondary">Cancel</button>
-            <button type="button" onClick={confirm} disabled={!readableAddress || loadingAddress} className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-white shadow-sky disabled:cursor-not-allowed disabled:opacity-50">Use This Location</button>
+            <button type="button" onClick={confirm} disabled={!readableAddress || loadingAddress} className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-white shadow-sky disabled:cursor-not-allowed disabled:opacity-50">Confirm this location</button>
           </div>
         </div>
       </div>
@@ -958,7 +993,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
       )}
       {submitError && <div className="booking-submit-error flex items-center gap-2 p-4 bg-red-50 rounded-xl border border-red-200 text-sm font-semibold text-red-700"><AlertCircle className="w-4 h-4" />{submitError}</div>}
       <div className="booking-location-note rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
-        {labour ? 'Pickup/work location is required. Drop/work-end location is optional for labour-only bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
+        {labour ? 'Pickup/work location is required. Drop/work-end location is optional for Labour & Vehicle bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
       </div>
       <BookingActionBar onBack={undefined} onNext={() => handleSubmit()} nextLabel={labour ? 'Customize Package' : 'Next Step'} />
     </div>

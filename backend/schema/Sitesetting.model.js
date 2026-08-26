@@ -62,7 +62,7 @@ const siteSettingSchema = new mongoose.Schema(
     serviceLabels: {
       local_shifting: { type: String, default: "Local Shifting" },
       intercity_moving: { type: String, default: "Intercity Moving" },
-      porter_labour_service: { type: String, default: "Labour & Porter" },
+      porter_labour_service: { type: String, default: "Labour & Vehicle" },
     },
 
     seo: {

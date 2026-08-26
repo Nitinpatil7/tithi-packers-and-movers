@@ -54,8 +54,8 @@ const DEFAULTS_BY_SERVICE = {
   },
   [service_types.PORTER_LABOUR_SERVICE]: {
     serviceType: service_types.PORTER_LABOUR_SERVICE,
-    name: "Porter labour pricing",
-    description: "Truck and hourly-rate rules for porter labour bookings.",
+    name: "Labour & Vehicle pricing",
+    description: "Vehicle and hourly-rate rules for Labour & Vehicle bookings.",
     basePrice: 0,
     freeItemAllowance: DEFAULT_ALLOWANCE,
     distancePricing: { enabled: false, slabs: [] },

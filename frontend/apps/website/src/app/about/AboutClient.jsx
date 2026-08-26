@@ -63,6 +63,7 @@ export default function AboutClient() {
   const aboutParagraphs = site.aboutDescription
     ? site.aboutDescription.split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean)
     : [];
+  const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
 
   const values = [
     { title: t.values[0].title, desc: t.values[0].desc, icon: Users },
@@ -131,6 +132,12 @@ export default function AboutClient() {
           <p className="text-text-secondary leading-relaxed">
             {t.hubDesc}
           </p>
+          {address && (
+            <p className="flex items-start gap-2 rounded-2xl border border-primary/15 bg-white/70 p-3 text-text-primary">
+              <Milestone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>{address}</span>
+            </p>
+          )}
         </Card>
 
       </div>

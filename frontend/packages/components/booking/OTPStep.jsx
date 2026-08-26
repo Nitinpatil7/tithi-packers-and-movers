@@ -92,7 +92,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
 
       {!otpSent ? (
         <div className="flex flex-col gap-6">
-          <div className="grid gap-4 rounded-2xl border border-bg-border bg-bg-section p-6 sm:grid-cols-2">
+          <div className="grid gap-4 rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50/90 via-white to-orange-50/80 p-5 shadow-[0_18px_50px_rgba(14,165,233,0.12)] ring-1 ring-white/70 dark:border-sky-900/60 dark:from-sky-950/50 dark:via-slate-950 dark:to-orange-950/40 dark:ring-white/5 sm:grid-cols-2 sm:p-6">
             <Field label="Full Name *" icon={User}><input value={name} onChange={(event) => setName(event.target.value)} className="booking-input text-base" placeholder="Enter full name" /></Field>
             <Field label="Email Address" icon={Mail}><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="booking-input text-base" placeholder="customer@email.com" /></Field>
             <div className="sm:col-span-2">
@@ -109,7 +109,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-5 shadow-[0_16px_44px_rgba(16,185,129,0.12)] dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-slate-950 dark:to-sky-950/40">
             <p className="mb-1 text-sm font-bold text-emerald-800">OTP sent to +91 {mobile}</p>
             <p className="text-xs font-medium text-emerald-700">Enter the one-time password for Tithi Packers and Movers booking verification.</p>
           </div>
