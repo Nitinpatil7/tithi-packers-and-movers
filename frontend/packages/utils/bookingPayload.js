@@ -101,6 +101,7 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
       key: addon.key,
       name: addon.name,
       unit: line?.unit || addon.unit,
+      icon: addon.icon || '',
       quantity,
       pricesnapshot: unitPrice,
       total: Number(line?.total ?? addon.total ?? (unitPrice * quantity)),

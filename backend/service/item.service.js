@@ -5,12 +5,15 @@ const ItemGroup = require("../schema/ItemGroup.model");
 const ItemSize = require("../schema/ItemSize.model");
 const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
-const { inferItemIcon } = require("../utility/itemIconMatcher");
 
 const slugify = (value) => String(value || "").trim().toLowerCase()
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const exactText = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, "i");
+const cleanIcon = (value) => {
+  const icon = String(value || "").trim();
+  return icon || null;
+};
 const uniqueSlug = async (Model, base, currentId = null) => {
   const root = slugify(base) || "item";
   for (let index = 0; index < 100; index += 1) {
@@ -76,7 +79,7 @@ const normalizeItemPayload = async (payload, current = null) => {
   update.categoryId = group.categoryId._id;
   update.section = group.categoryId.name;
   if (update.sizes !== undefined) update.sizes = await normalizeVariants(update.sizes);
-  update.icon = String(update.icon || "").trim() || inferItemIcon(update.name || current?.name);
+  if (update.icon !== undefined) update.icon = cleanIcon(update.icon);
   if (!current && update.sizes === undefined) throw new ApiError(400, "sizes is required");
   if (!current) update.key = await uniqueSlug(Item, update.key || `${update.section}-${update.group}-${update.name}`);
   else if (update.key !== undefined) update.key = await uniqueSlug(Item, update.key, current._id);
@@ -99,14 +102,14 @@ const itemFilter = (query = {}, publicOnly = false) => {
 };
 
 const getItems = (query = {}, publicOnly = false) => Item.find(itemFilter(query, publicOnly))
-  .populate("categoryId", "key name description icon isActive sortOrder")
-  .populate("groupId", "key name description isActive sortOrder")
+  .populate("categoryId", "key name icon isActive sortOrder")
+  .populate("groupId", "key name icon isActive sortOrder")
   .populate("sizes.sizeId", "key label description isActive sortOrder")
   .sort({ section: 1, group: 1, sortOrder: 1, name: 1 });
 
 const publicItemSelect = "key categoryId section groupId group name icon sizes sortOrder";
-const publicSectionSelect = "key name description icon sortOrder";
-const publicGroupSelect = "key categoryId section name description sortOrder";
+const publicSectionSelect = "key name icon sortOrder";
+const publicGroupSelect = "key categoryId section name icon sortOrder";
 const activeVariant = (variant) => variant.isActive !== false;
 const publicItemShape = (item) => ({
   ...item,
@@ -204,21 +207,31 @@ const getSections = (query = {}, publicOnly = false) => {
   return ItemCategory.find(filter).sort({ sortOrder: 1, name: 1 });
 };
 const createSection = async (payload) => {
-  const section = await ItemCategory.create({ ...payload, key: slugify(payload.key || payload.name) });
+  const section = await ItemCategory.create({ ...payload, icon: cleanIcon(payload.icon), key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "section:create", { id: section._id });
   return section;
 };
 const updateSection = async (id, payload) => {
+  const current = await ItemCategory.findById(id);
+  if (!current) throw new ApiError(404, "Section not found");
   const update = { ...payload };
   if (update.key !== undefined) update.key = slugify(update.key);
+  if (update.icon !== undefined) update.icon = cleanIcon(update.icon);
   const section = await ItemCategory.findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true });
-  if (!section) throw new ApiError(404, "Section not found");
+  const groupUpdate = {};
+  const itemUpdate = {};
   if (update.name) {
-    await Promise.all([
-      ItemGroup.updateMany({ categoryId: id }, { $set: { section: update.name } }),
-      Item.updateMany({ categoryId: id }, { $set: { section: update.name } }),
-    ]);
+    groupUpdate.section = update.name;
+    itemUpdate.section = update.name;
   }
+  if (update.icon !== undefined && update.icon !== current.icon) {
+    groupUpdate.icon = update.icon;
+    itemUpdate.icon = update.icon;
+  }
+  await Promise.all([
+    Object.keys(groupUpdate).length ? ItemGroup.updateMany({ categoryId: id }, { $set: groupUpdate }) : null,
+    Object.keys(itemUpdate).length ? Item.updateMany({ categoryId: id }, { $set: itemUpdate }) : null,
+  ].filter(Boolean));
   notifyContentChange("catalog", "section:update", { id });
   return section;
 };
@@ -244,7 +257,7 @@ const getGroups = (query = {}, publicOnly = false) => {
 };
 const createGroup = async (payload) => {
   const section = await requireSection(payload.sectionId || payload.categoryId);
-  const group = await ItemGroup.create({ ...payload, categoryId: section._id, section: section.name,
+  const group = await ItemGroup.create({ ...payload, icon: cleanIcon(payload.icon), categoryId: section._id, section: section.name,
     key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "group:create", { id: group._id });
   return group;
@@ -259,8 +272,11 @@ const updateGroup = async (id, payload) => {
   update.categoryId = section._id;
   update.section = section.name;
   if (update.key !== undefined) update.key = slugify(update.key);
+  if (update.icon !== undefined) update.icon = cleanIcon(update.icon);
   const group = await ItemGroup.findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true });
-  await Item.updateMany({ groupId: id }, { $set: { group: group.name, categoryId: section._id, section: section.name } });
+  const itemUpdate = { group: group.name, categoryId: section._id, section: section.name };
+  if (update.icon !== undefined && update.icon !== current.icon) itemUpdate.icon = update.icon;
+  await Item.updateMany({ groupId: id }, { $set: itemUpdate });
   notifyContentChange("catalog", "group:update", { id });
   return group;
 };

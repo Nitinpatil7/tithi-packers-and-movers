@@ -1,4 +1,11 @@
 const isVercel = process.env.VERCEL === '1';
+const iconCdnHost = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_ICON_CDN || 'https://pub-c7cc00b06c314fbca4060aee180a5d92.r2.dev').hostname;
+  } catch {
+    return 'pub-c7cc00b06c314fbca4060aee180a5d92.r2.dev';
+  }
+})();
 
 const sharedAliases = {
   '@': './src',
@@ -32,7 +39,6 @@ const sharedAliases = {
   '@lib/testimonialApi': '../../packages/lib/testimonialApi.js',
   '@utils': '../../packages/utils',
   '@utils/freeAllowanceDisplay': '../../packages/utils/freeAllowanceDisplay.js',
-  '@utils/itemIcons': '../../packages/utils/itemIcons.jsx',
   '@utils/pricing': '../../packages/utils/pricing.js',
   '@utils/siteAssets': '../../packages/utils/siteAssets.js',
   '@utils/truckVisuals': '../../packages/utils/truckVisuals.js',
@@ -56,7 +62,13 @@ const nextConfig = {
     '@tithi/styles',
   ],
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: iconCdnHost,
+        pathname: '/icons/**',
+      },
+    ],
   },
   turbopack: {
     resolveAlias: sharedAliases,

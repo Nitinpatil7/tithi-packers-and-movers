@@ -11,10 +11,11 @@ const queryString = (filters = {}) => {
 };
 
 async function itemRequest(path, options = {}) {
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const response = await authFetch(`${API_URL}/api/items${path}`, {
     cache: 'no-store',
     ...options,
-    headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
+    headers: { ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.message || payload.error || 'Item request failed.');
@@ -42,6 +43,19 @@ export const createGroup = (data) => mutation('groups', 'POST', data);
 export const updateGroup = (id, data) => mutation('groups', 'PATCH', data, id);
 export const deleteGroup = (id) => mutation('groups', 'DELETE', null, id);
 export const reorderGroups = (data) => mutation('groups/reorder', 'PATCH', data);
+export const uploadIcon = (file) => {
+  const formData = new FormData();
+  formData.append('icon', file);
+  return authFetch(`${API_URL}/api/admin/icons/upload`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  }).then(async (response) => {
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || payload.error || 'Icon upload failed.');
+    return payload.data ?? payload;
+  });
+};
 export const createSize = (data) => mutation('sizes', 'POST', data);
 export const updateSize = (id, data) => mutation('sizes', 'PATCH', data, id);
 export const deleteSize = (id) => mutation('sizes', 'DELETE', null, id);

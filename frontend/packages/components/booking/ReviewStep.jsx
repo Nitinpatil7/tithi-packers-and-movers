@@ -69,6 +69,18 @@ function ScrollPanel({ title, subtitle, icon: Icon, children, empty }) {
   );
 }
 
+function InlineIconImage({ icon, className = 'h-9 w-9' }) {
+  return icon ? (
+    <Image
+      src={icon}
+      alt=""
+      width={48}
+      height={48}
+      className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
+    />
+  ) : null;
+}
+
 export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
   const {
     serviceType,
@@ -155,9 +167,12 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         {addOns.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {addOns.map((service, index) => (
-              <div key={`${service.name}-${index}`} className="rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
-                <span className="block text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
-                {Number(service.quantity || 0) > 1 && <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Quantity {service.quantity}</span>}
+              <div key={`${service.name}-${index}`} className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
+                {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/60 dark:shadow-[0_10px_18px_rgba(0,0,0,0.18)]"><InlineIconImage icon={service.icon} /></span>}
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
+                  {Number(service.quantity || 0) > 1 && <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Quantity {service.quantity}</span>}
+                </span>
               </div>
             ))}
           </div>

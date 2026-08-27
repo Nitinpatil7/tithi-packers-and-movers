@@ -14,7 +14,18 @@ import { ArrowLeft, MapPin, Truck, DollarSign, CalendarDays, Clock, User, Packag
 import toast from 'react-hot-toast';
 import { useLanguageStore } from '@tithi/store/languageStore';
 import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
-import { ItemIcon } from '@tithi/utils/itemIcons';
+
+function InlineIconImage({ icon, className = 'h-9 w-9' }) {
+  return icon ? (
+    <Image
+      src={icon}
+      alt=""
+      width={48}
+      height={48}
+      className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
+    />
+  ) : null;
+}
 
 const DETAIL_TRANSLATIONS = {
   en: {
@@ -377,7 +388,6 @@ export default function CustomerBookingDetailPage() {
                     <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 rounded-xl border border-bg-border bg-bg-section px-3 py-2">
                       <div className="flex min-w-0 items-center gap-2">
                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-primary ring-1 ring-primary/10">
-                          <ItemIcon icon={item.icon} className="h-4 w-4" />
                         </span>
                         <span className="min-w-0">
                           <span className="block truncate font-bold text-text-primary">{item.name}</span>
@@ -404,9 +414,12 @@ export default function CustomerBookingDetailPage() {
                 <div className="flex flex-col gap-2">
                   {addonRows.map((addon) => (
                     <div key={`${addon.key || addon.name}-${addon.quantity}`} className="flex items-center justify-between gap-3 rounded-xl border border-orange-100 bg-orange-50/50 px-3 py-2">
-                      <span className="min-w-0">
-                        <span className="block truncate font-bold text-text-primary">{addon.name}</span>
-                        <span className="text-[10px] font-semibold text-text-tertiary">{addon.unit?.replaceAll('_', ' ') || 'Add-on'} x {Number(addon.quantity || 1)}</span>
+                      <span className="flex min-w-0 items-center gap-3">
+                        {addon.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/60 dark:shadow-[0_10px_18px_rgba(0,0,0,0.18)]"><InlineIconImage icon={addon.icon} /></span>}
+                        <span className="min-w-0">
+                          <span className="block truncate font-bold text-text-primary">{addon.name}</span>
+                          <span className="text-[10px] font-semibold text-text-tertiary">{addon.unit?.replaceAll('_', ' ') || 'Add-on'} x {Number(addon.quantity || 1)}</span>
+                        </span>
                       </span>
                       <span className="shrink-0 font-mono font-black text-primary">{formatCurrency(addon.total || 0)}</span>
                     </div>

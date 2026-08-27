@@ -6,7 +6,7 @@ const itemGroupSchema = new mongoose.Schema(
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ItemCategory", required: true, index: true },
     section: { type: String, required: true, trim: true, index: true },
     name: { type: String, required: true, trim: true },
-    description: { type: String, trim: true, default: "" },
+    icon: { type: String, trim: true, default: null },
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0 },
   },

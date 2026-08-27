@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Edit3, Plus, Puzzle, Search, Trash2 } from 'lucide-react';
+import { Edit3, Plus, Search, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
-import { useAdminSections } from '@hooks/useItems';
+import { useAdminSections, useUploadIcon } from '@hooks/useItems';
 import { useAdminAddons, useCreateAddon, useDeleteAddon, useTriggerGroups, useTriggerItems, useUpdateAddon } from '@hooks/useAddons';
-import { ItemIcon } from '@utils/itemIcons';
+import IconInput, { IconPreview } from '@/components/admin/IconInput';
 
 const ADDON_UNITS = [
   ['global', 'Global / one price'],
@@ -19,7 +19,7 @@ const ADDON_UNITS = [
   ['percentage', 'Percentage of quote'],
 ];
 
-const EMPTY = { name: '', description: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true, sortOrder: 0 };
+const EMPTY = { name: '', description: '', icon: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true, sortOrder: 0 };
 const categoryId = (value) => String(value?._id || value?.id || value || '');
 const groupId = (value) => String(value?._id || value?.id || value || '');
 const itemId = (value) => String(value?._id || value?.id || value || '');
@@ -38,16 +38,17 @@ export default function AdminAddonsPage() {
   const [editor, setEditor] = useState(null);
   const { data = [], isLoading, isError, refetch } = useAdminAddons(filters);
   const createMutation = useCreateAddon(); const updateMutation = useUpdateAddon(); const deleteMutation = useDeleteAddon();
+  const uploadIcon = useUploadIcon();
   const addons = useMemo(() => Array.isArray(data) ? data : [], [data]);
   const remove = async (item) => { if (!window.confirm(`Deactivate “${item.name}”?`)) return; try { await deleteMutation.mutateAsync(item._id); toast.success('Add-on deactivated'); } catch (error) { toast.error(error.message); } };
   return <div className="space-y-6"><header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Booking services</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Add-on Services</h1><p className="mt-1 text-sm font-medium text-slate-500">Group-triggered optional services for local and intercity moves.</p></div><button onClick={() => setEditor({})} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white"><Plus className="h-4 w-4" />New add-on</button></header>
     <div className="flex flex-wrap gap-2 rounded-2xl border border-sky-100 bg-white p-3"><select value={filters.serviceType} onChange={(event) => setFilters({ ...filters, serviceType: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All services</option><option value="local_shifting">Local shifting</option><option value="intercity_moving">Intercity moving</option></select><select value={filters.isActive} onChange={(event) => setFilters({ ...filters, isActive: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All statuses</option><option value="true">Active</option><option value="false">Inactive</option></select></div>
-    {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{addons.map((item) => <article key={item._id} className="flex min-h-56 flex-col rounded-2xl border border-sky-100 bg-white p-5 shadow-sm"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-2"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-50 text-sky-600"><Puzzle className="h-4 w-4" /></span><div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{item.name}</h2><p className="text-xs font-medium text-slate-400">{item.unit?.replaceAll('_', ' ')} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p></div></div></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span></div><p className="mt-4 line-clamp-4 min-h-[5.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p><div className="mt-auto flex justify-end gap-2 border-t border-slate-100 pt-4"><button onClick={() => setEditor(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(item)} disabled={item.isActive === false} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button></div></article>)}</div>}
-    <AddonEditor record={editor} onClose={() => setEditor(null)} onSave={async (payload) => { try { if (editor?._id) await updateMutation.mutateAsync({ id: editor._id, data: payload }); else await createMutation.mutateAsync(payload); toast.success(editor?._id ? 'Add-on updated' : 'Add-on created'); setEditor(null); } catch (error) { toast.error(error.message); } }} busy={createMutation.isPending || updateMutation.isPending} />
+    {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{addons.map((item) => <article key={item._id} className="flex min-h-56 flex-col rounded-2xl border border-sky-100 bg-white p-5 shadow-sm"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-2">{item.icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><IconPreview icon={item.icon} className="h-9 w-9" /></span>}<div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{item.name}</h2><p className="text-xs font-medium text-slate-400">{item.unit?.replaceAll('_', ' ')} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p></div></div></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span></div><p className="mt-4 line-clamp-4 min-h-[5.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p><div className="mt-auto flex justify-end gap-2 border-t border-slate-100 pt-4"><button onClick={() => setEditor(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(item)} disabled={item.isActive === false} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button></div></article>)}</div>}
+    <AddonEditor record={editor} uploadIcon={uploadIcon} onClose={() => setEditor(null)} onSave={async (payload) => { try { if (editor?._id) await updateMutation.mutateAsync({ id: editor._id, data: payload }); else await createMutation.mutateAsync(payload); toast.success(editor?._id ? 'Add-on updated' : 'Add-on created'); setEditor(null); } catch (error) { toast.error(error.message); } }} busy={createMutation.isPending || updateMutation.isPending || uploadIcon.isPending} />
   </div>;
 }
 
-function AddonEditor({ record, onClose, onSave, busy }) {
+function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
   const [form, setForm] = useState(EMPTY);
   const [section, setSection] = useState('');
   const [search, setSearch] = useState('');
@@ -151,8 +152,9 @@ function AddonEditor({ record, onClose, onSave, busy }) {
 
   return (
     <Modal isOpen onClose={onClose} title={record._id ? 'Edit add-on' : 'Create add-on'} size="lg">
-      <form onSubmit={(event) => { event.preventDefault(); onSave({ ...form, price: Number(form.price) || 0, sortOrder: Number(form.sortOrder) || 0 }); }} className="space-y-4">
+      <form onSubmit={(event) => { event.preventDefault(); onSave({ ...form, icon: String(form.icon || '').trim() || null, price: Number(form.price) || 0, sortOrder: Number(form.sortOrder) || 0 }); }} className="space-y-4">
         <Field label="Name *"><input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field>
+        <IconInput value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} uploadIcon={uploadIcon} />
         <Field label="Description"><textarea rows={3} value={form.description || ''} onChange={(event) => setForm({ ...form, description: event.target.value })} className="admin-field resize-y" /></Field>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Unit"><select value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} className="admin-field">{ADDON_UNITS.map(([unit, label]) => <option key={unit} value={unit}>{label}</option>)}</select></Field>
@@ -236,7 +238,6 @@ function AddonEditor({ record, onClose, onSave, busy }) {
                             return (
                               <label key={item.id} className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm transition ${checked ? 'border-sky-100 bg-sky-50 text-sky-800 shadow-xs' : 'border-transparent text-slate-600 hover:border-sky-100 hover:bg-slate-50'} ${groupSelected ? 'cursor-default' : 'cursor-pointer'}`}>
                                 <input type="checkbox" checked={checked} disabled={groupSelected} onChange={() => toggleItem(item.id)} className="accent-sky-600 disabled:cursor-not-allowed" />
-                                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-sky-600 ring-1 ring-sky-100"><ItemIcon icon={item.icon} className="h-4 w-4" /></span>
                                 <span className="min-w-0 truncate">{item.name}</span>
                               </label>
                             );

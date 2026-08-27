@@ -137,6 +137,12 @@ const SelectedAddonSchema = new mongoose.Schema(
       enum: ["global", "flat", "per_unit", "per_item", "per_group", "per_category", "per_room", "percentage"],
     },
 
+    icon: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     quantity: {
       type: Number,
       default: 1,

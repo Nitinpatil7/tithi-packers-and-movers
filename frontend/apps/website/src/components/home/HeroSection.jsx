@@ -210,20 +210,20 @@ function HeroServiceCard({ service, cta }) {
         animate={{ y: isActive ? -4 : 0, scale: isActive ? 1.04 : 1 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-all duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 ${
+        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-all duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
           isActive
             ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
             : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
         }`}
       >
         <div
-          className="grid h-14 w-14 place-items-center rounded-full bg-sky-50/80 p-0.5 transition-transform duration-300 group-hover:scale-105 dark:bg-sky-950/70 sm:h-16 sm:w-16 md:h-20 md:w-20"
+          className="grid h-14 w-14 place-items-center rounded-xl bg-sky-50/30 p-0 transition-transform duration-300 group-hover:scale-105 dark:bg-white/5 dark:shadow-[0_18px_32px_rgba(0,0,0,0.26)] sm:h-16 sm:w-16 md:h-20 md:w-20 xl:h-24 xl:w-24 2xl:h-28 2xl:w-28"
           style={{ color: service.color }}
         >
           {iconSrc ? (
-            <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-[108%] w-[108%] rounded-full" />
+            <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-full w-full rounded-xl" />
           ) : (
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.9} />
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12" strokeWidth={1.9} />
           )}
         </div>
         <div className="flex flex-col items-center gap-1">

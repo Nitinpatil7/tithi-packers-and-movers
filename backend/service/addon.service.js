@@ -7,9 +7,14 @@ const ApiError = require("../utility/apierror");
 
 const SERVICE_TYPES = ["local_shifting", "intercity_moving"];
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const cleanIcon = (value) => {
+  const icon = String(value || "").trim();
+  return icon || null;
+};
 
 const normalizeTriggers = async (payload) => {
   const normalized = { ...payload };
+  if (payload.icon !== undefined) normalized.icon = cleanIcon(payload.icon);
   if (payload.triggerCategoryIds !== undefined) {
     const ids = [...new Set((payload.triggerCategoryIds || []).map(String))];
     if (ids.some((id) => !mongoose.isValidObjectId(id))) throw new ApiError(400, "Invalid trigger category ID");
@@ -36,14 +41,14 @@ const normalizeTriggers = async (payload) => {
 
 const populated = (query) => query.populate({
   path: "triggerCategoryIds",
-  select: "key name description isActive sortOrder",
+  select: "key name isActive sortOrder",
 }).populate({
   path: "triggerGroupIds",
-  select: "key name section categoryId description isActive sortOrder",
+  select: "key name section categoryId isActive sortOrder",
   populate: { path: "categoryId", select: "key name isActive" },
 }).populate({
   path: "triggerItemIds",
-  select: "key name section group groupId categoryId icon isActive sortOrder",
+  select: "key name section group groupId categoryId isActive sortOrder",
   populate: [
     { path: "groupId", select: "key name section categoryId isActive sortOrder" },
     { path: "categoryId", select: "key name isActive" },
@@ -115,7 +120,7 @@ const getTriggerItems = async (query = {}) => {
   }
   const limit = Math.min(Math.max(Number(query.limit) || 500, 1), 1000);
   const items = await Item.find(filter)
-    .select("key name section group groupId categoryId icon sortOrder")
+    .select("key name section group groupId categoryId sortOrder")
     .populate("groupId", "key name section categoryId sortOrder")
     .populate("categoryId", "key name")
     .sort({ section: 1, group: 1, sortOrder: 1, name: 1 })
@@ -139,7 +144,6 @@ const getTriggerItems = async (query = {}) => {
       id: item._id,
       key: item.key,
       name: item.name,
-      icon: item.icon,
       groupId: id,
       group: group.name || item.group,
       sectionId: item.categoryId?._id || item.categoryId,

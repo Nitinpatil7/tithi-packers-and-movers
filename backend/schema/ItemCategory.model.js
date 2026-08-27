@@ -4,8 +4,7 @@ const itemCategorySchema = new mongoose.Schema(
   {
     key: { type: String, required: true, unique: true, lowercase: true, trim: true },
     name: { type: String, required: true, unique: true, trim: true },
-    description: { type: String, trim: true, default: "" },
-    icon: { type: String, trim: true, default: "" },
+    icon: { type: String, trim: true, default: null },
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0 },
   },

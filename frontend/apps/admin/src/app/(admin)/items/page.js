@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Boxes, Check, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, PackagePlus, Plus, Ruler, Search, Trash2 } from 'lucide-react';
+import { Boxes, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, PackagePlus, Plus, Ruler, Search, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
-import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useReorderGroups, useReorderItems, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize } from '@hooks/useItems';
-import { DEFAULT_ITEM_ICON, ITEM_ICON_OPTIONS, ItemIcon, inferItemIcon, normalizeItemIcon } from '@utils/itemIcons';
+import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useReorderGroups, useReorderItems, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize, useUploadIcon } from '@hooks/useItems';
+import IconInput, { IconPreview } from '@/components/admin/IconInput';
 
-const baseRecord = { name: '', description: '', sortOrder: 0, isActive: true };
+const baseRecord = { name: '', sortOrder: 0, isActive: true };
 const sizeIdOf = (size) => size.sizeId?._id || size.sizeId || size._id;
 
 export default function AdminItemsPage() {
@@ -33,6 +33,7 @@ export default function AdminItemsPage() {
     createItem: useCreateItem(), updateItem: useUpdateItem(), deleteItem: useDeleteItem(),
     createSize: useCreateSize(), updateSize: useUpdateSize(), deleteSize: useDeleteSize(),
     reorderGroups: useReorderGroups(), reorderItems: useReorderItems(),
+    uploadIcon: useUploadIcon(),
   };
   const busy = Object.values(mutations).some((mutation) => mutation.isPending);
 
@@ -72,17 +73,17 @@ export default function AdminItemsPage() {
   const saveEditor = async (form) => {
     try {
       if (editor.type === 'section') {
-        const payload = { ...form, icon: form.icon || inferItemIcon(form.name), sortOrder: Number(form.sortOrder) || 0 };
+        const payload = { ...form, icon: String(form.icon || '').trim() || null, sortOrder: Number(form.sortOrder) || 0 };
         if (editor.record) await mutations.updateSection.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createSection.mutateAsync(payload);
       } else if (editor.type === 'group') {
-        const payload = { ...form, sectionId: form.sectionId || current?._id, sortOrder: Number(form.sortOrder) || 0 };
+        const payload = { ...form, icon: String(form.icon || '').trim() || null, sectionId: form.sectionId || current?._id, sortOrder: Number(form.sortOrder) || 0 };
         if (editor.record) await mutations.updateGroup.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createGroup.mutateAsync(payload);
       } else if (editor.type === 'item') {
         const sizes = form.sizes.filter((size) => size.sizeId).map((size, index) => ({ sizeId: size.sizeId, price: Number(size.price) || 0, sortOrder: index, isActive: size.isActive !== false }));
         if (!sizes.length) throw new Error('Add at least one size and price.');
-        const payload = { groupId: form.groupId || editor.group?._id, name: form.name.trim(), icon: form.icon || inferItemIcon(form.name), sizes, sortOrder: Number(form.sortOrder) || 0, isActive: form.isActive };
+        const payload = { groupId: form.groupId || editor.group?._id, name: form.name.trim(), icon: String(form.icon || '').trim() || null, sizes, sortOrder: Number(form.sortOrder) || 0, isActive: form.isActive };
         if (editor.record) await mutations.updateItem.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createItem.mutateAsync(payload);
       }
@@ -103,7 +104,7 @@ export default function AdminItemsPage() {
     <section className="grid gap-3 sm:grid-cols-3"><Stat icon={Layers3} label="Sections" value={sections.length} /><Stat icon={Boxes} label="Groups" value={sections.reduce((sum, section) => sum + (section.groups?.length || 0), 0)} /><Stat icon={PackagePlus} label="Items" value={sections.reduce((sum, section) => sum + (section.groups || []).reduce((total, group) => total + (group.items?.length || 0), 0), 0)} /></section>
 
     {isLoading ? <Empty text="Loading item catalog…" /> : isError ? <Empty text="Could not load the item catalog." action={() => refetch()} /> : !sections.length ? <Empty text="No sections yet. Create the first section to start your catalog." /> : <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
-      <div className="flex gap-2 overflow-x-auto border-b border-sky-100 bg-sky-50/40 p-3">{sections.map((section) => <button key={section._id} onClick={() => setActiveSection(section._id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${current?._id === section._id ? 'bg-sky-600 text-white shadow-md shadow-sky-100' : 'bg-white text-slate-600 ring-1 ring-sky-100 hover:text-sky-700'}`}><ItemIcon icon={section.icon || inferItemIcon(section.name)} className="h-4 w-4 text-base" />{section.name}<span className="text-[10px] opacity-70">{section.groups?.length || 0}</span></button>)}</div>
+      <div className="flex gap-2 overflow-x-auto border-b border-sky-100 bg-sky-50/40 p-3">{sections.map((section) => <button key={section._id} onClick={() => setActiveSection(section._id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${current?._id === section._id ? 'bg-sky-600 text-white shadow-md shadow-sky-100' : 'bg-white text-slate-600 ring-1 ring-sky-100 hover:text-sky-700'}`}><CatalogIconPreview icon={section.icon} className="h-5 w-5" />{section.name}<span className="text-[10px] opacity-70">{section.groups?.length || 0}</span></button>)}</div>
       <div className="flex flex-col gap-3 border-b border-sky-100 p-4 md:flex-row md:items-center md:justify-between"><label className="relative max-w-md flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} className="admin-field pl-10" placeholder="Search groups or items…" /></label><div className="flex flex-wrap gap-2"><SmallButton icon={Edit3} onClick={() => setEditor({ type: 'section', record: current })}>Edit section</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove('Section', current)}>Deactivate</SmallButton><SmallButton icon={Plus} primary onClick={() => setEditor({ type: 'group', section: current })}>Add group</SmallButton></div></div>
       <div className="space-y-3 p-4">
         {groups.length ? groups.map((group) => {
@@ -154,7 +155,7 @@ export default function AdminItemsPage() {
                             className="mt-0.5 cursor-grab text-slate-300 active:cursor-grabbing"
                             title={search ? 'Clear search to reorder items' : 'Drag item'}
                           ><GripVertical className="h-4 w-4" /></span>
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100"><ItemIcon icon={item.icon || inferItemIcon(item.name)} className="h-4.5 w-4.5" /></span>
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><CatalogIconPreview icon={item.icon} className="h-8 w-8" /></span>
                           <h3 className="text-sm font-black text-slate-800">{item.name}</h3>
                         </div>
                         <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.isActive === false ? 'bg-slate-300' : 'bg-emerald-500'}`} />
@@ -171,32 +172,28 @@ export default function AdminItemsPage() {
       </div>
     </section>}
 
-    <RecordEditor editor={editor} sections={sections} globalSizes={globalSizes} busy={busy} onClose={() => setEditor(null)} onSave={saveEditor} />
+    <RecordEditor editor={editor} sections={sections} globalSizes={globalSizes} uploadIcon={mutations.uploadIcon} busy={busy} onClose={() => setEditor(null)} onSave={saveEditor} />
     <SizeManager open={sizeManager} sizes={globalSizes} mutations={mutations} onClose={() => setSizeManager(false)} />
   </div>;
 }
 
-function RecordEditor({ editor, sections, globalSizes, busy, onClose, onSave }) {
+function RecordEditor({ editor, sections, globalSizes, uploadIcon, busy, onClose, onSave }) {
   const record = editor?.record;
   const [form, setForm] = useState(baseRecord);
   useEffect(() => {
     if (!editor) return;
-    if (editor.type === 'item') setForm({ name: record?.name || '', icon: normalizeItemIcon(record?.icon || inferItemIcon(record?.name || '')), groupId: record?.groupId || editor.group?._id || '', sortOrder: record?.sortOrder || 0, isActive: record?.isActive !== false, sizes: (record?.sizes || []).map((size) => ({ sizeId: sizeIdOf(size), price: size.price, isActive: size.isActive !== false })) });
-    else if (editor.type === 'section') setForm({ ...baseRecord, ...(record || {}), icon: normalizeItemIcon(record?.icon || inferItemIcon(record?.name || '')), sectionId: '' });
-    else setForm({ ...baseRecord, ...(record || {}), sectionId: record?.categoryId?._id || record?.categoryId || editor.section?._id || '' });
+    if (editor.type === 'item') setForm({ name: record?.name || '', icon: record?.icon || '', groupId: record?.groupId || editor.group?._id || '', sortOrder: record?.sortOrder || 0, isActive: record?.isActive !== false, sizes: (record?.sizes || []).map((size) => ({ sizeId: sizeIdOf(size), price: size.price, isActive: size.isActive !== false })) });
+    else if (editor.type === 'section') setForm({ ...baseRecord, ...(record || {}), icon: record?.icon || '', sectionId: '' });
+    else setForm({ ...baseRecord, ...(record || {}), icon: record?.icon || '', sectionId: record?.categoryId?._id || record?.categoryId || editor.section?._id || '' });
   }, [editor, record]);
   if (!editor) return null;
   const title = `${record ? 'Edit' : 'Add'} ${editor.type}`;
   const updateSize = (index, changes) => setForm((value) => ({ ...value, sizes: value.sizes.map((size, position) => position === index ? { ...size, ...changes } : size) }));
-  return <Modal isOpen onClose={onClose} title={title} size="lg"><form onSubmit={(event) => { event.preventDefault(); onSave(form); }} className="space-y-4"><Field label="Name *"><input required value={form.name || ''} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field>{editor.type !== 'item' && <Field label="Description"><textarea rows={3} value={form.description || ''} onChange={(event) => setForm({ ...form, description: event.target.value })} className="admin-field resize-y" /></Field>}{editor.type === 'section' && <IconPicker label="Category icon *" value={form.icon || DEFAULT_ITEM_ICON} onChange={(icon) => setForm({ ...form, icon })} />}{editor.type === 'group' && <Field label="Section *"><select required value={form.sectionId || ''} onChange={(event) => setForm({ ...form, sectionId: event.target.value })} className="admin-field">{sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}</select></Field>}{editor.type === 'item' && <IconPicker label="Item icon *" value={form.icon || DEFAULT_ITEM_ICON} onChange={(icon) => setForm({ ...form, icon })} />}{editor.type === 'item' && <Field label="Sizes and prices *"><div className="space-y-2">{(form.sizes || []).map((size, index) => <div key={index} className="grid grid-cols-[1fr_120px_auto] gap-2"><select required value={size.sizeId} onChange={(event) => updateSize(index, { sizeId: event.target.value })} className="admin-field"><option value="">Select size</option>{globalSizes.map((choice) => <option key={choice._id} value={choice._id}>{choice.label || choice.key}</option>)}</select><input required type="number" min="0" value={size.price} onChange={(event) => updateSize(index, { price: event.target.value })} className="admin-field" placeholder="Price" /><button type="button" onClick={() => setForm({ ...form, sizes: form.sizes.filter((_, position) => position !== index) })} className="rounded-xl border border-red-100 px-3 text-red-500"><Trash2 className="h-4 w-4" /></button></div>)}<button type="button" onClick={() => setForm({ ...form, sizes: [...(form.sizes || []), { sizeId: '', price: 0, isActive: true }] })} className="text-sm font-bold text-sky-600">+ Add size variant</button></div></Field>}<div className="grid gap-4 sm:grid-cols-2"><Field label="Sort order"><input type="number" min="0" value={form.sortOrder || 0} onChange={(event) => setForm({ ...form, sortOrder: event.target.value })} className="admin-field" /></Field><label className="flex items-end"><span className="flex h-[46px] w-full items-center gap-3 rounded-xl border border-sky-100 px-3 text-sm font-bold text-slate-600"><input type="checkbox" checked={form.isActive !== false} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-sky-600" />Active</span></label></div><div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600">Cancel</button><button disabled={busy} className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">Save {editor.type}</button></div></form></Modal>;
+  return <Modal isOpen onClose={onClose} title={title} size="lg"><form onSubmit={(event) => { event.preventDefault(); onSave(form); }} className="space-y-4"><Field label="Name *"><input required value={form.name || ''} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field><IconInput value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} uploadIcon={uploadIcon} />{editor.type === 'group' && <Field label="Section *"><select required value={form.sectionId || ''} onChange={(event) => setForm({ ...form, sectionId: event.target.value })} className="admin-field">{sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}</select></Field>}{editor.type === 'item' && <Field label="Sizes and prices *"><div className="space-y-2">{(form.sizes || []).map((size, index) => <div key={index} className="grid grid-cols-[1fr_120px_auto] gap-2"><select required value={size.sizeId} onChange={(event) => updateSize(index, { sizeId: event.target.value })} className="admin-field"><option value="">Select size</option>{globalSizes.map((choice) => <option key={choice._id} value={choice._id}>{choice.label || choice.key}</option>)}</select><input required type="number" min="0" value={size.price} onChange={(event) => updateSize(index, { price: event.target.value })} className="admin-field" placeholder="Price" /><button type="button" onClick={() => setForm({ ...form, sizes: form.sizes.filter((_, position) => position !== index) })} className="rounded-xl border border-red-100 px-3 text-red-500"><Trash2 className="h-4 w-4" /></button></div>)}<button type="button" onClick={() => setForm({ ...form, sizes: [...(form.sizes || []), { sizeId: '', price: 0, isActive: true }] })} className="text-sm font-bold text-sky-600">+ Add size variant</button></div></Field>}<div className="grid gap-4 sm:grid-cols-2"><Field label="Sort order"><input type="number" min="0" value={form.sortOrder || 0} onChange={(event) => setForm({ ...form, sortOrder: event.target.value })} className="admin-field" /></Field><label className="flex items-end"><span className="flex h-[46px] w-full items-center gap-3 rounded-xl border border-sky-100 px-3 text-sm font-bold text-slate-600"><input type="checkbox" checked={form.isActive !== false} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-sky-600" />Active</span></label></div><div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600">Cancel</button><button disabled={busy} className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">Save {editor.type}</button></div></form></Modal>;
 }
 
-function IconPicker({ value, onChange, label = 'Icon *' }) {
-  const [query, setQuery] = useState('');
-  const q = query.toLowerCase();
-  const selectedValue = normalizeItemIcon(value);
-  const icons = ITEM_ICON_OPTIONS.filter((item) => item.label.toLowerCase().includes(q) || item.key.includes(q) || item.key.replace('fi-rr-', '').includes(q) || item.keywords?.some((keyword) => keyword.includes(q)));
-  return <Field label={label}><div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-3"><label className="relative block"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={query} onChange={(event) => setQuery(event.target.value)} className="admin-field bg-white pl-10" placeholder="Search Uicons..." /></label><div className="mt-3 grid max-h-56 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">{icons.map(({ key, label: iconLabel }) => <button key={key} type="button" onClick={() => onChange(key)} className={`relative flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-center text-[11px] font-bold transition ${selectedValue === key ? 'border-sky-500 bg-white text-sky-700 shadow-sm' : 'border-sky-100 bg-white/70 text-slate-500 hover:border-sky-300 hover:text-sky-700'}`}><ItemIcon icon={key} className="h-5 w-5 text-xl" />{selectedValue === key && <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-sky-600 text-white"><Check className="h-2.5 w-2.5" /></span>}<span className="line-clamp-2">{iconLabel}</span></button>)}</div>{!icons.length && <p className="mt-3 rounded-xl border border-dashed border-sky-100 bg-white/70 p-4 text-center text-xs font-bold text-slate-400">No Uicons match that search.</p>}</div></Field>;
+function CatalogIconPreview({ icon, className = 'h-6 w-6' }) {
+  return <IconPreview icon={icon} className={className} />;
 }
 
 function SizeManager({ open, sizes, mutations, onClose }) {

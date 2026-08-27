@@ -20,6 +20,12 @@ const addOnServiceSchema = new mongoose.Schema(
       trim: true,
     },
 
+    icon: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     unit: {
       type: String,
       enum: ["global", "flat", "per_unit", "per_item", "per_group", "per_category", "per_room", "percentage"],

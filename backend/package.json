@@ -8,14 +8,16 @@
     "dev": "node server.js",
     "test": "echo \"No automated backend test suite configured yet\" && exit 0",
     "import:items": "node scripts/importItemCatalog.js",
-    "seed": "node scripts/seedProduction.js",
-    "backfill:item-icons": "node scripts/backfillItemIcons.js"
+    "verify:r2-icons": "node scripts/verifyR2IconUpload.js",
+    "verify:catalog-icons": "node scripts/verifyCatalogIconE2E.js",
+    "seed": "node scripts/seedProduction.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1119.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.3.0",
     "bullmq": "^6.0.11",

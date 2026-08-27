@@ -6,7 +6,6 @@
     "./package.json": "./package.json",
     "./bookingPayload": "./bookingPayload.js",
     "./freeAllowanceDisplay": "./freeAllowanceDisplay.js",
-    "./itemIcons": "./itemIcons.jsx",
     "./pricing": "./pricing.js",
     "./siteAssets": "./siteAssets.js",
     "./truckVisuals": "./truckVisuals.js",

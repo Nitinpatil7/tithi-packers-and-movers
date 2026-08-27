@@ -46,6 +46,7 @@ export const useCreateGroup = () => useItemMutation(api.createGroup);
 export const useUpdateGroup = () => useItemMutation(({ id, data }) => api.updateGroup(id, data));
 export const useDeleteGroup = () => useItemMutation(api.deleteGroup);
 export const useReorderGroups = () => useItemMutation(api.reorderGroups);
+export const useUploadIcon = () => useItemMutation(api.uploadIcon);
 export const useCreateSize = () => useItemMutation(api.createSize);
 export const useUpdateSize = () => useItemMutation(({ id, data }) => api.updateSize(id, data));
 export const useDeleteSize = () => useItemMutation(api.deleteSize);
