@@ -1,4 +1,5 @@
 const Booking = require("../schema/Booking.model");
+const Testimonial = require("../schema/Testimonial.model");
 
 const BUSINESS_BOOKINGS = { status: { $nin: ["draft", "cancelled"] } };
 const SERVICE_LABELS = {
@@ -19,7 +20,7 @@ const getDashboard = async () => {
   const graphStart = startOfUtcDay(new Date(Date.now() - 29 * 24 * 60 * 60 * 1000));
   const todayStart = startOfUtcDay(new Date());
 
-  const [summaryRows, serviceRows, dailyRows, recentBookings] = await Promise.all([
+  const [summaryRows, serviceRows, dailyRows, recentBookings, pendingFeedbackCount] = await Promise.all([
     Booking.aggregate([
       { $match: BUSINESS_BOOKINGS },
       {
@@ -54,6 +55,7 @@ const getDashboard = async () => {
       .sort({ createdAt: -1 })
       .limit(5)
       .lean(),
+    Testimonial.countDocuments({ status: "inactive", submittedAt: { $exists: true } }),
   ]);
 
   const dailyMap = new Map(dailyRows.map((row) => [row._id, row.bookings]));
@@ -82,6 +84,7 @@ const getDashboard = async () => {
       bookings: row.bookings,
     })),
     recentBookings,
+    pendingFeedbackCount,
   };
 };
 

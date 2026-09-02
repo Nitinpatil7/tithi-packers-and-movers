@@ -136,9 +136,10 @@ export const useBookingStore = create(persist((set) => ({
   currentStep: 0,
   bookingData: getInitialBookingData(),
 
-  setStep: (step, stepRules) => set((state) => ({
-    currentStep: firstReachableStep(step, state.bookingData, stepRules),
-  })),
+  setStep: (step, stepRules) => set((state) => {
+    const nextStep = firstReachableStep(step, state.bookingData, stepRules);
+    return nextStep === state.currentStep ? state : { currentStep: nextStep };
+  }),
 
   updateBookingData: (data) => set((state) => {
     const updatedData = { ...state.bookingData };
@@ -184,11 +185,15 @@ export const useBookingStore = create(persist((set) => ({
 
   resetBooking: () => set({ currentStep: 0, bookingData: getInitialBookingData() }),
 
-  nextStep: (stepRules) => set((state) => ({
-    currentStep: firstReachableStep(state.currentStep + 1, state.bookingData, stepRules),
-  })),
+  nextStep: (stepRules) => set((state) => {
+    const nextStep = firstReachableStep(state.currentStep + 1, state.bookingData, stepRules);
+    return nextStep === state.currentStep ? state : { currentStep: nextStep };
+  }),
 
-  prevStep: () => set((state) => ({ currentStep: Math.max(0, state.currentStep - 1) })),
+  prevStep: () => set((state) => {
+    const nextStep = Math.max(0, state.currentStep - 1);
+    return nextStep === state.currentStep ? state : { currentStep: nextStep };
+  }),
 }), {
   name: 'tithi_booking_draft',
   version: 1,

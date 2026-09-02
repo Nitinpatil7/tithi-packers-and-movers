@@ -30,6 +30,9 @@ export const getPublicTestimonials = (filters = {}) => testimonialRequest(toQuer
 export const getAdminTestimonials = (filters = {}) => testimonialRequest(`/admin/all${toQuery(filters)}`, { credentials: 'include' }).then(asList);
 export const getTestimonialById = (id) => testimonialRequest(`/${encodeURIComponent(id)}`, { credentials: 'include' });
 export const createTestimonial = (data) => testimonialRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(data) });
+export const submitSimpleFeedback = (data) => testimonialRequest('', { method: 'POST', body: JSON.stringify(data) });
 export const updateTestimonial = (id, data) => testimonialRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deleteTestimonial = (id) => testimonialRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
 export const reorderTestimonials = (orderedIds) => testimonialRequest('/admin/reorder', { method: 'PATCH', credentials: 'include', body: JSON.stringify({ orderedIds }) });
+export const getFeedbackContext = (token) => testimonialRequest(`/feedback/${encodeURIComponent(token)}`);
+export const submitFeedback = (token, data) => testimonialRequest(`/feedback/${encodeURIComponent(token)}`, { method: 'POST', body: JSON.stringify(data) });

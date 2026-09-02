@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Layers, Loader2, Map as MapIcon, MapPin, Truck, Users, X } from 'lucide-react';
 import { cn } from '@utils/utils';
+import { useBookingStore } from '@tithi/store/bookingStore';
 import BookingActionBar from './BookingActionBar';
 
 const SURAT_BOUNDS = { north: 21.35, south: 20.97, east: 73.08, west: 72.65 };
@@ -15,6 +16,10 @@ const needsSurat = (serviceType, role) => serviceType === 'local' || serviceType
 
 function debugMapLog(message, meta) {
   if (debugMaps) console.info(message, meta);
+}
+
+function reportMapIssue(message, meta) {
+  if (debugMaps) console.error(message, meta);
 }
 
 const toLatLngLiteral = (location) => {
@@ -222,6 +227,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const geocodeRequestRef = useRef(0);
+  const reverseGeocodeRef = useRef(null);
   const initialValueLat = initialValue?.lat;
   const initialValueLng = initialValue?.lng;
   const initialValueAddress = initialValue?.address;
@@ -255,6 +261,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const map = mapInstanceRef.current;
       if (!places?.PlacesService || !map) {
         debugMapLog('[MapPicker] places fallback unavailable', { sourceStatus, latLng });
+        reportMapIssue('[MapPicker] PlacesService unavailable. Check that the Places API is enabled for the Google Maps key.', { sourceStatus, latLng });
         setAddress('');
         setPlaceForAddress(null);
         setError('Could not find a readable address for this point. Please choose a nearby road/building or search the address.');
@@ -274,6 +281,9 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           resultCount: nearbyResults?.length || 0,
           firstPlace: nearbyResults?.[0]?.name || '',
         });
+        if (nearbyStatus !== places.PlacesServiceStatus.OK) {
+          reportMapIssue('[MapPicker] Places nearbySearch failed. Check Places API, billing, quota, and key restrictions.', { status: nearbyStatus, sourceStatus, latLng });
+        }
 
         const nearest = nearbyStatus === places.PlacesServiceStatus.OK
           ? nearbyResults?.find((place) => place.place_id)
@@ -303,6 +313,9 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             latLng,
             address: detailsAddress,
           });
+          if (detailsStatus !== places.PlacesServiceStatus.OK) {
+            reportMapIssue('[MapPicker] Places getDetails failed. Check Places API, billing, quota, and key restrictions.', { status: detailsStatus, sourceStatus, latLng });
+          }
 
           if (detailsStatus === places.PlacesServiceStatus.OK && detailsAddress) {
             setAddress(detailsAddress);
@@ -324,6 +337,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       }
       setError('');
       if (!window.google?.maps?.Geocoder) {
+        reportMapIssue('[MapPicker] Geocoder unavailable. Check that Maps JavaScript API loaded with the geocoding library available.', { latLng });
         setError('Google Maps geocoder is not available yet. Please try again.');
         return;
       }
@@ -342,6 +356,9 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           firstFormattedAddress: results?.[0]?.formatted_address || '',
           address: readable,
         });
+        if (status !== 'OK') {
+          reportMapIssue('[MapPicker] Reverse geocode failed. Check Geocoding API, billing, quota, and key restrictions.', { status, latLng });
+        }
         if (readablePlace && readable) {
           setLoadingAddress(false);
           setAddress(readable);
@@ -351,13 +368,18 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         }
       });
     };
+    reverseGeocodeRef.current = reverseGeocode;
 
     const centerFromTypedArea = (map) => {
       const typedAddress = String(initialReadableAddress).trim();
       if (!typedAddress || initialLatLng || !window.google?.maps?.Geocoder) return;
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ address: typedAddress, componentRestrictions: { country: 'IN' } }, (results, status) => {
-        if (cancelled || status !== 'OK' || !results?.[0]) return;
+        if (cancelled) return;
+        if (status !== 'OK' || !results?.[0]) {
+          reportMapIssue('[MapPicker] Initial typed-address geocode failed. Check Geocoding API, billing, quota, and key restrictions.', { status, address: typedAddress });
+          return;
+        }
         const readablePlace = chooseReadablePlace(results);
         if (!readablePlace) return;
         const location = readablePlace.geometry.location;
@@ -374,9 +396,12 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
 
     const initialise = () => {
       if (cancelled || mapInstanceRef.current || !mapRef.current) return;
-      if (!window.google?.maps?.Map) {
-        attempts += 1;
-        if (attempts >= 40) setError('Google Maps is taking too long to load. Please check the Maps API key or internet connection.');
+        if (!window.google?.maps?.Map) {
+          attempts += 1;
+        if (attempts >= 40) {
+          reportMapIssue('[MapPicker] Maps JavaScript API did not become ready. Check Maps JavaScript API, billing, network access, and key restrictions.', { attempts });
+          setError('Google Maps is taking too long to load. Please check the Maps API key or internet connection.');
+        }
         return;
       }
 
@@ -421,6 +446,30 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       }, 0);
       reverseGeocode(start);
       centerFromTypedArea(map);
+      if (!initialLatLng && !initialReadableAddress && navigator.geolocation) {
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            if (cancelled) return;
+            setLocating(false);
+            const currentCenter = { lat: coords.latitude, lng: coords.longitude };
+            const validation = validateLatLng(currentCenter, serviceType, role);
+            if (validation) {
+              setError(validation);
+              return;
+            }
+            map.setCenter(currentCenter);
+            map.setZoom(16);
+            setSelected(currentCenter);
+            reverseGeocode(currentCenter);
+          },
+          () => {
+            if (cancelled) return;
+            setLocating(false);
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
+        );
+      }
     };
 
     initialise();
@@ -432,6 +481,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     return () => {
       cancelled = true;
       geocodeRequestRef.current += 1;
+      reverseGeocodeRef.current = null;
       window.clearInterval(timer);
       mapInstanceRef.current = null;
     };
@@ -477,6 +527,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         mapInstanceRef.current?.setCenter(nextCenter);
         mapInstanceRef.current?.setZoom(16);
         setSelected(nextCenter);
+        reverseGeocodeRef.current?.(nextCenter);
       },
       () => {
         setLocating(false);
@@ -501,19 +552,19 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         <div className="relative h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]">
           <div ref={mapRef} className="absolute inset-0" />
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
-            <MapPin className="h-11 w-11 -translate-y-5 fill-red-500 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,.25)]" />
-            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 translate-y-2 rounded-full bg-slate-950/25 blur-[2px]" />
+            <MapPin className="h-11 w-11 -translate-y-1/2 fill-red-500 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,.25)]" />
+            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-950/25 blur-[2px]" />
           </div>
           <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded-2xl border border-bg-border bg-white shadow-lg">
             <button type="button" onClick={() => adjustZoom(1)} className="grid h-11 w-11 place-items-center border-b border-bg-border text-xl font-black text-text-primary">+</button>
             <button type="button" onClick={() => adjustZoom(-1)} className="grid h-11 w-11 place-items-center text-xl font-black text-text-primary">-</button>
           </div>
-          <button type="button" onClick={useCurrentLocation} disabled={locating} className="absolute bottom-3 left-3 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-2 text-xs font-black text-primary shadow-lg disabled:opacity-60">
+          <button type="button" onClick={useCurrentLocation} disabled={locating} className="absolute bottom-5 left-3 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-2 text-xs font-black text-primary shadow-lg disabled:opacity-60">
             {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crosshair className="h-4 w-4" />}
             Use my current location
           </button>
         </div>
-        <div className="border-t border-bg-border p-4 sm:p-5">
+        <div className="border-t border-bg-border px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:p-5">
           <div className="rounded-2xl bg-bg-section p-3 text-sm font-semibold text-text-secondary">
             {loadingAddress ? <span className="flex items-center gap-2"><span className="h-4 w-4 animate-pulse rounded bg-sky-200" /> Finding address under pin...</span> : readableAddress ? `Selected: ${readableAddress}` : 'Pan the map to place the pin'}
           </div>
@@ -907,6 +958,7 @@ function getGoogleRouteDistanceKM(pickup, drop) {
 }
 
 export default function LocationStep({ onSubmit, initialData = {}, serviceType = 'local', pricingRule = null }) {
+  const updateBookingData = useBookingStore((state) => state.updateBookingData);
   const [pickupData, setPickupData] = useState(initialData.pickupLocation || null);
   const [dropData, setDropData] = useState(initialData.dropLocation || null);
   const [distanceKm, setDistanceKm] = useState(initialData.distance || initialData.distanceKm || null);
@@ -922,6 +974,15 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
     delete next[role];
     return next;
   });
+
+  const updatePickupData = (nextLocation) => {
+    setPickupData(nextLocation);
+    updateBookingData({ pickupLocation: nextLocation });
+  };
+  const updateDropData = (nextLocation) => {
+    setDropData(nextLocation);
+    updateBookingData({ dropLocation: nextLocation });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -967,10 +1028,10 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         <p className="text-sm text-text-secondary font-medium">Search and select an exact Google Maps address, or use your current location.</p>
       </div>
       <PlacesAddressBlock title={labels.pickup} icon={<MapPin className="w-4 h-4 text-primary" />} role="pickup" serviceType={serviceType}
-        value={pickupData} onChange={setPickupData} onError={handleError} clearError={clearError} />
+        value={pickupData} onChange={updatePickupData} onError={handleError} clearError={clearError} />
       <div className="flex items-center gap-3"><div className="flex-1 h-px bg-bg-border" /><ArrowRight className="w-4 h-4 text-primary" /><div className="flex-1 h-px bg-bg-border" /></div>
       <PlacesAddressBlock title={labels.drop} icon={<Building2 className="w-4 h-4 text-primary" />} role="drop" serviceType={serviceType}
-        value={dropData} onChange={setDropData} onError={handleError} clearError={clearError} optional={dropOptional} />
+        value={dropData} onChange={updateDropData} onError={handleError} clearError={clearError} optional={dropOptional} />
       {(distanceLoading || distanceKm) && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/15 bg-sky-50 px-4 py-3 text-sm font-bold text-primary">
           <span>{distanceLoading ? 'Calculating route distance from Google Maps...' : 'Google route distance'}</span>

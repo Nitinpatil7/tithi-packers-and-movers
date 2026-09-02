@@ -3,17 +3,32 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useAdminUsers } from '@/hooks/useAdmin';
+import { useAdminBookingsByPhone, useAdminUsers } from '@/hooks/useAdmin';
 import Card from '@tithi/ui/Card';
 import Spinner from '@tithi/ui/Spinner';
 import Badge from '@tithi/ui/Badge';
+import Modal from '@tithi/ui/Modal';
 import { formatCurrency, formatDate } from '@tithi/utils/utils';
-import { MessageSquare } from 'lucide-react';
+import { CalendarDays, IndianRupee, MessageSquare, Phone, TicketCheck } from 'lucide-react';
+
+const SERVICE_LABELS = {
+  local_shifting: 'Local Shifting',
+  intercity_moving: 'Intercity Moving',
+  porter_labour_service: 'Labour & Vehicle',
+};
 
 export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
   const { data: users = [], isLoading } = useAdminUsers({ search, limit: 300 });
   const userRows = Array.isArray(users) ? users : [];
+  const selectedPhone = selectedUser?.mobile || '';
+  const {
+    data: phoneBookings = [],
+    isLoading: bookingsLoading,
+    isError: bookingsError,
+    error: bookingsErrorDetail,
+  } = useAdminBookingsByPhone(selectedPhone, { enabled: Boolean(selectedPhone) });
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -66,7 +81,13 @@ export default function AdminUsersPage() {
 
                     {/* Mobile */}
                     <td className="px-6 py-4 font-mono text-text-primary">
-                      {u.mobile}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedUser(u)}
+                        className="cursor-pointer font-bold text-sky-700 underline-offset-4 transition hover:text-sky-900 hover:underline"
+                      >
+                        {u.mobile}
+                      </button>
                     </td>
 
                     {/* Email */}
@@ -100,6 +121,75 @@ export default function AdminUsersPage() {
           </div>
         )}
       </Card>
+
+      <Modal
+        isOpen={Boolean(selectedUser)}
+        onClose={() => setSelectedUser(null)}
+        title={selectedUser ? `${selectedUser.name || 'Customer'} bookings` : 'Customer bookings'}
+        size="xl"
+      >
+        <div className="space-y-4 text-left">
+          <div className="flex flex-col gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-wide text-text-tertiary">Phone number</p>
+              <p className="mt-1 flex items-center gap-2 font-mono text-sm font-black text-text-primary">
+                <Phone className="h-4 w-4 text-sky-600" />
+                {selectedPhone || '-'}
+              </p>
+            </div>
+            <Badge variant="primary" className="w-fit text-xs px-2 py-0.5">
+              {phoneBookings.length} booking{phoneBookings.length === 1 ? '' : 's'}
+            </Badge>
+          </div>
+
+          {bookingsLoading ? (
+            <div className="grid min-h-56 place-items-center rounded-2xl border border-bg-border">
+              <Spinner size="md" />
+            </div>
+          ) : bookingsError ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-600">
+              {bookingsErrorDetail?.message || 'Could not load bookings for this phone number.'}
+            </div>
+          ) : phoneBookings.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-bg-border p-8 text-center text-sm font-semibold text-text-secondary">
+              No confirmed bookings found for this phone number.
+            </div>
+          ) : (
+            <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1">
+              {phoneBookings.map((booking) => (
+                <Link
+                  key={booking.bookingid || booking.bookingId}
+                  href={`/bookings/${encodeURIComponent(booking.bookingid || booking.bookingId)}`}
+                  className="block rounded-2xl border border-bg-border bg-white p-4 shadow-sm transition hover:border-sky-200 hover:bg-sky-50/40"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 font-mono text-sm font-black text-text-primary">
+                        <TicketCheck className="h-4 w-4 text-sky-600" />
+                        {booking.bookingid || booking.bookingId}
+                      </p>
+                      <p className="mt-1 text-xs font-bold text-text-secondary">
+                        {SERVICE_LABELS[booking.serviceType] || booking.serviceType || 'Service'}
+                      </p>
+                    </div>
+                    <Badge variant="status" type={booking.status} className="w-fit px-3" />
+                  </div>
+                  <div className="mt-4 grid gap-2 border-t border-bg-border/60 pt-3 text-xs font-semibold text-text-secondary sm:grid-cols-2">
+                    <span className="flex items-center gap-2">
+                      <CalendarDays className="h-3.5 w-3.5 text-sky-600" />
+                      {formatDate(booking.scheduledDate || booking.scheduledate || booking.createdAt)}
+                    </span>
+                    <span className="flex items-center gap-2 sm:justify-end">
+                      <IndianRupee className="h-3.5 w-3.5 text-sky-600" />
+                      {formatCurrency(booking.totalAmount || 0)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

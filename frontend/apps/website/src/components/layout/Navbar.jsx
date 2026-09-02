@@ -13,16 +13,18 @@ import { cn } from '@tithi/utils/utils';
 import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
-export default function Navbar() {
+export default function Navbar({ minimal = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const pathname = usePathname();
   const language = 'en';
   const { theme, setTheme } = useThemeStore();
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const companyName = site.companyName || 'Tithi Packers and Movers';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -34,6 +36,10 @@ export default function Navbar() {
     setMobileMenuOpen(false);
     setDropdownOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoSrc]);
 
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
   const serviceLabels = site.serviceLabels || {};
@@ -67,12 +73,28 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
-          <Link href="/" className="flex min-w-0 items-center group shrink-0" aria-label={site.companyName || 'Home'}>
-            {logoSrc && <Image unoptimized src={logoSrc} alt={site.companyName || 'Company logo'} width={220} height={68} className="h-14 w-auto max-w-[220px] object-contain sm:max-w-[230px]" />}
+          <Link href="/" className="flex min-w-0 items-center group shrink-0" aria-label={companyName}>
+            {logoSrc && !logoFailed ? (
+              <Image
+                unoptimized
+                src={logoSrc}
+                alt={`${companyName} logo`}
+                width={220}
+                height={68}
+                className="h-14 w-auto max-w-[220px] object-contain sm:max-w-[230px]"
+                onError={() => setLogoFailed(true)}
+              />
+            ) : (
+              <span className="block max-w-[220px] text-lg font-black leading-tight text-text-primary sm:max-w-[230px] sm:text-xl">
+                {companyName}
+              </span>
+            )}
           </Link>
 
+          {minimal && <div className="min-h-[52px]" />}
+
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+          {!minimal && <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             <Link
               href="/"
               className={cn(
@@ -151,10 +173,10 @@ export default function Navbar() {
                 )}
               </Link>
             ))}
-          </nav>
+          </nav>}
 
           {/* CTAs */}
-          <div className="hidden lg:flex items-center gap-3 shrink-0">
+          {!minimal && <div className="hidden lg:flex items-center gap-3 shrink-0">
             {/* Desktop Theme Selector */}
             <div className="relative group shrink-0 flex items-center">
               <button
@@ -194,22 +216,22 @@ export default function Navbar() {
             >
               {t.bookNow || 'Book Now'} →
             </Link>
-          </div>
+          </div>}
 
           {/* Mobile Hamburger */}
-          <div className="lg:hidden">
+          {!minimal && <div className="lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="navbar-menu-button min-h-[52px] min-w-[52px] rounded-2xl border border-bg-border bg-white p-3 text-text-secondary transition-all hover:border-primary/30 hover:text-primary"
               >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-          </div>
+          </div>}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
+      {!minimal && <AnimatePresence>
         {mobileMenuOpen && (
           <motion.nav
             initial={{ opacity: 0, height: 0 }}
@@ -298,7 +320,7 @@ export default function Navbar() {
             </div>
           </motion.nav>
         )}
-      </AnimatePresence>
+      </AnimatePresence>}
     </header>
   );
 }

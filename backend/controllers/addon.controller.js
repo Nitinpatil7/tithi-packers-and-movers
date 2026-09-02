@@ -64,6 +64,13 @@ const getTriggerItems = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, groups, "Searchable add-on trigger items fetched successfully"));
 });
 
+const reorderAddOns = asyncHandler(async (req, res) => {
+  const addOns = await addOnService.reorderAddOns(req.body?.orderedIds || req.body?.ids || []);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, addOns, "Add-on services reordered successfully"));
+});
+
 module.exports = {
   createAddOn,
   getAllAddOnsForAdmin,
@@ -73,4 +80,5 @@ module.exports = {
   getTriggerGroups,
   getTriggerItems,
   getAvailableAddOns,
+  reorderAddOns,
 };

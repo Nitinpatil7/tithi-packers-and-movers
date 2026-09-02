@@ -3,13 +3,12 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
 import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
 import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@tithi/utils/bookingPayload';
-import AnimatedServiceIcon from '@/components/hero/AnimatedServiceIcon';
 import BookingLayout from '@tithi/components/booking/BookingLayout';
+import ServiceComingSoon from '@tithi/components/booking/ServiceComingSoon';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Truck', 'Employees', 'Hours', 'Schedule', 'Review', 'Verify OTP'];
@@ -112,7 +111,7 @@ export default function LabourServicePage() {
   };
 
   if (pricingLoading) return <LabourLoading />;
-  if (!pricingRule) return <LabourComingSoon />;
+  if (!pricingRule) return <ServiceComingSoon serviceName="Labour & Vehicle" />;
 
   return (
     <BookingLayout
@@ -156,33 +155,6 @@ function LabourLoading() {
         <div className="mx-auto h-12 w-12 animate-pulse rounded-2xl bg-primary-soft" />
         <p className="mt-4 text-sm font-black text-text-primary">Checking service availability...</p>
       </div>
-    </div>
-  );
-}
-
-function LabourComingSoon() {
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-hero-gradient px-4 pt-28 pb-16 sm:px-6">
-      <div className="absolute inset-0 pattern-dots opacity-50" />
-      <motion.div
-        className="relative z-10 mx-auto max-w-3xl overflow-hidden rounded-3xl border border-sky-100 bg-white/95 p-6 text-center shadow-[0_24px_70px_rgba(14,165,233,0.16)] sm:p-10"
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <motion.div
-          className="mx-auto grid h-24 w-24 place-items-center rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-orange-50 p-2 shadow-sky"
-          animate={{ y: [0, -6, 0], rotate: [-2, 2, -2] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <AnimatedServiceIcon src="/labour_service.lottie" isActive className="h-full w-full" />
-        </motion.div>
-        <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-primary">Labour & Vehicle</p>
-        <h1 className="mt-2 text-3xl font-black text-text-primary sm:text-4xl" style={{ fontFamily: 'var(--font-heading)' }}>Coming Soon</h1>
-        <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-6 text-text-secondary">
-          We are preparing this service for smoother lifting, loading, and vehicle-assisted help. Please check back soon or book a local move for now.
-        </p>
-      </motion.div>
     </div>
   );
 }

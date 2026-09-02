@@ -5,5 +5,11 @@ const service_types = {
 };
 
 const SERVICE_TYPE_VALUES = Object.values(service_types);
+const ITEM_CATALOG_SERVICE_TYPES = [
+  service_types.LOCAL_SHIFTING,
+  service_types.INTERCITY_MOVING,
+];
 
-module.exports = { service_types, SERVICE_TYPE_VALUES };
+const isItemCatalogService = (serviceType) => ITEM_CATALOG_SERVICE_TYPES.includes(serviceType);
+
+module.exports = { service_types, SERVICE_TYPE_VALUES, ITEM_CATALOG_SERVICE_TYPES, isItemCatalogService };

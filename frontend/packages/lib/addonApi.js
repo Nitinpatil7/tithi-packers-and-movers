@@ -34,3 +34,4 @@ export const getTriggerItems = (filters = {}) => addonRequest(`/admin/trigger-it
 export const createAddon = (data) => addonRequest('', { method: 'POST', credentials: 'include', body: JSON.stringify(withGeneratedKey(data)) });
 export const updateAddon = (id, data) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
 export const deleteAddon = (id) => addonRequest(`/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
+export const reorderAddons = (orderedIds) => addonRequest('/admin/reorder', { method: 'PATCH', credentials: 'include', body: JSON.stringify({ orderedIds }) }).then(list);

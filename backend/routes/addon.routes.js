@@ -14,6 +14,8 @@ router.get("/:id", adminAuth, addOnController.getAddOnById);
 
 router.post("/", adminAuth, addOnController.createAddOn);
 
+router.patch("/admin/reorder", adminAuth, addOnController.reorderAddOns);
+
 router.patch("/:id", adminAuth, addOnController.updateAddOn);
 
 router.delete("/:id", adminAuth, addOnController.deleteAddOn);

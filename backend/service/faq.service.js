@@ -3,7 +3,8 @@ const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
 
 const createFAQ = async (payload) => {
-  const faq = await FAQ.create(payload);
+  const last = await FAQ.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
+  const faq = await FAQ.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1 });
   notifyContentChange("faq", "faq:create", { id: faq._id });
   return faq;
 };
@@ -20,7 +21,7 @@ const getAllFAQs = async (query = {}) => {
 
   const faqs = await FAQ.find(filter).sort({
     sortOrder: 1,
-    createdAt: -1,
+    createdAt: 1,
   });
 
   return faqs;
@@ -81,7 +82,7 @@ const reorderFAQs = async (orderedIds = []) => {
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
   })));
   notifyContentChange("faq", "faq:reorder");
-  return FAQ.find({ isActive: true }).sort({ sortOrder: 1, createdAt: -1 });
+  return FAQ.find({ isActive: true }).sort({ sortOrder: 1, createdAt: 1 });
 };
 
 

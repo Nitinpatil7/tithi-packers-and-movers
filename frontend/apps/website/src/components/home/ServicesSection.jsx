@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
@@ -55,10 +55,11 @@ export default function ServicesSection() {
   const [activeServiceId, setActiveServiceId] = useState('local');
   const [mobileServiceIndex, setMobileServiceIndex] = useState(0);
   const mobileTrackRef = useRef(null);
+  const mobileScrollFrame = useRef(null);
   const activeService = services.find((service) => service.id === activeServiceId) || services[0];
   const ActiveIcon = activeService.icon;
 
-  const updateMobileServiceIndex = () => {
+  const updateMobileServiceIndex = useCallback(() => {
     const track = mobileTrackRef.current;
     if (!track) return;
     const cards = Array.from(track.children);
@@ -68,8 +69,20 @@ export default function ServicesSection() {
       const distance = Math.abs(center - cardCenter);
       return distance < best.distance ? { index, distance } : best;
     }, { index: 0, distance: Number.POSITIVE_INFINITY });
-    setMobileServiceIndex(nearest.index);
-  };
+    setMobileServiceIndex((current) => (current === nearest.index ? current : nearest.index));
+  }, []);
+
+  const handleMobileServiceScroll = useCallback(() => {
+    if (mobileScrollFrame.current) return;
+    mobileScrollFrame.current = window.requestAnimationFrame(() => {
+      mobileScrollFrame.current = null;
+      updateMobileServiceIndex();
+    });
+  }, [updateMobileServiceIndex]);
+
+  useEffect(() => () => {
+    if (mobileScrollFrame.current) window.cancelAnimationFrame(mobileScrollFrame.current);
+  }, []);
 
   const containerVariants = {
     hidden: {},
@@ -227,7 +240,7 @@ export default function ServicesSection() {
 
         <div className="md:hidden">
           <div className="scroll-hint-fade relative -mx-4">
-            <div ref={mobileTrackRef} onScroll={updateMobileServiceIndex} className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
+            <div ref={mobileTrackRef} onScroll={handleMobileServiceScroll} className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
             {services.map((service, index) => {
               const Icon = service.icon;
               return (

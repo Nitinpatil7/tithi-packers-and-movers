@@ -62,6 +62,31 @@ const createContactQueryNotification = async (inquiry) => {
   );
 };
 
+const createFeedbackNotification = async (testimonial, booking) => {
+  if (!testimonial?._id) throw new ApiError(400, "Testimonial is required");
+
+  return InAppNotification.findOneAndUpdate(
+    { type: "testimonial_feedback", "meta.testimonialId": testimonial._id },
+    {
+      $setOnInsert: {
+        type: "testimonial_feedback",
+        bookingId: booking?._id || testimonial.linkedBookingId || null,
+        title: "New feedback submitted",
+        message: `${testimonial.name || "Customer"} submitted a ${testimonial.rating || 5}-star testimonial awaiting review`,
+        meta: {
+          testimonialId: testimonial._id,
+          bookingNumber: booking?.bookingid || testimonial.bookingNumber,
+          customerName: testimonial.name,
+          location: testimonial.location,
+          rating: testimonial.rating,
+          path: "/testimonials?status=inactive&source=feedback",
+        },
+      },
+    },
+    { new: true, upsert: true, runValidators: true },
+  );
+};
+
 const getNotifications = async (query = {}) => {
   const filter = {};
   if (query.isRead === "true") filter.isRead = true;
@@ -136,6 +161,7 @@ const deleteNotification = async (id) => {
 module.exports = {
   createNewBookingNotification,
   createContactQueryNotification,
+  createFeedbackNotification,
   getNotifications,
   getDashboardSummary,
   markAsRead,

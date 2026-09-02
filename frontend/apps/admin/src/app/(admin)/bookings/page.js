@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@tithi/utils/bookingPayload';
 import { confirmBookingDraft, createBookingDraft, updateBookingDraft } from '@tithi/lib/bookingDraftApi';
 import { updateBookingDetails, updateBookingStatus } from '@tithi/lib/api';
+import { serviceHasItemCatalog } from '@tithi/utils/serviceTypes';
 
 const CreateBookingModal = nextDynamic(() => import('@/components/admin/CreateBookingModal'), { ssr: false });
 const BookingEditModal = nextDynamic(() => import('@/components/admin/BookingEditModal'), { ssr: false });
@@ -25,12 +26,16 @@ export default function BookingsPage() {
   const { token } = useAuthStore();
   const searchParams = useSearchParams();
   const statView = searchParams.get('view') || '';
-  const scheduledDate = searchParams.get('scheduledDate') || '';
+  const todayKey = new Date().toLocaleDateString('en-CA');
+  const filter = searchParams.get('filter') || '';
+  const scheduledDate = searchParams.get('scheduledDate') || (filter === 'today' || filter === 'today-schedule' ? todayKey : '');
+  const createdDate = searchParams.get('createdDate') || (filter === 'today-booked' ? todayKey : '');
   const upcomingMinutes = searchParams.get('upcomingMinutes') || '';
   const routeFilters = {
     ...(scheduledDate ? { scheduledDate } : {}),
+    ...(createdDate ? { createdDate } : {}),
     ...(upcomingMinutes ? { upcomingMinutes } : {}),
-    ...(statView ? { limit: 100 } : {}),
+    ...(statView || filter ? { limit: 100 } : {}),
   };
   const [filters, setFilters] = useState({ search: '', serviceType: 'all', status: 'all' });
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,19 +58,25 @@ export default function BookingsPage() {
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedBookings = bookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const pageTitle = statView === 'today-scheduled'
+  const pageTitle = statView === 'today-scheduled' || filter === 'today-schedule' || filter === 'today'
     ? "Today's Scheduled Bookings"
-    : statView === 'next-hour'
+    : statView === 'today-booked' || filter === 'today-booked'
+      ? "Today's Bookings"
+      : statView === 'next-hour'
       ? 'Next 1h Bookings'
       : 'All Bookings';
-  const pageDescription = statView === 'today-scheduled'
+  const pageDescription = statView === 'today-scheduled' || filter === 'today-schedule' || filter === 'today'
     ? 'Bookings whose scheduled service date is today, shown in the same order as the dashboard reminder list.'
-    : statView === 'next-hour'
+    : statView === 'today-booked' || filter === 'today-booked'
+      ? 'Bookings created today, shown from newest to oldest.'
+      : statView === 'next-hour'
       ? 'Upcoming active bookings scheduled within the next hour, ordered chronologically.'
       : 'Lookup, search, filter customer orders — or create a manual booking from a phone call.';
-  const emptyText = statView === 'today-scheduled'
+  const emptyText = statView === 'today-scheduled' || filter === 'today-schedule' || filter === 'today'
     ? 'No records found for today’s scheduled bookings. Nothing needs service attention for today yet.'
-    : statView === 'next-hour'
+    : statView === 'today-booked' || filter === 'today-booked'
+      ? 'No bookings have been created today yet.'
+      : statView === 'next-hour'
       ? 'No records found for the next hour. The near-term schedule is clear.'
       : 'No booking records found matching the active filters.';
 
@@ -97,22 +108,12 @@ export default function BookingsPage() {
   const handleEdit = async (updatedBooking) => {
     try {
       const id = updatedBooking.bookingId || updatedBooking.bookingid;
-      const currentPricing = updatedBooking.pricing || {};
+      const isItemBooking = serviceHasItemCatalog(updatedBooking.serviceType);
       await updateBookingDetails(id, {
-        status: updatedBooking.status,
         scheduledate: updatedBooking.scheduledDate || undefined,
         timeslot: updatedBooking.timeSlot || undefined,
         note: updatedBooking.notes || '',
-        pricing: {
-          currency: currentPricing.currency || 'INR',
-          itemTotal: Number(currentPricing.itemTotal ?? updatedBooking.itemTotal ?? 0),
-          addOnTotal: Number(currentPricing.addOnTotal ?? updatedBooking.addOnTotal ?? 0),
-          serviceCharge: Number(updatedBooking.manualQuote || currentPricing.serviceCharge || 0),
-          discount: Number(currentPricing.discount || 0),
-          tax: Number(currentPricing.tax || 0),
-          totalAmount: Number(updatedBooking.totalAmount || updatedBooking.manualQuote || currentPricing.totalAmount || 0),
-          breakdown: currentPricing.breakdown || {},
-        },
+        ...(isItemBooking ? { items: updatedBooking.items || [], selectedAddons: updatedBooking.selectedAddons || [] } : {}),
       });
       toast.success(`Booking ${id} updated!`);
       setEditBooking(null);

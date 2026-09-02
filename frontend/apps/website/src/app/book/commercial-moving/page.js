@@ -32,7 +32,7 @@ export default function CommercialMovingPage() {
     nextStep, 
     prevStep, 
     resetBooking,
-    setStep 
+    setStep
   } = useBookingStore();
 
   const createBookingMutation = useCreateBooking();
@@ -40,9 +40,11 @@ export default function CommercialMovingPage() {
 
   // Initialize booking category
   useEffect(() => {
-    resetBooking();
-    updateBookingData({ serviceType: 'commercial' });
-  }, [resetBooking, updateBookingData]);
+    if (bookingData.serviceType !== 'commercial') {
+      resetBooking();
+      updateBookingData({ serviceType: 'commercial' });
+    }
+  }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   const steps = [
     'Office Details',

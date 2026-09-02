@@ -36,6 +36,10 @@ const getBookingCustomers = asyncHandler(async (req, res) => {
   const customers = await bookingService.getBookingCustomers(req.query);
   res.status(200).json(new ApiResponse(200, customers, "Booking customers fetched"));
 });
+const getBookingsByPhone = asyncHandler(async (req, res) => {
+  const bookings = await bookingService.getBookingsByPhone(req.params.phoneNumber);
+  res.status(200).json(new ApiResponse(200, bookings, "Bookings for phone number fetched"));
+});
 const getBookingById = asyncHandler(async (req, res) => {
   const booking = await bookingService.getBookingById(req.params.bookingId);
   res.status(200).json(new ApiResponse(200, booking, "Booking fetched"));
@@ -47,6 +51,18 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 const updateBookingDetails = asyncHandler(async (req, res) => {
   const booking = await bookingService.updateBookingDetails(req.params.bookingId, req.body);
   res.status(200).json(new ApiResponse(200, booking, "Booking details updated"));
+});
+const updateCustomerBookingItems = asyncHandler(async (req, res) => {
+  const booking = await bookingService.updateCustomerBookingItems(req.params.bookingId, req.body.mobile, req.body);
+  res.status(200).json(new ApiResponse(200, booking, "Booking items and add-ons updated"));
+});
+const completeBookingWithProof = asyncHandler(async (req, res) => {
+  const booking = await bookingService.completeBookingWithProof(req.params.bookingId, {
+    file: req.file,
+    witnessName: req.body?.witnessName,
+    adminId: req.admin?._id,
+  });
+  res.status(200).json(new ApiResponse(200, booking, "Booking completed with proof"));
 });
 const updateAdminQuote = asyncHandler(async (req, res) => {
   const booking = await bookingService.updateAdminQuote(req.params.bookingId, req.body);
@@ -61,8 +77,11 @@ module.exports = {
   trackBookingsByMobile,
   getAllBookings,
   getBookingCustomers,
+  getBookingsByPhone,
   getBookingById,
   updateBookingStatus,
   updateBookingDetails,
+  updateCustomerBookingItems,
+  completeBookingWithProof,
   updateAdminQuote,
 };

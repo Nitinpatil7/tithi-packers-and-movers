@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Boxes, CheckCircle2, Clock, MapPinned, Route, Sparkles, Truck, Users } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getPublicPricingRules } from '@tithi/lib/bookingPricingApi';
+import { usePublicPricingRules } from '@tithi/hooks/useBookingPricingRules';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { formatCurrency } from '@tithi/utils/utils';
+import { SERVICE_ORDER } from '@tithi/utils/serviceTypes';
 
 const SERVICE_META = {
   local_shifting: { fallback: 'Local Shifting', href: '/book/local-shifting?basePackage=1', icon: Truck, tone: 'sky' },
@@ -21,33 +21,29 @@ const toneClass = {
   emerald: 'from-emerald-50 to-white border-emerald-100 text-emerald-700',
 };
 
-const serviceOrder = ['local_shifting', 'intercity_moving', 'porter_labour_service'];
-
 export default function BasePricePackagesSection() {
   const [hydrated, setHydrated] = useState(false);
   const [activePackageIndex, setActivePackageIndex] = useState(0);
   const packageTrackRef = useRef(null);
+  const packageScrollFrame = useRef(null);
   const { data: site = {} } = useSiteSetting();
-  const { data: pricingRules = [], isLoading } = useQuery({
-    queryKey: ['booking-pricing-rules', 'homepage-packages'],
-    queryFn: () => getPublicPricingRules(),
-    enabled: hydrated,
-    staleTime: 2 * 60 * 1000,
-  });
+  const { data: pricingRules = [], isLoading } = usePublicPricingRules();
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  const rules = serviceOrder
+  const rules = SERVICE_ORDER
     .map((serviceType) => (Array.isArray(pricingRules) ? pricingRules : []).find((rule) => rule.serviceType === serviceType))
     .filter(Boolean);
 
   const showLoading = !hydrated || isLoading;
+  const centerPackageCards = !showLoading && rules.length > 0 && rules.length < SERVICE_ORDER.length;
+  const packageTrackClass = centerPackageCards
+    ? 'scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:flex-wrap lg:justify-center lg:overflow-visible lg:px-0 lg:pb-0'
+    : 'scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0';
 
-  if (!showLoading && !rules.length) return null;
-
-  const updatePackageIndex = () => {
+  const updatePackageIndex = useCallback(() => {
     const track = packageTrackRef.current;
     if (!track) return;
     const cards = Array.from(track.children);
@@ -57,8 +53,22 @@ export default function BasePricePackagesSection() {
       const distance = Math.abs(center - cardCenter);
       return distance < best.distance ? { index, distance } : best;
     }, { index: 0, distance: Number.POSITIVE_INFINITY });
-    setActivePackageIndex(nearest.index);
-  };
+    setActivePackageIndex((current) => (current === nearest.index ? current : nearest.index));
+  }, []);
+
+  const handlePackageScroll = useCallback(() => {
+    if (packageScrollFrame.current) return;
+    packageScrollFrame.current = window.requestAnimationFrame(() => {
+      packageScrollFrame.current = null;
+      updatePackageIndex();
+    });
+  }, [updatePackageIndex]);
+
+  useEffect(() => () => {
+    if (packageScrollFrame.current) window.cancelAnimationFrame(packageScrollFrame.current);
+  }, []);
+
+  if (!showLoading && !rules.length) return null;
 
   return (
     <section className="quote-packages-section section-texture relative overflow-hidden py-20 md:py-28">
@@ -83,9 +93,9 @@ export default function BasePricePackagesSection() {
           </p>
         </motion.div>
 
-        <div ref={packageTrackRef} onScroll={updatePackageIndex} className="scrollbar-none scroll-hint-fade -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
+        <div ref={packageTrackRef} onScroll={handlePackageScroll} className={packageTrackClass}>
           {showLoading
-            ? serviceOrder.map((serviceType) => <PackageSkeletonCard key={serviceType} serviceType={serviceType} />)
+            ? SERVICE_ORDER.map((serviceType) => <PackageSkeletonCard key={serviceType} serviceType={serviceType} />)
             : rules.map((rule, index) => (
               <PackageCard key={rule.serviceType} rule={rule} site={site} index={index} />
             ))}
@@ -108,7 +118,7 @@ function PackageSkeletonCard({ serviceType }) {
   const Icon = meta.icon;
 
   return (
-    <article className={`quote-package-card flex h-full min-h-[500px] w-[88vw] max-w-[430px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}>
+    <article className={`quote-package-card flex h-full min-h-[500px] w-[88vw] max-w-[430px] shrink-0 snap-center flex-col rounded-3xl border bg-gradient-to-br p-6 shadow-card lg:w-auto lg:max-w-none lg:flex-[0_1_360px] ${toneClass[meta.tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="icon-surface h-14 w-14 rounded-2xl">
           <Icon className="h-7 w-7" strokeWidth={1.8} />
@@ -154,7 +164,7 @@ function PackageCard({ rule, site, index }) {
       transition={{ delay: index * 0.08, duration: 0.45 }}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.99 }}
-      className={`quote-package-card group relative flex h-full w-[88vw] max-w-[430px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none ${toneClass[meta.tone]}`}
+      className={`quote-package-card group relative flex h-full w-[88vw] max-w-[430px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border bg-gradient-to-br p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] transition-all duration-300 hover:border-orange-200 hover:shadow-lg lg:w-auto lg:max-w-none lg:flex-[0_1_360px] ${toneClass[meta.tone]}`}
     >
       {index === 0 && (
         <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">

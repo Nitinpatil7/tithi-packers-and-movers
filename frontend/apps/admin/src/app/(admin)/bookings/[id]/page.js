@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { 
   User, 
@@ -13,10 +14,14 @@ import {
   CalendarDays, 
   Clock, 
   StickyNote, 
-  Send 
+  Send,
+  Edit3,
+  Upload,
+  FileImage,
+  ExternalLink
 } from 'lucide-react';
 import { useUpdateBookingStatus } from '@/hooks/useAdmin';
-import { getBookingById } from '@tithi/lib/api'; // direct fallback
+import { completeBookingWithProof, getBookingById } from '@tithi/lib/api'; // direct fallback
 import { useAuthStore } from '@tithi/store/authStore';
 import Card, { CardHeader, CardContent, CardFooter } from '@tithi/ui/Card';
 import Badge from '@tithi/ui/Badge';
@@ -24,8 +29,11 @@ import Button from '@tithi/ui/Button';
 import Input from '@tithi/ui/Input';
 import Spinner from '@tithi/ui/Spinner';
 import QuoteModal from '@/components/admin/QuoteModal';
+import BookingEditModal from '@/components/admin/BookingEditModal';
+import { updateBookingDetails } from '@tithi/lib/api';
 import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getBookingScheduledDate } from '@tithi/utils/utils';
 import { deriveFreeAllowanceItems } from '@tithi/utils/freeAllowanceDisplay';
+import { serviceHasItemCatalog } from '@tithi/utils/serviceTypes';
 import toast from 'react-hot-toast';
 
 const TIME_SLOT_LABELS = {
@@ -45,6 +53,11 @@ export default function BookingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [internalNotes, setInternalNotes] = useState('');
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [proofOpen, setProofOpen] = useState(false);
+  const [proofImage, setProofImage] = useState(null);
+  const [witnessName, setWitnessName] = useState('');
+  const [proofSaving, setProofSaving] = useState(false);
   const fetchErrorToastShown = useRef(false);
 
   const updateStatusMutation = useUpdateBookingStatus();
@@ -74,6 +87,7 @@ export default function BookingDetailPage() {
   }, [bookingId, loadDetails]);
 
   const handleStatusChange = async (e) => {
+    if (booking.status === 'completed') return;
     const newStatus = e.target.value;
     try {
       await updateStatusMutation.mutateAsync({
@@ -90,6 +104,39 @@ export default function BookingDetailPage() {
 
   const handleSaveNotes = () => {
     toast.success('Internal notes updated locally');
+  };
+  const handleCompletionProof = async (event) => {
+    event.preventDefault();
+    if (!proofImage) return toast.error('Upload the signed checklist image.');
+    if (!witnessName.trim()) return toast.error('Witness name is required.');
+    const id = booking.bookingId || booking.bookingid;
+    try {
+      setProofSaving(true);
+      const updated = await completeBookingWithProof(id, { image: proofImage, witnessName });
+      setBooking(updated);
+      setProofImage(null);
+      setWitnessName('');
+      setProofOpen(false);
+      toast.success(`Booking ${id} completed with proof`);
+      loadDetails();
+    } catch (error) {
+      toast.error(error.message || 'Could not upload completion proof');
+    } finally {
+      setProofSaving(false);
+    }
+  };
+  const handleEditSave = async (updatedBooking) => {
+    const id = updatedBooking.bookingId || updatedBooking.bookingid;
+    const isItemBooking = serviceHasItemCatalog(updatedBooking.serviceType);
+    await updateBookingDetails(id, {
+      scheduledate: updatedBooking.scheduledDate || undefined,
+      timeslot: updatedBooking.timeSlot || undefined,
+      note: updatedBooking.notes || '',
+      ...(isItemBooking ? { items: updatedBooking.items || [], selectedAddons: updatedBooking.selectedAddons || [] } : {}),
+    });
+    toast.success(`Booking ${id} updated`);
+    setEditOpen(false);
+    loadDetails();
   };
 
   if (loading) {
@@ -115,6 +162,8 @@ export default function BookingDetailPage() {
   const selectedAddons = getSelectedAddons(booking);
   const freeAllowanceItems = deriveFreeAllowanceItems(selectedItems, booking.pricing?.breakdown?.itemBreakdown || {});
   const itemSummary = getItemSummary(selectedItems);
+  const isCompleted = booking.status === 'completed';
+  const isFinal = ['completed', 'cancelled'].includes(booking.status);
 
   return (
     <div className="flex flex-col gap-6 text-left pb-12">
@@ -134,29 +183,65 @@ export default function BookingDetailPage() {
         </div>
 
         {/* Change status and update pricing action */}
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <select
-            value={booking.status}
-            onChange={handleStatusChange}
-            className="px-3 py-2 bg-bg-elevated border border-bg-border rounded text-xs font-semibold text-text-primary focus:outline-none focus:border-primary cursor-pointer"
-          >
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+          {!isFinal && (
+            <>
+              <select
+                value={booking.status}
+                onChange={handleStatusChange}
+                className="px-3 py-2 bg-bg-elevated border border-bg-border rounded text-xs font-semibold text-text-primary focus:outline-none focus:border-primary cursor-pointer"
+              >
+                <option value="pending">Pending</option>
+                <option value="quote_sent">Quote Sent</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
 
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => setQuoteOpen(true)}
-            icon={DollarSign}
-          >
-            Configure Quote
-          </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setEditOpen(true)}
+                icon={Edit3}
+              >
+                Update
+              </Button>
+
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setQuoteOpen(true)}
+                icon={DollarSign}
+              >
+                Configure Quote
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setProofOpen((value) => !value)}
+                icon={Upload}
+              >
+                Upload Docs
+              </Button>
+            </>
+          )}
+          {isFinal && <span className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-700">Finalized</span>}
         </div>
       </div>
+
+      {(proofOpen || booking.completionProof?.imageUrl) && (
+        <CompletionProofPanel
+          proof={booking.completionProof}
+          isCompleted={isCompleted}
+          image={proofImage}
+          witnessName={witnessName}
+          saving={proofSaving}
+          onImageChange={setProofImage}
+          onWitnessNameChange={setWitnessName}
+          onSubmit={handleCompletionProof}
+        />
+      )}
 
       {/* Main Breakdown Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -253,36 +338,38 @@ export default function BookingDetailPage() {
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {selectedItems.map((item, idx) => {
-                    const quantity = Number(item.quantity || 0);
-                    const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
-                    const lineTotal = Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
-                    const size = item.sizeTag || item.sizeKey || item.tag || '-';
-                    return (
-                      <div
-                        key={`${item.itemkey || item.itemId || item.name}-${idx}`}
-                        className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 text-left">
-                            <span className="block truncate font-black text-text-primary">{item.name}</span>
-                            <span className="mt-0.5 block truncate text-[10px] font-semibold text-text-tertiary">
-                              {item.category || item.section || 'Inventory item'}
+                <div className="max-h-[22rem] overflow-y-auto overscroll-contain rounded-2xl border border-bg-border/60 bg-bg-elevated/25 p-2 pr-1 sm:max-h-72">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {selectedItems.map((item, idx) => {
+                      const quantity = Number(item.quantity || 0);
+                      const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
+                      const lineTotal = Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
+                      const size = item.sizeTag || item.sizeKey || item.tag || '-';
+                      return (
+                        <div
+                          key={`${item.itemkey || item.itemId || item.name}-${idx}`}
+                          className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 text-left">
+                              <span className="block truncate font-black text-text-primary">{item.name}</span>
+                              <span className="mt-0.5 block truncate text-[10px] font-semibold text-text-tertiary">
+                                {item.category || item.section || 'Inventory item'}
+                              </span>
+                            </div>
+                            <span className="shrink-0 rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-sm font-black text-primary">
+                              x{quantity}
                             </span>
                           </div>
-                          <span className="shrink-0 rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-sm font-black text-primary">
-                            x{quantity}
-                          </span>
+                          <div className="mt-3 grid grid-cols-3 gap-2 border-t border-bg-border/50 pt-2 text-[10px] font-bold text-text-secondary">
+                            <span>Size <b className="block text-text-primary">{size}</b></span>
+                            <span>Rate <b className="block font-mono text-text-primary">{formatCurrency(unitPrice)}</b></span>
+                            <span>Total <b className="block font-mono text-text-primary">{formatCurrency(lineTotal)}</b></span>
+                          </div>
                         </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-bg-border/50 pt-2 text-[10px] font-bold text-text-secondary">
-                          <span>Size <b className="block text-text-primary">{size}</b></span>
-                          <span>Rate <b className="block font-mono text-text-primary">{formatCurrency(unitPrice)}</b></span>
-                          <span>Total <b className="block font-mono text-text-primary">{formatCurrency(lineTotal)}</b></span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             ) : booking.businessDetails ? (
@@ -453,7 +540,72 @@ export default function BookingDetailPage() {
         />
       )}
 
+      <BookingEditModal
+        booking={booking}
+        isOpen={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSave={handleEditSave}
+      />
+
     </div>
+  );
+}
+
+function CompletionProofPanel({ proof, isCompleted, image, witnessName, saving, onImageChange, onWitnessNameChange, onSubmit }) {
+  const uploadedAt = proof?.uploadedAt ? new Date(proof.uploadedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  if (proof?.imageUrl) {
+    return (
+      <Card className="p-5 bg-bg-card border border-emerald-100 glass">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-text-primary">
+              <FileImage className="h-4 w-4 text-emerald-600" /> Completion Proof
+            </h2>
+            <p className="mt-1 text-xs font-semibold text-text-secondary">
+              Witness: {proof.witnessName || '-'}{uploadedAt ? ` / Uploaded ${uploadedAt}` : ''}
+            </p>
+          </div>
+          <a href={proof.imageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-100 bg-white px-4 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-50">
+            <ExternalLink className="h-3.5 w-3.5" /> View full size
+          </a>
+        </div>
+        <a href={proof.imageUrl} target="_blank" rel="noreferrer" className="mt-4 block w-full max-w-sm overflow-hidden rounded-2xl border border-emerald-100 bg-white">
+          <Image unoptimized src={proof.imageUrl} alt="Signed completion proof" width={480} height={320} className="h-48 w-full object-cover" />
+        </a>
+      </Card>
+    );
+  }
+
+  if (isCompleted) return null;
+
+  return (
+    <Card className="p-5 bg-bg-card border border-sky-100 glass">
+      <form onSubmit={onSubmit} className="grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-text-secondary">Signed checklist photo</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => onImageChange(event.target.files?.[0] || null)}
+            className="block w-full rounded-xl border border-bg-border bg-bg-elevated px-3 py-2 text-xs font-semibold text-text-primary file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-black file:text-white"
+          />
+          <span className="mt-1 block truncate text-[10px] font-semibold text-text-tertiary">{image?.name || 'PNG, JPEG, or WebP up to 3 MB'}</span>
+        </label>
+        <Input
+          label="Witness name"
+          value={witnessName}
+          onChange={(event) => onWitnessNameChange(event.target.value)}
+          placeholder="Name on signed proof"
+          required
+        />
+        <Button type="submit" variant="primary" size="sm" loading={saving} icon={Upload}>
+          Complete
+        </Button>
+      </form>
+      <p className="mt-3 text-[11px] font-semibold text-text-tertiary">
+        Completing a booking requires this signed proof. The record becomes read-only after upload.
+      </p>
+    </Card>
   );
 }
 

@@ -105,7 +105,7 @@ const getItems = (query = {}, publicOnly = false) => Item.find(itemFilter(query,
   .populate("categoryId", "key name icon isActive sortOrder")
   .populate("groupId", "key name icon isActive sortOrder")
   .populate("sizes.sizeId", "key label description isActive sortOrder")
-  .sort({ section: 1, group: 1, sortOrder: 1, name: 1 });
+  .sort({ section: 1, group: 1, sortOrder: 1, createdAt: 1, name: 1 });
 
 const publicItemSelect = "key categoryId section groupId group name icon sizes sortOrder";
 const publicSectionSelect = "key name icon sortOrder";
@@ -122,7 +122,7 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   if (query.section) sectionFilter.name = exactText(query.section);
   if (publicOnly || query.isActive === "true") sectionFilter.isActive = true;
   if (!publicOnly && query.isActive === "false") sectionFilter.isActive = false;
-  const sectionsQuery = ItemCategory.find(sectionFilter).sort({ sortOrder: 1, name: 1 });
+  const sectionsQuery = ItemCategory.find(sectionFilter).sort({ sortOrder: 1, createdAt: 1, name: 1 });
   if (publicOnly) sectionsQuery.select(publicSectionSelect);
   const sections = await sectionsQuery.lean();
   const sectionIds = sections.map((section) => section._id);
@@ -132,7 +132,7 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   if (query.group) groupFilter.name = exactText(query.group);
   if (publicOnly || query.isActive === "true") groupFilter.isActive = true;
   if (!publicOnly && query.isActive === "false") groupFilter.isActive = false;
-  const groupsQuery = ItemGroup.find(groupFilter).sort({ sortOrder: 1, name: 1 });
+  const groupsQuery = ItemGroup.find(groupFilter).sort({ sortOrder: 1, createdAt: 1, name: 1 });
   if (publicOnly) groupsQuery.select(publicGroupSelect);
   const groups = await groupsQuery.lean();
   const groupIds = groups.map((group) => group._id);
@@ -141,7 +141,7 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   delete itemQuery.group;
   const itemMongoFilter = itemFilter(itemQuery, publicOnly);
   itemMongoFilter.groupId = { $in: groupIds };
-  const itemsQuery = Item.find(itemMongoFilter).sort({ sortOrder: 1, name: 1 });
+  const itemsQuery = Item.find(itemMongoFilter).sort({ sortOrder: 1, createdAt: 1, name: 1 });
   if (publicOnly) itemsQuery.select(publicItemSelect);
   else itemsQuery.populate("sizes.sizeId", "key label description isActive sortOrder");
   const items = await itemsQuery.lean();
@@ -169,7 +169,12 @@ const getCatalog = async (query = {}, publicOnly = false) => {
 };
 
 const createItem = async (payload) => {
-  const item = await Item.create(await normalizeItemPayload(payload));
+  const normalized = await normalizeItemPayload(payload);
+  if (normalized.sortOrder === undefined) {
+    const last = await Item.findOne({ groupId: normalized.groupId }).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
+    normalized.sortOrder = Number(last?.sortOrder ?? -1) + 1;
+  }
+  const item = await Item.create(normalized);
   notifyContentChange("catalog", "item:create", { id: item._id });
   return item;
 };
@@ -204,10 +209,11 @@ const getSections = (query = {}, publicOnly = false) => {
   const filter = {};
   if (publicOnly || query.isActive === "true") filter.isActive = true;
   if (!publicOnly && query.isActive === "false") filter.isActive = false;
-  return ItemCategory.find(filter).sort({ sortOrder: 1, name: 1 });
+  return ItemCategory.find(filter).sort({ sortOrder: 1, createdAt: 1, name: 1 });
 };
 const createSection = async (payload) => {
-  const section = await ItemCategory.create({ ...payload, icon: cleanIcon(payload.icon), key: slugify(payload.key || payload.name) });
+  const last = await ItemCategory.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
+  const section = await ItemCategory.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1, icon: cleanIcon(payload.icon), key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "section:create", { id: section._id });
   return section;
 };
@@ -253,12 +259,13 @@ const getGroups = (query = {}, publicOnly = false) => {
   if (query.search) filter.name = { $regex: escapeRegex(query.search), $options: "i" };
   if (publicOnly || query.isActive === "true") filter.isActive = true;
   if (!publicOnly && query.isActive === "false") filter.isActive = false;
-  return ItemGroup.find(filter).populate("categoryId", "key name isActive").sort({ section: 1, sortOrder: 1, name: 1 });
+  return ItemGroup.find(filter).populate("categoryId", "key name isActive").sort({ section: 1, sortOrder: 1, createdAt: 1, name: 1 });
 };
 const createGroup = async (payload) => {
   const section = await requireSection(payload.sectionId || payload.categoryId);
+  const last = await ItemGroup.findOne({ categoryId: section._id }).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
   const group = await ItemGroup.create({ ...payload, icon: cleanIcon(payload.icon), categoryId: section._id, section: section.name,
-    key: slugify(payload.key || payload.name) });
+    sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1, key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "group:create", { id: group._id });
   return group;
 };
@@ -304,7 +311,7 @@ const getSizes = (query = {}, publicOnly = false) => {
   const filter = {};
   if (publicOnly || query.isActive === "true") filter.isActive = true;
   if (!publicOnly && query.isActive === "false") filter.isActive = false;
-  return ItemSize.find(filter).sort({ sortOrder: 1, key: 1 });
+  return ItemSize.find(filter).sort({ sortOrder: 1, createdAt: 1, key: 1 });
 };
 const createSize = async (payload) => {
   const size = await ItemSize.create({ ...payload,

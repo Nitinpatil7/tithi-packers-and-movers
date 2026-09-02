@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Award, Compass, Truck, Users2, Zap, HeartHandshake, Star, Home, Map, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
@@ -14,14 +14,14 @@ export default function WhyChooseUsSection() {
   const { data: site = {} } = useSiteSetting();
   const prefersReducedMotion = useReducedMotion();
 
-  const stats = [
+  const stats = useMemo(() => [
     { value: String(site.stats?.successfulMoves ?? 0), suffix: '+', label: t.happyRelocations || 'Happy Relocations', icon: Home, bg: '#E0F2FE' },
     { value: String(site.stats?.citiesCovered ?? 0), suffix: '+', label: t.citiesReached || 'Cities Reached', icon: Map, bg: '#FFF7ED' },
     { value: String(site.stats?.yearsExperience ?? 0), suffix: '+', label: t.yearsOfService || 'Years of Service', icon: Star, bg: '#ECFDF5' },
     { value: String(site.stats?.customerSatisfaction ?? 0), suffix: '%', label: t.safetyRating || 'Safety Rating', icon: ShieldCheck, bg: '#F0F9FF' },
-  ];
+  ], [site.stats?.citiesCovered, site.stats?.customerSatisfaction, site.stats?.successfulMoves, site.stats?.yearsExperience, t.citiesReached, t.happyRelocations, t.safetyRating, t.yearsOfService]);
 
-  const benefits = [
+  const benefits = useMemo(() => [
     {
       title: t.expertTitle || 'Expert Trained Movers',
       desc: t.expertDesc || 'Our staff undergoes thorough training in handling delicate glassware, heavy furniture, and expensive electronics with care.',
@@ -64,14 +64,14 @@ export default function WhyChooseUsSection() {
       color: '#E91E63',
       bg: '#FCE4EC',
     },
-  ];
+  ], [t.expertDesc, t.expertTitle, t.gpsDesc, t.gpsTitle, t.materialsDesc, t.materialsTitle, t.supportDesc, t.supportTitle, t.timeDesc, t.timeTitle, t.zeroDesc, t.zeroTitle]);
 
   const [activeBenefit, setActiveBenefit] = useState(0);
   const active = benefits[activeBenefit] || benefits[0];
   const ActiveIcon = active.icon;
-  const selectBenefit = (index) => setActiveBenefit((index + benefits.length) % benefits.length);
-  const previousBenefit = () => selectBenefit(activeBenefit - 1);
-  const nextBenefit = () => selectBenefit(activeBenefit + 1);
+  const selectBenefit = useCallback((index) => setActiveBenefit((index + benefits.length) % benefits.length), [benefits.length]);
+  const previousBenefit = useCallback(() => selectBenefit(activeBenefit - 1), [activeBenefit, selectBenefit]);
+  const nextBenefit = useCallback(() => selectBenefit(activeBenefit + 1), [activeBenefit, selectBenefit]);
 
   useEffect(() => {
     if (prefersReducedMotion) return undefined;
@@ -131,29 +131,29 @@ export default function WhyChooseUsSection() {
         </motion.div>
 
         {/* Stats Strip */}
-        <div className="why-stats-strip relative mb-10 grid grid-cols-2 overflow-hidden rounded-[28px] border border-sky-100 bg-white/90 shadow-card backdrop-blur-sm md:mb-14 md:grid-cols-4">
+        <div className="why-stats-strip relative mb-10 grid grid-cols-2 overflow-hidden rounded-[22px] border border-sky-100 bg-white/90 shadow-card backdrop-blur-sm md:mb-14 md:grid-cols-4">
           {stats.map((stat, idx) => {
             const StatIcon = stat.icon;
             return (
             <motion.div
               key={stat.label}
-              className="relative min-h-[112px] border-sky-100 px-3 py-4 text-center odd:border-r md:min-h-[132px] md:border-r md:last:border-r-0 md:px-5"
+              className="relative min-h-[104px] border-sky-100 px-3 py-3.5 text-center odd:border-r md:min-h-[116px] md:border-r md:last:border-r-0 md:px-4 lg:min-h-[110px] lg:py-4"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
               <div className="group flex h-full flex-col items-center justify-center">
-                <div className="icon-surface mb-2 h-9 w-9 rounded-xl md:mb-3 md:h-11 md:w-11">
-                  <StatIcon className="h-4 w-4 md:h-5 md:w-5" strokeWidth={1.7} />
+                <div className="icon-surface mb-2 h-11 w-11 rounded-xl md:mb-2.5 md:h-12 md:w-12 lg:h-[52px] lg:w-[52px]">
+                  <StatIcon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.8} />
                 </div>
                 <div
-                  className="mb-1 text-2xl font-black leading-none text-text-primary md:text-4xl"
+                  className="mb-1 text-3xl font-black leading-none text-text-primary md:text-[2.35rem] lg:text-[2.45rem]"
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-[10px] font-semibold uppercase leading-tight tracking-wide text-text-secondary md:text-xs md:tracking-wider">
+                <div className="text-[11px] font-bold uppercase leading-tight tracking-wide text-text-secondary md:text-[13px]">
                   {stat.label}
                 </div>
               </div>
@@ -168,7 +168,7 @@ export default function WhyChooseUsSection() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
-            whileHover={{ y: -5, scale: 1.015, rotateX: 1, rotateY: -1.2 }}
+            whileHover={{ y: -4, scale: 1.01 }}
             whileTap={{ scale: 0.995 }}
             className="group relative overflow-hidden rounded-[32px] border border-sky-100 bg-white/92 p-6 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm transition-all duration-300 will-change-transform hover:border-sky-300 md:p-8"
           >
@@ -176,20 +176,19 @@ export default function WhyChooseUsSection() {
             <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
             <div className="pointer-events-none absolute bottom-5 right-5 hidden h-32 w-32 place-items-center md:grid">
               <motion.div
-                className="why-3d-orbit absolute inset-0 rounded-full"
+                className="why-3d-orbit absolute inset-0 rounded-full will-change-transform"
                 animate={prefersReducedMotion ? undefined : { rotate: 360 }}
                 transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
               />
               <motion.div
-                className="h-16 w-16 rounded-2xl border border-sky-100 bg-white/80 shadow-card dark:border-sky-300/30 dark:bg-sky-400/15 dark:shadow-[0_18px_38px_rgba(14,165,233,.18)]"
-                animate={prefersReducedMotion ? undefined : { rotateX: [0, 8, 0], rotateY: [0, -10, 0], y: [0, -5, 0] }}
+                className="h-16 w-16 rounded-2xl border border-sky-100 bg-white/80 shadow-card will-change-transform dark:border-sky-300/30 dark:bg-sky-400/15 dark:shadow-[0_18px_38px_rgba(14,165,233,.18)]"
+                animate={prefersReducedMotion ? undefined : { y: [0, -5, 0], scale: [1, 1.025, 1] }}
                 transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ transformStyle: 'preserve-3d' }}
               />
             </div>
             <div className="relative z-10 flex items-start gap-4">
               <motion.div
-                className="icon-surface h-16 w-16 rounded-2xl"
+                className="icon-surface h-16 w-16 rounded-2xl will-change-transform"
                 animate={prefersReducedMotion ? undefined : { rotate: [0, -2, 2, 0], y: [0, -3, 0] }}
                 transition={{ duration: 3.3, repeat: Infinity, ease: 'easeInOut' }}
               >
@@ -217,7 +216,7 @@ export default function WhyChooseUsSection() {
             <div className="relative overflow-hidden rounded-[30px] border border-sky-100 bg-white/85 p-4 shadow-[0_22px_60px_rgba(3,105,161,.12)] backdrop-blur-sm sm:p-5">
               <div className="pointer-events-none absolute inset-0 services-panel-route opacity-55" />
               <motion.div
-                className="why-3d-orbit pointer-events-none absolute -right-10 top-12 h-36 w-36 rounded-full opacity-70 sm:right-4 sm:h-44 sm:w-44"
+                className="why-3d-orbit pointer-events-none absolute -right-10 top-12 h-36 w-36 rounded-full opacity-70 will-change-transform sm:right-4 sm:h-44 sm:w-44"
                 animate={prefersReducedMotion ? undefined : { rotate: 360 }}
                 transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
               />
@@ -243,19 +242,17 @@ export default function WhyChooseUsSection() {
                       key={benefit.title}
                       type="button"
                       onClick={() => selectBenefit(idx)}
-                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[238px] w-[82vw] max-w-[350px] flex-col rounded-[26px] border bg-white/95 p-4 text-left shadow-card transition-colors will-change-transform ${offset === 0 ? 'border-sky-300' : 'border-sky-100'}`}
+                      className={`trust-card-3d group absolute left-1/2 top-3 flex min-h-[238px] w-[82vw] max-w-[350px] flex-col rounded-[26px] border bg-white/95 p-4 text-left shadow-card transition-colors will-change-[transform,opacity] ${offset === 0 ? 'border-sky-300' : 'border-sky-100'}`}
                       animate={{
                         x: `calc(-50% + ${offset * 72}px)`,
                         y: Math.abs(offset) * 22,
-                        rotateY: offset * -12,
                         rotateZ: offset * -1.2,
                         scale: offset === 0 ? 1 : 0.88,
                         opacity: visible ? (offset === 0 ? 1 : 0.46) : 0,
-                        zIndex: 10 - Math.abs(offset),
                       }}
                       whileTap={{ scale: offset === 0 ? 0.985 : 0.9 }}
-                      transition={{ type: 'spring', stiffness: 130, damping: 26, mass: 0.85 }}
-                      style={{ pointerEvents: visible ? 'auto' : 'none' }}
+                      transition={{ duration: prefersReducedMotion ? 0.01 : 0.36, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ contain: 'layout paint style', pointerEvents: visible ? 'auto' : 'none', zIndex: 10 - Math.abs(offset) }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="icon-surface h-12 w-12 rounded-2xl" data-active={offset === 0 ? 'true' : undefined}>
@@ -287,7 +284,7 @@ export default function WhyChooseUsSection() {
             <div className="relative min-h-[430px] overflow-hidden rounded-[32px] border border-sky-100 bg-white/85 p-5 shadow-[0_26px_70px_rgba(3,105,161,.12)] backdrop-blur-sm">
               <div className="pointer-events-none absolute inset-0 services-panel-route opacity-60" />
               <motion.div
-                className="why-3d-orbit pointer-events-none absolute right-10 top-16 h-56 w-56 rounded-full"
+                className="why-3d-orbit pointer-events-none absolute right-10 top-16 h-56 w-56 rounded-full will-change-transform"
                 animate={prefersReducedMotion ? undefined : { rotate: 360 }}
                 transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
               />
@@ -313,18 +310,16 @@ export default function WhyChooseUsSection() {
                       key={benefit.title}
                       type="button"
                       onClick={() => selectBenefit(idx)}
-                      className={`trust-card-3d group absolute left-1/2 top-4 flex min-h-[242px] w-[min(72%,430px)] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors will-change-transform ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
+                      className={`trust-card-3d group absolute left-1/2 top-4 flex min-h-[242px] w-[min(72%,430px)] flex-col rounded-[28px] border bg-white/95 p-5 text-left shadow-card transition-colors will-change-[transform,opacity] ${offset === 0 ? 'border-sky-300' : 'border-sky-100 hover:border-sky-300'}`}
                       animate={{
                         x: desktopPeekX(offset),
                         y: Math.abs(offset) * 22,
-                        rotateY: offset * -14,
                         scale: offset === 0 ? 1 : 0.9,
                         opacity: visible ? (offset === 0 ? 1 : 0.62) : 0,
-                        zIndex: 10 - Math.abs(offset),
                       }}
-                      whileHover={offset === 0 ? { y: -4, scale: 1.02 } : { scale: 0.9 }}
-                      transition={{ type: 'spring', stiffness: 135, damping: 28, mass: 0.85 }}
-                      style={{ pointerEvents: visible ? 'auto' : 'none' }}
+                      whileHover={offset === 0 ? { y: -3, scale: 1.01 } : { scale: 0.9 }}
+                      transition={{ duration: prefersReducedMotion ? 0.01 : 0.36, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ contain: 'layout paint style', pointerEvents: visible ? 'auto' : 'none', zIndex: 10 - Math.abs(offset) }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="icon-surface h-12 w-12 rounded-2xl" data-active={offset === 0 ? 'true' : undefined}>

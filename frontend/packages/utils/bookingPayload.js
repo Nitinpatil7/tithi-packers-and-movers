@@ -77,16 +77,15 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
   const items = (bookingData.items || []).map((item) => {
     const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
     return {
-      itemId: item.itemId,
-      itemkey: item.itemkey || item.key,
+      itemId: item.itemId || item._id,
+      itemkey: item.itemkey || item.itemKey || item.key,
       category: item.category || item.section,
       name: item.name,
-      icon: item.icon || '',
       sizeTag: item.sizeTag || item.tag || item.sizeKey,
       quantity: Number(item.quantity || 0),
       unitPrice,
       lineTotal: unitPrice * Number(item.quantity || 0),
-      options: { sizeVariantId: item.sizeVariantId || item.sizeId, groupId: item.groupId },
+      options: { sizeVariantId: item.sizeVariantId || item.options?.sizeVariantId || item.sizeId || item.options?.sizeId, groupId: item.groupId || item.options?.groupId },
     };
   });
   const addOnBreakdown = pricing.breakdown?.addOnBreakdown || [];

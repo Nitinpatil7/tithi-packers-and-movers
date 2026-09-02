@@ -23,6 +23,7 @@ import Card from '@tithi/ui/Card';
 import Spinner from '@tithi/ui/Spinner';
 import { getBookingById, getMyBookings } from '@tithi/lib/api';
 import { formatBookingDate, formatBookingTimeSlot, formatCurrency, getServiceLabel } from '@tithi/utils/utils';
+import { serviceHasItemCatalog } from '@tithi/utils/serviceTypes';
 
 const makeCaptcha = () => String(Math.floor(1000 + Math.random() * 9000));
 
@@ -102,7 +103,7 @@ function TrackingContent() {
     try {
       setLoading(true);
       if (lookupMode === 'bookingId') {
-        const booking = await getBookingById(bookingId.trim());
+        const booking = await getBookingById(bookingId.trim(), null, mobile || undefined);
         setBookings([booking]);
       } else {
         const list = await getMyBookings(mobile);
@@ -195,6 +196,7 @@ function TrackingContent() {
                   key={booking._id || booking.bookingid || booking.bookingId}
                   booking={booking}
                   onOpen={() => router.push(`/my-bookings/${booking.bookingid || booking.bookingId || booking._id}`)}
+                  onUpdate={() => router.push(`/my-bookings/${booking.bookingid || booking.bookingId || booking._id}/update?mobile=${encodeURIComponent(booking.mobile || booking.customer?.mobile || mobile)}`)}
                 />
               ))}
             </div>
@@ -213,11 +215,12 @@ function TrackingContent() {
   );
 }
 
-function BookingCard({ booking, onOpen }) {
+function BookingCard({ booking, onOpen, onUpdate }) {
   const total = booking.pricing?.totalAmount || booking.quoteSnapshot?.pricing?.totalAmount || booking.totalAmount || 0;
   const status = normalizeStatus(booking.status);
   const activeIndex = Math.max(0, TRACKING_STEPS.findIndex((step) => step.key === status));
   const isCancelled = status === 'cancelled';
+  const canUpdate = !['completed', 'cancelled'].includes(status) && serviceHasItemCatalog(booking.serviceType);
 
   return (
     <Card onClick={onOpen} className="cursor-pointer overflow-hidden border border-bg-border bg-bg-white p-0 shadow-xs transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sky">
@@ -239,12 +242,26 @@ function BookingCard({ booking, onOpen }) {
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
+          <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
             <div className="text-left sm:text-right">
-              <p className="text-[10px] font-black uppercase tracking-wider text-text-tertiary">Quote</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-text-tertiary">Total</p>
               <p className="font-mono text-base font-black text-text-primary">{total > 0 ? formatCurrency(total) : 'Pending'}</p>
             </div>
-            <ArrowRight className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2">
+              {canUpdate && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onUpdate?.();
+                  }}
+                  className="rounded-xl border border-primary/20 bg-white px-3 py-2 text-xs font-black text-primary transition hover:bg-primary hover:text-white"
+                >
+                  Update
+                </button>
+              )}
+              <ArrowRight className="h-4 w-4 text-primary" />
+            </div>
           </div>
         </div>
       </div>

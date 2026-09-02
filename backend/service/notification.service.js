@@ -27,6 +27,7 @@ const sendSingleNotification = async (payload) => {
       whatsappActionUrl: buildWhatsAppActionUrl(providerPayload),
       ownerWhatsappNumber: providerPayload.ownerWhatsappNumber,
       trackingUrl: providerPayload.trackingUrl,
+      feedbackUrl: providerPayload.feedbackUrl,
     };
   }
 

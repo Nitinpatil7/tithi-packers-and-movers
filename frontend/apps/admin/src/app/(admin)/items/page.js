@@ -17,6 +17,7 @@ export default function AdminItemsPage() {
   const [editor, setEditor] = useState(null);
   const [sizeManager, setSizeManager] = useState(false);
   const [dragging, setDragging] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
   const { data = [], isLoading, isError, refetch } = useAdminItemCatalog({});
   const { data: globalSizes = [] } = useAdminSizes({});
   const sections = useMemo(() => Array.isArray(data) ? data : [], [data]);
@@ -48,6 +49,7 @@ export default function AdminItemsPage() {
   const reorderList = async ({ type, parentId, fromId, toId, records }) => {
     if (!fromId || !toId || fromId === toId) {
       setDragging(null);
+      setDragOver(null);
       return;
     }
     const ids = records.map((record) => record._id);
@@ -55,6 +57,7 @@ export default function AdminItemsPage() {
     const toIndex = ids.indexOf(toId);
     if (fromIndex < 0 || toIndex < 0) {
       setDragging(null);
+      setDragOver(null);
       return;
     }
     const [moved] = ids.splice(fromIndex, 1);
@@ -67,23 +70,26 @@ export default function AdminItemsPage() {
       toast.error(error.message || 'Could not save order');
     } finally {
       setDragging(null);
+      setDragOver(null);
     }
   };
 
   const saveEditor = async (form) => {
     try {
       if (editor.type === 'section') {
-        const payload = { ...form, icon: String(form.icon || '').trim() || null, sortOrder: Number(form.sortOrder) || 0 };
+        const payload = { ...form, icon: String(form.icon || '').trim() || null };
+        delete payload.sortOrder;
         if (editor.record) await mutations.updateSection.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createSection.mutateAsync(payload);
       } else if (editor.type === 'group') {
-        const payload = { ...form, icon: String(form.icon || '').trim() || null, sectionId: form.sectionId || current?._id, sortOrder: Number(form.sortOrder) || 0 };
+        const payload = { ...form, icon: String(form.icon || '').trim() || null, sectionId: form.sectionId || current?._id };
+        delete payload.sortOrder;
         if (editor.record) await mutations.updateGroup.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createGroup.mutateAsync(payload);
       } else if (editor.type === 'item') {
         const sizes = form.sizes.filter((size) => size.sizeId).map((size, index) => ({ sizeId: size.sizeId, price: Number(size.price) || 0, sortOrder: index, isActive: size.isActive !== false }));
         if (!sizes.length) throw new Error('Add at least one size and price.');
-        const payload = { groupId: form.groupId || editor.group?._id, name: form.name.trim(), icon: String(form.icon || '').trim() || null, sizes, sortOrder: Number(form.sortOrder) || 0, isActive: form.isActive };
+        const payload = { groupId: form.groupId || editor.group?._id, name: form.name.trim(), sizes, isActive: form.isActive };
         if (editor.record) await mutations.updateItem.mutateAsync({ id: editor.record._id, data: payload });
         else await mutations.createItem.mutateAsync(payload);
       }
@@ -115,16 +121,17 @@ export default function AdminItemsPage() {
           return (
             <article
               key={group._id}
+              onDragEnter={() => dragging?.type === 'group' && !search && setDragOver({ type: 'group', id: group._id })}
               onDragOver={(event) => { if (dragging?.type === 'group' && !search) event.preventDefault(); }}
               onDrop={() => !search && dragging?.type === 'group' && reorderList({ type: 'group', parentId: current?._id, fromId: dragging?.id, toId: group._id, records: current?.groups || [] })}
-              className={`overflow-hidden rounded-2xl border border-sky-100 ${dragging?.type === 'group' && dragging?.id === group._id ? 'opacity-60' : ''}`}
+              className={`admin-drag-card overflow-hidden rounded-2xl border border-sky-100 ${dragging?.type === 'group' && dragging?.id === group._id ? 'admin-drag-card-active opacity-90' : ''} ${dragOver?.type === 'group' && dragOver.id === group._id && dragging?.id !== group._id ? 'admin-drag-card-over' : ''}`}
             >
               <div className="flex flex-col gap-3 bg-sky-50/45 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3">
                   <span
                     draggable={!search}
                     onDragStart={(event) => startDrag(event, { type: 'group', id: group._id })}
-                    onDragEnd={() => setDragging(null)}
+                    onDragEnd={() => { setDragging(null); setDragOver(null); }}
                     className="grid h-9 w-9 shrink-0 cursor-grab place-items-center rounded-xl bg-white text-slate-400 ring-1 ring-sky-100 active:cursor-grabbing"
                     title={search ? 'Clear search to reorder groups' : 'Drag group'}
                   >
@@ -141,9 +148,10 @@ export default function AdminItemsPage() {
                 {itemRecords.length ? itemRecords.map((item) => (
                   <div
                     key={item._id}
+                    onDragEnter={() => dragging?.type === 'item' && !search && setDragOver({ type: 'item', id: item._id })}
                     onDragOver={(event) => { if (dragging?.type === 'item' && !search) event.preventDefault(); }}
                     onDrop={() => !search && dragging?.type === 'item' && reorderList({ type: 'item', parentId: group._id, fromId: dragging?.id, toId: item._id, records: reorderItemRecords })}
-                    className={`flex min-h-32 flex-col justify-between rounded-2xl border border-slate-100 p-4 transition hover:border-sky-200 hover:shadow-sm ${dragging?.type === 'item' && dragging?.id === item._id ? 'opacity-60' : ''}`}
+                    className={`admin-drag-card flex min-h-32 flex-col justify-between rounded-2xl border border-slate-100 p-4 transition hover:border-sky-200 hover:shadow-sm ${dragging?.type === 'item' && dragging?.id === item._id ? 'admin-drag-card-active opacity-90' : ''} ${dragOver?.type === 'item' && dragOver.id === item._id && dragging?.id !== item._id ? 'admin-drag-card-over' : ''}`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3">
@@ -151,11 +159,10 @@ export default function AdminItemsPage() {
                           <span
                             draggable={!search}
                             onDragStart={(event) => startDrag(event, { type: 'item', id: item._id })}
-                            onDragEnd={() => setDragging(null)}
+                            onDragEnd={() => { setDragging(null); setDragOver(null); }}
                             className="mt-0.5 cursor-grab text-slate-300 active:cursor-grabbing"
                             title={search ? 'Clear search to reorder items' : 'Drag item'}
                           ><GripVertical className="h-4 w-4" /></span>
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><CatalogIconPreview icon={item.icon} className="h-8 w-8" /></span>
                           <h3 className="text-sm font-black text-slate-800">{item.name}</h3>
                         </div>
                         <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.isActive === false ? 'bg-slate-300' : 'bg-emerald-500'}`} />
@@ -182,14 +189,14 @@ function RecordEditor({ editor, sections, globalSizes, uploadIcon, busy, onClose
   const [form, setForm] = useState(baseRecord);
   useEffect(() => {
     if (!editor) return;
-    if (editor.type === 'item') setForm({ name: record?.name || '', icon: record?.icon || '', groupId: record?.groupId || editor.group?._id || '', sortOrder: record?.sortOrder || 0, isActive: record?.isActive !== false, sizes: (record?.sizes || []).map((size) => ({ sizeId: sizeIdOf(size), price: size.price, isActive: size.isActive !== false })) });
+    if (editor.type === 'item') setForm({ name: record?.name || '', groupId: record?.groupId || editor.group?._id || '', sortOrder: record?.sortOrder || 0, isActive: record?.isActive !== false, sizes: (record?.sizes || []).map((size) => ({ sizeId: sizeIdOf(size), price: size.price, isActive: size.isActive !== false })) });
     else if (editor.type === 'section') setForm({ ...baseRecord, ...(record || {}), icon: record?.icon || '', sectionId: '' });
     else setForm({ ...baseRecord, ...(record || {}), icon: record?.icon || '', sectionId: record?.categoryId?._id || record?.categoryId || editor.section?._id || '' });
   }, [editor, record]);
   if (!editor) return null;
   const title = `${record ? 'Edit' : 'Add'} ${editor.type}`;
   const updateSize = (index, changes) => setForm((value) => ({ ...value, sizes: value.sizes.map((size, position) => position === index ? { ...size, ...changes } : size) }));
-  return <Modal isOpen onClose={onClose} title={title} size="lg"><form onSubmit={(event) => { event.preventDefault(); onSave(form); }} className="space-y-4"><Field label="Name *"><input required value={form.name || ''} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field><IconInput value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} uploadIcon={uploadIcon} />{editor.type === 'group' && <Field label="Section *"><select required value={form.sectionId || ''} onChange={(event) => setForm({ ...form, sectionId: event.target.value })} className="admin-field">{sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}</select></Field>}{editor.type === 'item' && <Field label="Sizes and prices *"><div className="space-y-2">{(form.sizes || []).map((size, index) => <div key={index} className="grid grid-cols-[1fr_120px_auto] gap-2"><select required value={size.sizeId} onChange={(event) => updateSize(index, { sizeId: event.target.value })} className="admin-field"><option value="">Select size</option>{globalSizes.map((choice) => <option key={choice._id} value={choice._id}>{choice.label || choice.key}</option>)}</select><input required type="number" min="0" value={size.price} onChange={(event) => updateSize(index, { price: event.target.value })} className="admin-field" placeholder="Price" /><button type="button" onClick={() => setForm({ ...form, sizes: form.sizes.filter((_, position) => position !== index) })} className="rounded-xl border border-red-100 px-3 text-red-500"><Trash2 className="h-4 w-4" /></button></div>)}<button type="button" onClick={() => setForm({ ...form, sizes: [...(form.sizes || []), { sizeId: '', price: 0, isActive: true }] })} className="text-sm font-bold text-sky-600">+ Add size variant</button></div></Field>}<div className="grid gap-4 sm:grid-cols-2"><Field label="Sort order"><input type="number" min="0" value={form.sortOrder || 0} onChange={(event) => setForm({ ...form, sortOrder: event.target.value })} className="admin-field" /></Field><label className="flex items-end"><span className="flex h-[46px] w-full items-center gap-3 rounded-xl border border-sky-100 px-3 text-sm font-bold text-slate-600"><input type="checkbox" checked={form.isActive !== false} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-sky-600" />Active</span></label></div><div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600">Cancel</button><button disabled={busy} className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">Save {editor.type}</button></div></form></Modal>;
+  return <Modal isOpen onClose={onClose} title={title} size="lg"><form onSubmit={(event) => { event.preventDefault(); onSave(form); }} className="space-y-4"><Field label="Name *"><input required value={form.name || ''} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" /></Field>{editor.type !== 'item' && <IconInput value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} uploadIcon={uploadIcon} />}{editor.type === 'item' && <p className="rounded-xl border border-sky-100 bg-sky-50/60 px-3 py-2 text-xs font-semibold text-slate-500">Item icon fields are intentionally hidden in the UI; the existing database field is retained for backward compatibility.</p>}{editor.type === 'group' && <Field label="Section *"><select required value={form.sectionId || ''} onChange={(event) => setForm({ ...form, sectionId: event.target.value })} className="admin-field">{sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}</select></Field>}{editor.type === 'item' && <Field label="Sizes and prices *"><div className="space-y-2">{(form.sizes || []).map((size, index) => <div key={index} className="grid grid-cols-[1fr_120px_auto] gap-2"><select required value={size.sizeId} onChange={(event) => updateSize(index, { sizeId: event.target.value })} className="admin-field"><option value="">Select size</option>{globalSizes.map((choice) => <option key={choice._id} value={choice._id}>{choice.label || choice.key}</option>)}</select><input required type="number" min="0" value={size.price} onChange={(event) => updateSize(index, { price: event.target.value })} className="admin-field" placeholder="Price" /><button type="button" onClick={() => setForm({ ...form, sizes: form.sizes.filter((_, position) => position !== index) })} className="rounded-xl border border-red-100 px-3 text-red-500"><Trash2 className="h-4 w-4" /></button></div>)}<button type="button" onClick={() => setForm({ ...form, sizes: [...(form.sizes || []), { sizeId: '', price: 0, isActive: true }] })} className="text-sm font-bold text-sky-600">+ Add size variant</button></div></Field>}<label className="flex items-end"><span className="flex h-[46px] w-full items-center gap-3 rounded-xl border border-sky-100 px-3 text-sm font-bold text-slate-600"><input type="checkbox" checked={form.isActive !== false} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-sky-600" />Active</span></label><div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600">Cancel</button><button disabled={busy} className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">Save {editor.type}</button></div></form></Modal>;
 }
 
 function CatalogIconPreview({ icon, className = 'h-6 w-6' }) {
@@ -199,8 +206,8 @@ function CatalogIconPreview({ icon, className = 'h-6 w-6' }) {
 function SizeManager({ open, sizes, mutations, onClose }) {
   const [editing, setEditing] = useState(null); const [form, setForm] = useState({ key: '', label: '', description: '', sortOrder: 0, isActive: true });
   useEffect(() => { setForm(editing ? { ...editing } : { key: '', label: '', description: '', sortOrder: 0, isActive: true }); }, [editing, open]);
-  const save = async (event) => { event.preventDefault(); try { const data = { ...form, key: form.key.trim().toUpperCase(), label: form.label.trim(), sortOrder: Number(form.sortOrder) || 0 }; if (editing) await mutations.updateSize.mutateAsync({ id: editing._id, data }); else await mutations.createSize.mutateAsync(data); toast.success('Size saved'); setEditing(null); } catch (error) { toast.error(error.message); } };
-  return <Modal isOpen={open} onClose={onClose} title="Global size choices" size="lg"><div className="grid gap-5 md:grid-cols-2"><div className="space-y-2">{sizes.map((size) => <div key={size._id} className="flex items-center justify-between rounded-xl border border-sky-100 p-3"><div><strong className="text-sm text-slate-800">{size.label}</strong><p className="text-xs font-bold text-sky-600">{size.key}</p></div><div className="flex gap-1"><button onClick={() => setEditing(size)} className="p-2 text-sky-600"><Edit3 className="h-4 w-4" /></button><button onClick={async () => { if (window.confirm(`Deactivate ${size.label}?`)) await mutations.deleteSize.mutateAsync(size._id); }} className="p-2 text-red-500"><Trash2 className="h-4 w-4" /></button></div></div>)}</div><form onSubmit={save} className="space-y-3 rounded-2xl bg-sky-50/50 p-4"><h3 className="font-black text-slate-800">{editing ? 'Edit size' : 'Add size'}</h3><Field label="Key *"><input required value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} className="admin-field" placeholder="XL" /></Field><Field label="Label *"><input required value={form.label} onChange={(event) => setForm({ ...form, label: event.target.value })} className="admin-field" placeholder="Extra Large" /></Field><Field label="Sort order"><input type="number" min="0" value={form.sortOrder} onChange={(event) => setForm({ ...form, sortOrder: event.target.value })} className="admin-field" /></Field><div className="flex gap-2"><button className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Save</button>{editing && <button type="button" onClick={() => setEditing(null)} className="text-sm font-bold text-slate-500">Cancel edit</button>}</div></form></div></Modal>;
+  const save = async (event) => { event.preventDefault(); try { const data = { ...form, key: form.key.trim().toUpperCase(), label: form.label.trim() }; delete data.sortOrder; if (editing) await mutations.updateSize.mutateAsync({ id: editing._id, data }); else await mutations.createSize.mutateAsync(data); toast.success('Size saved'); setEditing(null); } catch (error) { toast.error(error.message); } };
+  return <Modal isOpen={open} onClose={onClose} title="Global size choices" size="lg"><div className="grid gap-5 md:grid-cols-2"><div className="space-y-2">{sizes.map((size) => <div key={size._id} className="flex items-center justify-between rounded-xl border border-sky-100 p-3"><div><strong className="text-sm text-slate-800">{size.label}</strong><p className="text-xs font-bold text-sky-600">{size.key}</p></div><div className="flex gap-1"><button onClick={() => setEditing(size)} className="p-2 text-sky-600"><Edit3 className="h-4 w-4" /></button><button onClick={async () => { if (window.confirm(`Deactivate ${size.label}?`)) await mutations.deleteSize.mutateAsync(size._id); }} className="p-2 text-red-500"><Trash2 className="h-4 w-4" /></button></div></div>)}</div><form onSubmit={save} className="space-y-3 rounded-2xl bg-sky-50/50 p-4"><h3 className="font-black text-slate-800">{editing ? 'Edit size' : 'Add size'}</h3><Field label="Key *"><input required value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} className="admin-field" placeholder="XL" /></Field><Field label="Label *"><input required value={form.label} onChange={(event) => setForm({ ...form, label: event.target.value })} className="admin-field" placeholder="Extra Large" /></Field><div className="flex gap-2"><button className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Save</button>{editing && <button type="button" onClick={() => setEditing(null)} className="text-sm font-bold text-slate-500">Cancel edit</button>}</div></form></div></Modal>;
 }
 
 function Action({ icon: Icon, children, onClick, secondary }) { return <button onClick={onClick} className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${secondary ? 'border border-sky-200 bg-white text-sky-700' : 'bg-sky-600 text-white shadow-lg shadow-sky-100'}`}><Icon className="h-4 w-4" />{children}</button>; }

@@ -13,3 +13,4 @@ function useAddonMutation(mutationFn) {
 export const useCreateAddon = () => useAddonMutation(api.createAddon);
 export const useUpdateAddon = () => useAddonMutation(({ id, data }) => api.updateAddon(id, data));
 export const useDeleteAddon = () => useAddonMutation(api.deleteAddon);
+export const useReorderAddons = () => useAddonMutation(api.reorderAddons);

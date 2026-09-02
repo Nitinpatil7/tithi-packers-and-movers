@@ -10,9 +10,10 @@ import TruckSelectionStep from '@shared-components/booking/TruckSelectionStep';
 import EmployeeSelectionStep from '@shared-components/booking/EmployeeSelectionStep';
 import HoursSelectionStep from '@shared-components/booking/HoursSelectionStep';
 import DateTimeStep from '@shared-components/booking/DateTimeStep';
-import { usePublicPricingRule } from '@hooks/useBookingPricingRules';
+import { usePublicPricingRule, usePublicPricingRules } from '@hooks/useBookingPricingRules';
 import { calculateBookingPrice } from '@utils/pricing';
 import { formatCurrency } from '@utils/utils';
+import { activeServiceTypesFromRules } from '@utils/serviceTypes';
 
 const SERVICES = [
   { value: 'local', api: 'local_shifting', title: 'Local Shifting', desc: 'Surat city pickup and drop with items, add-ons and schedule.', icon: PackageCheck },
@@ -35,11 +36,42 @@ const baseData = {
   contactDetails: { name: '', mobile: '', email: '' },
 };
 
+const applyPricingSnapshot = (bookingData = {}) => {
+  const pricing = calculateBookingPrice(bookingData);
+  return {
+    ...bookingData,
+    basePrice: pricing.basePrice,
+    itemsExtraCharge: pricing.itemsExtraCharge,
+    distance: pricing.distance,
+    distanceKm: pricing.distance,
+    distanceCharge: pricing.distanceCharge,
+    pickupFloorCharge: pricing.pickupFloorCharge,
+    dropFloorCharge: pricing.dropFloorCharge,
+    floorTotalCharge: pricing.floorTotalCharge,
+    employeeTotal: pricing.employeeTotal,
+    truckTotal: pricing.truckTotal,
+    addOnTotal: pricing.addOnTotal,
+    sundayHike: pricing.sundayHike,
+    grandTotal: pricing.grandTotal,
+    totalAmount: pricing.grandTotal,
+    pricingBreakdown: pricing.breakdown,
+  };
+};
+
 export default function CreateBookingModal({ isOpen, onClose, onSave }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingData, setBookingData] = useState(baseData);
   const [saving, setSaving] = useState(false);
-  const selectedService = SERVICES.find((item) => item.value === bookingData.serviceType) || SERVICES[0];
+  const { data: pricingRules = [], isFetched: pricingRulesFetched } = usePublicPricingRules();
+  const activeServiceTypes = useMemo(
+    () => (pricingRulesFetched ? activeServiceTypesFromRules(pricingRules) : SERVICES.map((service) => service.api)),
+    [pricingRules, pricingRulesFetched]
+  );
+  const activeServices = useMemo(
+    () => SERVICES.filter((service) => activeServiceTypes.includes(service.api)),
+    [activeServiceTypes]
+  );
+  const selectedService = activeServices.find((item) => item.value === bookingData.serviceType) || activeServices[0] || SERVICES[0];
   const { data: pricingRule } = usePublicPricingRule(selectedService.api);
   const isLabour = bookingData.serviceType === 'labour';
 
@@ -48,6 +80,14 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
     setCurrentStep(0);
     setBookingData(baseData);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !pricingRulesFetched || !activeServices.length) return;
+    if (!activeServices.some((service) => service.value === bookingData.serviceType)) {
+      setBookingData({ ...baseData, serviceType: activeServices[0].value });
+      setCurrentStep(0);
+    }
+  }, [activeServices, bookingData.serviceType, isOpen, pricingRulesFetched]);
 
   useEffect(() => {
     if (pricingRule?._id) updateBookingData({ pricingRule });
@@ -63,24 +103,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
         dropLocation: data.dropLocation ? { ...current.dropLocation, ...data.dropLocation } : current.dropLocation,
         contactDetails: data.contactDetails ? { ...current.contactDetails, ...data.contactDetails } : current.contactDetails,
       };
-      const pricing = calculateBookingPrice(next);
-      return {
-        ...next,
-        basePrice: pricing.basePrice,
-        itemsExtraCharge: pricing.itemsExtraCharge,
-        distance: pricing.distance,
-        distanceCharge: pricing.distanceCharge,
-        pickupFloorCharge: pricing.pickupFloorCharge,
-        dropFloorCharge: pricing.dropFloorCharge,
-        floorTotalCharge: pricing.floorTotalCharge,
-        employeeTotal: pricing.employeeTotal,
-        truckTotal: pricing.truckTotal,
-        addOnTotal: pricing.addOnTotal,
-        sundayHike: pricing.sundayHike,
-        grandTotal: pricing.grandTotal,
-        totalAmount: pricing.grandTotal,
-        pricingBreakdown: pricing.breakdown,
-      };
+      return applyPricingSnapshot(next);
     });
   };
 
@@ -100,13 +123,14 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
   const finish = async () => {
     setSaving(true);
     try {
+      const finalBookingData = applyPricingSnapshot(bookingData);
       await onSave({
-        ...bookingData,
-        customerName: bookingData.contactDetails?.name,
-        mobile: bookingData.contactDetails?.mobile,
-        email: bookingData.contactDetails?.email,
-        manualQuote: bookingData.grandTotal || 0,
-        totalAmount: bookingData.grandTotal || 0,
+        ...finalBookingData,
+        customerName: finalBookingData.contactDetails?.name,
+        mobile: finalBookingData.contactDetails?.mobile,
+        email: finalBookingData.contactDetails?.email,
+        manualQuote: finalBookingData.grandTotal || 0,
+        totalAmount: finalBookingData.grandTotal || 0,
       });
       onClose();
     } finally {
@@ -115,15 +139,15 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
   };
 
   const body = () => {
-    if (currentStep === 0) return <ServiceChooser onChoose={chooseService} />;
-    if (currentStep === 1) return <LocationStep onSubmit={submitStep} initialData={bookingData} serviceType={bookingData.serviceType} />;
+    if (currentStep === 0) return <ServiceChooser services={activeServices} onChoose={chooseService} />;
+    if (currentStep === 1) return <LocationStep onSubmit={submitStep} initialData={bookingData} serviceType={bookingData.serviceType} pricingRule={pricingRule} />;
     if (!isLabour && currentStep === 2) return <ItemSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} isIntercity={bookingData.serviceType === 'intercity'} />;
     if (!isLabour && currentStep === 3) return <SpecialServicesStep onSubmit={submitStep} onBack={back} initialData={bookingData} serviceType={bookingData.serviceType} />;
     if (!isLabour && currentStep === 4) return <DateTimeStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
     if (!isLabour && currentStep === 5) return <CustomerStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
     if (!isLabour && currentStep === 6) return <AdminReview bookingData={bookingData} onBack={back} onSubmit={finish} saving={saving} />;
     if (isLabour && currentStep === 2) return <TruckSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} trucks={pricingRule?.labourPricing?.trucks || []} showPrice={false} />;
-    if (isLabour && currentStep === 3) return <EmployeeSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
+    if (isLabour && currentStep === 3) return <EmployeeSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} employeeRates={pricingRule?.labourPricing?.employeeRates || []} />;
     if (isLabour && currentStep === 4) return <HoursSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} rates={pricingRule?.labourPricing?.hourlyRates || []} />;
     if (isLabour && currentStep === 5) return <DateTimeStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
     if (isLabour && currentStep === 6) return <CustomerStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
@@ -154,8 +178,8 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
   );
 }
 
-function ServiceChooser({ onChoose }) {
-  return <div className="mx-auto max-w-4xl text-left"><h3 className="text-2xl font-semibold text-slate-900">Choose service type</h3><p className="mt-1 text-sm font-medium text-slate-500">Admin pehle service choose kare, phir us service ka proper booking flow open hoga.</p><div className="mt-6 grid gap-4 md:grid-cols-3">{SERVICES.map((service) => { const Icon = service.icon; return <button key={service.value} type="button" onClick={() => onChoose(service.value)} className="rounded-2xl border border-sky-100 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-50 text-sky-600"><Icon className="h-5 w-5" /></span><h4 className="mt-4 font-semibold text-slate-900">{service.title}</h4><p className="mt-2 text-sm font-medium leading-6 text-slate-500">{service.desc}</p><span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-sky-600">Start flow <ArrowRight className="h-4 w-4" /></span></button>; })}</div></div>;
+function ServiceChooser({ services, onChoose }) {
+  return <div className="mx-auto max-w-4xl text-left"><h3 className="text-2xl font-semibold text-slate-900">Choose service type</h3><p className="mt-1 text-sm font-medium text-slate-500">Admin pehle active service choose kare, phir us service ka proper booking flow open hoga.</p>{services.length ? <div className="mt-6 grid gap-4 md:grid-cols-3">{services.map((service) => { const Icon = service.icon; return <button key={service.value} type="button" onClick={() => onChoose(service.value)} className="rounded-2xl border border-sky-100 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-50 text-sky-600"><Icon className="h-5 w-5" /></span><h4 className="mt-4 font-semibold text-slate-900">{service.title}</h4><p className="mt-2 text-sm font-medium leading-6 text-slate-500">{service.desc}</p><span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-sky-600">Start flow <ArrowRight className="h-4 w-4" /></span></button>; })}</div> : <p className="mt-6 rounded-2xl border border-dashed border-sky-100 bg-sky-50 p-6 text-center text-sm font-semibold text-slate-500">No active services are available for booking creation.</p>}</div>;
 }
 
 function StepBar({ steps, currentStep }) {

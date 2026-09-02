@@ -2,9 +2,9 @@ import { authFetch } from './authFetch';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
-async function request(options = {}) {
+async function request(path = '',options = {}) {
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
-  const response = await authFetch(`${API_URL}/api/site-setting`, {
+  const response = await authFetch(`${API_URL}/api/site-setting${path}`, {
     cache: 'no-store',
     ...options,
     headers: {
@@ -18,9 +18,11 @@ async function request(options = {}) {
 }
 
 export const getSiteSetting = () => request();
-export const updateSiteSetting = (data) => request({ method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
+
+export const updateSiteSetting = (data) => request('',{ method: 'PATCH', credentials: 'include', body: JSON.stringify(data) });
+
 export const uploadSiteLogo = (file) => {
   const formData = new FormData();
   formData.append('logo', file);
-  return request({ method: 'POST', credentials: 'include', body: formData });
+  return request('/logo',{ method: 'POST', credentials: 'include', body: formData });
 };

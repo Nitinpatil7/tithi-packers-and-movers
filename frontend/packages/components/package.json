@@ -15,6 +15,7 @@
     "./booking/OTPStep": "./booking/OTPStep.jsx",
     "./booking/PackingSubTypeStep": "./booking/PackingSubTypeStep.jsx",
     "./booking/ReviewStep": "./booking/ReviewStep.jsx",
+    "./booking/ServiceComingSoon": "./booking/ServiceComingSoon.jsx",
     "./booking/SpecialServicesStep": "./booking/SpecialServicesStep.jsx",
     "./booking/StepIndicator": "./booking/StepIndicator.jsx",
     "./booking/SuccessStep": "./booking/SuccessStep.jsx",

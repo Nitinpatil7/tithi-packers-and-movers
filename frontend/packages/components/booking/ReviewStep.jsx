@@ -76,12 +76,13 @@ function InlineIconImage({ icon, className = 'h-9 w-9' }) {
       alt=""
       width={48}
       height={48}
+      sizes="36px"
       className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : null;
 }
 
-export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
+export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLabel = 'Verify Phone' }) {
   const {
     serviceType,
     pickupLocation,
@@ -106,6 +107,9 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
   const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const total = Number(totalAmount || grandTotal || 0);
+  const reviewCopy = nextLabel === 'Update'
+    ? 'Review your updated booking total and selected services.'
+    : 'Review your booking details before phone verification. Detailed price calculation is kept internal.';
   const formattedDate = scheduledDate
     ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : '';
@@ -131,7 +135,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
               <strong className="mt-1 block font-mono text-3xl font-black text-text-primary sm:text-4xl">{formatCurrency(total)}</strong>
             </span>
           </div>
-          <p className="max-w-md text-sm font-semibold leading-6 text-text-secondary">Review your booking details before phone verification. Detailed price calculation is kept internal.</p>
+          <p className="max-w-md text-sm font-semibold leading-6 text-text-secondary">{reviewCopy}</p>
         </div>
       </motion.header>
 
@@ -196,7 +200,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {} }) {
         </div>
       )}
 
-      <BookingActionBar onBack={onBack} onNext={onSubmit} nextLabel="Verify Phone" />
+      <BookingActionBar onBack={onBack} onNext={onSubmit} nextLabel={nextLabel} />
     </div>
   );
 }

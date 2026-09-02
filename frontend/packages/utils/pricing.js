@@ -147,6 +147,7 @@ export function calculateAddOnBreakdown(addons = [], baseAmount = 0) {
 export function calculateBookingPrice(bookingData = {}) {
   const serviceType = normalizeServiceType(bookingData.serviceType);
   const rule = bookingData.pricingRule || fallbackPricingRule(serviceType);
+  const lockedPricing = bookingData.lockedPricing || null;
   const isLabour = serviceType === 'porter_labour_service';
   const useBasePackage = Boolean(bookingData.useBasePackage);
   const pickupLocation = bookingData.pickupLocation || {};
@@ -156,13 +157,24 @@ export function calculateBookingPrice(bookingData = {}) {
       ? getDistanceKM(pickupLocation.lat, pickupLocation.lng, dropLocation.lat, dropLocation.lng)
       : estimateManualDistanceKM(pickupLocation, dropLocation, serviceType)
   );
-  const basePrice = isLabour ? (useBasePackage ? toNumber(rule.basePrice) : 0) : toNumber(rule.basePrice);
+  const hasLockedPricing = Boolean(lockedPricing && lockedPricing.enabled !== false);
+  const basePrice = hasLockedPricing
+    ? toNumber(lockedPricing.basePrice)
+    : isLabour ? (useBasePackage ? toNumber(rule.basePrice) : 0) : toNumber(rule.basePrice);
   const itemBreakdown = isLabour ? { allowances: {}, bySize: [], selectedCount: 0, includedCount: 0, chargedCount: 0, charge: 0 } : calculateItemsBreakdown(bookingData.items || [], rule);
   const itemsExtraCharge = itemBreakdown.charge;
-  const pickupFloorCharge = isLabour ? 0 : getSingleFloorCharge(pickupLocation.floor, pickupLocation.liftAvailable, rule);
-  const dropFloorCharge = isLabour ? 0 : getSingleFloorCharge(dropLocation.floor, dropLocation.liftAvailable, rule);
-  const floorTotalCharge = pickupFloorCharge + dropFloorCharge;
-  const distanceCharge = isLabour && useBasePackage
+  const pickupFloorCharge = hasLockedPricing
+    ? toNumber(lockedPricing.pickupFloorCharge)
+    : isLabour ? 0 : getSingleFloorCharge(pickupLocation.floor, pickupLocation.liftAvailable, rule);
+  const dropFloorCharge = hasLockedPricing
+    ? toNumber(lockedPricing.dropFloorCharge)
+    : isLabour ? 0 : getSingleFloorCharge(dropLocation.floor, dropLocation.liftAvailable, rule);
+  const floorTotalCharge = hasLockedPricing
+    ? toNumber(lockedPricing.floorTotalCharge, pickupFloorCharge + dropFloorCharge)
+    : pickupFloorCharge + dropFloorCharge;
+  const distanceCharge = hasLockedPricing
+    ? toNumber(lockedPricing.distanceCharge)
+    : isLabour && useBasePackage
     ? 0
     : rule?.distancePricing?.enabled
       ? getDistanceCharges(distance, rule)
@@ -179,14 +191,16 @@ export function calculateBookingPrice(bookingData = {}) {
     const values = [item.key, item.id, item._id, item.name].filter(Boolean).map(String);
     return values.includes(selectedTruckKey);
   }) || (selectedTruckData.id || selectedTruckData.name ? selectedTruckData : null);
-  const employeeTotal = isLabour && !useBasePackage ? hourlyPrice * selectedEmployees : 0;
-  const truckTotal = isLabour && !useBasePackage ? toNumber(truck?.price ?? selectedTruckData.price) : 0;
+  const employeeTotal = hasLockedPricing ? toNumber(lockedPricing.employeeTotal) : isLabour && !useBasePackage ? hourlyPrice * selectedEmployees : 0;
+  const truckTotal = hasLockedPricing ? toNumber(lockedPricing.truckTotal) : isLabour && !useBasePackage ? toNumber(truck?.price ?? selectedTruckData.price) : 0;
   const addOnBaseAmount = basePrice + itemsExtraCharge + floorTotalCharge + distanceCharge + employeeTotal + truckTotal;
   const addOnBreakdown = isLabour ? [] : calculateAddOnBreakdown(bookingData.specialServices || [], addOnBaseAmount);
   const addOnTotal = addOnBreakdown.reduce((sum, service) => sum + toNumber(service.total), 0);
   const subtotal = basePrice + itemsExtraCharge + floorTotalCharge + distanceCharge + employeeTotal + truckTotal + addOnTotal;
   const dateValue = bookingData.scheduledDate || bookingData.scheduledate;
-  const sundayHike = dateValue && new Date(`${dateValue}T00:00:00`).getDay() === 0 ? Math.round(subtotal * 0.05) : 0;
+  const sundayHike = hasLockedPricing
+    ? toNumber(lockedPricing.sundayHike)
+    : dateValue && new Date(`${dateValue}T00:00:00`).getDay() === 0 ? Math.round(subtotal * 0.05) : 0;
   const grandTotal = subtotal + sundayHike;
   return {
     basePrice,

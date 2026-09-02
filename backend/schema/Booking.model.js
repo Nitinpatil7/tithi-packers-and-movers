@@ -303,6 +303,20 @@ const bookingSchema = new mongoose.Schema(
       default: null,
     },
 
+    completionProof: {
+      imageUrl: { type: String, trim: true },
+      witnessName: { type: String, trim: true },
+      uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+      uploadedAt: Date,
+    },
+
+    feedback: {
+      token: { type: String, trim: true, index: true },
+      requestedAt: Date,
+      submittedAt: Date,
+      testimonialId: { type: mongoose.Schema.Types.ObjectId, ref: "testimonial" },
+    },
+
     confirmedAt: Date,
 
     statusHistory: [StatusSchema],

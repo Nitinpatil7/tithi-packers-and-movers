@@ -56,7 +56,12 @@ const populated = (query) => query.populate({
 });
 
 const createAddOn = async (payload) => {
-  const addOn = await AddOnService.create(await normalizeTriggers(payload));
+  const normalized = await normalizeTriggers(payload);
+  if (normalized.sortOrder === undefined) {
+    const last = await AddOnService.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
+    normalized.sortOrder = Number(last?.sortOrder ?? -1) + 1;
+  }
+  const addOn = await AddOnService.create(normalized);
   return populated(AddOnService.findById(addOn._id));
 };
 const getAllAddOnsForAdmin = (query = {}) => {
@@ -64,7 +69,7 @@ const getAllAddOnsForAdmin = (query = {}) => {
   if (query.isActive === "true") filter.isActive = true;
   if (query.isActive === "false") filter.isActive = false;
   if (query.serviceType) filter.appliesToServiceTypes = query.serviceType;
-  return populated(AddOnService.find(filter)).sort({ sortOrder: 1, createdAt: -1 });
+  return populated(AddOnService.find(filter)).sort({ sortOrder: 1, createdAt: 1 });
 };
 const getAddOnById = async (id) => {
   const addOn = await populated(AddOnService.findById(id));
@@ -191,7 +196,7 @@ const getAvailableAddOns = async (query = {}) => {
       { triggerGroupIds: { $in: selectedGroupIds } },
       { triggerItemIds: { $in: itemIds } },
     ],
-  })).sort({ isOptional: 1, sortOrder: 1, createdAt: -1 }).lean();
+  })).sort({ isOptional: 1, sortOrder: 1, createdAt: 1 }).lean();
 
   const selectedCategorySet = new Set(selectedCategoryIds);
   const selectedSet = new Set(selectedGroupIds);
@@ -210,7 +215,18 @@ const getAvailableAddOns = async (query = {}) => {
   });
 };
 
+const reorderAddOns = async (orderedIds = []) => {
+  const ids = orderedIds.map(String).filter(Boolean);
+  if (!ids.length || ids.some((id) => !mongoose.isValidObjectId(id))) throw new ApiError(400, "Valid add-on IDs are required");
+  const existingCount = await AddOnService.countDocuments({ _id: { $in: ids } });
+  if (existingCount !== ids.length) throw new ApiError(400, "One or more add-ons are invalid");
+  await AddOnService.bulkWrite(ids.map((id, index) => ({
+    updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
+  })));
+  return getAllAddOnsForAdmin({});
+};
+
 module.exports = {
   createAddOn, getAllAddOnsForAdmin, getAddOnById, updateAddOn, deleteAddOn,
-  getTriggerGroups, getTriggerItems, getAvailableAddOns,
+  getTriggerGroups, getTriggerItems, getAvailableAddOns, reorderAddOns,
 };

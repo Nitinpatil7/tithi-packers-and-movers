@@ -40,9 +40,9 @@ export default function HeroSection() {
   ];
 
   const services = [
-    { key: 'local', name: site.serviceLabels?.local_shifting || t.localShifting, path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { key: 'intercity', name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { key: 'labour', name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { key: 'local', serviceType: 'local_shifting', name: site.serviceLabels?.local_shifting || t.localShifting, path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
+    { key: 'intercity', serviceType: 'intercity_moving', name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
+    { key: 'labour', serviceType: 'porter_labour_service', name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
   ];
 
   const trustBadges = [
@@ -136,15 +136,15 @@ export default function HeroSection() {
 
           <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[480px]">
             {stats.map((stat) => (
-              <div key={stat.label} className="group flex min-w-0 items-center gap-2 rounded-2xl bg-white/80 px-3 py-2.5 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99]">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)]">
-                  {React.createElement(stat.icon, { className: 'h-4 w-4', strokeWidth: 1.8 })}
+              <div key={stat.label} className="group flex h-[82px] min-w-0 items-center gap-3 rounded-2xl bg-white/80 px-3 py-3 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99] sm:h-[96px] sm:px-4 lg:h-[92px]">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12">
+                  {React.createElement(stat.icon, { className: 'h-5 w-5 sm:h-6 sm:w-6', strokeWidth: 1.8 })}
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-lg font-black leading-none text-text-primary sm:text-xl" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <span className="block text-xl font-black leading-none text-text-primary sm:text-2xl" style={{ fontFamily: 'var(--font-heading)' }}>
                     <AnimatedCounter value={String(stat.value)} suffix={stat.suffix} />
                   </span>
-                  <span className="mt-0.5 block truncate text-[9px] font-semibold uppercase leading-tight tracking-wide text-text-tertiary sm:text-[10px]">{stat.label}</span>
+                  <span className="mt-1 block truncate text-[10px] font-bold uppercase leading-tight tracking-wide text-text-tertiary sm:text-xs">{stat.label}</span>
                 </div>
               </div>
             ))}

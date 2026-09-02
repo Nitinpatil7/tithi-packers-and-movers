@@ -63,6 +63,7 @@ export default function Modal({
               {title && <h3 className="text-lg font-bold text-text-primary">{title}</h3>}
               <button
                 onClick={onClose}
+                aria-label="Close modal"
                 className="p-1 rounded-full text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
               >
                 <X className="w-5 h-5" />

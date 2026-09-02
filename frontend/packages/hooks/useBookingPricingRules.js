@@ -6,7 +6,18 @@ export const usePublicPricingRule = (serviceType) => useQuery({
   queryFn: () => api.getPublicPricingRule(serviceType),
   enabled: Boolean(serviceType),
   placeholderData: keepPreviousData,
-  staleTime: 2 * 60 * 1000,
+  staleTime: 5 * 1000,
+  refetchInterval: 15 * 1000,
+  refetchOnWindowFocus: true,
+});
+
+export const usePublicPricingRules = (filters = {}) => useQuery({
+  queryKey: ['booking-pricing-rules', 'public', filters],
+  queryFn: () => api.getPublicPricingRules(filters),
+  placeholderData: keepPreviousData,
+  staleTime: 5 * 1000,
+  refetchInterval: 15 * 1000,
+  refetchOnWindowFocus: true,
 });
 
 export const useAdminPricingRules = (filters = {}) => useQuery({
@@ -22,6 +33,7 @@ function usePricingMutation(mutationFn) {
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ['admin', 'booking-pricing-rules'] });
       client.invalidateQueries({ queryKey: ['booking-pricing-rule'] });
+      client.invalidateQueries({ queryKey: ['booking-pricing-rules', 'public'] });
     },
   });
 }
@@ -30,4 +42,3 @@ export const useCreateDefaultPricingRules = () => usePricingMutation(api.createD
 export const useCreatePricingRule = () => usePricingMutation(api.createPricingRule);
 export const useUpdatePricingRule = () => usePricingMutation(({ id, data }) => api.updatePricingRule(id, data));
 export const useDeletePricingRule = () => usePricingMutation(api.deletePricingRule);
-

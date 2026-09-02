@@ -1,4 +1,6 @@
 const siteSettingService = require("./Sitesetting.service");
+const crypto = require("crypto");
+const notificationTemplateService = require("./notificationTemplate.service");
 
 const normalizeIndianMobile = (mobile) => {
   const digits = String(mobile || "").replace(/\D/g, "");
@@ -20,17 +22,46 @@ const buildTrackingUrl = (booking) => {
   return `${siteUrl}/my-bookings?bookingId=${encodeURIComponent(booking.bookingid)}&mobile=${encodeURIComponent(booking.customer.mobile)}`;
 };
 
+const buildFeedbackUrl = (token = "") => {
+  const siteUrl = (process.env.WEBSITE_URL || process.env.CLIENT_URL || "http://localhost:3000").replace(/\/$/, "");
+  return token ? `${siteUrl}/feedback/${encodeURIComponent(token)}` : `${siteUrl}/feedback`;
+};
+
+const ensureFeedbackToken = async (booking) => {
+  if (booking.feedback?.token) return booking.feedback.token;
+  const token = crypto.randomBytes(24).toString("hex");
+  booking.feedback = {
+    ...(booking.feedback || {}),
+    token,
+    requestedAt: new Date(),
+  };
+  await booking.save({ validateBeforeSave: false });
+  return token;
+};
+
 const buildStatusMessage = async (booking) => {
   const setting = await siteSettingService.getsitesetting();
   const company = setting.companyName || "Tithi Packers and Movers";
   const status = statusLabels[booking.status] || booking.status;
   const trackingUrl = buildTrackingUrl(booking);
+  const feedbackUrl = booking.status === "completed" ? buildFeedbackUrl() : (booking.feedback?.token ? buildFeedbackUrl(booking.feedback.token) : "");
+  const template = await notificationTemplateService.getTemplate(booking.status);
+  const values = {
+    companyName: company,
+    customerName: booking.customer.name,
+    bookingId: booking.bookingid,
+    status,
+    trackingUrl: booking.status === "completed" ? feedbackUrl : trackingUrl,
+    feedbackUrl,
+  };
 
   return {
     ownerWhatsappNumber: normalizeIndianMobile(setting.ownerWhatsappNumber || setting.whatsappNumber || setting.phone),
     customerWhatsappNumber: normalizeIndianMobile(booking.customer.mobile),
-    message: `Hello ${booking.customer.name}, your ${company} booking ${booking.bookingid} status is now ${status}. Track your booking here: ${trackingUrl}`,
-    trackingUrl,
+    message: notificationTemplateService.renderTemplate(template.message, values),
+    title: notificationTemplateService.renderTemplate(template.title, values),
+    trackingUrl: booking.status === "completed" ? undefined : trackingUrl,
+    feedbackUrl: booking.status === "completed" ? feedbackUrl : undefined,
   };
 };
 

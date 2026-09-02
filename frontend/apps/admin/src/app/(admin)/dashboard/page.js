@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   BarChart3,
   MapPin,
+  MessageSquareQuote,
 } from 'lucide-react';
 import { useAdminStats, useAllBookings } from '@/hooks/useAdmin';
 import { useAuthStore } from '@tithi/store/authStore';
@@ -107,6 +108,7 @@ export default function DashboardPage() {
       </div>
 
       <DelayedBookingsAlert bookings={delayedBookings} loading={delayedLoading} />
+      <FeedbackReviewAlert count={stats?.pendingFeedbackCount || 0} loading={statsLoading} />
 
       {/* Analytics Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -153,6 +155,36 @@ export default function DashboardPage() {
       </Card>
 
     </div>
+  );
+}
+
+function FeedbackReviewAlert({ count, loading }) {
+  if (loading) {
+    return (
+      <Card className="border border-sky-100 bg-white p-5">
+        <div className="h-16 animate-pulse rounded-xl bg-sky-50" />
+      </Card>
+    );
+  }
+  if (!count) return null;
+
+  return (
+    <Card className="border border-emerald-200 bg-emerald-50/80 p-5 shadow-xs">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-emerald-200 bg-white text-emerald-600">
+            <MessageSquareQuote className="h-5 w-5" />
+          </span>
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-wider text-emerald-900">New Feedback Submitted</h3>
+            <p className="mt-1 text-xs font-semibold text-emerald-800">{count} inactive testimonial{count === 1 ? '' : 's'} awaiting review.</p>
+          </div>
+        </div>
+        <Link href="/testimonials?status=inactive&source=feedback" className="inline-flex w-fit items-center justify-center rounded-lg border border-emerald-300 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-700 transition hover:bg-emerald-100">
+          Review feedback
+        </Link>
+      </div>
+    </Card>
   );
 }
 
@@ -275,23 +307,27 @@ function TodayReminderSummary({ scheduledBookings, bookedBookings, loading }) {
 }
 
 function ReminderBookingList({ title, description, bookings, emptyText, meta }) {
-  const visibleBookings = bookings.slice(0, 4);
+  const viewAllHref = meta === 'created'
+    ? `/bookings?createdDate=${toDateKey(new Date())}&view=today-booked`
+    : `/bookings?scheduledDate=${toDateKey(new Date())}&view=today-scheduled`;
   return (
-    <section className="min-w-0 rounded-2xl border border-bg-border bg-bg-section/70 p-3">
+    <section className="flex min-h-0 min-w-0 flex-col rounded-2xl border border-bg-border bg-bg-section/70 p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h4 className="text-xs font-black uppercase tracking-wide text-text-primary">{title}</h4>
           <p className="mt-0.5 text-[10px] font-bold text-text-tertiary">{description}</p>
         </div>
-        <span className="shrink-0 rounded-md bg-white px-2 py-1 text-[10px] font-black text-primary">{bookings.length}</span>
+        <Link href={viewAllHref} className="shrink-0 rounded-md bg-white px-2 py-1 text-[10px] font-black text-primary transition hover:bg-primary hover:text-white">
+          View All {bookings.length}
+        </Link>
       </div>
-      {visibleBookings.length === 0 ? (
+      {bookings.length === 0 ? (
         <div className="mt-3 grid min-h-[136px] place-items-center rounded-xl border border-dashed border-bg-border bg-white/70 px-3 text-center text-xs font-semibold text-text-secondary">
           {emptyText}
         </div>
       ) : (
-        <div className="mt-3 space-y-2">
-          {visibleBookings.map((booking) => <ReminderBookingRow key={booking.bookingId || booking.bookingid || booking._id} booking={booking} meta={meta} />)}
+        <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
+          {bookings.map((booking) => <ReminderBookingRow key={booking.bookingId || booking.bookingid || booking._id} booking={booking} meta={meta} />)}
         </div>
       )}
     </section>

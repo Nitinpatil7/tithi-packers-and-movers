@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, Edit3, Trash2 } from 'lucide-react';
 import Badge from '@tithi/ui/Badge';
 import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate } from '@tithi/utils/utils';
@@ -15,6 +16,7 @@ const TIME_SLOT_LABELS = {
 };
 
 export default function BookingTable({ bookings = [], limit, onEdit, onDelete, emptyText = 'No booking records found matching the active filters.' }) {
+  const router = useRouter();
   const visibleBookings = limit ? bookings.slice(0, limit) : bookings;
 
   if (visibleBookings.length === 0) {
@@ -54,6 +56,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete, e
             return (
             <tr
               key={bookingId}
+              onClick={() => router.push(`/bookings/${encodeURIComponent(bookingId)}`)}
               className="hover:bg-sky-50/50 transition-colors group"
             >
               {/* ID */}
@@ -112,6 +115,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete, e
                   {/* View */}
                   <Link
                     href={`/bookings/${encodeURIComponent(bookingId)}`}
+                    onClick={(event) => event.stopPropagation()}
                     title="View Details"
                     aria-label="View booking details"
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-text-tertiary hover:text-primary hover:bg-primary-soft transition-all"
@@ -123,7 +127,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete, e
                   {onEdit && (
                     <button
                       title="Edit Booking"
-                      onClick={() => onEdit(b)}
+                      onClick={(event) => { event.stopPropagation(); onEdit(b); }}
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-text-tertiary hover:text-sky-600 hover:bg-sky-50 transition-all"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -134,7 +138,7 @@ export default function BookingTable({ bookings = [], limit, onEdit, onDelete, e
                   {onDelete && (
                     <button
                       title="Delete Booking"
-                      onClick={() => onDelete(b)}
+                      onClick={(event) => { event.stopPropagation(); onDelete(b); }}
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-text-tertiary hover:text-red-500 hover:bg-red-50 transition-all"
                     >
                       <Trash2 className="w-4 h-4" />

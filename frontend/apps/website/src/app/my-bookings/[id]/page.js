@@ -10,7 +10,8 @@ import Card from '@tithi/ui/Card';
 import Badge from '@tithi/ui/Badge';
 import Spinner from '@tithi/ui/Spinner';
 import { formatBookingDate, formatBookingTimeSlot, formatCurrency, formatDate, getServiceLabel } from '@tithi/utils/utils';
-import { ArrowLeft, MapPin, Truck, DollarSign, CalendarDays, Clock, User, PackageCheck, Sparkles, Users } from 'lucide-react';
+import { serviceHasItemCatalog } from '@tithi/utils/serviceTypes';
+import { ArrowLeft, MapPin, Truck, DollarSign, CalendarDays, Clock, User, PackageCheck, Sparkles, Users, Edit3 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useLanguageStore } from '@tithi/store/languageStore';
 import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
@@ -22,6 +23,7 @@ function InlineIconImage({ icon, className = 'h-9 w-9' }) {
       alt=""
       width={48}
       height={48}
+      sizes="36px"
       className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : null;
@@ -172,7 +174,6 @@ export default function CustomerBookingDetailPage() {
   const isLabour = booking.serviceType === 'porter_labour_service';
   const itemRows = Array.isArray(booking.items) ? booking.items : [];
   const addonRows = Array.isArray(booking.selectedAddons) ? booking.selectedAddons : [];
-  const itemQuantity = itemRows.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const itemTotal = Number(booking.itemTotal || pricing.itemTotal || 0);
   const addOnTotal = Number(booking.addOnTotal || pricing.addOnTotal || addonRows.reduce((sum, item) => sum + Number(item.total || 0), 0));
   const distanceCharge = Number(booking.distanceCharge || breakdown.distanceCharge || 0);
@@ -187,17 +188,6 @@ export default function CustomerBookingDetailPage() {
   const movingCharge = Number(booking.manualQuote || basePrice || serviceChargeRemainder || 0) + itemTotal;
   const grandTotal = Number(booking.totalAmount || pricing.totalAmount || (movingCharge + distanceCharge + floorTotalCharge + addOnTotal + employeeTotal + truckTotal + sundayHike + tax - discount));
   const quoteReady = grandTotal > 0 || movingCharge > 0 || addOnTotal > 0;
-  const chargeRows = [
-    !isLabour && movingCharge > 0 && { label: 'Moving service and items', detail: `${itemQuantity || itemRows.length || 0} item(s) selected`, value: movingCharge },
-    distanceCharge > 0 && { label: 'Distance charge', detail: booking.distanceKm ? `${booking.distanceKm} km route` : '', value: distanceCharge },
-    !isLabour && floorTotalCharge > 0 && { label: 'Floor / lift charge', detail: buildFloorSummary(booking.pickupLocation, booking.dropLocation), value: floorTotalCharge },
-    addOnTotal > 0 && { label: 'Add-on service charges', detail: `${addonRows.length} add-on(s) selected`, value: addOnTotal },
-    isLabour && employeeTotal > 0 && { label: 'Labour charge', detail: `${booking.hoursCount || 1} hour package for ${booking.employeeCount || 1} employee(s)`, value: employeeTotal },
-    isLabour && truckTotal > 0 && { label: 'Truck charge', detail: booking.truckType?.replace?.(/[_-]/g, ' ') || 'Selected vehicle', value: truckTotal },
-    sundayHike > 0 && { label: 'Sunday booking adjustment', detail: 'Weekend crew availability adjustment', value: sundayHike },
-    discount > 0 && { label: 'Discount', value: -discount },
-    tax > 0 && { label: 'Tax', value: tax },
-  ].filter(Boolean);
   const selectedTruck = breakdown.selectedTruck || {};
   const truckName = selectedTruck.name || booking.truckType?.replace?.(/[_-]/g, ' ');
   const truckCapacity = selectedTruck.capacityKg ? `${Number(selectedTruck.capacityKg).toLocaleString('en-IN')} kg` : selectedTruck.capacityLabel || '';
@@ -211,6 +201,7 @@ export default function CustomerBookingDetailPage() {
   ];
   const activeStageIndex = Math.max(0, trackingStages.findIndex((stage) => stage.key === currentStatus));
   const isCancelled = currentStatus === 'cancelled';
+  const canUpdate = !['completed', 'cancelled'].includes(currentStatus) && serviceHasItemCatalog(booking.serviceType);
 
   const getLocalizedServiceLabel = (service) => {
     const labels = {
@@ -240,7 +231,17 @@ export default function CustomerBookingDetailPage() {
             {t.back}
           </button>
           
-          <Badge variant="status" type={booking.status} className="px-3" />
+          <div className="flex items-center gap-2">
+            {canUpdate && (
+              <button
+                onClick={() => router.push(`/my-bookings/${booking.bookingid || booking.bookingId}/update?mobile=${encodeURIComponent(booking.mobile || booking.customer?.mobile || '')}`)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-white px-3 py-2 text-xs font-black text-primary"
+              >
+                <Edit3 className="h-3.5 w-3.5" /> Update
+              </button>
+            )}
+            <Badge variant="status" type={booking.status} className="px-3" />
+          </div>
         </div>
 
         {/* Shifting references */}
@@ -383,12 +384,10 @@ export default function CustomerBookingDetailPage() {
                 <PackageCheck className="w-4 h-4 text-primary" /> Selected Items
               </h4>
               {itemRows.length ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
                   {itemRows.map((item) => (
-                    <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 rounded-xl border border-bg-border bg-bg-section px-3 py-2">
+                    <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 rounded-xl border border-bg-border bg-white px-3 py-2">
                       <div className="flex min-w-0 items-center gap-2">
-                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-primary ring-1 ring-primary/10">
-                        </span>
                         <span className="min-w-0">
                           <span className="block truncate font-bold text-text-primary">{item.name}</span>
                           <span className="text-[10px] font-semibold text-text-tertiary">{item.category || item.sizeTag || 'Item detail'}</span>
@@ -411,9 +410,9 @@ export default function CustomerBookingDetailPage() {
                 <Sparkles className="w-4 h-4 text-primary" /> Add-on Services
               </h4>
               {addonRows.length ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
                   {addonRows.map((addon) => (
-                    <div key={`${addon.key || addon.name}-${addon.quantity}`} className="flex items-center justify-between gap-3 rounded-xl border border-orange-100 bg-orange-50/50 px-3 py-2">
+                    <div key={`${addon.key || addon.name}-${addon.quantity}`} className="flex items-center justify-between gap-3 rounded-xl border border-orange-100 bg-white px-3 py-2">
                       <span className="flex min-w-0 items-center gap-3">
                         {addon.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/60 dark:shadow-[0_10px_18px_rgba(0,0,0,0.18)]"><InlineIconImage icon={addon.icon} /></span>}
                         <span className="min-w-0">
@@ -445,27 +444,13 @@ export default function CustomerBookingDetailPage() {
           </Card>
         )}
 
-        {/* Pricing calculations details */}
+        {/* Pricing total only */}
         <Card className="p-5 bg-bg-white border border-bg-border/60 shadow-xs text-xs">
           <h4 className="font-bold text-text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5 border-b border-bg-border/40 pb-2.5 text-left">
             <DollarSign className="w-4 h-4 text-primary" /> {t.quoteCalculations}
           </h4>
           
           <div className="flex flex-col gap-3 text-left">
-            {chargeRows.length ? chargeRows.map((row) => (
-              <div key={row.label} className="flex justify-between items-start gap-4 border-b border-bg-border/40 pb-3 last:border-0 last:pb-0 text-text-secondary">
-                <span>
-                  <span className="block font-bold text-text-primary">{row.label}</span>
-                  {row.detail && <span className="mt-0.5 block text-[10px] font-semibold text-text-tertiary">{row.detail}</span>}
-                </span>
-                <span className="shrink-0 font-mono text-text-primary font-semibold">{formatCurrency(row.value)}</span>
-              </div>
-            )) : (
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-center text-xs font-semibold text-text-secondary">
-                {t.pendingReview}
-              </div>
-            )}
-
             <div className="flex justify-between items-center text-sm font-bold text-primary pt-1 font-mono">
               <span className="text-text-primary">{t.combinedCost}</span>
               <span className="text-base font-black">
@@ -495,13 +480,6 @@ function formatFloorLine(location = {}, t = {}) {
   const floorLabel = Number(location.floor) === 0 ? (t.ground || 'Ground') : `${location.floor} Floor`;
   const liftLabel = location.liftAvailable ? (t.lift || 'Service lift') : (t.noLift || 'No lift');
   return `${t.floor || 'Floor: '}${floorLabel} | ${liftLabel}`;
-}
-
-function buildFloorSummary(pickup = {}, drop = {}) {
-  const values = [];
-  if (pickup?.floor !== undefined && pickup?.floor !== null) values.push(`Pickup floor ${pickup.floor}${pickup.liftAvailable ? ' with lift' : ' without lift'}`);
-  if (drop?.floor !== undefined && drop?.floor !== null) values.push(`Drop floor ${drop.floor}${drop.liftAvailable ? ' with lift' : ' without lift'}`);
-  return values.join(', ');
 }
 
 function DetailMetric({ label, value }) {

@@ -8,15 +8,16 @@ import { usePathname } from 'next/navigation';
 export default function WebsiteChrome({ children }) {
   const pathname = usePathname();
   const isBookingPage = pathname.startsWith('/book/');
+  const isFeedbackPage = pathname === '/feedback' || pathname.startsWith('/feedback/');
 
   return (
     <>
       <SiteStructuredData />
-      <Navbar />
+      <Navbar minimal={isFeedbackPage} />
       <div className="public-theme flex-1 w-full">
         {children}
       </div>
-      {!isBookingPage && <Footer />}
+      {!isBookingPage && !isFeedbackPage && <Footer />}
     </>
   );
 }

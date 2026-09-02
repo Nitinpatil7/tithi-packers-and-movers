@@ -82,6 +82,7 @@ export const normalizeBooking = (booking = {}) => {
     itemsExtraCharge: Number(booking.itemsExtraCharge ?? breakdown.itemsExtraCharge ?? pricing.itemTotal ?? 0),
     selectedAddons,
     items,
+    completionProof: booking.completionProof || null,
     pricingBreakdown: breakdown,
     pricing,
   };
@@ -162,12 +163,33 @@ export const getAllBookings = async (filters = {}) => {
     });
 };
 
+export const getBookingsByPhone = async (phoneNumber) => authFetch(`${API_URL}/api/admin/bookings/by-phone/${encodeURIComponent(phoneNumber)}`, { credentials: 'include' })
+  .then(readResponse)
+  .then((payload) => asArray(payload, ['bookings', 'items', 'results']).map(normalizeBooking));
+
 export const updateBookingDetails = async (id, data) => authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
   body: JSON.stringify(data),
 }).then(readResponse).then(normalizeBooking);
+
+export const updateCustomerBookingItems = async (id, data) => authFetch(`${API_URL}/api/bookings/${encodeURIComponent(id)}/update-items`, {
+  method: 'PATCH',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data),
+}).then(readResponse).then(normalizeBooking);
+
+export const completeBookingWithProof = async (id, { image, witnessName }) => {
+  const form = new FormData();
+  if (image) form.append('image', image);
+  form.append('witnessName', witnessName || '');
+  return authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/completion-proof`, {
+    method: 'POST',
+    credentials: 'include',
+    body: form,
+  }).then(readResponse).then(normalizeBooking);
+};
 
 export const updateBookingStatus = async (id, status, note = '') => authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}/status`, {
   method: 'PATCH',
@@ -208,6 +230,17 @@ export const getNotifications = async (filters = {}) => {
 
 export const sendNotification = async (data) => authFetch(`${API_URL}/api/notification/send`, {
   method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include',
+  body: JSON.stringify(data),
+}).then(readResponse);
+
+export const getNotificationTemplates = async () => authFetch(`${API_URL}/api/notification/templates/admin`, { credentials: 'include' })
+  .then(readResponse)
+  .then((payload) => asArray(payload, ['templates', 'items', 'results']));
+
+export const updateNotificationTemplate = async (status, data) => authFetch(`${API_URL}/api/notification/templates/admin/${encodeURIComponent(status)}`, {
+  method: 'PATCH',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
   body: JSON.stringify(data),

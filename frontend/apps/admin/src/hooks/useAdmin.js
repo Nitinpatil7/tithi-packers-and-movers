@@ -3,13 +3,16 @@ import {
   getAdminStats, 
   getAdminAnalyticsOverview,
   getAllBookings, 
+  getBookingsByPhone,
   updateBookingStatus, 
   updateBookingQuote, 
   getPricing, 
   updatePricingItem,
   getUsers,
   getNotifications,
+  getNotificationTemplates,
   sendNotification,
+  updateNotificationTemplate,
   getInAppNotifications,
   getInAppNotificationSummary,
   markInAppNotificationRead,
@@ -90,6 +93,16 @@ export function useAdminUsers(filters = {}) {
   });
 }
 
+export function useAdminBookingsByPhone(phoneNumber, options = {}) {
+  return useQuery({
+    queryKey: ['admin', 'bookings', 'by-phone', phoneNumber],
+    queryFn: () => getBookingsByPhone(phoneNumber),
+    enabled: Boolean(phoneNumber),
+    placeholderData: keepPreviousData,
+    ...options,
+  });
+}
+
 export function useNotifications(filters = {}) {
   return useQuery({
     queryKey: ['admin', 'notifications', filters],
@@ -103,6 +116,22 @@ export function useSendNotification() {
   return useMutation({
     mutationFn: sendNotification,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] }),
+  });
+}
+
+export function useNotificationTemplates() {
+  return useQuery({
+    queryKey: ['admin', 'notification-templates'],
+    queryFn: getNotificationTemplates,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useUpdateNotificationTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ status, data }) => updateNotificationTemplate(status, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'notification-templates'] }),
   });
 }
 

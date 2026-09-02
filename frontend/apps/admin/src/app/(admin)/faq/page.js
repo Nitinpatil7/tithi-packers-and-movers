@@ -9,7 +9,7 @@ import Button from '@ui/Button';
 import Input from '@ui/Input';
 import { useCreateFaq, useDeleteFaq, useFaqs, useReorderFaqs, useUpdateFaq } from '@hooks/useFaq';
 
-const emptyForm = { question: '', answer: '', category: 'general', sortOrder: 0, isActive: true };
+const emptyForm = { question: '', answer: '', category: 'general', isActive: true };
 
 export default function AdminFaqPage() {
   const { data = [], isLoading, isError, refetch } = useFaqs();
@@ -20,6 +20,7 @@ export default function AdminFaqPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [draggingId, setDraggingId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,13 +36,13 @@ export default function AdminFaqPage() {
   const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
   const openEdit = (faq) => {
     setEditing(faq);
-    setForm({ question: faq.question, answer: faq.answer, category: faq.category || 'general', sortOrder: faq.sortOrder || 0, isActive: faq.isActive !== false });
+    setForm({ question: faq.question, answer: faq.answer, category: faq.category || 'general', isActive: faq.isActive !== false });
     setModalOpen(true);
   };
 
   const submit = async (event) => {
     event.preventDefault();
-    const payload = { ...form, sortOrder: Number(form.sortOrder) || 0 };
+    const payload = { ...form };
     try {
       if (editing) await updateMutation.mutateAsync({ id: editing._id, data: payload });
       else await createMutation.mutateAsync(payload);
@@ -71,6 +72,7 @@ export default function AdminFaqPage() {
       toast.error(error.message || 'Could not reorder FAQs');
     } finally {
       setDraggingId(null);
+      setDragOverId(null);
     }
   };
 
@@ -99,9 +101,11 @@ export default function AdminFaqPage() {
                 key={faq._id}
                 draggable={!search && category === 'all'}
                 onDragStart={() => setDraggingId(faq._id)}
+                onDragEnter={() => setDragOverId(faq._id)}
                 onDragOver={(event) => event.preventDefault()}
+                onDragEnd={() => { setDraggingId(null); setDragOverId(null); }}
                 onDrop={() => reorderFaq(faq._id)}
-                className={`flex flex-col gap-4 p-5 hover:bg-sky-50/40 lg:flex-row lg:items-start ${draggingId === faq._id ? 'opacity-60' : ''}`}
+                className={`admin-drag-card flex flex-col gap-4 p-5 hover:bg-sky-50/40 lg:flex-row lg:items-start ${draggingId === faq._id ? 'admin-drag-card-active opacity-90' : ''} ${dragOverId === faq._id && draggingId !== faq._id ? 'admin-drag-card-over' : ''}`}
               >
                 <div className="flex min-w-0 flex-1 gap-4">
                   <span className="grid h-10 w-10 shrink-0 cursor-grab place-items-center rounded-xl bg-sky-100 text-sky-600 active:cursor-grabbing" title="Drag FAQ">
@@ -115,7 +119,6 @@ export default function AdminFaqPage() {
                       {faq.isActive === false ? <span className="flex items-center gap-1 text-xs font-bold text-slate-400"><EyeOff className="h-3.5 w-3.5" /> Inactive</span> : <span className="flex items-center gap-1 text-xs font-bold text-emerald-600"><Eye className="h-3.5 w-3.5" /> Active</span>}
                     </div>
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">{faq.answer}</p>
-                    <p className="mt-2 text-xs font-semibold text-slate-400">Sort order: {faq.sortOrder || 0}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 pl-14 lg:pl-0"><button onClick={() => openEdit(faq)} className="rounded-xl border border-sky-100 p-2.5 text-sky-600 hover:bg-sky-50" aria-label="Edit FAQ"><Edit3 className="h-4 w-4" /></button><button onClick={() => remove(faq)} disabled={deleteMutation.isPending} className="rounded-xl border border-red-100 p-2.5 text-red-500 hover:bg-red-50" aria-label="Delete FAQ"><Trash2 className="h-4 w-4" /></button></div>
@@ -129,7 +132,7 @@ export default function AdminFaqPage() {
         <form onSubmit={submit} className="space-y-5">
           <Input label="Question" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} required placeholder="What do customers usually ask?" />
           <label className="block"><span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Answer</span><textarea value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} required rows={6} placeholder="Write a clear, helpful answer..." className="w-full rounded-xl border border-sky-100 bg-white p-4 text-sm text-slate-900" /></label>
-          <div className="grid gap-4 sm:grid-cols-2"><Input label="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="general" /><Input label="Sort order" type="number" min="0" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></div>
+          <Input label="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="general" />
           <label className="flex items-center gap-3 rounded-xl bg-sky-50 p-4 text-sm font-bold text-slate-700"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4 accent-sky-600" /> Show this FAQ on the public website</label>
           <div className="flex justify-end gap-3"><Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button><Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>{editing ? 'Save Changes' : 'Publish FAQ'}</Button></div>
         </form>

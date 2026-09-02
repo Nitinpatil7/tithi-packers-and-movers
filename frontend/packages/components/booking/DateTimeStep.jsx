@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
 import Spinner from '@tithi/ui/Spinner';
 import { cn } from '@tithi/utils/utils';
+import { useBookingStore } from '@tithi/store/bookingStore';
 import BookingActionBar from './BookingActionBar';
 
 const MONTH_NAMES = [
@@ -163,18 +164,42 @@ const TIME_SLOTS = [
 ];
 
 export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
+  const updateBookingData = useBookingStore((state) => state.updateBookingData);
   const [calendarReady, setCalendarReady] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     initialData.scheduledDate ? new Date(initialData.scheduledDate + 'T00:00:00') : null
   );
   const [slot, setSlot] = useState(initialData.timeSlot || null);
   const [error, setError] = useState('');
+  const initialScheduledDate = initialData.scheduledDate || null;
+  const initialTimeSlot = initialData.timeSlot || null;
 
   const isSunday = selectedDate?.getDay() === 0;
 
   useEffect(() => {
     setCalendarReady(true);
   }, []);
+
+  useEffect(() => {
+    setSelectedDate(initialScheduledDate ? new Date(`${initialScheduledDate}T00:00:00`) : null);
+  }, [initialScheduledDate]);
+
+  useEffect(() => {
+    setSlot(initialTimeSlot);
+  }, [initialTimeSlot]);
+
+  useEffect(() => {
+    const scheduledDate = selectedDate ? toDateStr(selectedDate) : null;
+    const currentData = useBookingStore.getState().bookingData || {};
+    if (
+      (currentData.scheduledDate || null) === scheduledDate
+      && (currentData.timeSlot || null) === (slot || null)
+      && Boolean(currentData.isSunday) === Boolean(isSunday)
+    ) {
+      return;
+    }
+    updateBookingData({ scheduledDate, timeSlot: slot, isSunday });
+  }, [isSunday, selectedDate, slot, updateBookingData]);
 
   const handleNext = () => {
     if (!selectedDate) { setError('Please select a moving date.'); return; }

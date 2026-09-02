@@ -6,14 +6,15 @@ const createbranch = async (payload) => {
     await branch.updateMany({}, { $set: { isMainBranch: false } });
   }
 
-  const newbranch = await branch.create(payload);
+  const last = await branch.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
+  const newbranch = await branch.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1 });
   return newbranch;
 };
 
 const getallbranch = async () => {
   const branches = await branch.find({ isActive: true }).sort({
     sortOrder: 1,
-    createdAt: -1,
+    createdAt: 1,
   });
   return branches;
 };
@@ -36,7 +37,7 @@ const getmainbranch = async () => {
   if (!newbranch) {
     newbranch = await branch.findOne({ isActive: true }).sort({
       sortOrder: 1,
-      createdAt: -1,
+      createdAt: 1,
     });
   }
   return newbranch;

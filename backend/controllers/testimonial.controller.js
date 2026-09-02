@@ -4,7 +4,9 @@ const ApiResponse = require("../utility/apiresponse");
 const testimonialService = require("../service/testimonial.service");
 
 const createTestimonial = asyncHandler(async (req, res) => {
-  const testimonial = await testimonialService.createTestimonial(req.body);
+  const testimonial = req.admin
+    ? await testimonialService.createTestimonial(req.body)
+    : await testimonialService.submitPublicFeedback(req.body);
 
   return res
     .status(201)
@@ -29,6 +31,22 @@ const getAllTestimonialsForAdmin = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(200, testimonials, "Admin testimonials fetched successfully")
     );
+});
+
+const getFeedbackContext = asyncHandler(async (req, res) => {
+  const context = await testimonialService.getFeedbackContext(req.params.token);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, context, "Feedback context fetched successfully"));
+});
+
+const submitFeedback = asyncHandler(async (req, res) => {
+  const testimonial = await testimonialService.submitFeedback(req.params.token, req.body);
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, testimonial, "Feedback submitted successfully"));
 });
 
 const getTestimonialById = asyncHandler(async (req, res) => {
@@ -70,6 +88,8 @@ module.exports = {
  createTestimonial,
   getPublicTestimonials,
   getAllTestimonialsForAdmin,
+  getFeedbackContext,
+  submitFeedback,
   getTestimonialById,
   updateTestimonial,
   deleteTestimonial,

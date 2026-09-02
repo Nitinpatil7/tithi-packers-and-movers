@@ -29,7 +29,7 @@ export default function OrdinaryServicePage() {
     nextStep, 
     prevStep, 
     resetBooking,
-    setStep 
+    setStep
   } = useBookingStore();
 
   const createBookingMutation = useCreateBooking();
@@ -37,9 +37,11 @@ export default function OrdinaryServicePage() {
 
   // Initialize booking category
   useEffect(() => {
-    resetBooking();
-    updateBookingData({ serviceType: 'packing' });
-  }, [resetBooking, updateBookingData]);
+    if (bookingData.serviceType !== 'packing') {
+      resetBooking();
+      updateBookingData({ serviceType: 'packing' });
+    }
+  }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   // Determine steps dynamically based on sub-service selection
   const steps = [

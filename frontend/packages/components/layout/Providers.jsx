@@ -7,7 +7,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { createQueryClient, enableQueryPersistence } from '@tithi/lib/queryClient';
 import Toast from '@tithi/ui/Toast';
 import { useThemeStore } from '@tithi/store/themeStore';
-import { useBookingStore } from '@tithi/store/bookingStore';
 
 export default function Providers({ children }) {
   const [queryClient] = useState(() => createQueryClient());
@@ -32,14 +31,6 @@ export default function Providers({ children }) {
 
       const isAdminRoute = appName === 'admin' || window.location.pathname.startsWith('/admin');
       if (isAdminRoute) return;
-
-      try {
-        void useBookingStore.persist.rehydrate().catch(() => {
-          useBookingStore.persist.clearStorage();
-        });
-      } catch {
-        useBookingStore.persist.clearStorage();
-      }
     };
 
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {

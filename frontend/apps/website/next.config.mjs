@@ -41,6 +41,12 @@ const sharedAliases = {
   '@utils/utils': '../../packages/utils/utils.js',
 };
 
+const noStorePageHeaders = [
+  { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+  { key: 'Pragma', value: 'no-cache' },
+  { key: 'Expires', value: '0' },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   ...(isVercel ? {} : { output: 'standalone' }),
@@ -62,6 +68,17 @@ const nextConfig = {
         pathname: '/icons/**',
       },
     ],
+  },
+  async headers() {
+    return [
+      { source: '/', headers: noStorePageHeaders },
+      { source: '/about', headers: noStorePageHeaders },
+      { source: '/contact', headers: noStorePageHeaders },
+      { source: '/my-bookings/:path*', headers: noStorePageHeaders },
+      { source: '/book/:path*', headers: noStorePageHeaders },
+      { source: '/feedback', headers: noStorePageHeaders },
+      { source: '/feedback/:path*', headers: noStorePageHeaders },
+    ];
   },
   turbopack: {
     resolveAlias: sharedAliases,

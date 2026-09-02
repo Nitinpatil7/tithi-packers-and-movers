@@ -59,11 +59,26 @@ const testimonialSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    linkedBookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
+      default: null,
+      index: true,
+    },
+    bookingNumber: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    submittedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
 
 testimonialSchema.index({ status: 1, isFeatured: 1, sortOrder: 1 });
 testimonialSchema.index({ serviceType: 1, status: 1 });
+testimonialSchema.index({ bookingNumber: 1, status: 1 });
 
 module.exports = mongoose.model("testimonial" , testimonialSchema);

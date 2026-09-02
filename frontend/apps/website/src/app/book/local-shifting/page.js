@@ -13,6 +13,7 @@ import DateTimeStep from '@tithi/components/booking/DateTimeStep';
 import ReviewStep from '@tithi/components/booking/ReviewStep';
 import OTPStep from '@tithi/components/booking/OTPStep';
 import SuccessStep from '@tithi/components/booking/SuccessStep';
+import ServiceComingSoon from '@tithi/components/booking/ServiceComingSoon';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
@@ -23,7 +24,7 @@ export default function LocalShiftingPage() {
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
   const confirmDraftMutation = useConfirmBookingDraft();
-  const { data: pricingRule } = usePublicPricingRule('local_shifting');
+  const { data: pricingRule, isLoading: pricingLoading } = usePublicPricingRule('local_shifting');
   const [createdBookingId, setCreatedBookingId] = useState(null);
   const [basePackageMode, setBasePackageMode] = useState(false);
 
@@ -100,6 +101,9 @@ export default function LocalShiftingPage() {
     setCreatedBookingId(null);
     updateBookingData({ serviceType: 'local' });
   };
+
+  if (pricingLoading) return <div className="grid min-h-screen place-items-center bg-bg-page pt-24">Checking service availability...</div>;
+  if (!pricingRule) return <ServiceComingSoon serviceName="Local Shifting" />;
 
   return (
     <BookingLayout
