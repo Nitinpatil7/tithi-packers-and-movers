@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useMotionValue, useTransform } from 'framer-motion';
 import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -188,10 +188,26 @@ function HeroServiceCard({ service, cta }) {
   const [focused, setFocused] = useState(false);
   const [pressed, setPressed] = useState(false);
   const cardRef = useRef(null);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const rotateX = useTransform(pointerY, [-0.5, 0.5], [7, -7]);
+  const rotateY = useTransform(pointerX, [-0.5, 0.5], [-7, 7]);
+  const iconX = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
+  const iconY = useTransform(pointerY, [-0.5, 0.5], [-4, 4]);
   const isInView = useInView(cardRef, { amount: 0.35 });
   const Icon = service.icon;
   const iconSrc = SERVICE_ICONS[service.key];
   const isActive = focused || pressed || isInView;
+  const handlePointerMove = (event) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerX.set((event.clientX - bounds.left) / bounds.width - 0.5);
+    pointerY.set((event.clientY - bounds.top) / bounds.height - 0.5);
+  };
+  const resetPointer = () => {
+    setFocused(false);
+    pointerX.set(0);
+    pointerY.set(0);
+  };
 
   return (
     <Link
@@ -199,7 +215,8 @@ function HeroServiceCard({ service, cta }) {
       ref={cardRef}
       className="h-full min-w-0 outline-none"
       onMouseEnter={() => setFocused(true)}
-      onMouseLeave={() => setFocused(false)}
+      onMouseLeave={resetPointer}
+      onPointerMove={handlePointerMove}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       onPointerDown={() => setPressed(true)}
@@ -208,24 +225,29 @@ function HeroServiceCard({ service, cta }) {
     >
       <motion.div
         animate={{ y: isActive ? -4 : 0, scale: isActive ? 1.04 : 1 }}
+        style={{ rotateX, rotateY, transformPerspective: 900 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-all duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
+        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
           isActive
             ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
             : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
         }`}
       >
-        <div
+        <motion.div
           className="grid h-14 w-14 place-items-center rounded-xl bg-sky-50/30 p-0 transition-transform duration-300 group-hover:scale-105 dark:bg-white/5 dark:shadow-[0_18px_32px_rgba(0,0,0,0.26)] sm:h-16 sm:w-16 md:h-20 md:w-20 xl:h-24 xl:w-24 2xl:h-28 2xl:w-28"
           style={{ color: service.color }}
+          animate={{ rotate: isActive ? [0, -3, 3, 0] : 0 }}
+          transition={{ duration: 1.2, repeat: isActive ? Infinity : 0, repeatDelay: 1.8 }}
         >
-          {iconSrc ? (
-            <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-full w-full rounded-xl" />
-          ) : (
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12" strokeWidth={1.9} />
-          )}
-        </div>
+          <motion.span className="grid h-full w-full place-items-center" style={{ x: iconX, y: iconY }}>
+            {iconSrc ? (
+              <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-full w-full rounded-xl" />
+            ) : (
+              <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12" strokeWidth={1.9} />
+            )}
+          </motion.span>
+        </motion.div>
         <div className="flex flex-col items-center gap-1">
           <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
           <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{cta}</span>

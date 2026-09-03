@@ -92,13 +92,13 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
 
       {!otpSent ? (
         <div className="flex flex-col gap-6">
-          <div className="grid gap-4 rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50/90 via-white to-orange-50/80 p-5 shadow-[0_18px_50px_rgba(14,165,233,0.12)] ring-1 ring-white/70 dark:border-sky-900/60 dark:from-sky-950/50 dark:via-slate-950 dark:to-orange-950/40 dark:ring-white/5 sm:grid-cols-2 sm:p-6">
+          <div className="booking-themed-card grid gap-4 rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50/90 via-white to-orange-50/80 p-5 shadow-[0_18px_50px_rgba(14,165,233,0.12)] ring-1 ring-white/70 sm:grid-cols-2 sm:p-6">
             <Field label="Full Name *" icon={User}><input value={name} onChange={(event) => setName(event.target.value)} className="booking-input text-base" placeholder="Enter full name" /></Field>
             <Field label="Email Address" icon={Mail}><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="booking-input text-base" placeholder="customer@email.com" /></Field>
             <div className="sm:col-span-2">
               <Field label="Mobile Number *" icon={Phone}>
                 <div className="flex gap-3">
-                  <div className="shrink-0 rounded-xl border border-bg-border bg-white px-4 py-3.5 text-sm font-bold text-text-secondary">+91</div>
+                  <div className="shrink-0 rounded-xl border border-bg-border bg-bg-white px-4 py-3.5 text-sm font-bold text-text-secondary">+91</div>
                   <input value={mobile} onChange={(event) => setMobile(event.target.value.replace(/\D/g, '').slice(0, 10))} className="booking-input flex-1 text-base font-mono" placeholder="10-digit mobile number" />
                 </div>
               </Field>
@@ -109,13 +109,13 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-5 shadow-[0_16px_44px_rgba(16,185,129,0.12)] dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-slate-950 dark:to-sky-950/40">
+          <div className="booking-themed-card booking-otp-sent-card rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-5 shadow-[0_16px_44px_rgba(16,185,129,0.12)]">
             <p className="mb-1 text-sm font-bold text-emerald-800">OTP sent to +91 {mobile}</p>
             <p className="text-xs font-medium text-emerald-700">Enter the one-time password for Tithi Packers and Movers booking verification.</p>
           </div>
           <motion.div className="my-2 flex justify-center gap-3" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
             {otpValues.map((value, index) => (
-              <input key={index} ref={otpRefs[index]} type="text" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="h-14 w-12 rounded-2xl border-2 border-bg-border bg-white text-center font-mono text-xl font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20" />
+              <input key={index} ref={otpRefs[index]} type="text" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="h-14 w-12 rounded-2xl border-2 border-bg-border bg-bg-white text-center font-mono text-xl font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20" />
             ))}
           </motion.div>
           <div className="flex items-center justify-between">

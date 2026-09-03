@@ -83,10 +83,10 @@ export default function AdminFaqPage() {
         <Button icon={Plus} onClick={openCreate}>Add FAQ</Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-5 border-sky-100"><p className="text-xs font-bold uppercase text-slate-400">Published FAQs</p><p className="mt-2 text-3xl font-black text-sky-700">{faqs.length}</p></Card>
-        <Card className="p-5 border-sky-100"><p className="text-xs font-bold uppercase text-slate-400">Categories</p><p className="mt-2 text-3xl font-black text-sky-700">{categories.length}</p></Card>
-        <Card className="p-5 border-sky-100"><p className="text-xs font-bold uppercase text-slate-400">Visible now</p><p className="mt-2 text-3xl font-black text-emerald-600">{faqs.filter((faq) => faq.isActive !== false).length}</p></Card>
+      <div className="admin-summary-row grid grid-cols-3 gap-2 sm:gap-4">
+        <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Published FAQs</p><p className="mt-2 text-2xl font-black text-sky-700 sm:text-3xl">{faqs.length}</p></Card>
+        <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Categories</p><p className="mt-2 text-2xl font-black text-sky-700 sm:text-3xl">{categories.length}</p></Card>
+        <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Visible now</p><p className="mt-2 text-2xl font-black text-emerald-600 sm:text-3xl">{faqs.filter((faq) => faq.isActive !== false).length}</p></Card>
       </div>
 
       <Card className="overflow-hidden border-sky-100 bg-white">

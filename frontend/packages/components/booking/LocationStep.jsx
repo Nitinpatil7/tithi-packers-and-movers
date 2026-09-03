@@ -13,6 +13,9 @@ const debugMaps = process.env.NEXT_PUBLIC_DEBUG_MAPS === 'true';
 
 const SURAT_CENTER = { lat: 21.1702, lng: 72.8311 };
 const needsSurat = (serviceType, role) => serviceType === 'local' || serviceType === 'labour' || role === 'pickup';
+const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 };
+const GEOLOCATION_TARGET_ACCURACY_METERS = 80;
+const GEOLOCATION_WATCH_TIMEOUT_MS = 9000;
 
 function debugMapLog(message, meta) {
   if (debugMaps) console.info(message, meta);
@@ -112,12 +115,12 @@ function composeAddressFromComponents(place = {}) {
 
 function readableAddressFromPlace(place = {}) {
   if (!place) return '';
+  if ((place.types || []).includes('plus_code')) return '';
   const formatted = cleanReadableAddress(stripPlusCodePrefix(place.formatted_address));
   if (formatted) return formatted;
   const composed = cleanReadableAddress(composeAddressFromComponents(place));
   if (composed) return composed;
-  const compoundCode = cleanReadableAddress(stripPlusCodePrefix(place.plus_code?.compound_code));
-  return compoundCode;
+  return '';
 }
 
 function placeRank(place) {
@@ -130,10 +133,71 @@ function placeRank(place) {
   return 5;
 }
 
-function chooseReadablePlace(results = []) {
+function distanceMeters(left, right) {
+  if (!left || !right) return Number.POSITIVE_INFINITY;
+  const lat1 = Number(left.lat);
+  const lng1 = Number(left.lng);
+  const lat2 = Number(right.lat);
+  const lng2 = Number(right.lng);
+  if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Number.POSITIVE_INFINITY;
+  const toRad = (value) => (value * Math.PI) / 180;
+  const earthRadius = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function chooseReadablePlace(results = [], origin = null) {
   return [...results]
     .filter((place) => readableAddressFromPlace(place))
-    .sort((a, b) => placeRank(a) - placeRank(b))[0] || null;
+    .sort((a, b) => {
+      const locationA = toLatLngLiteral(a.geometry?.location);
+      const locationB = toLatLngLiteral(b.geometry?.location);
+      const distanceA = origin ? distanceMeters(origin, locationA) : 0;
+      const distanceB = origin ? distanceMeters(origin, locationB) : 0;
+      const rankDelta = placeRank(a) - placeRank(b);
+      if (Math.abs(distanceA - distanceB) > 75) return distanceA - distanceB;
+      return rankDelta;
+    })[0] || null;
+}
+
+function getFreshCurrentPosition(onSuccess, onError) {
+  if (!navigator.geolocation) {
+    onError?.();
+    return () => {};
+  }
+  let settled = false;
+  let bestPosition = null;
+  let watchId = null;
+  let timeoutId = null;
+
+  const finish = (position, error) => {
+    if (settled) return;
+    settled = true;
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    if (timeoutId) window.clearTimeout(timeoutId);
+    if (position) onSuccess(position);
+    else onError?.(error);
+  };
+
+  const considerPosition = (position) => {
+    const accuracy = Number(position?.coords?.accuracy || Number.POSITIVE_INFINITY);
+    const bestAccuracy = Number(bestPosition?.coords?.accuracy || Number.POSITIVE_INFINITY);
+    if (!bestPosition || accuracy < bestAccuracy) bestPosition = position;
+    if (accuracy <= GEOLOCATION_TARGET_ACCURACY_METERS) finish(position);
+  };
+
+  navigator.geolocation.getCurrentPosition(considerPosition, (error) => finish(bestPosition, error), GEOLOCATION_OPTIONS);
+  watchId = navigator.geolocation.watchPosition(considerPosition, (error) => finish(bestPosition, error), GEOLOCATION_OPTIONS);
+  timeoutId = window.setTimeout(() => finish(bestPosition), GEOLOCATION_WATCH_TIMEOUT_MS);
+
+  return () => {
+    settled = true;
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    if (timeoutId) window.clearTimeout(timeoutId);
+  };
 }
 
 function visibleAddress(value = {}) {
@@ -251,6 +315,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     if (!open) return undefined;
     let attempts = 0;
     let cancelled = false;
+    let cancelAutoLocate = null;
     setSelected(initialLatLng || SURAT_CENTER);
     setAddress(initialReadableAddress);
     setPlaceForAddress(null);
@@ -347,7 +412,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ location: latLng, region: 'IN', language: 'en' }, (results, status) => {
         if (cancelled || requestId !== geocodeRequestRef.current) return;
-        const readablePlace = status === 'OK' ? chooseReadablePlace(results) : null;
+        const readablePlace = status === 'OK' ? chooseReadablePlace(results, latLng) : null;
         const readable = readableAddressFromPlace(readablePlace);
         debugMapLog('[MapPicker] reverse geocode result', {
           status,
@@ -448,7 +513,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       centerFromTypedArea(map);
       if (!initialLatLng && !initialReadableAddress && navigator.geolocation) {
         setLocating(true);
-        navigator.geolocation.getCurrentPosition(
+        cancelAutoLocate = getFreshCurrentPosition(
           ({ coords }) => {
             if (cancelled) return;
             setLocating(false);
@@ -467,7 +532,6 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             if (cancelled) return;
             setLocating(false);
           },
-          { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
         );
       }
     };
@@ -483,6 +547,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       geocodeRequestRef.current += 1;
       reverseGeocodeRef.current = null;
       window.clearInterval(timer);
+      cancelAutoLocate?.();
       mapInstanceRef.current = null;
     };
   }, [initialLatLng, initialReadableAddress, open, role, serviceType, title]);
@@ -515,7 +580,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       return;
     }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
+    getFreshCurrentPosition(
       ({ coords }) => {
         setLocating(false);
         const nextCenter = { lat: coords.latitude, lng: coords.longitude };
@@ -533,7 +598,6 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         setLocating(false);
         setError('Location permission was denied. Please pan the map manually.');
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
     );
   };
 
@@ -755,13 +819,14 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     }
 
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
+    getFreshCurrentPosition(
       ({ coords }) => {
         const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: coords.latitude, lng: coords.longitude } }, (results, status) => {
+        const origin = { lat: coords.latitude, lng: coords.longitude };
+        geocoder.geocode({ location: origin, region: 'IN', language: 'en' }, (results, status) => {
           setLocating(false);
           if (status === 'OK' && results?.[0]) {
-            const readablePlace = chooseReadablePlace(results);
+            const readablePlace = chooseReadablePlace(results, origin);
             if (readablePlace) acceptPlace({ ...readablePlace, formatted_address: readableAddressFromPlace(readablePlace) });
             else setInvalid('Could not identify a readable address. Please search it manually.');
           } else {
@@ -773,7 +838,6 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
         setLocating(false);
         setInvalid('Location permission was denied. Please allow it or search manually.');
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
     );
   };
 

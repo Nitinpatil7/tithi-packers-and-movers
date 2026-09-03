@@ -1,20 +1,75 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { CheckCircle2, ImagePlus, LocateFixed, MessageSquareQuote, Send, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '@tithi/ui/Spinner';
 import { submitSimpleFeedback } from '@tithi/lib/testimonialApi';
 
-const MAX_IMAGE_BYTES = 1200 * 1024;
+const MAX_IMAGE_BYTES = 950 * 1024;
 const COMPRESSED_IMAGE_MAX_WIDTH = 1400;
-const COMPRESSED_IMAGE_QUALITY = 0.78;
+const COMPRESSED_IMAGE_MIN_WIDTH = 720;
+const COMPRESSED_IMAGE_START_QUALITY = 0.82;
+const COMPRESSED_IMAGE_MIN_QUALITY = 0.56;
+const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 };
 
-const formatAddress = (place = {}) => {
-  const address = place.formatted_address || place.name || '';
-  return String(address).trim();
+const stripPlusCodePrefix = (value = '') => String(value || '').replace(/^\s*[A-Z0-9]{2,}\+[A-Z0-9]{2,}\s*,?\s*/i, '').trim();
+const component = (place, type) => place.address_components?.find((entry) => entry.types.includes(type))?.long_name || '';
+const toLatLng = (location) => location && (typeof location.lat === 'function' ? { lat: location.lat(), lng: location.lng() } : { lat: Number(location.lat), lng: Number(location.lng) });
+const isCoordinateAddress = (value = '') => /^[-+]?\d{1,3}(?:\.\d+)?\s*[, ]\s*[-+]?\d{1,3}(?:\.\d+)?$/.test(String(value).trim());
+const isHumanAddress = (value = '') => {
+  const text = stripPlusCodePrefix(value);
+  if (text.length < 8 || isCoordinateAddress(text) || /^[A-Z0-9+]{4,}\s*[A-Z0-9+]*$/i.test(text)) return false;
+  return /[a-z]/i.test(text);
 };
+const formatHumanAddress = (place = {}) => {
+  if (!place || (place.types || []).includes('plus_code')) return '';
+  const formatted = stripPlusCodePrefix(place.formatted_address);
+  if (isHumanAddress(formatted)) return formatted;
+  const street = [component(place, 'street_number'), component(place, 'route')].filter(Boolean).join(' ');
+  const composed = [
+    component(place, 'premise'),
+    component(place, 'subpremise'),
+    component(place, 'establishment'),
+    street,
+    component(place, 'neighborhood'),
+    component(place, 'sublocality_level_2'),
+    component(place, 'sublocality_level_1'),
+    component(place, 'locality') || component(place, 'administrative_area_level_3'),
+    component(place, 'administrative_area_level_1'),
+    component(place, 'postal_code'),
+  ].map((part) => String(part || '').trim()).filter(Boolean);
+  const deduped = composed.filter((part, index) => composed.findIndex((item) => item.toLowerCase() === part.toLowerCase()) === index).join(', ');
+  return isHumanAddress(deduped) ? deduped : '';
+};
+const placeRank = (place = {}) => {
+  const types = place.types || [];
+  if (types.includes('street_address') || types.includes('premise') || types.includes('subpremise')) return 1;
+  if (types.includes('route') || types.includes('establishment')) return 2;
+  if (types.includes('neighborhood') || types.includes('sublocality') || types.includes('sublocality_level_1')) return 3;
+  if (types.includes('locality') || types.includes('postal_code')) return 4;
+  if (types.includes('plus_code')) return 99;
+  return 5;
+};
+const distanceMeters = (left, right) => {
+  if (!left || !right) return Number.POSITIVE_INFINITY;
+  const [lat1, lng1, lat2, lng2] = [left.lat, left.lng, right.lat, right.lng].map(Number);
+  if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Number.POSITIVE_INFINITY;
+  const toRad = (value) => value * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+const chooseHumanAddressPlace = (results = [], origin = null) => [...results]
+  .filter((place) => formatHumanAddress(place))
+  .sort((a, b) => {
+    const distanceA = origin ? distanceMeters(origin, toLatLng(a.geometry?.location)) : 0;
+    const distanceB = origin ? distanceMeters(origin, toLatLng(b.geometry?.location)) : 0;
+    if (Math.abs(distanceA - distanceB) > 75) return distanceA - distanceB;
+    return placeRank(a) - placeRank(b);
+  })[0] || null;
 
 const compressImage = (file) => new Promise((resolve, reject) => {
   const image = new window.Image();
@@ -31,9 +86,25 @@ const compressImage = (file) => new Promise((resolve, reject) => {
       return;
     }
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', COMPRESSED_IMAGE_QUALITY);
+    let width = canvas.width;
+    let height = canvas.height;
+    let quality = COMPRESSED_IMAGE_START_QUALITY;
+    let dataUrl = canvas.toDataURL('image/jpeg', quality);
+    while (dataUrl.length > MAX_IMAGE_BYTES * 1.34 && (quality > COMPRESSED_IMAGE_MIN_QUALITY || Math.max(width, height) > COMPRESSED_IMAGE_MIN_WIDTH)) {
+      quality = Math.max(COMPRESSED_IMAGE_MIN_QUALITY, quality - 0.08);
+      if (quality <= COMPRESSED_IMAGE_MIN_QUALITY && Math.max(width, height) > COMPRESSED_IMAGE_MIN_WIDTH) {
+        const ratio = Math.max(COMPRESSED_IMAGE_MIN_WIDTH / Math.max(width, height), 0.86);
+        width = Math.max(1, Math.round(width * ratio));
+        height = Math.max(1, Math.round(height * ratio));
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(image, 0, 0, width, height);
+      }
+      dataUrl = canvas.toDataURL('image/jpeg', quality);
+    }
     URL.revokeObjectURL(objectUrl);
-    resolve(dataUrl);
+    if (dataUrl.length > MAX_IMAGE_BYTES * 1.34) reject(new Error('Compressed image is still too large. Please choose a smaller image.'));
+    else resolve(dataUrl);
   };
   image.onerror = () => {
     URL.revokeObjectURL(objectUrl);
@@ -43,11 +114,13 @@ const compressImage = (file) => new Promise((resolve, reject) => {
 });
 
 export default function SimpleFeedbackPage() {
-  const [form, setForm] = useState({ name: '', location: '', rating: 5, content: '', imageUrl: '' });
+  const [form, setForm] = useState({ name: '', location: '', rating: 0, content: '', imageUrl: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [mapsReady, setMapsReady] = useState(false);
   const locationInputRef = useRef(null);
+  const autoLocatedRef = useRef(false);
 
   useEffect(() => {
     let autocomplete = null;
@@ -59,13 +132,14 @@ export default function SimpleFeedbackPage() {
         if (attempts < 40) timer = window.setTimeout(attachAutocomplete, 250);
         return;
       }
+      setMapsReady(true);
       autocomplete = new window.google.maps.places.Autocomplete(locationInputRef.current, {
         componentRestrictions: { country: 'IN' },
         fields: ['formatted_address', 'name'],
         types: ['geocode'],
       });
       autocomplete.addListener('place_changed', () => {
-        const location = formatAddress(autocomplete.getPlace());
+        const location = formatHumanAddress(autocomplete.getPlace());
         if (location) setForm((current) => ({ ...current, location }));
       });
     };
@@ -76,26 +150,41 @@ export default function SimpleFeedbackPage() {
     };
   }, []);
 
-  const useCurrentLocation = () => {
+  const fetchCurrentLocation = useCallback((silent = false) => {
     if (!navigator.geolocation) return toast.error('Location is not available in this browser.');
-    if (!window.google?.maps?.Geocoder) return toast.error('Maps are still loading. Please type your location or try again.');
+    if (!window.google?.maps?.Geocoder) {
+      if (!silent) toast.error('Maps are still loading. Please type your location or try again.');
+      return;
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: coords.latitude, lng: coords.longitude }, region: 'IN', language: 'en' }, (results, status) => {
+        const origin = { lat: coords.latitude, lng: coords.longitude };
+        geocoder.geocode({ location: origin, region: 'IN', language: 'en' }, (results, status) => {
           setLocating(false);
-          if (status !== 'OK' || !results?.length) return toast.error('Could not detect a readable location.');
-          setForm((current) => ({ ...current, location: results[0].formatted_address || current.location }));
+          const place = status === 'OK' ? chooseHumanAddressPlace(results, origin) : null;
+          const location = formatHumanAddress(place);
+          if (!location) {
+            if (!silent) toast.error('Could not detect a proper street address. Please search it manually.');
+            return;
+          }
+          setForm((current) => ({ ...current, location }));
         });
       },
       () => {
         setLocating(false);
-        toast.error('Location permission denied. You can type your location manually.');
+        if (!silent) toast.error('Location permission denied. You can type your location manually.');
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
+      GEOLOCATION_OPTIONS,
     );
-  };
+  }, []);
+
+  useEffect(() => {
+    if (autoLocatedRef.current || form.location || !mapsReady || !window.google?.maps?.Geocoder) return;
+    autoLocatedRef.current = true;
+    fetchCurrentLocation(true);
+  }, [form.location, mapsReady, fetchCurrentLocation]);
 
   const chooseImage = async (event) => {
     const file = event.target.files?.[0];
@@ -103,7 +192,6 @@ export default function SimpleFeedbackPage() {
     if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.');
     try {
       const imageUrl = await compressImage(file);
-      if (imageUrl.length > MAX_IMAGE_BYTES * 1.4) return toast.error('Compressed image is still too large. Please choose a smaller image.');
       setForm((current) => ({ ...current, imageUrl }));
     } catch (error) {
       toast.error(error.message || 'Could not read image.');
@@ -165,7 +253,7 @@ export default function SimpleFeedbackPage() {
             <Field label="Location *">
               <div className="flex gap-2">
                 <input ref={locationInputRef} value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} required className="booking-input min-w-0 flex-1" placeholder="Search or use current location" />
-                <button type="button" onClick={useCurrentLocation} disabled={locating} className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-sky-100 bg-sky-50 text-primary disabled:opacity-60" aria-label="Use current location">
+                <button type="button" onClick={fetchCurrentLocation} disabled={locating} className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-sky-100 bg-sky-50 text-primary disabled:opacity-60" aria-label="Use current location">
                   {locating ? <Spinner size="sm" /> : <LocateFixed className="h-4 w-4" />}
                 </button>
               </div>
@@ -179,10 +267,10 @@ export default function SimpleFeedbackPage() {
                   key={rating}
                   type="button"
                   onClick={() => setForm({ ...form, rating })}
-                  className={`grid h-12 place-items-center rounded-2xl border transition ${Number(form.rating) >= rating ? 'border-sky-300 bg-sky-50 text-sky-600' : 'border-sky-100 text-slate-300'}`}
+                  className={`grid h-12 place-items-center rounded-2xl border ${Number(form.rating) >= rating ? 'border-sky-300 bg-sky-50 text-sky-600' : 'border-sky-100 bg-bg-white text-slate-300'}`}
                   aria-label={`${rating} star`}
                 >
-                  <Star className={`h-5 w-5 ${Number(form.rating) >= rating ? 'fill-sky-500' : ''}`} />
+                  <Star className={`h-5 w-5 ${Number(form.rating) >= rating ? 'fill-current' : 'fill-transparent'}`} />
                 </button>
               ))}
             </div>

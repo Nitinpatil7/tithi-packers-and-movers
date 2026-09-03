@@ -60,8 +60,8 @@ export default function ContactQueriesPage() {
     <div className="space-y-6">
       <div><p className="text-xs font-bold uppercase tracking-[.18em] text-sky-600">Customer support</p><h1 className="mt-1 text-2xl font-black text-slate-900">Contact Queries</h1><p className="mt-1 text-sm text-slate-500">Review website inquiries, add internal notes, and track follow-ups.</p></div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
-        {statuses.map((item) => <Card key={item} className="p-4 border-sky-100"><p className="text-xs font-bold uppercase text-slate-400">{item}</p><p className="mt-2 text-2xl font-black text-slate-800">{inquiries.filter((query) => query.status === item).length}</p></Card>)}
+      <div className="admin-summary-row grid grid-cols-4 gap-2 sm:gap-4">
+        {statuses.map((item) => <Card key={item} className="admin-summary-card border-sky-100 p-2.5 sm:p-4"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">{item}</p><p className="mt-2 text-xl font-black text-slate-800 sm:text-2xl">{inquiries.filter((query) => query.status === item).length}</p></Card>)}
       </div>
 
       <Card className="overflow-hidden border-sky-100 bg-white">

@@ -8,19 +8,58 @@ import toast from 'react-hot-toast';
 import Spinner from '@tithi/ui/Spinner';
 import { getFeedbackContext, submitFeedback } from '@tithi/lib/testimonialApi';
 
-const MAX_IMAGE_BYTES = 1200 * 1024;
+const MAX_IMAGE_BYTES = 950 * 1024;
+const COMPRESSED_IMAGE_MAX_WIDTH = 1400;
+const COMPRESSED_IMAGE_MIN_WIDTH = 720;
+const COMPRESSED_IMAGE_START_QUALITY = 0.82;
+const COMPRESSED_IMAGE_MIN_QUALITY = 0.56;
 
-const readImage = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(String(reader.result || ''));
-  reader.onerror = () => reject(new Error('Could not read image.'));
-  reader.readAsDataURL(file);
+const compressImage = (file) => new Promise((resolve, reject) => {
+  const image = new window.Image();
+  const objectUrl = URL.createObjectURL(file);
+  image.onload = () => {
+    const scale = Math.min(1, COMPRESSED_IMAGE_MAX_WIDTH / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Could not compress image.'));
+      return;
+    }
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    let width = canvas.width;
+    let height = canvas.height;
+    let quality = COMPRESSED_IMAGE_START_QUALITY;
+    let dataUrl = canvas.toDataURL('image/jpeg', quality);
+    while (dataUrl.length > MAX_IMAGE_BYTES * 1.34 && (quality > COMPRESSED_IMAGE_MIN_QUALITY || Math.max(width, height) > COMPRESSED_IMAGE_MIN_WIDTH)) {
+      quality = Math.max(COMPRESSED_IMAGE_MIN_QUALITY, quality - 0.08);
+      if (quality <= COMPRESSED_IMAGE_MIN_QUALITY && Math.max(width, height) > COMPRESSED_IMAGE_MIN_WIDTH) {
+        const ratio = Math.max(COMPRESSED_IMAGE_MIN_WIDTH / Math.max(width, height), 0.86);
+        width = Math.max(1, Math.round(width * ratio));
+        height = Math.max(1, Math.round(height * ratio));
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(image, 0, 0, width, height);
+      }
+      dataUrl = canvas.toDataURL('image/jpeg', quality);
+    }
+    URL.revokeObjectURL(objectUrl);
+    if (dataUrl.length > MAX_IMAGE_BYTES * 1.34) reject(new Error('Compressed image is still too large. Please choose a smaller image.'));
+    else resolve(dataUrl);
+  };
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error('Could not read image.'));
+  };
+  image.src = objectUrl;
 });
 
 export default function FeedbackPage() {
   const { token } = useParams();
   const [context, setContext] = useState(null);
-  const [form, setForm] = useState({ rating: 5, content: '', imageUrl: '', name: '', location: '' });
+  const [form, setForm] = useState({ rating: 0, content: '', imageUrl: '', name: '', location: '' });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -50,9 +89,8 @@ export default function FeedbackPage() {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.');
-    if (file.size > MAX_IMAGE_BYTES) return toast.error('Image must be smaller than 1.2 MB.');
     try {
-      const imageUrl = await readImage(file);
+      const imageUrl = await compressImage(file);
       setForm((current) => ({ ...current, imageUrl }));
     } catch (err) {
       toast.error(err.message);
@@ -130,10 +168,10 @@ export default function FeedbackPage() {
                   key={rating}
                   type="button"
                   onClick={() => setForm({ ...form, rating })}
-                  className={`grid h-12 place-items-center rounded-2xl border transition ${Number(form.rating) >= rating ? 'border-amber-300 bg-amber-50 text-amber-500' : 'border-sky-100 text-slate-300'}`}
+                  className={`grid h-12 place-items-center rounded-2xl border ${Number(form.rating) >= rating ? 'border-sky-300 bg-sky-50 text-sky-600' : 'border-sky-100 bg-bg-white text-slate-300'}`}
                   aria-label={`${rating} star`}
                 >
-                  <Star className={`h-5 w-5 ${Number(form.rating) >= rating ? 'fill-amber-400' : ''}`} />
+                  <Star className={`h-5 w-5 ${Number(form.rating) >= rating ? 'fill-current' : 'fill-transparent'}`} />
                 </button>
               ))}
             </div>

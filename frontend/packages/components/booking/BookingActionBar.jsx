@@ -57,7 +57,14 @@ export default function BookingActionBar({
     </footer>
   );
 
-  return mounted ? createPortal(footer, document.body) : null;
+  const spacer = <div aria-hidden="true" className="h-28 shrink-0 sm:h-24" />;
+
+  return (
+    <>
+      {spacer}
+      {mounted ? createPortal(footer, document.body) : null}
+    </>
+  );
 }
 
 export { BookingActionBar };

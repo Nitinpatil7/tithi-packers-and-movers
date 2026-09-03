@@ -34,7 +34,7 @@ function cleanText(value) {
 function DetailCard({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
-    <div className="min-w-0 rounded-2xl border border-sky-100 bg-white/90 p-4 shadow-xs">
+    <div className="booking-themed-card min-w-0 rounded-2xl border border-sky-100 bg-white/90 p-4 shadow-xs">
       <div className="flex min-w-0 items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
           <Icon className="h-4 w-4" />
@@ -50,8 +50,8 @@ function DetailCard({ icon: Icon, label, value }) {
 
 function ScrollPanel({ title, subtitle, icon: Icon, children, empty }) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-card">
-      <div className="border-b border-sky-100 bg-gradient-to-r from-sky-50 via-white to-orange-50 px-5 py-4 sm:px-6">
+    <section className="booking-themed-card min-w-0 overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-card">
+      <div className="booking-themed-card-head border-b border-sky-100 bg-gradient-to-r from-sky-50 via-white to-orange-50 px-5 py-4 sm:px-6">
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
             <Icon className="h-4 w-4" />
@@ -120,7 +120,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
   return (
     <div className="booking-review-ui flex min-w-0 flex-col gap-6 text-left sm:gap-7">
       <motion.header
-        className="relative mb-1 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/95 via-white to-sky-50/95 p-5 shadow-card sm:mb-2 sm:p-6"
+        className="booking-themed-card booking-review-total relative mb-1 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/95 via-white to-sky-50/95 p-5 shadow-card sm:mb-2 sm:p-6"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
@@ -157,9 +157,9 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
           {items.length > 0 && (
             <div className="grid gap-2 sm:grid-cols-2">
               {items.map((item, index) => (
-                <div key={item.itemKey || item.key || `${item.name}-${index}`} className="flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-3 py-2.5">
+                <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-3 py-2.5">
                   <span className="min-w-0 truncate text-sm font-bold text-text-primary">{cleanText(item.name)}</span>
-                  <span className="shrink-0 rounded-lg bg-white px-2 py-1 font-mono text-xs font-black text-primary ring-1 ring-sky-100">x{Number(item.quantity || 0)}</span>
+                  <span className="shrink-0 rounded-lg bg-bg-white px-2 py-1 font-mono text-xs font-black text-primary ring-1 ring-sky-100">x{Number(item.quantity || 0)}</span>
                 </div>
               ))}
             </div>
@@ -171,8 +171,8 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
         {addOns.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {addOns.map((service, index) => (
-              <div key={`${service.name}-${index}`} className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
-                {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/60 dark:shadow-[0_10px_18px_rgba(0,0,0,0.18)]"><InlineIconImage icon={service.icon} /></span>}
+              <div key={`${service.name}-${index}`} className="booking-review-chip flex min-w-0 items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
+                {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-white/60"><InlineIconImage icon={service.icon} /></span>}
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
                   {Number(service.quantity || 0) > 1 && <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Quantity {service.quantity}</span>}
@@ -191,7 +191,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
       )}
 
       {truck && !isLabour && (
-        <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">
+        <div className="booking-themed-card flex min-w-0 items-center gap-3 rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">
           <Image unoptimized src={getTruckImageSrc(truck)} alt={truck.name || 'Selected truck'} width={80} height={56} className="h-14 w-20 shrink-0 rounded-xl border border-bg-border object-cover" />
           <span className="min-w-0">
             <span className="block truncate text-sm font-black text-text-primary">{truck.name}</span>

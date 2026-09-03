@@ -44,6 +44,7 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
   const [notFoundSubmitted, setNotFoundSubmitted] = useState('');
   const sectionTopRef = useRef(null);
   const itemRefs = useRef({});
+  const searchTargetRef = useRef(null);
   const initialItemsKey = JSON.stringify(initialData.items || []);
   const initialInsuranceSelected = Boolean(initialData.specialServices?.some((service) => service.name === 'Cargo Insurance'));
 
@@ -59,7 +60,10 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
   }, [initialInsuranceSelected]);
 
   const sections = useMemo(() => Array.isArray(catalogSections) ? catalogSections : [], [catalogSections]);
-  useEffect(() => { if (!activeSection && sections[0]) setActiveSection(sections[0]._id); }, [activeSection, sections]);
+  useEffect(() => {
+    if (!sections.length) return;
+    if (!activeSection || !sections.some((entry) => entry._id === activeSection)) setActiveSection(sections[0]._id);
+  }, [activeSection, sections]);
   const activeSectionIndex = Math.max(0, sections.findIndex((entry) => entry._id === activeSection));
   const nextSection = sections[activeSectionIndex + 1] || null;
   const section = sections.find((entry) => entry._id === activeSection) || sections[0];
@@ -117,8 +121,16 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
         : matchIds
     ));
     if (!allSearchMatches.length) return;
+    const firstMatch = allSearchMatches[0];
+    searchTargetRef.current = firstMatch.item._id;
     const activeMatch = allSearchMatches.some(({ section: matchSection }) => matchSection._id === activeSection);
-    if (!activeMatch) setActiveSection(allSearchMatches[0].section._id);
+    if (!activeMatch) {
+      setActiveSection(firstMatch.section._id);
+      return;
+    }
+    setExpandedGroups((current) => (
+      current[firstMatch.group._id] ? current : { ...current, [firstMatch.group._id]: true }
+    ));
   }, [activeSection, allSearchMatches, normalizedSearch]);
 
   useEffect(() => {
@@ -135,7 +147,9 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
 
   useEffect(() => {
     if (!highlightedItems.length || !section?._id) return;
-    const firstVisible = groups.flatMap((group) => group.items || []).find((item) => highlightedItems.includes(item._id));
+    const targetId = searchTargetRef.current;
+    const visibleItems = groups.flatMap((group) => group.items || []);
+    const firstVisible = visibleItems.find((item) => item._id === targetId) || visibleItems.find((item) => highlightedItems.includes(item._id));
     if (!firstVisible) return;
     window.setTimeout(() => itemRefs.current[firstVisible._id]?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
   }, [groups, highlightedItems, section?._id]);

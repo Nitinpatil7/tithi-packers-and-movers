@@ -141,7 +141,7 @@ export default function DashboardPage() {
       <ServiceAnalysis stats={stats} loading={statsLoading} />
 
       {/* Recent Bookings List Card */}
-      <Card className="p-6 bg-bg-card border border-bg-border/60 glass flex flex-col gap-4">
+      <Card className="bg-bg-card glass flex flex-col gap-4 border border-bg-border/60 p-6 pb-8">
         <div className="flex justify-between items-center">
           <div className="flex flex-col text-left">
             <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">

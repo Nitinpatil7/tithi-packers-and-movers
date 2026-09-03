@@ -282,7 +282,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           <Clock className="w-4 h-4 text-primary" />
           Preferred Arrival Time *
         </label>
-        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pr-[18vw] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
+        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pr-[12vw] sm:mx-0 sm:grid sm:grid-cols-[repeat(3,minmax(12rem,1fr))] sm:overflow-visible sm:px-0 sm:pr-0">
           {TIME_SLOTS.map((item) => {
             const isSelected = slot === item.id;
             return (
@@ -291,7 +291,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 type="button"
                 onClick={() => { setSlot(item.id); setError(''); }}
                 className={cn(
-                  "flex min-w-[62vw] max-w-[240px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-4 text-center cursor-pointer select-none transition-all duration-200 sm:min-w-0 sm:max-w-none sm:p-5",
+                  "flex min-w-[76vw] max-w-[300px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-4 text-center cursor-pointer select-none transition-all duration-200 sm:min-h-[9.5rem] sm:min-w-[12rem] sm:max-w-none sm:p-5",
                   isSelected
                     ? "border-primary bg-primary-soft shadow-sky"
                     : "border-bg-border bg-white hover:border-primary/30 hover:bg-sky-50 shadow-xs"
@@ -302,7 +302,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                   style={{ fontFamily: 'var(--font-heading)' }}>
                   {item.label}
                 </span>
-                <span className="text-xs font-mono text-text-secondary">{item.time}</span>
+                <span className="text-xs font-mono leading-5 text-text-secondary">{item.time}</span>
                 <span className="text-[10px] text-text-tertiary font-semibold mt-1 uppercase tracking-wider">{item.desc}</span>
                 {isSelected && (
                   <span className="mt-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">

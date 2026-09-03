@@ -4,10 +4,19 @@ const Booking = require("../schema/Booking.model");
 const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
 const inAppNotificationService = require("./inAppNotification.service");
+const { uploadFeedbackImage } = require("./iconUpload.service");
 
-const createTestimonial = async (payload) => {
+const createTestimonial = async (payload = {}) => {
+  let imageUrl = String(payload.imageUrl || "").trim();
+  if (/^data:image\//i.test(imageUrl)) {
+    imageUrl = (await uploadFeedbackImage(imageUrl)).imageUrl;
+  }
   const last = await Testimonial.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
-  const testimonial = await Testimonial.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1 });
+  const testimonial = await Testimonial.create({
+    ...payload,
+    ...(imageUrl ? { imageUrl } : {}),
+    sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1,
+  });
   notifyContentChange("testimonial", "testimonial:create", { id: testimonial._id });
   return testimonial;
 };
@@ -17,7 +26,7 @@ const submitPublicFeedback = async (payload = {}) => {
   const location = String(payload.location || "").trim();
   const content = String(payload.content || payload.words || "").trim();
   const rating = Number(payload.rating || payload.stars);
-  const imageUrl = String(payload.imageUrl || "").trim();
+  let imageUrl = String(payload.imageUrl || "").trim();
 
   if (!name) throw new ApiError(400, "Name is required");
   if (!location) throw new ApiError(400, "Location is required");
@@ -25,6 +34,9 @@ const submitPublicFeedback = async (payload = {}) => {
   if (!Number.isFinite(rating) || rating < 1 || rating > 5) throw new ApiError(400, "Rating must be between 1 and 5");
   if (imageUrl && !/^data:image\/(png|jpeg|jpg|webp);base64,|^https?:\/\//i.test(imageUrl)) {
     throw new ApiError(400, "Image must be a valid image upload or URL");
+  }
+  if (/^data:image\//i.test(imageUrl)) {
+    imageUrl = (await uploadFeedbackImage(imageUrl)).imageUrl;
   }
 
   const testimonial = await createTestimonial({
@@ -122,7 +134,7 @@ const submitFeedback = async (token, payload = {}) => {
   const location = String(payload.location || "").trim();
   const content = String(payload.content || payload.words || "").trim();
   const rating = Number(payload.rating || payload.stars);
-  const imageUrl = String(payload.imageUrl || "").trim();
+  let imageUrl = String(payload.imageUrl || "").trim();
 
   if (!name) throw new ApiError(400, "Name is required");
   if (!location) throw new ApiError(400, "Location is required");
@@ -130,6 +142,9 @@ const submitFeedback = async (token, payload = {}) => {
   if (!Number.isFinite(rating) || rating < 1 || rating > 5) throw new ApiError(400, "Rating must be between 1 and 5");
   if (imageUrl && !/^data:image\/(png|jpeg|jpg|webp);base64,|^https?:\/\//i.test(imageUrl)) {
     throw new ApiError(400, "Image must be a valid image upload or URL");
+  }
+  if (/^data:image\//i.test(imageUrl)) {
+    imageUrl = (await uploadFeedbackImage(imageUrl)).imageUrl;
   }
 
   const testimonial = await createTestimonial({
