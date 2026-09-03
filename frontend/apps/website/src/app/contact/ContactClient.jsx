@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, MessageSquare, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageSquare, Send, Clock } from 'lucide-react';
 import Card from '@tithi/ui/Card';
 import Input from '@tithi/ui/Input';
 import Button from '@tithi/ui/Button';
@@ -94,6 +94,39 @@ const CONTACT_TRANSLATIONS = {
   }
 };
 
+const configuredBusinessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE || '+91 98765 43210';
+
+const firstText = (...values) => values
+  .map((value) => String(value || '').trim())
+  .find(Boolean) || '';
+
+const normalizePhoneHref = (phone = '') => {
+  const digits = String(phone || '').replace(/[^\d+]/g, '');
+  return digits ? `tel:${digits}` : '';
+};
+
+const normalizeBranchCard = (branch = {}, fallback = {}) => {
+  const address = firstText(
+    branch.address,
+    branch.fullAddress,
+    branch.branchAddress,
+    branch.officeAddress,
+    branch.location?.address,
+    fallback.address,
+  );
+  const city = firstText(branch.city, branch.location?.city, fallback.city);
+  const state = firstText(branch.state, branch.location?.state, fallback.state);
+  return {
+    ...branch,
+    branchName: firstText(branch.branchName, branch.name, fallback.branchName, 'Tithi Packers and Movers'),
+    address,
+    city,
+    state,
+    phone: firstText(branch.phone, branch.mobile, fallback.phone),
+    email: firstText(branch.email, fallback.email),
+  };
+};
+
 export default function ContactClient() {
   const { language } = useLanguageStore();
   const t = CONTACT_TRANSLATIONS[language] || CONTACT_TRANSLATIONS['en'];
@@ -101,7 +134,6 @@ export default function ContactClient() {
   const { data: site = {} } = useSiteSetting();
   const { data: branches = [] } = useBranches();
   const { data: mainBranch } = useMainBranch();
-  const visibleBranches = branches.length > 0 ? branches : (mainBranch ? [mainBranch] : []);
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
@@ -120,11 +152,26 @@ export default function ContactClient() {
     }
   };
 
-  const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
+  const address = firstText(site.address, site.businessAddress, site.contactAddress, site.officeAddress, mainBranch?.address, t.detailValues.hub);
+  const phone = firstText(site.phone, site.whatsappNumber, mainBranch?.phone, configuredBusinessPhone);
+  const email = firstText(site.email, mainBranch?.email);
+  const branchFallback = {
+    branchName: site.companyName || t.corpOffice,
+    address,
+    city: 'Surat',
+    state: 'Gujarat',
+    phone,
+    email,
+  };
+  const sourceBranches = Array.isArray(branches) && branches.length > 0 ? branches : (mainBranch ? [mainBranch] : []);
+  const visibleBranches = sourceBranches.length > 0
+    ? sourceBranches.map((branch) => normalizeBranchCard(branch, branchFallback)).filter((branch) => branch.address || branch.city || branch.phone || branch.email)
+    : [normalizeBranchCard({}, branchFallback)];
   const contactDetails = [
-    site.phone ? { title: t.detailLabels.call, value: site.phone, icon: Phone, href: `tel:${site.phone}` } : null,
-    site.email ? { title: t.detailLabels.email, value: site.email, icon: Mail, href: `mailto:${site.email}` } : null,
+    phone ? { title: t.detailLabels.call, value: phone, icon: Phone, href: normalizePhoneHref(phone) } : null,
+    email ? { title: t.detailLabels.email, value: email, icon: Mail, href: `mailto:${email}` } : null,
     address ? { title: t.detailLabels.hub, value: address, icon: MapPin, href: null } : null,
+    { title: t.detailLabels.hours, value: t.detailValues.hours, icon: Clock, href: null },
   ].filter(Boolean);
 
   return (
@@ -230,7 +277,7 @@ export default function ContactClient() {
 
         </div>
 
-        {visibleBranches.length > 0 && <section className="mt-16"><div className="mb-7 text-center"><span className="text-xs font-bold uppercase tracking-widest text-primary">{visibleBranches.length > 1 ? 'Our locations' : 'Our location'}</span><h2 className="mt-2 text-2xl font-black text-text-primary md:text-3xl">{visibleBranches.length > 1 ? 'Branches Near You' : visibleBranches[0].branchName}</h2>{visibleBranches.length > 1 && <p className="mt-2 text-sm text-text-secondary">Choose the most convenient branch. New locations appear here automatically.</p>}</div><div className={`grid gap-4 ${visibleBranches.length > 1 ? 'md:grid-cols-2 lg:grid-cols-3' : 'mx-auto max-w-xl'}`}>{visibleBranches.map((branch) => <Card key={branch._id} className="border border-bg-border bg-bg-white p-5"><div className="flex items-start justify-between gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl border border-primary/20 text-primary"><MapPin className="h-5 w-5" /></span>{branch.isMainBranch && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase text-primary">Main branch</span>}</div><h3 className="mt-4 font-bold text-text-primary">{branch.branchName}</h3><p className="mt-1 text-sm font-medium text-text-secondary">{branch.city}{branch.state ? `, ${branch.state}` : ''}</p><p className="mt-3 text-sm leading-6 text-text-secondary">{branch.address}</p><div className="mt-4 flex flex-col gap-2 border-t border-bg-border pt-4 text-sm">{branch.phone && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={`tel:${branch.phone}`}><Phone className="h-4 w-4 text-primary" />{branch.phone}</a>}{branch.email && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={`mailto:${branch.email}`}><Mail className="h-4 w-4 text-primary" />{branch.email}</a>}</div></Card>)}</div></section>}
+        {visibleBranches.length > 0 && <section className="mt-16"><div className="mb-7 text-center"><span className="text-xs font-bold uppercase tracking-widest text-primary">{visibleBranches.length > 1 ? 'Our locations' : 'Our location'}</span><h2 className="mt-2 text-2xl font-black text-text-primary md:text-3xl">{visibleBranches.length > 1 ? 'Branches Near You' : visibleBranches[0].branchName}</h2>{visibleBranches.length > 1 && <p className="mt-2 text-sm text-text-secondary">Choose the most convenient branch. New locations appear here automatically.</p>}</div><div className={`grid gap-4 ${visibleBranches.length > 1 ? 'md:grid-cols-2 lg:grid-cols-3' : 'mx-auto max-w-xl'}`}>{visibleBranches.map((branch, index) => <Card key={branch._id || `${branch.branchName}-${index}`} className="border border-bg-border bg-bg-white p-5"><div className="flex items-start justify-between gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl border border-primary/20 text-primary"><MapPin className="h-5 w-5" /></span>{branch.isMainBranch && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase text-primary">Main branch</span>}</div><h3 className="mt-4 font-bold text-text-primary">{branch.branchName}</h3><p className="mt-1 text-sm font-medium text-text-secondary">{[branch.city, branch.state].filter(Boolean).join(', ')}</p><p className="mt-3 text-sm font-semibold leading-6 text-text-secondary">{branch.address}</p><div className="mt-4 flex flex-col gap-2 border-t border-bg-border pt-4 text-sm">{branch.phone && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={normalizePhoneHref(branch.phone)}><Phone className="h-4 w-4 text-primary" />{branch.phone}</a>}{branch.email && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={`mailto:${branch.email}`}><Mail className="h-4 w-4 text-primary" />{branch.email}</a>}</div></Card>)}</div></section>}
 
       </div>
     </div>

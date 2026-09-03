@@ -292,6 +292,9 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const mapInstanceRef = useRef(null);
   const geocodeRequestRef = useRef(0);
   const reverseGeocodeRef = useRef(null);
+  const openSnapshotRef = useRef({ latLng: null, address: '' });
+  const wasOpenRef = useRef(false);
+  const idleGeocodeTimerRef = useRef(null);
   const initialValueLat = initialValue?.lat;
   const initialValueLng = initialValue?.lng;
   const initialValueAddress = initialValue?.address;
@@ -310,16 +313,32 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const [error, setError] = useState('');
   const [loadingAddress, setLoadingAddress] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      const latLng = initialLatLng || SURAT_CENTER;
+      const readable = initialReadableAddress;
+      openSnapshotRef.current = { latLng, address: readable };
+      setSelected(latLng);
+      setAddress(readable);
+      setPlaceForAddress(null);
+      setError('');
+      setLoadingAddress(false);
+      setLocating(false);
+      setMapReady(false);
+    }
+    wasOpenRef.current = open;
+  }, [initialLatLng, initialReadableAddress, open]);
 
   useEffect(() => {
     if (!open) return undefined;
     let attempts = 0;
     let cancelled = false;
     let cancelAutoLocate = null;
-    setSelected(initialLatLng || SURAT_CENTER);
-    setAddress(initialReadableAddress);
-    setPlaceForAddress(null);
-    setError('');
+    const snapshot = openSnapshotRef.current;
+    const startLatLng = snapshot.latLng || SURAT_CENTER;
+    const startAddress = snapshot.address || '';
 
     const fallbackToNearbyPlace = (latLng, sourceStatus, requestId) => {
       const places = window.google?.maps?.places;
@@ -436,8 +455,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     reverseGeocodeRef.current = reverseGeocode;
 
     const centerFromTypedArea = (map) => {
-      const typedAddress = String(initialReadableAddress).trim();
-      if (!typedAddress || initialLatLng || !window.google?.maps?.Geocoder) return;
+      const typedAddress = String(startAddress).trim();
+      if (!typedAddress || snapshot.latLng || !window.google?.maps?.Geocoder) return;
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ address: typedAddress, componentRestrictions: { country: 'IN' } }, (results, status) => {
         if (cancelled) return;
@@ -470,9 +489,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         return;
       }
 
-      const start = initialLatLng || SURAT_CENTER;
       const map = new window.google.maps.Map(mapRef.current, {
-        center: start,
+        center: startLatLng,
         zoom: needsSurat(serviceType, role) ? 14 : 7,
         mapTypeId: 'roadmap',
         streetViewControl: false,
@@ -496,22 +514,26 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           : undefined,
       });
       const updateSelectionFromCenter = () => {
+        setMapReady(true);
         const latLng = toLatLngLiteral(map.getCenter());
         if (!latLng) return;
         debugMapLog('[MapPicker] selected center coordinates', latLng);
         setSelected(latLng);
-        reverseGeocode(latLng);
+        if (idleGeocodeTimerRef.current) window.clearTimeout(idleGeocodeTimerRef.current);
+        idleGeocodeTimerRef.current = window.setTimeout(() => {
+          if (!cancelled) reverseGeocode(latLng);
+        }, 180);
       };
 
       map.addListener('idle', updateSelectionFromCenter);
       mapInstanceRef.current = map;
       window.setTimeout(() => {
         window.google?.maps?.event?.trigger(map, 'resize');
-        map.setCenter(start);
+        map.setCenter(startLatLng);
       }, 0);
-      reverseGeocode(start);
+      reverseGeocode(startLatLng);
       centerFromTypedArea(map);
-      if (!initialLatLng && !initialReadableAddress && navigator.geolocation) {
+      if (!snapshot.latLng && !startAddress && navigator.geolocation) {
         setLocating(true);
         cancelAutoLocate = getFreshCurrentPosition(
           ({ coords }) => {
@@ -546,11 +568,13 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       cancelled = true;
       geocodeRequestRef.current += 1;
       reverseGeocodeRef.current = null;
+      if (idleGeocodeTimerRef.current) window.clearTimeout(idleGeocodeTimerRef.current);
       window.clearInterval(timer);
       cancelAutoLocate?.();
+      if (mapInstanceRef.current) window.google?.maps?.event?.clearInstanceListeners(mapInstanceRef.current);
       mapInstanceRef.current = null;
     };
-  }, [initialLatLng, initialReadableAddress, open, role, serviceType, title]);
+  }, [open, role, serviceType]);
 
   if (!open) return null;
 
@@ -614,7 +638,15 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           </button>
         </div>
         <div className="relative h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]">
-          <div ref={mapRef} className="absolute inset-0" />
+          <div ref={mapRef} className={cn('absolute inset-0 transition-opacity duration-200', mapReady ? 'opacity-100' : 'opacity-0')} />
+          {!mapReady && (
+            <div className="absolute inset-0 z-10 grid place-items-center bg-bg-section">
+              <span className="inline-flex items-center gap-2 rounded-2xl border border-bg-border bg-bg-white px-4 py-3 text-xs font-black text-text-secondary shadow-card">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                Loading map...
+              </span>
+            </div>
+          )}
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
             <MapPin className="h-11 w-11 -translate-y-1/2 fill-red-500 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,.25)]" />
             <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-950/25 blur-[2px]" />

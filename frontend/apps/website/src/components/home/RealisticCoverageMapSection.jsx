@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Globe2, Map, MapPin, Navigation2 } from 'lucide-react';
+import Image from 'next/image';
+import { Globe2, Map as MapIcon, MapPin, Navigation2, Star, UserRound, X } from 'lucide-react';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 
 const SURAT_HUB = { name: 'Surat Hub', lat: 21.1702, lng: 72.8311 };
@@ -83,7 +84,7 @@ const META = {
     title: 'Growing Across Gujarat',
     description: 'When customer reviews expand outside Surat, the view opens to Gujarat.',
     rule: 'Gujarat boundary and city-to-city links show how work moves from Surat to nearby service cities.',
-    icon: Map,
+    icon: MapIcon,
     center: { lat: 22.2587, lng: 71.1924 },
     zoom: 6,
   },
@@ -101,7 +102,7 @@ const META = {
 function matchPlace(label) {
   const value = String(label || '').toLowerCase();
   const key = Object.keys(PLACES).sort((a, b) => b.length - a.length).find((place) => value.includes(place));
-  return key ? PLACES[key] : null;
+  return key ? { key, ...PLACES[key] } : null;
 }
 
 function inferMode(nodes) {
@@ -112,17 +113,33 @@ function inferMode(nodes) {
 }
 
 function buildCoverage(testimonials) {
-  const locations = [...new Set(testimonials.map((item) => String(item.location || '').trim()).filter(Boolean))];
-  const matched = locations.map((name) => {
+  const groups = new Map();
+
+  testimonials.forEach((item) => {
+    const name = String(item.location || '').trim();
+    if (!name) return;
     const place = matchPlace(name);
-    return place ? { name, ...place } : null;
-  }).filter(Boolean);
+    if (!place) return;
+    const groupKey = `${place.lat}:${place.lng}`;
+    const current = groups.get(groupKey) || { name, locations: [], testimonials: [], ...place };
+    current.locations.push(name);
+    current.testimonials.push(item);
+    if (!current.name) current.name = name;
+    groups.set(groupKey, current);
+  });
+
+  const matched = [...groups.values()].map((node) => ({
+    ...node,
+    name: [...new Set(node.locations)][0] || node.name,
+    locations: [...new Set(node.locations)],
+  }));
   const mode = inferMode(matched);
   const nodes = matched.filter((node) => {
     if (mode === 'india') return true;
     if (mode === 'gujarat') return node.mode !== 'india';
     return node.mode === 'surat';
   });
+  const locations = nodes.flatMap((node) => node.locations || [node.name]).filter(Boolean);
   return { mode, locations, nodes, represented: mode === 'india' ? new Set(nodes.map((node) => node.state)).size : nodes.length };
 }
 
@@ -150,6 +167,88 @@ function closePath(points) {
   return points.length ? [...points, points[0]] : points;
 }
 
+function getCardPlacement(point, containerRect) {
+  if (!point || !containerRect) return { x: 16, y: 16, placement: 'below-right' };
+  const cardWidth = Math.min(300, Math.max(230, containerRect.width - 24));
+  const cardHeight = 152;
+  const gap = 16;
+  const padding = 12;
+  const roomRight = containerRect.width - point.x;
+  const roomLeft = point.x;
+  const roomBelow = containerRect.height - point.y;
+  const roomAbove = point.y;
+  const horizontal = roomRight >= cardWidth + gap || roomRight >= roomLeft ? 'right' : 'left';
+  const vertical = roomBelow >= cardHeight + gap || roomBelow >= roomAbove ? 'below' : 'above';
+  const rawX = horizontal === 'right' ? point.x + gap : point.x - cardWidth - gap;
+  const rawY = vertical === 'below' ? point.y + gap : point.y - cardHeight - gap;
+  const maxX = Math.max(padding, containerRect.width - cardWidth - padding);
+  const maxY = Math.max(padding, containerRect.height - cardHeight - padding);
+
+  return {
+    x: Math.min(Math.max(padding, rawX), maxX),
+    y: Math.min(Math.max(padding, rawY), maxY),
+    width: cardWidth,
+    placement: `${vertical}-${horizontal}`,
+  };
+}
+
+function TestimonialHoverCard({ node, position, onClose }) {
+  const items = node?.testimonials || [];
+  const primary = items[0];
+  if (!primary || !position) return null;
+  const rating = Math.max(0, Math.min(5, Number(primary.rating || 0)));
+
+  return (
+    <div
+      className="pointer-events-auto absolute z-30 rounded-3xl border border-sky-100 bg-bg-white p-3 text-left text-text-primary shadow-[0_22px_60px_rgba(15,23,42,.22)] ring-1 ring-white/70 dark:border-sky-300/20 dark:bg-slate-950 dark:text-white dark:ring-sky-300/10"
+      style={{ left: position.x, top: position.y, width: position.width }}
+      data-placement={position.placement}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full border border-bg-border bg-bg-white text-text-secondary shadow-xs md:hidden"
+        aria-label="Hide testimonial"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+      <div className="flex items-start gap-3 pr-7 md:pr-0">
+        {primary.imageUrl ? (
+          <Image
+            unoptimized
+            src={primary.imageUrl}
+            alt={primary.name || 'Customer'}
+            width={46}
+            height={46}
+            className="h-11 w-11 shrink-0 rounded-2xl border border-white object-cover shadow-md ring-1 ring-sky-100 dark:border-slate-800 dark:ring-sky-300/20"
+          />
+        ) : (
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-sky-100 bg-sky-50 text-primary shadow-md dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-200">
+            <UserRound className="h-5 w-5" />
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-black">{primary.name || 'Verified customer'}</h3>
+          <p className="truncate text-[11px] font-bold text-text-tertiary dark:text-slate-400">{primary.location || node.name}</p>
+          <div className="mt-1 flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} className={`h-3.5 w-3.5 ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-bg-border dark:text-slate-700'}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="mt-3 line-clamp-2 text-xs font-semibold leading-5 text-text-secondary dark:text-slate-300">
+        “{primary.content || primary.words || 'Reliable shifting service from Tithi Packers & Movers.'}”
+      </p>
+      {items.length > 1 && (
+        <p className="mt-2 rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-black uppercase text-primary dark:bg-sky-400/10 dark:text-sky-200">
+          +{items.length - 1} more review{items.length > 2 ? 's' : ''} here
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function RealisticCoverageMapSection() {
   const { data } = usePublicTestimonials({});
   const testimonials = useMemo(() => (Array.isArray(data) ? data : []), [data]);
@@ -160,15 +259,43 @@ export default function RealisticCoverageMapSection() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const overlaysRef = useRef([]);
+  const mapListenersRef = useRef([]);
+  const projectionOverlayRef = useRef(null);
+  const activeNodeRef = useRef(null);
+  const ignoreNextMapClickRef = useRef(false);
+  const [activeNode, setActiveNode] = useState(null);
+  const [cardPosition, setCardPosition] = useState(null);
   const nodes = useMemo(
     () => (coverage.nodes.length ? coverage.nodes : [{ ...SURAT_HUB, mode: 'surat', state: 'Gujarat' }]),
     [coverage.nodes]
   );
 
+  const hideCard = () => {
+    activeNodeRef.current = null;
+    setActiveNode(null);
+    setCardPosition(null);
+  };
+
   useEffect(() => {
     if (!mapsReady || !mapRef.current || !window.google?.maps?.Map) return;
 
     const googleMaps = window.google.maps;
+    const positionCard = (node) => {
+      if (!node?.testimonials?.length || !mapRef.current || !projectionOverlayRef.current?.getProjection()) return;
+      const projection = projectionOverlayRef.current.getProjection();
+      const latLng = new googleMaps.LatLng(node.lat, node.lng);
+      const pixel = projection.fromLatLngToContainerPixel(latLng);
+      if (!pixel) return;
+      const rect = mapRef.current.getBoundingClientRect();
+      setCardPosition(getCardPlacement({ x: pixel.x, y: pixel.y }, rect));
+    };
+    const showCard = (node) => {
+      if (!node?.testimonials?.length) return;
+      activeNodeRef.current = node;
+      setActiveNode(node);
+      positionCard(node);
+    };
+
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = new googleMaps.Map(mapRef.current, {
         center: meta.center,
@@ -181,14 +308,26 @@ export default function RealisticCoverageMapSection() {
           mapTypeIds: [googleMaps.MapTypeId.HYBRID, googleMaps.MapTypeId.SATELLITE, googleMaps.MapTypeId.TERRAIN],
         },
       });
+      projectionOverlayRef.current = new googleMaps.OverlayView();
+      projectionOverlayRef.current.onAdd = function noop() {};
+      projectionOverlayRef.current.onRemove = function noop() {};
+      projectionOverlayRef.current.setMap(mapInstanceRef.current);
     }
 
     const map = mapInstanceRef.current;
+    if (projectionOverlayRef.current) {
+      projectionOverlayRef.current.draw = function draw() {
+        if (activeNodeRef.current) positionCard(activeNodeRef.current);
+      };
+    }
+    hideCard();
     map.setCenter(meta.center);
     map.setZoom(meta.zoom);
     map.setMapTypeId(googleMaps.MapTypeId.HYBRID);
     overlaysRef.current.forEach((overlay) => overlay.setMap(null));
     overlaysRef.current = [];
+    mapListenersRef.current.forEach((listener) => googleMaps.event.removeListener(listener));
+    mapListenersRef.current = [];
 
     const boundary = closePath(BOUNDARIES[coverage.mode] || BOUNDARIES.surat);
     overlaysRef.current.push(new googleMaps.Polygon({
@@ -241,10 +380,41 @@ export default function RealisticCoverageMapSection() {
         title: node.name,
         label: node.name === SURAT_HUB.name ? undefined : { text: node.name.slice(0, 1).toUpperCase(), color: '#ffffff', fontWeight: '800' },
       }));
+      const marker = overlaysRef.current[overlaysRef.current.length - 1];
+      if (node.testimonials?.length) {
+        mapListenersRef.current.push(marker.addListener('mouseover', () => showCard(node)));
+        mapListenersRef.current.push(marker.addListener('mouseout', () => hideCard()));
+        mapListenersRef.current.push(marker.addListener('click', () => {
+          ignoreNextMapClickRef.current = true;
+          if (activeNodeRef.current?.name === node.name) hideCard();
+          else showCard(node);
+        }));
+      }
     });
 
+    mapListenersRef.current.push(map.addListener('click', () => {
+      if (ignoreNextMapClickRef.current) {
+        ignoreNextMapClickRef.current = false;
+        return;
+      }
+      hideCard();
+    }));
+    mapListenersRef.current.push(map.addListener('idle', () => {
+      if (activeNodeRef.current) positionCard(activeNodeRef.current);
+    }));
     map.fitBounds(bounds, 42);
   }, [coverage.mode, mapsReady, meta, nodes]);
+
+  useEffect(() => () => {
+    overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+    overlaysRef.current = [];
+    if (window.google?.maps?.event) {
+      mapListenersRef.current.forEach((listener) => window.google.maps.event.removeListener(listener));
+    }
+    mapListenersRef.current = [];
+    projectionOverlayRef.current?.setMap(null);
+    projectionOverlayRef.current = null;
+  }, []);
 
   return (
     <section className="relative overflow-hidden border-y border-[#232328] bg-[#0b0b0e] py-20 text-white sm:py-24">
@@ -292,12 +462,14 @@ export default function RealisticCoverageMapSection() {
 
           <div className="order-1 lg:order-2 lg:col-span-8">
             <div className="relative mx-auto overflow-hidden rounded-3xl border border-white/10 bg-[#111114]/90 p-3 shadow-[0_25px_70px_rgba(0,0,0,.35)] sm:p-4">
-              <div ref={mapRef} className="h-[360px] w-full rounded-2xl bg-slate-950 sm:h-[430px] lg:h-[520px]">
+              <div className="relative h-[360px] w-full overflow-hidden rounded-2xl bg-slate-950 sm:h-[430px] lg:h-[520px]">
+                <div ref={mapRef} className="absolute inset-0" />
                 {!mapsReady && (
-                  <div className="grid h-full place-items-center text-sm font-bold text-slate-300">
+                  <div className="absolute inset-0 grid place-items-center text-sm font-bold text-slate-300">
                     Loading satellite coverage map...
                   </div>
                 )}
+                <TestimonialHoverCard node={activeNode} position={cardPosition} onClose={hideCard} />
               </div>
               <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs font-bold text-slate-400 sm:flex-row sm:justify-between">
                 <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-500" />Google Maps hybrid view</span>
