@@ -14,14 +14,13 @@ export default function StatCard({
   trendValue, 
   trendDirection = 'up', // 'up' | 'down'
   icon: Icon,
-  color = 'primary' // 'primary' | 'local' | 'intercity' | 'packing' | 'commercial'
+  color = 'primary' // 'primary' | 'local' | 'intercity' | 'labour'
 }) {
   const iconColors = {
     primary: 'bg-primary/10 text-primary border-primary/20',
     local: 'bg-service-local/10 text-service-local border-service-local/20',
     intercity: 'bg-service-intercity/10 text-service-intercity border-service-intercity/20',
-    packing: 'bg-service-packing/10 text-service-packing border-service-packing/20',
-    commercial: 'bg-service-commercial/10 text-service-commercial border-service-commercial/20',
+    labour: 'bg-service-labour/10 text-service-labour border-service-labour/20',
   };
 
   const isTrendUp = trendDirection === 'up';

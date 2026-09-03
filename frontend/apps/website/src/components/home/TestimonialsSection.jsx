@@ -15,8 +15,7 @@ const serviceLabels = {
   general: "General",
   local_shifting: "Local Shifting",
   intercity_moving: "Intercity Moving",
-  business_relocation: "Business Relocation",
-  ordinary_services: "Ordinary Services",
+  porter_labour_service: "Labour & Vehicle",
 };
 
 function TestimonialCard({ item }) {

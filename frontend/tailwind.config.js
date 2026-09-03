@@ -35,8 +35,7 @@ module.exports = {
         service: {
           local: "var(--color-local)",
           intercity: "var(--color-intercity)",
-          packing: "var(--color-packing)",
-          commercial: "var(--color-commercial)",
+          labour: "var(--color-labour)",
         },
         status: {
           pending: "var(--color-pending)",
@@ -94,8 +93,7 @@ module.exports = {
         'orange-lg': '0 16px 40px rgba(14,165,233,0.35)',
         'local': '0 8px 25px rgba(14,165,233,0.25)',
         'intercity': '0 8px 25px rgba(2,132,199,0.25)',
-        'packing': '0 8px 25px rgba(56,189,248,0.25)',
-        'commercial': '0 8px 25px rgba(125,211,252,0.25)',
+        'labour': '0 8px 25px rgba(56,189,248,0.25)',
       },
       animation: {
         'scroll-left': 'scrollLeft 35s linear infinite',
@@ -116,3 +114,4 @@ module.exports = {
   },
   plugins: [],
 };
+

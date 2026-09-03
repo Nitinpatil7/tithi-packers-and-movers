@@ -35,8 +35,7 @@ module.exports = {
         service: {
           local: "var(--color-local)",
           intercity: "var(--color-intercity)",
-          packing: "var(--color-packing)",
-          commercial: "var(--color-commercial)",
+          labour: "var(--color-labour)",
         },
         status: {
           pending: "var(--color-pending)",
@@ -66,7 +65,7 @@ module.exports = {
       },
       backdropBlur: { glass: "20px" },
       boxShadow: {
-        'xs': 'var(--shadow-xs)', 'sm': 'var(--shadow-sm)', 'card': 'var(--shadow-card)', 'md': 'var(--shadow-md)', 'lg': 'var(--shadow-lg)', 'xl': 'var(--shadow-xl)', 'sky': 'var(--shadow-sky)', 'sky-lg': '0 16px 40px rgba(14,165,233,0.35)', 'orange': 'var(--shadow-sky)', 'orange-lg': '0 16px 40px rgba(14,165,233,0.35)', 'local': '0 8px 25px rgba(14,165,233,0.25)', 'intercity': '0 8px 25px rgba(2,132,199,0.25)', 'packing': '0 8px 25px rgba(56,189,248,0.25)', 'commercial': '0 8px 25px rgba(125,211,252,0.25)',
+        'xs': 'var(--shadow-xs)', 'sm': 'var(--shadow-sm)', 'card': 'var(--shadow-card)', 'md': 'var(--shadow-md)', 'lg': 'var(--shadow-lg)', 'xl': 'var(--shadow-xl)', 'sky': 'var(--shadow-sky)', 'sky-lg': '0 16px 40px rgba(14,165,233,0.35)', 'orange': 'var(--shadow-sky)', 'orange-lg': '0 16px 40px rgba(14,165,233,0.35)', 'local': '0 8px 25px rgba(14,165,233,0.25)', 'intercity': '0 8px 25px rgba(2,132,199,0.25)', 'labour': '0 8px 25px rgba(56,189,248,0.25)',
       },
       animation: {
         'scroll-left': 'scrollLeft 35s linear infinite', 'float': 'float 6s ease-in-out infinite', 'fade-slide-up': 'fadeSlideUp 0.6s ease-out forwards', 'pulse-glow': 'pulseGlow 8s ease-in-out infinite',
@@ -78,3 +77,4 @@ module.exports = {
   },
   plugins: [],
 };
+

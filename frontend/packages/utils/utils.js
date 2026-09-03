@@ -85,8 +85,6 @@ export function getServiceLabel(serviceKey) {
     porter_labour_service: 'Labour & Vehicle',
     labour: 'Labour & Vehicle',
     'labour-service': 'Labour & Vehicle',
-    packing: 'Packing Service',
-    commercial: 'Commercial Relocation'
   };
   return labels[serviceKey] || serviceKey;
 }

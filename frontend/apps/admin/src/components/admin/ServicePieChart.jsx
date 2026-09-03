@@ -15,7 +15,6 @@ export default function ServicePieChart({ data = {} }) {
     { name: 'Local Shifting', value: data.local || 0, color: '#3B82F6' },
     { name: 'Intercity Moving', value: data.intercity || 0, color: '#8B5CF6' },
     { name: 'Labour & Vehicle', value: data.porterLabour || 0, color: '#10B981' },
-    { name: 'Other Services', value: data.ordinary_service || data.commercial_moving || 0, color: '#F59E0B' }
   ].filter(item => item.value > 0);
 
   if (!mounted) {

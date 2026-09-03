@@ -89,7 +89,7 @@ export default function DashboardPage() {
                 title="Today's Booked"
                 value={todayBookedBookings.length}
                 icon={CalendarDays}
-                color="commercial"
+                color="intercity"
               />
               <StatCard
                 title="Confirmed Shifts"
@@ -101,7 +101,7 @@ export default function DashboardPage() {
                 title="Completed Bookings"
                 value={stats?.completedThisMonth || 0}
                 icon={CheckCircle}
-                color="packing"
+                color="labour"
               />
             </>
           )}

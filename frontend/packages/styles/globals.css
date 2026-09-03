@@ -36,8 +36,7 @@
   /* Service Colors */
   --color-local: #0EA5E9;          /* Sky Blue — Local Shifting */
   --color-intercity: #0284C7;      /* Deep Blue — Intercity Moving */
-  --color-packing: #38BDF8;        /* Light Sky — Labour & Vehicle */
-  --color-commercial: #7DD3FC;     /* Pale Sky — (legacy) */
+  --color-labour: #38BDF8;         /* Light Sky — Labour & Vehicle */
 
   /* Status Colors */
   --color-pending: #F59E0B;
@@ -1893,8 +1892,7 @@ input:focus, select:focus, textarea:focus {
 /* Service card accents — all sky blue family */
 .service-card-local    { --accent: #0EA5E9; --accent-soft: #E0F2FE; }
 .service-card-intercity { --accent: #0284C7; --accent-soft: #BAE6FD; }
-.service-card-packing  { --accent: #38BDF8; --accent-soft: #E0F2FE; }
-.service-card-commercial { --accent: #7DD3FC; --accent-soft: #F0F9FF; }
+.service-card-labour  { --accent: #38BDF8; --accent-soft: #E0F2FE; }
 
 /* Booking form premium style */
 .booking-input {

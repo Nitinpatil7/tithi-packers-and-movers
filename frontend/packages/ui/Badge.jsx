@@ -34,8 +34,6 @@ export default function Badge({
       intercity_moving: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
       porter_labour_service: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
       labour: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
-      packing: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      commercial: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     };
     const colorClass = serviceColors[type] || 'bg-zinc-800 text-zinc-300 border-zinc-700';
     return (

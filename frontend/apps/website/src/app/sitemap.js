@@ -5,8 +5,6 @@ const routes = [
   { path: '/book/local-shifting', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/book/intercity-moving', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/book/labour-service', changeFrequency: 'weekly', priority: 0.85 },
-  { path: '/book/ordinary-service', changeFrequency: 'weekly', priority: 0.8 },
-  { path: '/book/commercial-moving', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/about', changeFrequency: 'monthly', priority: 0.75 },
   { path: '/contact', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/feedback', changeFrequency: 'monthly', priority: 0.55 },

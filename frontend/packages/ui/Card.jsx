@@ -18,8 +18,7 @@ export default function Card({
     glowColor === 'primary' && 'hover:shadow-orange hover:border-primary/30',
     glowColor === 'local' && 'hover:shadow-local hover:border-service-local/30',
     glowColor === 'intercity' && 'hover:shadow-intercity hover:border-service-intercity/30',
-    glowColor === 'packing' && 'hover:shadow-packing hover:border-service-packing/30',
-    glowColor === 'commercial' && 'hover:shadow-commercial hover:border-service-commercial/30',
+    glowColor === 'labour' && 'hover:shadow-labour hover:border-service-labour/30',
     className
   );
 

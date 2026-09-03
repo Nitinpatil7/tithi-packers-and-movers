@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { CheckCircle2, Info } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
@@ -69,10 +69,10 @@ export default function ServiceDetailSection() {
       path: '/book/intercity-moving'
     },
     labour: {
-      name: serviceLabels.porter_labour_service || t.packingService || 'Labour & Vehicle',
-      border: 'border-l-service-packing',
-      bgGlow: 'from-service-packing/5 to-transparent',
-      text: t.packingServiceText || 'Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.',
+      name: serviceLabels.porter_labour_service || t.labourService || 'Labour & Vehicle',
+      border: 'border-l-service-labour',
+      bgGlow: 'from-service-labour/5 to-transparent',
+      text: t.labourServiceText || 'Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.',
       included: language === 'gu' ? [
         '૧ થી ૫ તાલીમબદ્ધ શ્રમિકો / કામદારોની ફાળવણી',
         'ફક્ત મજૂરી અને લોડિંગ-અનલોડિંગ (ટ્રક વગર)',
@@ -151,16 +151,6 @@ export default function ServiceDetailSection() {
                   {current.text}
                 </p>
 
-                {/* Sub-services alert for Packing */}
-                {activeTab === 'packing' && (
-                  <div className="flex gap-2.5 bg-service-packing/5 border border-service-packing/10 rounded-lg p-3 text-xs text-service-packing">
-                    <Info className="w-4 h-4 shrink-0" />
-                    <span>
-                      {language === 'gu' ? 'પેકિંગ ઓન્લી, અનપેકિંગ ઓન્લી અથવા પેકિંગ + શિફ્ટિંગ ના વિકલ્પો શામેલ છે.' : language === 'hi' ? 'केवल पैकिंग, केवल अनपैकिंग, या पैकिंग + शिफ्टिंग के विकल्प शामिल हैं।' : 'Includes options for Packing Only, Unpacking Only, or Packing + Shifting (No unpacking).'}
-                    </span>
-                  </div>
-                )}
-
                 <div className="mt-1 sm:mt-4">
                   <Link
                     href={current.path}
@@ -187,7 +177,7 @@ export default function ServiceDetailSection() {
                     >
                       <CheckCircle2 className={`w-5 h-5 shrink-0 ${
                         activeTab === 'local' ? 'text-service-local' :
-                        activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-packing'
+                        activeTab === 'intercity' ? 'text-service-intercity' : 'text-service-labour'
                       } transition-colors group-hover:text-sky-200`} />
                       <span className="transition-colors group-hover:text-sky-100">{inc}</span>
                     </motion.li>
@@ -203,4 +193,5 @@ export default function ServiceDetailSection() {
     </section>
   );
 }
+
 

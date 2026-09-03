@@ -4,7 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Box, Calendar, Clock, IndianRupee, MapPin, PackageCheck, Sparkles, Truck, Users } from 'lucide-react';
+import { Calendar, Clock, IndianRupee, MapPin, PackageCheck, Sparkles, Truck, Users } from 'lucide-react';
 import { formatCurrency } from '@tithi/utils/utils';
 import { getTruckImageSrc } from '@tithi/utils/truckVisuals';
 import BookingActionBar from './BookingActionBar';
@@ -17,8 +17,6 @@ const SERVICE_LABELS = {
   labour: 'Labour & Vehicle',
   'labour-service': 'Labour & Vehicle',
   porter_labour_service: 'Labour & Vehicle',
-  packing: 'Ordinary Service',
-  commercial: 'Commercial Relocation',
 };
 
 const TIME_SLOT_LABELS = {
@@ -100,8 +98,6 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
     labourOnly,
     truckType,
     pricingBreakdown = {},
-    packingSubType,
-    businessDetails = {},
   } = bookingData;
 
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
@@ -182,13 +178,6 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
           </div>
         )}
       </ScrollPanel>
-
-      {!isLabour && (
-        <section className="grid min-w-0 gap-3 sm:grid-cols-2">
-          <DetailCard icon={Box} label="Packing category" value={cleanText(packingSubType)} />
-          <DetailCard icon={Users} label="Business details" value={cleanText([businessDetails.businessType, businessDetails.employeeCount, businessDetails.premisesSize].filter(Boolean).join(', '))} />
-        </section>
-      )}
 
       {truck && !isLabour && (
         <div className="booking-themed-card flex min-w-0 items-center gap-3 rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">

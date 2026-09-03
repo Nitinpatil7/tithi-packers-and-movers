@@ -11,7 +11,7 @@ import AdminStatGrid from '@/components/admin/AdminStatGrid';
 
 const SERVICE_TYPES = [
   ['local_shifting', 'Local Movers'], ['intercity_moving', 'Intercity Movers'],
-  ['ordinary_services', 'Labour & Vehicle'],
+  ['porter_labour_service', 'Labour & Vehicle'],
 ];
 const emptyForm = { name: '', location: '', rating: 5, content: '', imageUrl: '', serviceType: 'local_shifting', isFeatured: false, status: 'active' };
 const REVIEW_MIN_LENGTH = 40;

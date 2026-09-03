@@ -34,8 +34,7 @@ tithi-packers/
 │   │   ├── book/               # Shifting multi-step booking paths
 │   │   │   ├── local-shifting/page.js
 │   │   │   ├── intercity-moving/page.js
-│   │   │   ├── packing-service/page.js
-│   │   │   └── commercial-moving/page.js
+│   │   │   └── labour-service/page.js
 │   │   ├── my-bookings/
 │   │   │   ├── page.js         # Mobile OTP lookup and orders list
 │   │   │   └── [id]/page.js    # Single invoice details report
@@ -94,8 +93,6 @@ tithi-packers/
 │   │       ├── ReviewStep.jsx
 │   │       ├── OTPStep.jsx
 │   │       ├── SuccessStep.jsx
-│   │       ├── PackingSubTypeStep.jsx
-│   │       ├── BusinessDetailsStep.jsx
 │   │       └── TruckGuideModal.jsx
 │   │
 │   ├── data/
@@ -160,10 +157,8 @@ Stores customer credentials and validation checks:
    - Location details (Surat addresses) -> Truck assigned -> Inventory list checklist -> Add-ons checklist -> Date/Time slot -> Order Overview -> OTP verification -> Success confetti check.
 2. **Intercity Shifting:**
    - Similar to Local Shifting, with additional options for Cargo Transit Insurance and standard part-load (LCL) vehicle assignments.
-3. **Packing Only / Unpacking Only:**
-   - Packing category choice -> Single address details -> Checklist volumes -> Special boxes -> Date/Time slot -> OTP -> Success confetti.
-4. **Commercial Office Moves:**
-   - Office properties form (premises size, team count) -> Route addresses ->assigned truck sizes -> Inventory details -> Special corporate specifications -> OTP check -> Success confetti.
+3. **Labour & Vehicle:**
+   - Single address details -> labour/vehicle requirements -> add-on services -> Date/Time slot -> OTP -> Success confetti.
 
 ---
 

@@ -58,19 +58,7 @@ const initialBookingData = {
   
   // Legacy fields kept for backward compat
   truckType: null,
-  packingSubType: null,
-  businessDetails: {
-    businessType: '',
-    employeeCount: '',
-    premisesSize: '',
-    specialItems: ''
-  },
   timelinePreference: 'Standard',
-  itemsVolume: {
-    propertySize: '1BHK',
-    fragileCount: 0,
-    boxCount: 0
-  },
   manualQuote: 0,
   totalAmount: 0
 };
@@ -82,8 +70,6 @@ const getInitialBookingData = () => ({
   items: [],
   specialServices: [],
   contactDetails: { ...initialBookingData.contactDetails },
-  businessDetails: { ...initialBookingData.businessDetails },
-  itemsVolume: { ...initialBookingData.itemsVolume },
 });
 
 const hasAddress = (location) => Boolean(String(location?.address || '').trim());
@@ -92,15 +78,6 @@ const hasSchedule = (bookingData) => Boolean(bookingData.scheduledDate && bookin
 const hasTruckChoice = (bookingData) => bookingData.labourOnly === true || Boolean(bookingData.selectedTruck || bookingData.truckType || bookingData.selectedTruckData);
 const hasEmployees = (bookingData) => Number(bookingData.employeeCount || 0) > 0;
 const hasHours = (bookingData) => Number(bookingData.hoursCount || 0) > 0;
-const hasPackingSubType = (bookingData) => Boolean(bookingData.packingSubType);
-const hasVolume = (bookingData) => {
-  const volume = bookingData.itemsVolume || {};
-  return Boolean(volume.propertySize) || Number(volume.fragileCount || 0) > 0 || Number(volume.boxCount || 0) > 0;
-};
-const hasBusinessDetails = (bookingData) => {
-  const details = bookingData.businessDetails || {};
-  return Boolean(String(details.businessType || '').trim() || String(details.employeeCount || '').trim() || String(details.premisesSize || '').trim());
-};
 
 const validators = {
   location: (bookingData, rule = {}) => hasAddress(bookingData.pickupLocation) && (rule.dropOptional || hasAddress(bookingData.dropLocation)),
@@ -109,9 +86,6 @@ const validators = {
   truck: hasTruckChoice,
   employees: hasEmployees,
   hours: hasHours,
-  packingSubType: hasPackingSubType,
-  volume: hasVolume,
-  businessDetails: hasBusinessDetails,
   optional: () => true,
 };
 

@@ -209,10 +209,8 @@ export default function CustomerBookingDetailPage() {
       'local': language === 'gu' ? 'લોકલ શિફ્ટિંગ' : language === 'hi' ? 'લોકલ શિફ્ટિંગ' : 'Local Shifting',
       'intercity-moving': language === 'gu' ? 'આંતર-શહેરી શિફ્ટિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
       'intercity': language === 'gu' ? 'આંતર-શહેરી શિફ્ટિંગ' : language === 'hi' ? 'इंटरसिटी मूविंग' : 'Intercity Moving',
-      'packing-service': language === 'gu' ? 'સામાન્ય સેવા (Ordinary)' : language === 'hi' ? 'साधारण सेवा (Ordinary)' : 'Ordinary Service',
-      'packing': language === 'gu' ? 'સામાન્ય સેવા (Ordinary)' : language === 'hi' ? 'साधारण सेवा (Ordinary)' : 'Ordinary Service',
-      'commercial-moving': language === 'gu' ? 'વ્યાપાર સ્થળાંતર' : language === 'hi' ? 'व्यावસાયिक સ્થળાંતર' : 'Business Relocation',
-      'commercial': language === 'gu' ? 'વ્યાપાર સ્થળાંતર' : language === 'hi' ? 'व्यावસાયિક સ્થળાંતર' : 'Business Relocation'
+      porter_labour_service: language === 'gu' ? 'મજૂરી અને વાહન સેવા' : language === 'hi' ? 'लेबर और वाहन सेवा' : 'Labour & Vehicle',
+      labour: language === 'gu' ? 'મજૂરી અને વાહન સેવા' : language === 'hi' ? 'लेबर और वाहन सेवा' : 'Labour & Vehicle',
     };
     return labels[service] || getServiceLabel(service);
   };

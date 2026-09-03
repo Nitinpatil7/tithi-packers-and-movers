@@ -153,7 +153,7 @@ const submitFeedback = async (token, payload = {}) => {
     rating,
     content,
     ...(imageUrl ? { imageUrl } : {}),
-    serviceType: booking.serviceType === "porter_labour_service" ? "ordinary_services" : booking.serviceType,
+    serviceType: booking.serviceType,
     isFeatured: false,
     status: "inactive",
     linkedBookingId: booking._id,

@@ -56,8 +56,6 @@ export default function Providers({ children }) {
         '/book/local-shifting',
         '/book/intercity-moving',
         '/book/labour-service',
-        '/book/commercial-moving',
-        '/book/ordinary-service',
         '/about',
         '/contact',
         '/my-bookings',

@@ -10,7 +10,8 @@
     "import:items": "node scripts/importItemCatalog.js",
     "verify:r2-icons": "node scripts/verifyR2IconUpload.js",
     "verify:catalog-icons": "node scripts/verifyCatalogIconE2E.js",
-    "seed": "node scripts/seedProduction.js"
+    "seed": "node scripts/seedProduction.js",
+    "cleanup:ghost-services": "node scripts/cleanupGhostServices.js"
   },
   "keywords": [],
   "author": "",

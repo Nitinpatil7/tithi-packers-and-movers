@@ -72,8 +72,7 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "Surat",
     localShifting: "Local Shifting",
     intercityMoving: "Intercity Moving",
-    packingService: "Labour & Vehicle",
-    commercialMove: "Labour & Vehicle",
+    labourService: "Labour & Vehicle",
 
     // Hero Section
     heroBadge: "#1 Packers & Movers in Surat, Gujarat",
@@ -99,13 +98,12 @@ export const PAGE_TRANSLATIONS = {
     // Services Section
     servicesTitle: "Everything You Need to ",
     servicesTitleHighlight: "Move Hassle-Free",
-    servicesSubhead: "Specialized relocation services tailored to your needs — from local homes to national commercial moves.",
+    servicesSubhead: "Specialized relocation services tailored to your needs — from local homes to intercity moves and labour support.",
     bookThisService: "Book This Service",
     getQuote: "Get Quote",
     localShiftingDesc: "Home or office relocation within Surat. Same-day shifting and flexible schedules available with expert packers.",
     intercityMovingDesc: "Seamless shifting from Surat to anywhere in India. Full container or economical part-loads with GPS tracking.",
-    packingServiceDesc: "Manpower only for heavy lifting, loading, unloading, and rearranging items.",
-    commercialMoveDesc: "Manpower only for heavy lifting, loading, unloading, and rearranging items.",
+    labourServiceDesc: "Manpower only for heavy lifting, loading, unloading, and rearranging items.",
 
     // How It Works Section
     processLabel: "Simple Process",
@@ -148,8 +146,7 @@ export const PAGE_TRANSLATIONS = {
     whatIsIncluded: "What is included",
     localShiftingText: "Our local household relocation package takes care of moving your home or apartment within Surat city limits. Experience premium care with zero stress.",
     intercityMovingText: "Moving out of Surat? We provide full-load dedicated containers and pocket-friendly part-load (LCL) solutions connecting Surat to all major Indian cities.",
-    packingServiceText: "Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.",
-    commercialMoveText: "Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.",
+    labourServiceText: "Need help lifting heavy furniture, loading/unloading a truck, or rearranging items? Hire our experienced loaders and workers charged by the hour.",
 
     // FAQ Section
     faqTitle: "Frequently Asked ",
@@ -190,7 +187,7 @@ export const PAGE_TRANSLATIONS = {
     truckBolero: "Bolero Pickup — Good for 1BHK shifting",
     truck14f: "14-Foot Truck — Good for 2BHK/3BHK standard home",
     truck17f: "17-Foot Truck — Ideal for 3BHK/4BHK large home",
-    truck20f: "20-Foot Container — Bungalow / Commercial moves",
+    truck20f: "20-Foot Container — Bungalow / large home moves",
     volLow: "Very low items count. Tat Ace is suggested.",
     volMed: "Medium volume. Bolero is suggested.",
     volHigh: "Large volume. 14-Foot Truck is suggested.",
@@ -208,15 +205,14 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "सूरत",
     localShifting: "लोकल शिफ्टिंग",
     intercityMoving: "इंटरसिटी मूविंग",
-    packingService: "लेबर और वाहन सेवा",
-    commercialMove: "लेबर और वाहन सेवा",
+    labourService: "लेबर और वाहन सेवा",
 
     // Hero Section
     heroBadge: "#1 पैकर्स एंड मूवर्स सूरत, गुजरात",
     verifiedReviews: "सत्यापित समीक्षाएं",
     heroTitle1: "सूरत में भरोसेमंद पैकर्स और ",
     heroTitle2: "मूवर्स",
-    heroSubheadline: "2 मिनट में अपनी लोकल या इंटरसिटी शिफ्टिंग बुक करें। पारदर्शी मूल्य निर्धारण, शून्य हिडन चार्ज, और पूरे भारत में व्यावसायिक सहायता।",
+    heroSubheadline: "2 मिनट में अपनी लोकल, इंटरसिटी या लेबर और वाहन सेवा बुक करें। पारदर्शी मूल्य निर्धारण और शून्य हिडन चार्ज।",
     badgeLicensed: "लाइसेंस प्राप्त और बीमाकृत",
     badgeZeroHidden: "शून्य हिडन चार्ज",
     badge2HrQuote: "2 घंटे में कोटेशन",
@@ -235,13 +231,12 @@ export const PAGE_TRANSLATIONS = {
     // Services Section
     servicesTitle: "तनाव मुक्त रहने और ",
     servicesTitleHighlight: "शिफ्टिंग करने के लिए सब कुछ",
-    servicesSubhead: "आपकी आवश्यकताओं के अनुसार विशेष स्थानांतरण सेवाएं — सूरत के घरों से लेकर देश भर के कमर्शियल ट्रांसफर तक।",
+    servicesSubhead: "आपकी आवश्यकताओं के अनुसार विशेष स्थानांतरण सेवाएं — सूरत के घरों से लेकर इंटरसिटी मूव और लेबर सहायता तक।",
     bookThisService: "इस सेवा को बुक करें",
     getQuote: "कोटेशन पाएं",
     localShiftingDesc: "सूरत शहर की सीमाओं के भीतर घर या कार्यालय का स्थानांतरण। अनुभवी पैकर्स के साथ उसी दिन शिफ्टिंग की सुविधा।",
     intercityMovingDesc: "सूरत से भारत में कहीं भी परेशानी मुक्त शिफ्टिंग। जीपीएस ट्रैकिंग के साथ फुल कंटेनर या बजट-अनुकूल शेयरिंग ट्रक।",
-    packingServiceDesc: "भारी सामान उठाने, लोड करने, उतारने या वस्तुओं को व्यवस्थित करने के लिए कुशल मजदूर।",
-    commercialMoveDesc: "भारी सामान उठाने, लोड करने, उतारने या वस्तुओं को व्यवस्थित करने के लिए कुशल मजदूर।",
+    labourServiceDesc: "भारी सामान उठाने, लोड करने, उतारने या वस्तुओं को व्यवस्थित करने के लिए कुशल मजदूर।",
 
     // How It Works Section
     processLabel: "आसान प्रक्रिया",
@@ -284,8 +279,7 @@ export const PAGE_TRANSLATIONS = {
     whatIsIncluded: "क्या शामिल है",
     localShiftingText: "हमारा स्थानीय घरेलू स्थानांतरण पैकेज सूरत शहर के भीतर आपके घर या अपार्टमेंट को स्थानांतरित करने का ध्यान रखता है। शून्य तनाव के साथ प्रीमियम सेवा का अनुभव करें।",
     intercityMovingText: "सूरत से बाहर जा रहे हैं? हम सूरत को भारत के सभी प्रमुख शहरों से जोड़ने वाले फुल-लोड समर्पित कंटेनर और बजट-अनुकूल शेयरिंग ट्रक समाधान प्रदान करते हैं।",
-    packingServiceText: "भारी फर्नीचर उठाने, ट्रक लोड/अनलोड करने या सामान व्यवस्थित करने में मदद चाहिए? प्रति घंटे के हिसाब से हमारे अनुभवी मजदूरों को किराए पर लें।",
-    commercialMoveText: "भारी फर्नीचर उठाने, ट्रक लोड/अनलोड करने या सामान व्यवस्थित करने में मदद चाहिए? प्रति घंटे के हिसाब से हमारे अनुभवी मजदूरों को किराए पर लें।",
+    labourServiceText: "भारी फर्नीचर उठाने, ट्रक लोड/अनलोड करने या सामान व्यवस्थित करने में मदद चाहिए? प्रति घंटे के हिसाब से हमारे अनुभवी मजदूरों को किराए पर लें।",
 
     // FAQ Section
     faqTitle: "अक्सर पूछे जाने वाले ",
@@ -326,7 +320,7 @@ export const PAGE_TRANSLATIONS = {
     truckBolero: "बोलेरो पिकअप — 1BHK शिफ्टिंग के लिए अच्छा है",
     truck14f: "14-फुट ट्रक — 2BHK/3BHK सामान्य घर के लिए उपयुक्त",
     truck17f: "17-फुट ट्रक — 3BHK/4BHK बड़े घर के लिए बेस्ट",
-    truck20f: "20-फुट कंटेनर — बड़े बंगले या व्यावसायिक बदलाव के लिए",
+    truck20f: "20-फुट कंटेनर — बड़े बंगले या बड़े घर के बदलाव के लिए",
     volLow: "सामान बहुत कम है। टाटा एस का सुझाव दिया जाता है।",
     volMed: "मध्यम सामान है। बोलेरो पिकअप का सुझाव दिया जाता है।",
     volHigh: "भारी सामान है। 14-फुट ट्रक का सुझाव दिया जाता है।",
@@ -344,8 +338,7 @@ export const PAGE_TRANSLATIONS = {
     hubSurat: "સુરત",
     localShifting: "લોકલ શિફ્ટિંગ",
     intercityMoving: "આંતર-શહેરી શિફ્ટિંગ",
-    packingService: "મજૂરી અને વાહન સેવા",
-    commercialMove: "મજૂરી અને વાહન સેવા",
+    labourService: "મજૂરી અને વાહન સેવા",
 
     // Hero Section
     heroBadge: "#1 પેકર્સ એન્ડ મૂવર્સ સુરત, ગુજરાત",
@@ -376,8 +369,7 @@ export const PAGE_TRANSLATIONS = {
     getQuote: "ભાવ મેળવો",
     localShiftingDesc: "સુરત શહેરની મર્યાદામાં ઘર કે ઓફિસનું સ્થળાંતર. કુશળ પેકર્સ સાથે તે જ દિવસે શિફ્ટિંગની સુવિધા.",
     intercityMovingDesc: "સુરતથી ભારતમાં ગમે ત્યાં સરળ શિફ્ટિંગ. જીપીએસ ટ્રેકિંગ સાથે ફુલ કન્ટેનર કે બજેટ-અનુકૂળ શેરિંગ ટ્રક.",
-    packingServiceDesc: "ભારે સામાન ઉઠાવવા, લોડ કરવા, ખાલી કરવા અથવા વસ્તુઓ ગોઠવવા માટે કુશળ કામદારો.",
-    commercialMoveDesc: "ભારે સામાન ઉઠાવવા, લોડ કરવા, ખાલી કરવા અથવા વસ્તુઓ ગોઠવવા માટે કુશળ કામદારો.",
+    labourServiceDesc: "ભારે સામાન ઉઠાવવા, લોડ કરવા, ખાલી કરવા અથવા વસ્તુઓ ગોઠવવા માટે કુશળ કામદારો.",
     // How It Works Section
     processLabel: "સરળ પ્રક્રિયા",
     processTitle: "તમારું શિફ્ટિંગ બુક કરો ",
@@ -419,8 +411,7 @@ export const PAGE_TRANSLATIONS = {
     whatIsIncluded: "શું શામેલ છે",
     localShiftingText: "અમારું લોકલ શિફ્ટિંગ પેકેજ સુરત શહેરની અંદર તમારા ઘર કે એપાર્ટમેન્ટને શિફ્ટ કરવાની કાળજી લે છે. તણાવ મુક્ત પ્રીમિયમ સેવાનો અનુભવ કરો.",
     intercityMovingText: "સુરતની બહાર જઈ રહ્યા છો? અમે સુરતને ભારતના તમામ મોટા શહેરો સાથે જોડતા સમર્પિત કન્ટેનર અને બજેટ-અનુકૂળ શેરિંગ ટ્રક સેવાઓ પ્રદાન કરીએ છીએ.",
-    packingServiceText: "ભારે ફર્નિચર ઉઠાવવા, ટ્રક લોડ/અનલોડ કરવા અથવા સામાન ગોઠવવા માટે મદદ જોઈએ છે? કલાકના ધોરણે અમારા અનુભવી કામદારોને હાયર કરો.",
-    commercialMoveText: "ભારે ફર્નિચર ઉઠાવવા, ટ્રક લોડ/અનલોડ કરવા અથવા સામાન ગોઠવવા માટે મદદ જોઈએ છે? કલાકના ધોરણે અમારા અનુભવી કામદારોને હાયર કરો.",
+    labourServiceText: "ભારે ફર્નિચર ઉઠાવવા, ટ્રક લોડ/અનલોડ કરવા અથવા સામાન ગોઠવવા માટે મદદ જોઈએ છે? કલાકના ધોરણે અમારા અનુભવી કામદારોને હાયર કરો.",
 
     // FAQ Section
     faqTitle: "વારંવાર પૂછાતા ",
@@ -461,7 +452,7 @@ export const PAGE_TRANSLATIONS = {
     truckBolero: "બોલેરો પીકઅપ — 1BHK શિફ્ટિંગ માટે યોગ્ય",
     truck14f: "14-ફૂટ ટ્રક — 2BHK/3BHK સામાન્ય ઘર માટે યોગ્ય",
     truck17f: "17-ફૂટ ટ્રક — 3BHK/4BHK મોટા ઘર માટે બેસ્ટ",
-    truck20f: "20-ફૂટ કન્ટેનર — મોટા બંગલા અથવા વ્યવસાયિક શિફ્ટિંગ માટે",
+    truck20f: "20-ફૂટ કન્ટેનર — મોટા બંગલા અથવા મોટા ઘર માટે",
     volLow: "સામાન ઘણો ઓછો છે. ટાટા એસ યોગ્ય રહેશે.",
     volMed: "સાધારણ સામાન છે. बोलेરો પીકઅપ યોગ્ય રહેશે.",
     volHigh: "ભારે સામાન છે. 14-ફૂટ ટ્રક યોગ્ય રહેશે.",
@@ -501,15 +492,15 @@ export const FAQ_TRANSLATIONS = [
   {
     en: {
       q: "How far in advance should I book?",
-      a: "We recommend booking at least 24–48 hours in advance. For intercity moves and commercial relocations, 3–5 days advance booking ensures better planning and vehicle availability."
+      a: "We recommend booking at least 24-48 hours in advance. For intercity moves, 3-5 days advance booking ensures better planning and vehicle availability."
     },
     hi: {
       q: "मुझे कितने समय पहले बुकिंग करनी चाहिए?",
-      a: "हम कम से कम 24-48 घंटे पहले बुकिंग करने की सलाह देते हैं। अंतर-शहरी स्थानांतरण और व्यावसायिक स्थानांतरण के लिए, 3-5 दिन पहले की बुकिंग बेहतर योजना और वाहन की उपलब्धता सुनिश्चित करती है।"
+      a: "हम कम से कम 24-48 घंटे पहले बुकिंग करने की सलाह देते हैं। अंतर-शहरी स्थानांतरण के लिए, 3-5 दिन पहले की बुकिंग बेहतर योजना और वाहन की उपलब्धता सुनिश्चित करती है।"
     },
     gu: {
       q: "મારે કેટલા દિવસ અગાઉ બુકિંગ કરવું જોઈએ?",
-      a: "અમે ઓછામાં ઓછા ૨૪-૪૮ કલાક અગાઉ બુકિંગ કરવાની ભલામણ કરીએ છીએ. આંતર-શહેરી શિફ્ટિંગ અને વ્યવસાયિક સ્થળાંતર માટે, ૩-૫ દિવસ અગાઉ બુકિંગ કરવાથી વધુ સારું આયોજન થઈ શકે છે."
+      a: "અમે ઓછામાં ઓછા ૨૪-૪૮ કલાક અગાઉ બુકિંગ કરવાની ભલામણ કરીએ છીએ. આંતર-શહેરી શિફ્ટિંગ માટે, ૩-૫ દિવસ અગાઉ બુકિંગ કરવાથી વધુ સારું આયોજન થઈ શકે છે."
     }
   },
   {
@@ -557,11 +548,11 @@ export const FAQ_TRANSLATIONS = [
   {
     en: {
       q: "Do you move within Surat and to other cities?",
-      a: "Yes! We specialize in local shifting within Surat and intercity moving from Surat to anywhere in India. We also offer packing services and commercial relocations."
+      a: "Yes! We specialize in local shifting within Surat, intercity moving from Surat to anywhere in India, and Labour & Vehicle support."
     },
     hi: {
       q: "क्या आप सूरत के अंदर और अन्य शहरों में सेवा प्रदान करते हैं?",
-      a: "हाँ! हम सूरत के भीतर स्थानीय स्थानांतरण और सूरत से भारत में कहीं भी अंतर-शहरी स्थानांतरण में विशेषज्ञ हैं। हम पैकिंग सेवाएं और व्यावसायिक स्थानान्तरण भी प्रदान करते हैं।"
+      a: "हाँ! हम सूरत के भीतर स्थानीय स्थानांतरण, सूरत से भारत में कहीं भी अंतर-शहरी स्थानांतरण, और लेबर व वाहन सहायता प्रदान करते हैं।"
     },
     gu: {
       q: "શું તમે સુરતની અંદર અને બીજા શહેરોમાં શિફ્ટિંગ કરો છો?",
@@ -583,3 +574,4 @@ export const FAQ_TRANSLATIONS = [
     }
   }
 ];
+

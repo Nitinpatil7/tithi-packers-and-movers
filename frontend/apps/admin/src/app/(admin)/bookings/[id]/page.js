@@ -372,24 +372,9 @@ export default function BookingDetailPage() {
                   </div>
                 </div>
               </div>
-            ) : booking.businessDetails ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-left">
-                <div>
-                  <span className="text-text-tertiary block">Business Sector</span>
-                  <span className="text-text-primary font-bold">{booking.businessDetails.businessType}</span>
-                </div>
-                <div>
-                  <span className="text-text-tertiary block">Employee Size</span>
-                  <span className="text-text-primary font-bold">{booking.businessDetails.employeeCount}</span>
-                </div>
-                <div>
-                  <span className="text-text-tertiary block">Premises Space</span>
-                  <span className="text-text-primary font-bold">{booking.businessDetails.premisesSize}</span>
-                </div>
-              </div>
             ) : (
               <div className="text-xs text-text-secondary text-center py-6">
-                No standard items checked. Customer opted for customized packing volume details.
+                No standard items were saved for this booking.
               </div>
             )}
           </Card>

@@ -1306,7 +1306,7 @@ Testimonial POST/PATCH object:
 }
 ```
 
-Required: `name`, `rating` (1–5), `content`. Valid service type: `general | local_shifting | intercity_moving | business_relocation | ordinary_services`. Status: `active | inactive`.
+Required: `name`, `rating` (1-5), `content`. Valid service type: `general | local_shifting | intercity_moving | porter_labour_service`. Status: `active | inactive`.
 
 ### 9.6 Legal-pages module
 

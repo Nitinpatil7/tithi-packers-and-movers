@@ -24,8 +24,7 @@ const Button = React.forwardRef(({
     danger: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:ring-red-500 shadow-sm',
     local: 'bg-service-local text-white hover:opacity-90 focus:ring-service-local shadow-local',
     intercity: 'bg-service-intercity text-white hover:opacity-90 focus:ring-service-intercity shadow-intercity',
-    packing: 'bg-service-packing text-white hover:opacity-90 focus:ring-service-packing shadow-packing',
-    commercial: 'bg-service-commercial text-white hover:opacity-90 focus:ring-service-commercial shadow-commercial',
+    labour: 'bg-service-labour text-white hover:opacity-90 focus:ring-service-labour shadow-labour',
   };
 
   const sizes = {

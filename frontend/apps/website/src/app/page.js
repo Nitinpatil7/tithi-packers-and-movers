@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'No. 1 Packers and Movers in Surat',
-  description: 'Book Tithi Packers & Movers, No. 1 Packers and Movers in Surat for local shifting, intercity moving, labour, vehicle and packing services.',
+  description: 'Book Tithi Packers & Movers, No. 1 Packers and Movers in Surat for local shifting, intercity moving, labour and vehicle support.',
   alternates: { canonical: '/' },
 };
 

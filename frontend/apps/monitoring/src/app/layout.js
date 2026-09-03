@@ -26,8 +26,8 @@ export const metadata = {
     default: 'Tithi Packers and Movers | #1 Packers & Movers in Surat',
     template: '%s | Tithi Packers and Movers Surat'
   },
-  description: 'Trusted packers and movers in Surat. Book local shifting, intercity moving to all India, packing service, and commercial relocation online. Get free quote in 2 minutes.',
-  keywords: ['packers and movers surat', 'local shifting surat', 'intercity moving surat to mumbai', 'packing service surat', 'office relocation surat', 'home shifting surat', 'tithi packers movers'],
+  description: 'Trusted packers and movers in Surat. Book local shifting, intercity moving to all India, and Labour & Vehicle support online. Get free quote in 2 minutes.',
+  keywords: ['packers and movers surat', 'local shifting surat', 'intercity moving surat to mumbai', 'labour vehicle service surat', 'home shifting surat', 'tithi packers movers'],
   openGraph: {
     title: 'Tithi Packers and Movers Surat — Book Online',
     description: 'Trusted local & intercity moving service. Book in 2 minutes, get quote in 2 hours.',
@@ -57,7 +57,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "MovingCompany",
   "name": "Tithi Packers and Movers",
-  "description": "Professional packers and movers in Surat offering local shifting, intercity moving, packing services, and commercial relocation.",
+  "description": "Professional packers and movers in Surat offering local shifting, intercity moving, and Labour & Vehicle support.",
   "url": "https://tithipacking.com",
   "telephone": businessPhone,
   "address": {
@@ -92,8 +92,7 @@ const structuredData = {
     "itemListElement": [
       { "@type": "Offer", "name": "Local Shifting Surat" },
       { "@type": "Offer", "name": "Intercity Moving" },
-      { "@type": "Offer", "name": "Ordinary Service" },
-      { "@type": "Offer", "name": "Business Relocation" }
+      { "@type": "Offer", "name": "Labour & Vehicle" }
     ]
   },
   "sameAs": [

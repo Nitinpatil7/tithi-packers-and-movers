@@ -16,7 +16,7 @@ export default function HowItWorksSection() {
     {
       num: '01',
       title: t.step1Title || 'Choose Your Service',
-      desc: t.step1Desc || 'Select from Local Shifting, Intercity Moving, Commercial Relocation, or Packing Service to get started.',
+      desc: t.step1Desc || 'Select Local Shifting, Intercity Moving, or Labour & Vehicle to get started.',
       icon: Layers,
       color: '#1E88E5',
       bg: '#E3F2FD',
