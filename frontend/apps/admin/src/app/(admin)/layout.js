@@ -22,6 +22,14 @@ export default function AdminLayout({ children }) {
   useEffect(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('admin-root');
+    document.documentElement.style.colorScheme = 'only light';
+    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+    if (!colorSchemeMeta) {
+      colorSchemeMeta = document.createElement('meta');
+      colorSchemeMeta.setAttribute('name', 'color-scheme');
+      document.head.appendChild(colorSchemeMeta);
+    }
+    colorSchemeMeta.setAttribute('content', 'light');
     return () => {
       document.documentElement.classList.remove('admin-root');
       applyPublicTheme(useThemeStore.getState().theme);
@@ -55,7 +63,7 @@ export default function AdminLayout({ children }) {
       <AdminSidebar isOpen={sidebarOpen} onClose={closeSidebar} />
       <div className="flex min-w-0 flex-1 flex-col h-screen overflow-hidden">
         <AdminHeader onToggleSidebar={() => setSidebarOpen((open) => !open)} />
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[radial-gradient(circle_at_top_right,_#dff4ff_0,_#f0f9ff_34%,_#f8fcff_70%)] p-4 md:p-7">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[radial-gradient(circle_at_top_right,_#dff4ff_0,_#f0f9ff_34%,_#f8fcff_70%)] p-4 pb-12 md:p-7 md:pb-14 lg:pb-16">
           {children}
         </main>
       </div>

@@ -60,6 +60,7 @@ export default function RootLayout({ children }) {
       style={{ '--font-heading': 'var(--font-display)' }}
     >
       <head>
+        <meta name="color-scheme" content="light dark" />
         {/* Never load Google with a placeholder key: its SDK corrupts inputs
             with a repeating error image when authentication fails. */}
         {hasUsableGoogleMapsKey && (

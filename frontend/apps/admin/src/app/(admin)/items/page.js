@@ -5,6 +5,7 @@ import { Boxes, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, Package
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
 import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useReorderGroups, useReorderItems, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize, useUploadIcon } from '@hooks/useItems';
+import AdminStatGrid from '@/components/admin/AdminStatGrid';
 import IconInput, { IconPreview } from '@/components/admin/IconInput';
 
 const baseRecord = { name: '', sortOrder: 0, isActive: true };
@@ -107,7 +108,7 @@ export default function AdminItemsPage() {
   return <div className="items-manager space-y-7 text-left">
     <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Item catalog</p><h1 className="mt-1.5 text-2xl font-bold text-slate-900">Items Manager</h1><p className="mt-1 max-w-xl text-sm font-medium leading-6 text-slate-500">Organize booking items by section and group.</p></div><div className="flex flex-wrap gap-2"><Action icon={Ruler} onClick={() => setSizeManager(true)} secondary>Manage sizes</Action><Action icon={Plus} onClick={() => setEditor({ type: 'section' })}>New section</Action></div></header>
 
-    <section className="grid gap-3 sm:grid-cols-3"><Stat icon={Layers3} label="Sections" value={sections.length} /><Stat icon={Boxes} label="Groups" value={sections.reduce((sum, section) => sum + (section.groups?.length || 0), 0)} /><Stat icon={PackagePlus} label="Items" value={sections.reduce((sum, section) => sum + (section.groups || []).reduce((total, group) => total + (group.items?.length || 0), 0), 0)} /></section>
+    <AdminStatGrid><Stat icon={Layers3} label="Sections" value={sections.length} /><Stat icon={Boxes} label="Groups" value={sections.reduce((sum, section) => sum + (section.groups?.length || 0), 0)} /><Stat icon={PackagePlus} label="Items" value={sections.reduce((sum, section) => sum + (section.groups || []).reduce((total, group) => total + (group.items?.length || 0), 0), 0)} /></AdminStatGrid>
 
     {isLoading ? <Empty text="Loading item catalog…" /> : isError ? <Empty text="Could not load the item catalog." action={() => refetch()} /> : !sections.length ? <Empty text="No sections yet. Create the first section to start your catalog." /> : <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
       <div className="flex gap-2 overflow-x-auto border-b border-sky-100 bg-sky-50/40 p-3">{sections.map((section) => <button key={section._id} onClick={() => setActiveSection(section._id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${current?._id === section._id ? 'bg-sky-600 text-white shadow-md shadow-sky-100' : 'bg-white text-slate-600 ring-1 ring-sky-100 hover:text-sky-700'}`}><CatalogIconPreview icon={section.icon} className="h-5 w-5" />{section.name}<span className="text-[10px] opacity-70">{section.groups?.length || 0}</span></button>)}</div>

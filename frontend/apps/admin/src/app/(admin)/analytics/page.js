@@ -8,6 +8,7 @@ import Card from '@tithi/ui/Card';
 import Spinner from '@tithi/ui/Spinner';
 import Badge from '@tithi/ui/Badge';
 import { formatCurrency } from '@tithi/utils/utils';
+import AdminStatGrid from '@/components/admin/AdminStatGrid';
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,
@@ -25,18 +26,18 @@ export default function AdminAnalyticsPage() {
   const popularity = overview?.servicePopularityBreakdown || [];
   const growth = overview?.revenueGrowth30Days || {};
 
-  return <div className="flex flex-col gap-6 text-left pb-12">
+  return <div className="flex flex-col gap-6 text-left">
     <div>
       <h1 className="text-2xl font-black text-text-primary">Business Analytics</h1>
       <p className="text-xs text-text-secondary mt-0.5">Live booking analytics from backend aggregation.</p>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <AdminStatGrid>
       <Metric icon={Coins} label="Estimated Revenue" value={formatCurrency(overview?.estimatedRevenue || 0)} />
       <Metric icon={LineChart} label="Average Booking Value" value={formatCurrency(overview?.averageBookingValue || 0)} />
       <Metric icon={Sparkles} label="Highest Demand Service" value={overview?.highestDemandService?.label || 'Not available'} />
       <Metric icon={TrendingUp} label="30 Day Growth" value={`${growth.growthPercentage || 0}%`} />
-    </div>
+    </AdminStatGrid>
 
     <Card className="p-6 bg-bg-card border border-bg-border/60 glass flex flex-col gap-4">
       <div className="flex flex-col text-left">
@@ -75,7 +76,7 @@ export default function AdminAnalyticsPage() {
 
 function Metric({ icon: Icon, label, value }) {
   return <Card className="p-5 bg-bg-card/45 border border-bg-border/60 glass flex items-center gap-4">
-    <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0"><Icon className="w-5 h-5" /></div>
+    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><Icon className="w-5 h-5" /></div>
     <div className="flex flex-col text-left gap-0.5"><span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">{label}</span><span className="text-lg font-black text-text-primary">{value}</span></div>
   </Card>;
 }

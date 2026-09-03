@@ -16,6 +16,7 @@ import {
 import { useAdminStats, useAllBookings } from '@/hooks/useAdmin';
 import { useAuthStore } from '@tithi/store/authStore';
 import StatCard from '@/components/admin/StatCard';
+import AdminStatGrid from '@/components/admin/AdminStatGrid';
 import BookingTable from '@/components/admin/BookingTable';
 import dynamic from 'next/dynamic';
 import Card from '@tithi/ui/Card';
@@ -73,7 +74,7 @@ export default function DashboardPage() {
           bookedBookings={todayBookedBookings}
           loading={todayScheduledLoading || todayBookedLoading}
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:col-span-7">
+        <AdminStatGrid className="xl:col-span-7">
           {statsLoading ? (
             [0, 1, 2, 3].map((item) => <StatSkeleton key={item} />)
           ) : (
@@ -104,7 +105,7 @@ export default function DashboardPage() {
               />
             </>
           )}
-        </div>
+        </AdminStatGrid>
       </div>
 
       <DelayedBookingsAlert bookings={delayedBookings} loading={delayedLoading} />
@@ -424,17 +425,17 @@ function ServiceAnalysis({ stats, loading }) {
       </div>
 
       {loading ? (
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <AdminStatGrid className="mt-5">
           {[0, 1, 2].map((item) => (
             <div key={item} className="h-28 animate-pulse rounded-2xl border border-bg-border bg-bg-section" />
           ))}
-        </div>
+        </AdminStatGrid>
       ) : services.length === 0 || total === 0 ? (
         <div className="mt-5 flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-bg-border bg-bg-section px-5 text-center text-sm font-semibold text-text-secondary">
           No completed, confirmed, pending, or in-progress business bookings counted yet.
         </div>
       ) : (
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <AdminStatGrid className="mt-5">
           {services.map((service) => {
             const count = Number(service.bookings || 0);
             const percent = total ? Math.round((count / total) * 100) : 0;
@@ -465,7 +466,7 @@ function ServiceAnalysis({ stats, loading }) {
               </article>
             );
           })}
-        </div>
+        </AdminStatGrid>
       )}
     </Card>
   );

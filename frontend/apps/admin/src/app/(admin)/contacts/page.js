@@ -9,6 +9,7 @@ import Modal from '@ui/Modal';
 import Button from '@ui/Button';
 import { useContactDetail, useContacts, useDeleteContact, useUpdateContact } from '@/hooks/useContacts';
 import { formatDate } from '@utils/utils';
+import AdminStatGrid from '@/components/admin/AdminStatGrid';
 
 const statuses = ['new', 'contacted', 'resolved', 'spam'];
 const statusStyle = { new: 'bg-sky-100 text-sky-700', contacted: 'bg-amber-100 text-amber-700', resolved: 'bg-emerald-100 text-emerald-700', spam: 'bg-red-100 text-red-700' };
@@ -60,9 +61,9 @@ export default function ContactQueriesPage() {
     <div className="space-y-6">
       <div><p className="text-xs font-bold uppercase tracking-[.18em] text-sky-600">Customer support</p><h1 className="mt-1 text-2xl font-black text-slate-900">Contact Queries</h1><p className="mt-1 text-sm text-slate-500">Review website inquiries, add internal notes, and track follow-ups.</p></div>
 
-      <div className="admin-summary-row grid grid-cols-4 gap-2 sm:gap-4">
+      <AdminStatGrid>
         {statuses.map((item) => <Card key={item} className="admin-summary-card border-sky-100 p-2.5 sm:p-4"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">{item}</p><p className="mt-2 text-xl font-black text-slate-800 sm:text-2xl">{inquiries.filter((query) => query.status === item).length}</p></Card>)}
-      </div>
+      </AdminStatGrid>
 
       <Card className="overflow-hidden border-sky-100 bg-white">
         <div className="flex flex-col gap-3 border-b border-sky-100 p-4 sm:flex-row">

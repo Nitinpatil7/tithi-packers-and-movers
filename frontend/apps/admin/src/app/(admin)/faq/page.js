@@ -8,6 +8,7 @@ import Modal from '@ui/Modal';
 import Button from '@ui/Button';
 import Input from '@ui/Input';
 import { useCreateFaq, useDeleteFaq, useFaqs, useReorderFaqs, useUpdateFaq } from '@hooks/useFaq';
+import AdminStatGrid from '@/components/admin/AdminStatGrid';
 
 const emptyForm = { question: '', answer: '', category: 'general', isActive: true };
 
@@ -83,11 +84,11 @@ export default function AdminFaqPage() {
         <Button icon={Plus} onClick={openCreate}>Add FAQ</Button>
       </div>
 
-      <div className="admin-summary-row grid grid-cols-3 gap-2 sm:gap-4">
+      <AdminStatGrid>
         <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Published FAQs</p><p className="mt-2 text-2xl font-black text-sky-700 sm:text-3xl">{faqs.length}</p></Card>
         <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Categories</p><p className="mt-2 text-2xl font-black text-sky-700 sm:text-3xl">{categories.length}</p></Card>
         <Card className="admin-summary-card border-sky-100 p-3 sm:p-5"><p className="text-[10px] font-bold uppercase leading-tight text-slate-400 sm:text-xs">Visible now</p><p className="mt-2 text-2xl font-black text-emerald-600 sm:text-3xl">{faqs.filter((faq) => faq.isActive !== false).length}</p></Card>
-      </div>
+      </AdminStatGrid>
 
       <Card className="overflow-hidden border-sky-100 bg-white">
         <div className="flex flex-col gap-3 border-b border-sky-100 p-4 md:flex-row">

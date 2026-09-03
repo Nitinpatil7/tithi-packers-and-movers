@@ -166,7 +166,7 @@ export default function BookingDetailPage() {
   const isFinal = ['completed', 'cancelled'].includes(booking.status);
 
   return (
-    <div className="flex flex-col gap-6 text-left pb-12">
+    <div className="flex flex-col gap-6 text-left">
       
       {/* Title / Action Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

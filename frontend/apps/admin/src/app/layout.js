@@ -110,6 +110,7 @@ export default function RootLayout({ children }) {
       style={{ '--font-heading': 'var(--font-display)' }}
     >
       <head>
+        <meta name="color-scheme" content="light dark" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

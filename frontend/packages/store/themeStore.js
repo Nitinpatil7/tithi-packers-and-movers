@@ -28,6 +28,16 @@ export const useThemeStore = create((set, get) => ({
       isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     
+    root.style.colorScheme = isDark ? 'dark' : 'only light';
+    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+    if (!colorSchemeMeta) {
+      colorSchemeMeta = document.createElement('meta');
+      colorSchemeMeta.setAttribute('name', 'color-scheme');
+      document.head.appendChild(colorSchemeMeta);
+    }
+    colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light');
+    root.dataset.theme = isDark ? 'dark' : 'light';
+
     if (isDark) {
       root.classList.add('dark');
     } else {

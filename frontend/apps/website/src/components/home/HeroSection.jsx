@@ -159,7 +159,7 @@ export default function HeroSection() {
             height={660}
             priority
             sizes="(min-width: 1280px) 560px, 46vw"
-            className="absolute -bottom-44 right-[-12%] z-10 w-[118%] max-w-[660px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
+            className="absolute -bottom-38 right-[-12%] z-10 w-[118%] max-w-[660px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
           />
         </div>
       </div>
@@ -228,14 +228,14 @@ function HeroServiceCard({ service, cta }) {
         style={{ rotateX, rotateY, transformPerspective: 900 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className={`hero-service-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl bg-white/95 px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 dark:bg-slate-950/85 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
+        className={`hero-service-card android-stable-hero-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
           isActive
             ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
             : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
         }`}
       >
         <motion.div
-          className="grid h-14 w-14 place-items-center rounded-xl bg-sky-50/30 p-0 transition-transform duration-300 group-hover:scale-105 dark:bg-white/5 dark:shadow-[0_18px_32px_rgba(0,0,0,0.26)] sm:h-16 sm:w-16 md:h-20 md:w-20 xl:h-24 xl:w-24 2xl:h-28 2xl:w-28"
+          className="android-stable-hero-icon grid h-14 w-14 place-items-center rounded-xl p-0 transition-transform duration-300 group-hover:scale-105 sm:h-16 sm:w-16 md:h-20 md:w-20 xl:h-24 xl:w-24 2xl:h-28 2xl:w-28"
           style={{ color: service.color }}
           animate={{ rotate: isActive ? [0, -3, 3, 0] : 0 }}
           transition={{ duration: 1.2, repeat: isActive ? Infinity : 0, repeatDelay: 1.8 }}
@@ -249,8 +249,8 @@ function HeroServiceCard({ service, cta }) {
           </motion.span>
         </motion.div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-[11px] font-bold leading-tight text-text-primary transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
-          <span className="text-[10px] font-bold text-orange-500 transition-transform group-hover:translate-x-0.5 sm:text-xs">{cta}</span>
+          <span className="android-stable-hero-title text-[11px] font-bold leading-tight transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
+          <span className="android-stable-hero-cta text-[10px] font-bold transition-transform group-hover:translate-x-0.5 sm:text-xs">{cta}</span>
         </div>
       </motion.div>
     </Link>
