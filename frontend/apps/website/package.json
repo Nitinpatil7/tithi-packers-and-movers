@@ -19,6 +19,7 @@
     "@tithi/styles": "*",
     "@tithi/ui": "*",
     "@tithi/utils": "*",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.18.1",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

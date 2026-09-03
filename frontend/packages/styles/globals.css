@@ -157,25 +157,29 @@ body {
   display: grid;
   min-width: 0;
   gap: .75rem;
-  grid-template-columns: minmax(0, 1fr);
 }
 
 .admin-stat-grid > * {
   min-width: 0;
 }
 
+.admin-stat-grid[data-count="2"],
+.admin-stat-grid[data-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-stat-grid[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-stat-grid[data-count="5"],
+.admin-stat-grid[data-count="6"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 @media (min-width: 560px) {
   .admin-stat-grid {
     gap: 1rem;
-  }
-
-  .admin-stat-grid[data-count="2"],
-  .admin-stat-grid[data-count="4"] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .admin-stat-grid[data-count="3"] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

@@ -1,9 +1,7 @@
 export const metadata = {
-  title: 'Tithi Packers and Movers | #1 Shifting Service in Surat',
-  description: 'Book local shifting, intercity moving, business relocation, and ordinary services (packing, unpacking, loading, unloading) in Surat, Gujarat. Get a free quote in 2 hours.',
-  alternates: {
-    canonical: 'https://tithipacking.com',
-  },
+  title: 'No. 1 Packers and Movers in Surat',
+  description: 'Book Tithi Packers & Movers, No. 1 Packers and Movers in Surat for local shifting, intercity moving, labour, vehicle and packing services.',
+  alternates: { canonical: '/' },
 };
 
 import React from 'react';

@@ -42,7 +42,7 @@ export default function AdminHeader({ onToggleSidebar }) {
   const isSubpage = paths.length > 2;
 
   return (
-    <header className="h-16 border-b border-sky-100 bg-white/90 backdrop-blur-xl flex items-center justify-between px-4 md:px-7 sticky top-0 z-10">
+    <header className="h-16 min-h-16 shrink-0 border-b border-sky-100 bg-white/90 backdrop-blur-xl flex items-center justify-between px-4 md:px-7 sticky top-0 z-10">
       {/* Left Section: Breadcrumbs */}
       <div className="flex items-center gap-2 md:gap-3">
         <button

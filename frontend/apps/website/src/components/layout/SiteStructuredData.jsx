@@ -21,7 +21,7 @@ export default function SiteStructuredData() {
     '@type': 'MovingCompany',
     name: site.companyName || 'Tithi Packers and Movers',
     description: site.seo?.metaDescription || 'Professional packers and movers in Surat offering local shifting, intercity moving, Labour & Vehicle, and commercial relocation.',
-    url: 'https://tithipacking.com',
+    url: 'https://tithipackers.in',
     telephone: site.phone || '',
     email: site.email || '',
     address: {

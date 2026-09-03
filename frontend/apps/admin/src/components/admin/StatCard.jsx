@@ -27,14 +27,14 @@ export default function StatCard({
   const isTrendUp = trendDirection === 'up';
 
   return (
-    <Card className="p-5 flex items-center justify-between border-bg-border bg-bg-card/65 glass relative overflow-hidden group">
+    <Card className="relative flex min-w-0 items-center justify-between gap-2 overflow-hidden border-bg-border bg-bg-card/65 p-3 glass sm:p-5 group">
       
       {/* Metrics text */}
-      <div className="flex flex-col gap-1 text-left">
-        <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
+      <div className="flex min-w-0 flex-col gap-1 text-left">
+        <span className="text-[10px] font-semibold text-text-secondary uppercase leading-tight tracking-wider sm:text-xs">
           {title}
         </span>
-        <span className="text-2xl md:text-3xl font-black text-text-primary mt-1">
+        <span className="mt-1 text-xl font-black text-text-primary sm:text-2xl md:text-3xl">
           <AnimatedCounter value={value} suffix={suffix} />
         </span>
         
@@ -56,8 +56,8 @@ export default function StatCard({
 
       {/* Decorative Icon */}
       {Icon && (
-        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center border shrink-0", iconColors[color])}>
-          <Icon className="w-5.5 h-5.5" />
+        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border sm:h-12 sm:w-12", iconColors[color])}>
+          <Icon className="h-4.5 w-4.5 sm:h-5.5 sm:w-5.5" />
         </div>
       )}
 

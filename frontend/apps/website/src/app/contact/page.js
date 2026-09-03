@@ -3,11 +3,9 @@ import React from 'react';
 import ContactClient from './ContactClient';
 
 export const metadata = {
-  title: 'Contact Tithi Packers and Movers Surat | Shifting Hub in Adajan',
-  description: 'Get in touch with Tithi Packers and Movers in Surat. Call +91 98765 43210 or email support@tithipacking.com. Get a 2-hour WhatsApp estimate for local and national relocations.',
-  alternates: {
-    canonical: 'https://tithipacking.com/contact',
-  },
+  title: 'Contact Packers and Movers in Surat',
+  description: 'Contact Tithi Packers & Movers, No. 1 Packers and Movers in Surat, for local shifting, intercity moving and labour service quotes.',
+  alternates: { canonical: '/contact' },
 };
 
 export default function ContactPage() {

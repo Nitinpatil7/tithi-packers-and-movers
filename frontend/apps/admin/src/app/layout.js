@@ -1,12 +1,12 @@
 // apps/admin/src/app/layout.js
 import React from 'react';
 import localFont from 'next/font/local';
+import { Analytics } from '@vercel/analytics/next';
 import Providers from '@tithi/components/layout/Providers';
 import '@tithi/styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableGoogleMapsKey = Boolean(googleMapsKey && !googleMapsKey.includes('PLACEHOLDER'));
-const businessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE || '';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -21,85 +21,17 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://tithipacking.com'),
+  metadataBase: new URL('https://tithipackers.in'),
   title: {
-    default: 'Tithi Packers and Movers | #1 Packers & Movers in Surat',
-    template: '%s | Tithi Packers and Movers Surat'
+    default: 'Tithi Packers & Movers Admin',
+    template: '%s | Tithi Admin',
   },
-  description: 'Trusted packers and movers in Surat. Book local shifting, intercity moving to all India, packing service, and commercial relocation online. Get free quote in 2 minutes.',
-  keywords: ['packers and movers surat', 'local shifting surat', 'intercity moving surat to mumbai', 'packing service surat', 'office relocation surat', 'home shifting surat', 'tithi packers movers'],
-  openGraph: {
-    title: 'Tithi Packers and Movers Surat — Book Online',
-    description: 'Trusted local & intercity moving service. Book in 2 minutes, get quote in 2 hours.',
-    url: 'https://tithipacking.com',
-    siteName: 'Tithi Packers and Movers',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
-    locale: 'en_IN',
-    type: 'website'
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Tithi Packers and Movers | Surat',
-    description: 'Trusted moving service in Surat. Book online, get free quote.',
-    images: ['/og-image.jpg']
-  },
-  alternates: {
-    canonical: 'https://tithipacking.com'
-  },
+  description: 'Internal booking, pricing and website operations dashboard for Tithi Packers & Movers.',
   robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true }
-  }
-};
-
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "MovingCompany",
-  "name": "Tithi Packers and Movers",
-  "description": "Professional packers and movers in Surat offering local shifting, intercity moving, packing services, and commercial relocation.",
-  "url": "https://tithipacking.com",
-  "telephone": businessPhone,
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "102, Shanti Complex, Opp. Star Bazaar, Adajan",
-    "addressLocality": "Surat",
-    "addressRegion": "Gujarat",
-    "postalCode": "395009",
-    "addressCountry": "IN"
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
   },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": "21.1702",
-    "longitude": "72.8311"
-  },
-  "openingHoursSpecification": {
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    "opens": "07:00",
-    "closes": "21:00"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "reviewCount": "234"
-  },
-  "priceRange": "₹₹",
-  "areaServed": ["Surat", "Gujarat", "India"],
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Moving Services",
-    "itemListElement": [
-      { "@type": "Offer", "name": "Local Shifting Surat" },
-      { "@type": "Offer", "name": "Intercity Moving" },
-      { "@type": "Offer", "name": "Ordinary Service" },
-      { "@type": "Offer", "name": "Business Relocation" }
-    ]
-  },
-  "sameAs": [
-    "https://instagram.com/tithipackers",
-    "https://facebook.com/tithipackers"
-  ]
 };
 
 export default function RootLayout({ children }) {
@@ -111,10 +43,6 @@ export default function RootLayout({ children }) {
     >
       <head>
         <meta name="color-scheme" content="light dark" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
         {/* Never load Google with a placeholder key: its SDK corrupts inputs
             with a repeating error image when authentication fails. */}
         {hasUsableGoogleMapsKey && (
@@ -127,6 +55,7 @@ export default function RootLayout({ children }) {
       <body className="bg-bg-page text-text-primary min-h-screen flex flex-col justify-between">
         <Providers>
           {children}
+          <Analytics />
         </Providers>
       </body>
     </html>

@@ -1,21 +1,24 @@
-// src/app/sitemap.js
-export default async function sitemap() {
-  const baseUrl = 'https://tithipacking.com';
+const baseUrl = 'https://tithipackers.in';
 
-  const routes = [
-    '/',
-    '/about',
-    '/contact',
-    '/my-bookings',
-    '/book/local-shifting',
-    '/book/intercity-moving',
-    '/book/labour-service',
-  ];
+const routes = [
+  { path: '/', changeFrequency: 'weekly', priority: 1 },
+  { path: '/book/local-shifting', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/book/intercity-moving', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/book/labour-service', changeFrequency: 'weekly', priority: 0.85 },
+  { path: '/book/ordinary-service', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/book/commercial-moving', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/about', changeFrequency: 'monthly', priority: 0.75 },
+  { path: '/contact', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/feedback', changeFrequency: 'monthly', priority: 0.55 },
+  { path: '/my-bookings', changeFrequency: 'monthly', priority: 0.45 },
+  { path: '/profile', changeFrequency: 'monthly', priority: 0.35 },
+];
 
+export default function sitemap() {
   return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date().toISOString().split('T')[0],
-    changeFrequency: 'weekly',
-    priority: route === '/' ? 1.0 : 0.8,
+    url: `${baseUrl}${route.path}`,
+    lastModified: new Date(),
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
 }

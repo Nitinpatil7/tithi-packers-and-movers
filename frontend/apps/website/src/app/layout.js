@@ -1,6 +1,7 @@
 // apps/website/src/app/layout.js
 import React from 'react';
 import localFont from 'next/font/local';
+import { Analytics } from '@vercel/analytics/next';
 import Providers from '@tithi/components/layout/Providers';
 import WebsiteChrome from '@/components/layout/WebsiteChrome';
 import '@tithi/styles/globals.css';
@@ -20,36 +21,36 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://tithipacking.com'),
+  metadataBase: new URL('https://tithipackers.in'),
   title: {
-    default: 'Tithi Packers and Movers | #1 Packers & Movers in Surat',
-    template: '%s | Tithi Packers and Movers Surat'
+    default: 'Packers and Movers in Surat | Tithi Packers & Movers',
+    template: '%s | Tithi Packers & Movers',
   },
-  description: 'Trusted packers and movers in Surat. Book local shifting, intercity moving to all India, packing service, and commercial relocation online. Get free quote in 2 minutes.',
-  keywords: ['packers and movers surat', 'local shifting surat', 'intercity moving surat to mumbai', 'packing service surat', 'office relocation surat', 'home shifting surat', 'tithi packers movers'],
+  description: 'Professional packers and movers in Surat for local shifting, intercity moving, packing, loading, unloading and labour services.',
+  keywords: ['packers and movers surat', 'no 1 packers and movers surat', 'local shifting surat', 'intercity moving surat', 'labour service surat', 'home shifting surat', 'tithi packers movers'],
   openGraph: {
-    title: 'Tithi Packers and Movers Surat — Book Online',
-    description: 'Trusted local & intercity moving service. Book in 2 minutes, get quote in 2 hours.',
-    url: 'https://tithipacking.com',
-    siteName: 'Tithi Packers and Movers',
+    title: 'Tithi Packers & Movers',
+    description: 'Professional packers and movers in Surat for local and intercity moving services.',
+    url: 'https://tithipackers.in',
+    siteName: 'Tithi Packers & Movers',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
     locale: 'en_IN',
-    type: 'website'
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tithi Packers and Movers | Surat',
-    description: 'Trusted moving service in Surat. Book online, get free quote.',
-    images: ['/og-image.jpg']
+    title: 'Tithi Packers & Movers | Surat',
+    description: 'Professional packers and movers in Surat. Book online, get a free quote.',
+    images: ['/og-image.jpg'],
   },
   alternates: {
-    canonical: 'https://tithipacking.com'
+    canonical: '/',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true }
-  }
+    googleBot: { index: true, follow: true },
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -73,6 +74,7 @@ export default function RootLayout({ children }) {
       <body className="bg-bg-page text-text-primary min-h-screen flex flex-col justify-between">
         <Providers>
           <WebsiteChrome>{children}</WebsiteChrome>
+          <Analytics />
         </Providers>
       </body>
     </html>

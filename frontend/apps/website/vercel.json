@@ -1,3 +1,16 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tithipackers.in"
+        }
+      ],
+      "destination": "https://tithipackers.in/:path*",
+      "permanent": true
+    }
+  ]
 }

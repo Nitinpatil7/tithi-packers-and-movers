@@ -59,11 +59,11 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="admin-theme flex h-screen overflow-hidden bg-sky-50 text-slate-900">
+    <div className="admin-theme flex h-screen min-h-screen overflow-hidden bg-sky-50 text-slate-900 supports-[height:100dvh]:h-dvh supports-[height:100dvh]:min-h-dvh">
       <AdminSidebar isOpen={sidebarOpen} onClose={closeSidebar} />
-      <div className="flex min-w-0 flex-1 flex-col h-screen overflow-hidden">
+      <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <AdminHeader onToggleSidebar={() => setSidebarOpen((open) => !open)} />
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[radial-gradient(circle_at_top_right,_#dff4ff_0,_#f0f9ff_34%,_#f8fcff_70%)] p-4 pb-12 md:p-7 md:pb-14 lg:pb-16">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[radial-gradient(circle_at_top_right,_#dff4ff_0,_#f0f9ff_34%,_#f8fcff_70%)] p-4 pb-20 md:p-7 md:pb-24 lg:pb-28">
           {children}
         </main>
       </div>
