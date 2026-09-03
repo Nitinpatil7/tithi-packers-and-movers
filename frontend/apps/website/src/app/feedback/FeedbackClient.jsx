@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { CheckCircle2, ImagePlus, LocateFixed, MessageSquareQuote, Send, Star } from 'lucide-react';
+import { CheckCircle2, ImagePlus, LocateFixed, MessageSquareQuote, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '@tithi/ui/Spinner';
+import StarRating from '@tithi/ui/StarRating';
 import { submitSimpleFeedback } from '@tithi/lib/testimonialApi';
 
 const MAX_IMAGE_BYTES = 950 * 1024;
@@ -261,19 +262,12 @@ export default function SimpleFeedbackPage() {
           </div>
 
           <Field label="Star rating *">
-            <div className="grid grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => setForm({ ...form, rating })}
-                  className={`grid h-12 place-items-center rounded-2xl border ${Number(form.rating) >= rating ? 'border-sky-300 bg-sky-50 text-sky-600' : 'border-sky-100 bg-bg-white text-slate-300'}`}
-                  aria-label={`${rating} star`}
-                >
-                  <Star className={`h-5 w-5 ${Number(form.rating) >= rating ? 'fill-current' : 'fill-transparent'}`} />
-                </button>
-              ))}
-            </div>
+            <StarRating
+              interactive
+              rating={form.rating}
+              size="md"
+              onRate={(rating) => setForm({ ...form, rating })}
+            />
           </Field>
 
           <Field label="Your words *">

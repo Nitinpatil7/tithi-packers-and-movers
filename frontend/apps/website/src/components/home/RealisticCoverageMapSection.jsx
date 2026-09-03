@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Globe2, Map as MapIcon, MapPin, Navigation2, Star, UserRound, X } from 'lucide-react';
+import { Globe2, Map as MapIcon, MapPin, Navigation2, UserRound, X } from 'lucide-react';
+import StarRating from '@tithi/ui/StarRating';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 
 const SURAT_HUB = { name: 'Surat Hub', lat: 21.1702, lng: 72.8311 };
@@ -10,10 +11,16 @@ const SURAT_HUB = { name: 'Surat Hub', lat: 21.1702, lng: 72.8311 };
 const PLACES = {
   surat: { mode: 'surat', state: 'Gujarat', lat: 21.1702, lng: 72.8311 },
   adajan: { mode: 'surat', state: 'Gujarat', lat: 21.1927, lng: 72.7933 },
+  althan: { mode: 'surat', state: 'Gujarat', lat: 21.1558, lng: 72.8092 },
+  'althan road': { mode: 'surat', state: 'Gujarat', lat: 21.1558, lng: 72.8092 },
+  'althan gam': { mode: 'surat', state: 'Gujarat', lat: 21.1558, lng: 72.8092 },
   pal: { mode: 'surat', state: 'Gujarat', lat: 21.1902, lng: 72.7686 },
   piplod: { mode: 'surat', state: 'Gujarat', lat: 21.1597, lng: 72.7704 },
-  vesu: { mode: 'surat', state: 'Gujarat', lat: 21.1417, lng: 72.7709 },
-  pandesara: { mode: 'surat', state: 'Gujarat', lat: 21.1455, lng: 72.8399 },
+  vesu: { mode: 'surat', state: 'Gujarat', lat: 21.1527, lng: 72.7797 },
+  'vesu road': { mode: 'surat', state: 'Gujarat', lat: 21.1527, lng: 72.7797 },
+  'vip road': { mode: 'surat', state: 'Gujarat', lat: 21.144, lng: 72.7974 },
+  pandesara: { mode: 'surat', state: 'Gujarat', lat: 21.1513, lng: 72.8363 },
+  'pandesara gidc': { mode: 'surat', state: 'Gujarat', lat: 21.1513, lng: 72.8363 },
   udhna: { mode: 'surat', state: 'Gujarat', lat: 21.1707, lng: 72.8506 },
   varachha: { mode: 'surat', state: 'Gujarat', lat: 21.2169, lng: 72.8666 },
   katargam: { mode: 'surat', state: 'Gujarat', lat: 21.2304, lng: 72.8311 },
@@ -99,8 +106,17 @@ const META = {
   },
 };
 
+function normalizeLocation(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/^\s*[a-z0-9]{2,}\+[a-z0-9]{2,}\s*,?\s*/i, '')
+    .replace(/[^\w\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function matchPlace(label) {
-  const value = String(label || '').toLowerCase();
+  const value = normalizeLocation(label);
   const key = Object.keys(PLACES).sort((a, b) => b.length - a.length).find((place) => value.includes(place));
   return key ? { key, ...PLACES[key] } : null;
 }
@@ -140,7 +156,8 @@ function buildCoverage(testimonials) {
     return node.mode === 'surat';
   });
   const locations = nodes.flatMap((node) => node.locations || [node.name]).filter(Boolean);
-  return { mode, locations, nodes, represented: mode === 'india' ? new Set(nodes.map((node) => node.state)).size : nodes.length };
+  const mappedTestimonials = nodes.reduce((sum, node) => sum + (node.testimonials?.length || 0), 0);
+  return { mode, locations, nodes, represented: mappedTestimonials };
 }
 
 function useGoogleMapsReady() {
@@ -230,11 +247,12 @@ function TestimonialHoverCard({ node, position, onClose }) {
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-black">{primary.name || 'Verified customer'}</h3>
           <p className="truncate text-[11px] font-bold text-text-tertiary dark:text-slate-400">{primary.location || node.name}</p>
-          <div className="mt-1 flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star key={star} className={`h-3.5 w-3.5 ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-bg-border dark:text-slate-700'}`} />
-            ))}
-          </div>
+          <StarRating
+            rating={rating}
+            size="xs"
+            className="mt-1"
+            inactiveStarClassName="text-bg-border dark:text-slate-700"
+          />
         </div>
       </div>
       <p className="mt-3 line-clamp-2 text-xs font-semibold leading-5 text-text-secondary dark:text-slate-300">
@@ -447,7 +465,7 @@ export default function RealisticCoverageMapSection() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/[.04] p-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Mapped</p>
-                <p className="mt-1 text-2xl font-black text-white">{coverage.represented || 1}</p>
+                <p className="mt-1 text-2xl font-black text-white">{coverage.represented}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[.04] p-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">View</p>
@@ -473,7 +491,7 @@ export default function RealisticCoverageMapSection() {
               </div>
               <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs font-bold text-slate-400 sm:flex-row sm:justify-between">
                 <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-500" />Google Maps hybrid view</span>
-                <span>{coverage.represented || 1} mapped {coverage.mode === 'india' ? 'states' : coverage.mode === 'gujarat' ? 'cities' : 'locations'}</span>
+                <span>{coverage.represented} mapped review{coverage.represented === 1 ? '' : 's'}</span>
               </div>
             </div>
           </div>

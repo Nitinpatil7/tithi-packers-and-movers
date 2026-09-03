@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import {
   MessageSquareQuote,
   Quote,
-  Star,
   UserRound,
 } from "lucide-react";
+import StarRating from "@tithi/ui/StarRating";
 import { usePublicTestimonials } from "@hooks/useTestimonials";
 
 const serviceLabels = {
@@ -25,17 +25,12 @@ function TestimonialCard({ item }) {
     >
       <div className="min-h-0">
         <div className="flex items-start justify-between">
-          <div
-            className="flex gap-1 rounded-full bg-amber-50 px-2.5 py-1 ring-1 ring-amber-100"
-            aria-label={`${item.rating} out of 5 stars`}
-          >
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`h-4 w-4 ${star <= item.rating ? "fill-amber-400 text-amber-400 drop-shadow-sm" : "text-bg-border"}`}
-              />
-            ))}
-          </div>
+          <StarRating
+            rating={item.rating}
+            size="sm"
+            className="rounded-full bg-amber-50 px-2.5 py-1 ring-1 ring-amber-100"
+            inactiveStarClassName="text-bg-border dark:text-slate-600"
+          />
           <Quote
             className="h-9 w-9 text-primary/15 transition-colors group-hover:text-orange-200"
           />
@@ -129,14 +124,14 @@ export default function TestimonialsSection() {
           {!displayLoading && (
             <div className="mt-2 inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-white/90 px-5 py-3 shadow-card dark:border-orange-300/25 dark:bg-sky-400/10">
               <strong className="text-2xl text-text-primary">{average}</strong>
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className="h-3.5 w-3.5 fill-orange-500 text-orange-500"
-                  />
-                ))}
-              </div>
+              <StarRating
+                rating={average}
+                size="xs"
+                activeColor="#f97316"
+                inactiveColor="rgba(254,215,170,0.5)"
+                activeStarClassName="text-orange-500 drop-shadow-sm"
+                inactiveStarClassName="text-orange-100 dark:text-orange-300/25"
+              />
               <span className="border-l border-orange-100 pl-4 text-xs font-bold text-text-secondary dark:border-orange-300/25 dark:text-text-primary">
                 {publishedReviewCount} published reviews
               </span>

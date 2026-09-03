@@ -3,7 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Phone, MessageCircle, Star } from 'lucide-react';
+import { ArrowRight, Phone, MessageCircle } from 'lucide-react';
+import StarRating from '@tithi/ui/StarRating';
 import { useLanguageStore } from '@tithi/store/languageStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
@@ -45,9 +46,14 @@ export default function CTABannerSection() {
             <div className="flex max-w-xl flex-col gap-5 text-center md:text-left">
               {/* Stars */}
               <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-white text-white" />
-                ))}
+                <StarRating
+                  rating={5}
+                  size="md"
+                  activeColor="#ffffff"
+                  inactiveColor="rgba(255,255,255,0.35)"
+                  activeStarClassName="text-white"
+                  inactiveStarClassName="text-white/30"
+                />
                 <span className="text-white/80 text-sm font-semibold ml-1">4.9 · 234 {t.verifiedReviews || 'reviews'}</span>
               </div>
               

@@ -4,8 +4,9 @@ import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useInView, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Star, Truck } from 'lucide-react';
+import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Truck } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
+import StarRating from '@tithi/ui/StarRating';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
@@ -85,11 +86,7 @@ export default function HeroSection() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="flex items-center gap-3">
-            <div className="flex items-center gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
+            <StarRating rating={averageRating} size="sm" />
             <span className="text-sm font-bold text-text-primary">{averageRating}</span>
             <span className="text-sm text-text-secondary">{verifiedReviewCount} {t.verifiedReviews || 'verified reviews'}</span>
           </motion.div>

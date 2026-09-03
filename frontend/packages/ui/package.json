@@ -12,6 +12,7 @@
     "./Modal": "./Modal.jsx",
     "./Select": "./Select.jsx",
     "./Spinner": "./Spinner.jsx",
+    "./StarRating": "./StarRating.jsx",
     "./Toast": "./Toast.jsx"
   },
   "dependencies": {
