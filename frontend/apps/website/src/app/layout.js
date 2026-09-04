@@ -30,10 +30,11 @@ export const metadata = {
   keywords: ['packers and movers surat', 'no 1 packers and movers surat', 'local shifting surat', 'intercity moving surat', 'labour service surat', 'home shifting surat', 'tithi packers movers'],
   icons: {
     icon: [
-      { url: '/logo.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
     ],
-    shortcut: '/logo.png',
+    shortcut: '/favicon.ico',
     apple: '/logo.png',
   },
   openGraph: {

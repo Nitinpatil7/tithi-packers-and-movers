@@ -29,10 +29,11 @@ export const metadata = {
   description: 'Internal booking, pricing and website operations dashboard for Tithi Packers & Movers.',
   icons: {
     icon: [
-      { url: '/logo.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
     ],
-    shortcut: '/logo.png',
+    shortcut: '/favicon.ico',
     apple: '/logo.png',
   },
   robots: {
