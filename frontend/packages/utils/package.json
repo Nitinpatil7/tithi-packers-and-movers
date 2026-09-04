@@ -6,6 +6,7 @@
     "./package.json": "./package.json",
     "./bookingPayload": "./bookingPayload.js",
     "./freeAllowanceDisplay": "./freeAllowanceDisplay.js",
+    "./htmlSanitizer": "./htmlSanitizer.js",
     "./pricing": "./pricing.js",
     "./serviceTypes": "./serviceTypes.js",
     "./siteAssets": "./siteAssets.js",

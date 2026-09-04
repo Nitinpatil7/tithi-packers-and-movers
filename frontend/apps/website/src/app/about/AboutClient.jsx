@@ -1,20 +1,18 @@
 // src/app/(website)/about/AboutClient.jsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Users, Milestone, Award } from 'lucide-react';
+import { ShieldCheck, Users, Milestone, Award, Building2 } from 'lucide-react';
 import Card from '@tithi/ui/Card';
 import { useLanguageStore } from '@tithi/store/languageStore';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { sanitizeAdminHtml } from '@tithi/utils/htmlSanitizer';
 
 const ABOUT_TRANSLATIONS = {
   en: {
     journey: "Our Journey",
-    title1: "Relocating Families & Businesses ",
-    title2: "With Care",
-    desc1: "Established in Surat, Gujarat, Tithi Packers and Movers has grown from a local household moving service to a full-fledged logistical relocation provider connecting Surat to cities across India.",
-    desc2: "We realized that household shifting in India is often full of stress, hidden charges, and delays. Our goal is simple: to make booking your move as fast and transparent as booking a cab online. No long negotiations, just clean multi-step forms, automated estimates, and professional movers handling the heavy lifting.",
+    title: "About Tithi Packers & Movers",
     coreValues: "Our Core Values",
     values: [
       { title: 'Customer First', desc: 'Every relocation schedule is designed to minimize friction and provide peace of mind.' },
@@ -26,10 +24,7 @@ const ABOUT_TRANSLATIONS = {
   },
   hi: {
     journey: "हमारी यात्रा",
-    title1: "परिवारों और व्यवसायों का स्थानांतरण ",
-    title2: "पूरी सावधानी से",
-    desc1: "सूरत, गुजरात में स्थापित, तीथि पैकर्स एंड मूवर्स एक स्थानीय घरेलू स्थानांतरण सेवा से बढ़कर सूरत को भारत के विभिन्न शहरों से जोड़ने वाला एक पूर्ण लॉजिस्टिक स्थानांतरण प्रदाता बन गया है।",
-    desc2: "हमने महसूस किया कि भारत में घरेलू शिफ्टिंग अक्सर तनाव, छुपे हुए शुल्क और देरी से भरी होती है। हमारा लक्ष्य सरल है: आपकी शिफ्टिंग बुक करने की प्रक्रिया को ऑनलाइन कैब बुक करने जितना तेज़ और पारदर्शी बनाना। कोई लंबी बातचीत नहीं, बस स्पष्ट फॉर्म, स्वचालित अनुमान और भारी सामान उठाने वाले पेशेवर मूवर्स।",
+    title: "तीथि पैकर्स एंड मूवर्स के बारे में",
     coreValues: "हमारे मूल मूल्य",
     values: [
       { title: 'ग्राहक पहले', desc: 'हर स्थानांतरण शेड्यूल को परेशानी कम करने और मानसिक शांति प्रदान करने के लिए डिज़ाइन किया गया है।' },
@@ -41,10 +36,7 @@ const ABOUT_TRANSLATIONS = {
   },
   gu: {
     journey: "અમારી સફર",
-    title1: "પરિવારો અને વ્યવસાયોનું સ્થળાંતર ",
-    title2: "પૂરી કાળજી સાથે",
-    desc1: "સુરત, ગુજરાતમાં સ્થપાયેલ, તીથિ પેકર્સ એન્ડ મૂવર્સ એક સ્થાનિક ઘર શિફ્ટિંગ સેવા તરીકે શરૂ થઈને આજે સુરતને ભારતના વિવિધ શહેરો સાથે જોડતી એક સંપૂર્ણ લોજિસ્ટિક્સ સ્થળાંતર સેવા બની ગઈ છે.",
-    desc2: "અમે અનુભવ્યું કે ભારતમાં હોમ શિફ્ટિંગ ઘણીવાર તણાવ, છુપા ચાર્જ અને વિલંબથી ભરેલું હોય છે. અમારો ધ્યેય સરળ છે: તમારા શિફ્ટિંગ બુકિંગને ઓનલાઈન કેબ બુક કરવા જેટલું ઝડપી અને પારદર્શક બનાવવું. કોઈ લાંબી ચર્ચા નહીં, બસ સરળ ફોર્મ, ઓટોમેટેડ એસ્ટીમેટ્સ અને પ્રોફેશનલ મૂવર્સ દ્વારા સામાનનું ટ્રાન્સફર.",
+    title: "તીથિ પેકર્સ એન્ડ મૂવર્સ વિશે",
     coreValues: "અમારા મૂળ મૂલ્યો",
     values: [
       { title: 'ગ્રાહક પ્રથમ', desc: 'દરેક શિફ્ટિંગ શેડ્યૂલ ગ્રાહકની સુવિધા વધારવા અને માનસિક શાંતિ આપવા માટે ડિઝાઇન કરવામાં આવ્યું છે।' },
@@ -59,11 +51,16 @@ const ABOUT_TRANSLATIONS = {
 export default function AboutClient() {
   const { language } = useLanguageStore();
   const t = ABOUT_TRANSLATIONS[language] || ABOUT_TRANSLATIONS['en'];
-  const { data: site = {} } = useSiteSetting();
-  const aboutParagraphs = site.aboutDescription
-    ? site.aboutDescription.split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean)
-    : [];
+  const [mounted, setMounted] = useState(false);
+  const { data: site = {}, isLoading, isError } = useSiteSetting();
+  const aboutHtml = useMemo(() => sanitizeAdminHtml(site.aboutDescription || ''), [site.aboutDescription]);
   const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
+  const title = site.aboutTitle || t.title;
+  const showSkeleton = !mounted || isLoading;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const values = [
     { title: t.values[0].title, desc: t.values[0].desc, icon: Users },
@@ -79,23 +76,54 @@ export default function AboutClient() {
         animate={{ rotateY: [0, 12, 0], y: [0, -8, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="relative z-10 max-w-4xl mx-auto px-4 text-left flex flex-col gap-10">
-        
-        {/* Title */}
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="flex flex-col gap-3">
-          <span className="text-xs uppercase font-bold tracking-widest text-primary">{t.journey}</span>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-text-primary">
-            {site.aboutTitle || <>{t.title1}<span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">{t.title2}</span></>}
-          </h1>
-          <div className="w-16 h-1 bg-primary rounded-full mt-2" />
-        </motion.div>
+      <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-10 px-4 text-left sm:px-6 lg:px-8">
+        {showSkeleton ? (
+          <section className="mx-auto w-full max-w-4xl">
+            <div className="h-4 w-28 animate-pulse rounded-full bg-primary/15" />
+            <div className="mt-5 h-12 w-4/5 max-w-2xl animate-pulse rounded-2xl bg-bg-border/70" />
+            <div className="mt-4 h-5 w-2/3 animate-pulse rounded-full bg-bg-border/60" />
+            <div className="mt-12 space-y-4 rounded-3xl border border-bg-border bg-bg-white p-6 shadow-card">
+              <div className="h-6 w-2/5 animate-pulse rounded-full bg-bg-border/70" />
+              <div className="h-4 w-full animate-pulse rounded-full bg-bg-border/60" />
+              <div className="h-4 w-11/12 animate-pulse rounded-full bg-bg-border/60" />
+              <div className="h-4 w-3/4 animate-pulse rounded-full bg-bg-border/60" />
+            </div>
+          </section>
+        ) : (
+          <>
+        <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="flex flex-col gap-4">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary">
+              <Building2 className="h-3.5 w-3.5" />
+              {t.journey}
+            </span>
+            <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-text-primary md:text-6xl">
+              {title}
+            </h1>
+            <p className="max-w-2xl text-base font-semibold leading-7 text-text-secondary md:text-lg">
+              Learn about the team, values and service standards behind Tithi Packers & Movers.
+            </p>
+          </div>
+          <Card className="border border-bg-border bg-bg-white/90 p-5 shadow-card">
+            <p className="text-xs font-black uppercase tracking-widest text-text-tertiary">Surat operations</p>
+            <p className="mt-3 text-3xl font-black text-primary">Local + Intercity</p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-text-secondary">Packing, loading, transport and labour support managed from one service team.</p>
+          </Card>
+        </motion.section>
 
-        {/* Text Details */}
-        <div className="flex flex-col gap-6 text-text-secondary text-base leading-relaxed">
-          {aboutParagraphs.length > 0
-            ? aboutParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>)
-            : <><p>{t.desc1}</p><p>{t.desc2}</p></>}
-        </div>
+        <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.08 }} className="rounded-3xl border border-bg-border bg-bg-white/95 p-5 shadow-card sm:p-7 md:p-9">
+          {isError ? (
+            <p className="text-sm font-semibold text-red-500">Could not load About Us content. Please try again.</p>
+          ) : aboutHtml ? (
+            <div className="about-content" dangerouslySetInnerHTML={{ __html: aboutHtml }} />
+          ) : (
+            <div className="space-y-3">
+              <div className="h-5 w-2/5 rounded-full bg-bg-border/70" />
+              <div className="h-4 w-full rounded-full bg-bg-border/60" />
+              <div className="h-4 w-10/12 rounded-full bg-bg-border/60" />
+            </div>
+          )}
+        </motion.section>
 
         {/* Values Section */}
         <div className="flex flex-col gap-6">
@@ -133,14 +161,81 @@ export default function AboutClient() {
             {t.hubDesc}
           </p>
           {address && (
-            <p className="flex items-start gap-2 rounded-2xl border border-primary/15 bg-white/70 p-3 text-text-primary">
+            <p className="flex items-start gap-2 rounded-2xl border border-primary/15 bg-bg-white/80 p-3 text-text-primary">
               <Milestone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <span>{address}</span>
             </p>
           )}
         </Card>
+          </>
+        )}
 
       </div>
+      <style jsx global>{`
+        .about-content {
+          max-width: 760px;
+          color: var(--color-text-secondary);
+          font-size: 1rem;
+          line-height: 1.8;
+        }
+        .about-content > * + * {
+          margin-top: 1rem;
+        }
+        .about-content h1,
+        .about-content h2,
+        .about-content h3,
+        .about-content h4 {
+          color: var(--color-text-primary);
+          font-family: var(--font-heading);
+          font-weight: 900;
+          line-height: 1.15;
+        }
+        .about-content h1 {
+          font-size: clamp(2rem, 5vw, 3.5rem);
+          margin-top: 0.25rem;
+          margin-bottom: 1rem;
+        }
+        .about-content h2 {
+          font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+          margin-top: 2rem;
+        }
+        .about-content h3 {
+          font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+          margin-top: 1.5rem;
+        }
+        .about-content p {
+          color: var(--color-text-secondary);
+          font-weight: 600;
+          margin: 0.85rem 0 0;
+        }
+        .about-content ul,
+        .about-content ol {
+          margin-top: 1rem;
+          padding-left: 1.35rem;
+          color: var(--color-text-secondary);
+          font-weight: 600;
+        }
+        .about-content ul {
+          list-style: disc;
+        }
+        .about-content ol {
+          list-style: decimal;
+        }
+        .about-content li + li {
+          margin-top: 0.55rem;
+        }
+        .about-content strong,
+        .about-content b {
+          color: var(--color-text-primary);
+          font-weight: 900;
+        }
+        .about-content a {
+          color: var(--color-primary);
+          font-weight: 800;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 // src/app/(website)/contact/ContactClient.jsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, MessageSquare, Send, Clock } from 'lucide-react';
 import Card from '@tithi/ui/Card';
@@ -130,10 +130,16 @@ const normalizeBranchCard = (branch = {}, fallback = {}) => {
 export default function ContactClient() {
   const { language } = useLanguageStore();
   const t = CONTACT_TRANSLATIONS[language] || CONTACT_TRANSLATIONS['en'];
+  const [mounted, setMounted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { data: site = {} } = useSiteSetting();
-  const { data: branches = [] } = useBranches();
-  const { data: mainBranch } = useMainBranch();
+  const { data: site = {}, isLoading: siteLoading } = useSiteSetting();
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
+  const { data: mainBranch, isLoading: mainBranchLoading } = useMainBranch();
+  const showSkeleton = !mounted || siteLoading || branchesLoading || mainBranchLoading;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
@@ -183,22 +189,55 @@ export default function ContactClient() {
         transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
       />
       <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
-        
-        {/* Title */}
-        <div className="flex flex-col items-center text-center mb-16 gap-3">
-          <span className="text-xs uppercase font-bold tracking-widest text-primary">{t.tag}</span>
-          <h1 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight">
+        {showSkeleton ? (
+          <section className="mx-auto max-w-5xl">
+            <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
+              <div className="h-9 w-36 animate-pulse rounded-full bg-primary/15" />
+              <div className="h-12 w-4/5 animate-pulse rounded-2xl bg-bg-border/70" />
+              <div className="h-5 w-2/3 animate-pulse rounded-full bg-bg-border/60" />
+            </div>
+            <div className="mt-12 grid gap-6 lg:grid-cols-12">
+              <div className="space-y-4 rounded-3xl border border-bg-border bg-bg-white p-5 shadow-card lg:col-span-7 md:p-8">
+                <div className="h-6 w-48 animate-pulse rounded-full bg-bg-border/70" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="h-14 animate-pulse rounded-2xl bg-bg-border/60" />
+                  <div className="h-14 animate-pulse rounded-2xl bg-bg-border/60" />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="h-14 animate-pulse rounded-2xl bg-bg-border/60" />
+                  <div className="h-14 animate-pulse rounded-2xl bg-bg-border/60" />
+                </div>
+                <div className="h-32 animate-pulse rounded-2xl bg-bg-border/60" />
+              </div>
+              <div className="space-y-4 rounded-3xl border border-bg-border bg-bg-white p-5 shadow-card lg:col-span-5 md:p-6">
+                <div className="h-6 w-40 animate-pulse rounded-full bg-bg-border/70" />
+                <div className="h-16 animate-pulse rounded-2xl bg-bg-border/60" />
+                <div className="h-16 animate-pulse rounded-2xl bg-bg-border/60" />
+                <div className="h-16 animate-pulse rounded-2xl bg-bg-border/60" />
+              </div>
+            </div>
+          </section>
+        ) : (
+          <>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="mx-auto mb-12 flex max-w-3xl flex-col items-center gap-4 text-center md:mb-16">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary">
+            <MessageSquare className="h-3.5 w-3.5" />
+            {t.tag}
+          </span>
+          <h1 className="text-4xl font-black tracking-tight text-text-primary md:text-6xl">
             {t.title}
           </h1>
-          <div className="w-16 h-1 bg-primary rounded-full mt-2" />
-        </div>
+          <p className="max-w-2xl text-base font-semibold leading-7 text-text-secondary md:text-lg">
+            Send your shifting requirement, call directly, or reach the Surat operations team from one place.
+          </p>
+        </motion.div>
 
         {/* Contact Layout grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
+        <div className="grid grid-cols-1 items-start gap-6 text-left lg:grid-cols-12 lg:gap-8">
           
           {/* Left Column: Form (7 cols) */}
-          <div className="lg:col-span-7">
-            <Card className="p-6 md:p-8 bg-bg-white/95 border border-bg-border/60 shadow-xs backdrop-blur transition hover:border-primary/20 hover:shadow-sky">
+          <motion.div initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.06 }} className="lg:col-span-7">
+            <Card className="p-5 md:p-8 bg-bg-white/95 border border-bg-border/60 shadow-card backdrop-blur transition hover:border-primary/20 hover:shadow-sky">
               <h3 className="text-lg font-bold text-text-primary flex items-center gap-2 mb-6 border-b border-bg-border/60 pb-3">
                 <MessageSquare className="w-5 h-5 text-primary" />
                 {t.sendMsg}
@@ -222,24 +261,24 @@ export default function ContactClient() {
                   <textarea
                     name="message"
                     rows={4}
-                    className="w-full p-3 bg-bg-page border border-bg-border text-text-primary rounded text-sm placeholder-text-tertiary outline-none resize-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="booking-input min-h-32 resize-none"
                     placeholder={t.phMsg}
                     required
                   />
                 </div>
 
-                <div className="pt-2 flex justify-end">
-                  <Button type="submit" loading={submitting} variant="primary" icon={Send} className="px-5 font-bold uppercase tracking-wider text-xs">
+                <div className="pt-2">
+                  <Button type="submit" loading={submitting} variant="primary" icon={Send} className="w-full px-5 text-xs font-bold uppercase tracking-wider sm:w-auto">
                     {t.btnSend}
                   </Button>
                 </div>
               </form>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Right Column: Office Info (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            <Card className="p-6 bg-bg-white/95 border border-bg-border/60 shadow-xs flex flex-col gap-6 backdrop-blur transition hover:border-primary/20 hover:shadow-sky">
+          <motion.div initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.12 }} className="flex flex-col gap-5 lg:col-span-5">
+            <Card className="flex flex-col gap-6 border border-bg-border/60 bg-bg-white/95 p-5 shadow-card backdrop-blur transition hover:border-primary/20 hover:shadow-sky md:p-6">
               <h3 className="text-base font-bold text-text-primary uppercase tracking-wider border-b border-bg-border/60 pb-3">
                 {t.corpOffice}
               </h3>
@@ -250,9 +289,9 @@ export default function ContactClient() {
                   const isLink = !!item.href;
                   
                   return (
-                    <div key={item.title} className="flex items-start gap-4">
-                      <div className="w-9 h-9 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5 border border-primary/20">
-                        <Icon className="w-4.5 h-4.5" />
+                    <div key={item.title} className="group flex items-start gap-4 rounded-2xl border border-bg-border bg-bg-page/70 p-3 transition hover:border-primary/25 hover:bg-primary/5">
+                      <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition group-hover:scale-105">
+                        <Icon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col text-left gap-0.5">
                         <span className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">
@@ -273,11 +312,23 @@ export default function ContactClient() {
                 })}
               </div>
             </Card>
-          </div>
+            <Card className="overflow-hidden border border-bg-border bg-bg-white p-0 shadow-card">
+              <div className="bg-primary/10 p-5">
+                <p className="text-xs font-black uppercase tracking-widest text-primary">Quick support</p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-text-secondary">For urgent shifting queries, calling is the fastest way to reach the operations team.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-bg-border text-center text-xs font-black uppercase text-text-secondary">
+                <span className="bg-bg-white px-3 py-4">Free quote</span>
+                <span className="bg-bg-white px-3 py-4">Daily support</span>
+              </div>
+            </Card>
+          </motion.div>
 
         </div>
 
         {visibleBranches.length > 0 && <section className="mt-16"><div className="mb-7 text-center"><span className="text-xs font-bold uppercase tracking-widest text-primary">{visibleBranches.length > 1 ? 'Our locations' : 'Our location'}</span><h2 className="mt-2 text-2xl font-black text-text-primary md:text-3xl">{visibleBranches.length > 1 ? 'Branches Near You' : visibleBranches[0].branchName}</h2>{visibleBranches.length > 1 && <p className="mt-2 text-sm text-text-secondary">Choose the most convenient branch. New locations appear here automatically.</p>}</div><div className={`grid gap-4 ${visibleBranches.length > 1 ? 'md:grid-cols-2 lg:grid-cols-3' : 'mx-auto max-w-xl'}`}>{visibleBranches.map((branch, index) => <Card key={branch._id || `${branch.branchName}-${index}`} className="border border-bg-border bg-bg-white p-5"><div className="flex items-start justify-between gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl border border-primary/20 text-primary"><MapPin className="h-5 w-5" /></span>{branch.isMainBranch && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase text-primary">Main branch</span>}</div><h3 className="mt-4 font-bold text-text-primary">{branch.branchName}</h3><p className="mt-1 text-sm font-medium text-text-secondary">{[branch.city, branch.state].filter(Boolean).join(', ')}</p><p className="mt-3 text-sm font-semibold leading-6 text-text-secondary">{branch.address}</p><div className="mt-4 flex flex-col gap-2 border-t border-bg-border pt-4 text-sm">{branch.phone && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={normalizePhoneHref(branch.phone)}><Phone className="h-4 w-4 text-primary" />{branch.phone}</a>}{branch.email && <a className="flex items-center gap-2 font-bold text-text-primary hover:text-primary" href={`mailto:${branch.email}`}><Mail className="h-4 w-4 text-primary" />{branch.email}</a>}</div></Card>)}</div></section>}
+          </>
+        )}
 
       </div>
     </div>
