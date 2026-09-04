@@ -27,6 +27,14 @@ export const metadata = {
     template: '%s | Tithi Admin',
   },
   description: 'Internal booking, pricing and website operations dashboard for Tithi Packers & Movers.',
+  icons: {
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   robots: {
     index: false,
     follow: false,

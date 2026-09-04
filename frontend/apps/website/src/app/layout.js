@@ -28,6 +28,14 @@ export const metadata = {
   },
   description: 'Professional packers and movers in Surat for local shifting, intercity moving, packing, loading, unloading and labour services.',
   keywords: ['packers and movers surat', 'no 1 packers and movers surat', 'local shifting surat', 'intercity moving surat', 'labour service surat', 'home shifting surat', 'tithi packers movers'],
+  icons: {
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   openGraph: {
     title: 'Tithi Packers & Movers',
     description: 'Professional packers and movers in Surat for local and intercity moving services.',

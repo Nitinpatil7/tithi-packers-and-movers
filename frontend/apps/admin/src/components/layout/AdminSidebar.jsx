@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -48,6 +48,12 @@ export default function AdminSidebar({ isOpen, onClose }) {
   const logout = useAdminAuthStore((state) => state.logout);
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const displayLogoSrc = logoFailed ? '/logo.png' : (logoSrc || '/logo.png');
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoSrc]);
 
   useEffect(() => {
     if (onClose) onClose();
@@ -91,16 +97,18 @@ export default function AdminSidebar({ isOpen, onClose }) {
         <div className="flex min-h-0 flex-1 flex-col">
           {/* Sidebar Brand */}
           <div className="p-4 md:p-6 border-b border-sky-100 flex items-center justify-start md:justify-center lg:justify-start gap-3">
-            {logoSrc && (
-              <Image
-                unoptimized
-                src={logoSrc}
-                alt={site.companyName || 'Company logo'}
-                width={140}
-                height={44}
-                className="h-10 w-auto max-w-[150px] shrink-0 object-contain md:h-11 md:max-w-[44px] lg:max-w-[150px]"
-              />
-            )}
+            <Image
+              unoptimized
+              src={displayLogoSrc}
+              alt={site.companyName || 'Company logo'}
+              width={140}
+              height={44}
+              priority
+              className="h-10 w-auto max-w-[150px] shrink-0 object-contain md:h-11 md:max-w-[44px] lg:max-w-[150px]"
+              onError={() => {
+                if (displayLogoSrc !== '/logo.png') setLogoFailed(true);
+              }}
+            />
           </div>
 
           {/* Links Navigation */}

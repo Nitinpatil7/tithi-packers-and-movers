@@ -2,16 +2,21 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronRight, ArrowLeft, Bell, Clock, Menu } from 'lucide-react';
 import { cn } from '@tithi/utils/utils';
 import { useInAppNotificationSummary } from '@/hooks/useAdmin';
+import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
 
 export default function AdminHeader({ onToggleSidebar }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: alertSummary } = useInAppNotificationSummary();
+  const { data: site = {} } = useSiteSetting();
+  const logoSrc = resolveSiteAssetUrl(site.logoUrl) || '/logo.png';
   const todayKey = toDateKey(new Date());
 
   // Extract breadcrumbs from path
@@ -53,6 +58,18 @@ export default function AdminHeader({ onToggleSidebar }) {
           <Menu className="w-4 h-4" />
         </button>
 
+        <Link href="/dashboard" className="md:hidden flex shrink-0 items-center" aria-label={site.companyName || 'Tithi Packers and Movers admin'}>
+          <Image
+            unoptimized
+            src={logoSrc}
+            alt={site.companyName || 'Company logo'}
+            width={128}
+            height={40}
+            priority
+            className="h-9 w-auto max-w-[124px] object-contain"
+          />
+        </Link>
+
         {isSubpage && (
           <button
             onClick={() => router.back()}
@@ -62,7 +79,7 @@ export default function AdminHeader({ onToggleSidebar }) {
           </button>
         )}
         
-        <nav className="flex items-center gap-1.5 text-xs md:text-sm text-text-secondary">
+        <nav className="hidden min-w-0 items-center gap-1.5 text-xs text-text-secondary sm:flex md:text-sm">
           {paths.map((path, idx) => {
             const isLast = idx === paths.length - 1;
             const label = getBreadcrumbLabel(path);

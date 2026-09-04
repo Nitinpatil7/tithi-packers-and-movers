@@ -28,6 +28,14 @@ export const metadata = {
   },
   description: 'Trusted packers and movers in Surat. Book local shifting, intercity moving to all India, and Labour & Vehicle support online. Get free quote in 2 minutes.',
   keywords: ['packers and movers surat', 'local shifting surat', 'intercity moving surat to mumbai', 'labour vehicle service surat', 'home shifting surat', 'tithi packers movers'],
+  icons: {
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   openGraph: {
     title: 'Tithi Packers and Movers Surat — Book Online',
     description: 'Trusted local & intercity moving service. Book in 2 minutes, get quote in 2 hours.',
