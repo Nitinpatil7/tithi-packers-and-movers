@@ -1,6 +1,7 @@
 const sitesetting = require("../schema/Sitesetting.model");
 const fs = require("fs/promises");
 const path = require("path");
+const { notifyContentChange } = require("../utility/contentEvents");
 
 const getsitesetting = async () => {
   let setting = await sitesetting.findOne({ settingkey: "global" });
@@ -24,6 +25,7 @@ const updatesitesetting = async (payload) => {
       setdefaultOninsert: true,
     },
   );
+  notifyContentChange("site-setting", "updated", { id: setting._id });
   return setting;
 };
 

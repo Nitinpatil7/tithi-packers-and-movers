@@ -1,7 +1,7 @@
 // src/components/layout/AdminHeader.jsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,8 +16,14 @@ export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
   const { data: alertSummary } = useInAppNotificationSummary();
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteAssetUrl(site.logoUrl) || '/logo.png';
+  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const displayLogoSrc = !logoFailed && logoSrc ? logoSrc : '';
   const todayKey = toDateKey(new Date());
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoSrc]);
 
   // Extract breadcrumbs from path
   const paths = pathname.split('/').filter(Boolean);
@@ -59,15 +65,18 @@ export default function AdminHeader({ onToggleSidebar }) {
         </button>
 
         <Link href="/dashboard" className="md:hidden flex shrink-0 items-center" aria-label={site.companyName || 'Tithi Packers and Movers admin'}>
-          <Image
-            unoptimized
-            src={logoSrc}
-            alt={site.companyName || 'Company logo'}
-            width={128}
-            height={40}
-            priority
-            className="h-9 w-auto max-w-[124px] object-contain"
-          />
+          {displayLogoSrc && (
+            <Image
+              unoptimized
+              src={displayLogoSrc}
+              alt={site.companyName || 'Company logo'}
+              width={128}
+              height={40}
+              priority
+              className="h-9 w-auto max-w-[124px] object-contain"
+              onError={() => setLogoFailed(true)}
+            />
+          )}
         </Link>
 
         {isSubpage && (

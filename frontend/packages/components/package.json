@@ -19,6 +19,7 @@
     "./booking/SuccessStep": "./booking/SuccessStep.jsx",
     "./booking/TruckGuideModal": "./booking/TruckGuideModal.jsx",
     "./booking/TruckSelectionStep": "./booking/TruckSelectionStep.jsx",
+    "./layout/DynamicSiteFavicon": "./layout/DynamicSiteFavicon.jsx",
     "./layout/Providers": "./layout/Providers.jsx"
   },
   "dependencies": {

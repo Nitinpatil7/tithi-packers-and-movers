@@ -24,7 +24,7 @@ export default function Navbar({ minimal = false }) {
   const { theme, setTheme } = useThemeStore();
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteAssetUrl(site.logoUrl);
-  const displayLogoSrc = logoFailed ? '/logo.png' : (logoSrc || '/logo.png');
+  const displayLogoSrc = !logoFailed && logoSrc ? logoSrc : '';
   const companyName = site.companyName || 'Tithi Packers and Movers';
 
   useEffect(() => {
@@ -75,18 +75,18 @@ export default function Navbar({ minimal = false }) {
         <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
           <Link href="/" className="flex min-w-0 items-center group shrink-0" aria-label={companyName}>
-            <Image
-              unoptimized
-              src={displayLogoSrc}
-              alt={`${companyName} logo`}
-              width={220}
-              height={68}
-              priority
-              className="h-11 w-auto max-w-[172px] object-contain sm:h-14 sm:max-w-[230px]"
-              onError={() => {
-                if (displayLogoSrc !== '/logo.png') setLogoFailed(true);
-              }}
-            />
+            {displayLogoSrc && (
+              <Image
+                unoptimized
+                src={displayLogoSrc}
+                alt={`${companyName} logo`}
+                width={220}
+                height={68}
+                priority
+                className="h-11 w-auto max-w-[172px] object-contain sm:h-14 sm:max-w-[230px]"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
           </Link>
 
           {minimal && <div className="min-h-[52px]" />}

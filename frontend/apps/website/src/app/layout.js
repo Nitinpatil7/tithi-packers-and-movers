@@ -30,12 +30,10 @@ export const metadata = {
   keywords: ['packers and movers surat', 'no 1 packers and movers surat', 'local shifting surat', 'intercity moving surat', 'labour service surat', 'home shifting surat', 'tithi packers movers'],
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/logo.png', type: 'image/png' },
+      { url: '/site-favicon' },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/logo.png',
+    shortcut: '/site-favicon',
+    apple: '/site-favicon',
   },
   openGraph: {
     title: 'Tithi Packers & Movers',

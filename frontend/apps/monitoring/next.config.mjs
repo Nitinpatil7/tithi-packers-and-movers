@@ -13,8 +13,10 @@ const nextConfig = {
   transpilePackages: [
     '@tithi/ui',
     '@tithi/components',
+    '@tithi/hooks',
     '@tithi/lib',
     '@tithi/store',
+    '@tithi/utils',
     '@tithi/styles',
   ],
   images: {

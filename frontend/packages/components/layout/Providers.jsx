@@ -7,6 +7,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { createQueryClient, enableQueryPersistence } from '@tithi/lib/queryClient';
 import Toast from '@tithi/ui/Toast';
 import { useThemeStore } from '@tithi/store/themeStore';
+import DynamicSiteFavicon from './DynamicSiteFavicon';
 
 export default function Providers({ children }) {
   const [queryClient] = useState(() => createQueryClient());
@@ -93,6 +94,9 @@ export default function Providers({ children }) {
           queryClient.invalidateQueries({ queryKey: ['testimonials'] });
           queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] });
         }
+        if (event?.target === 'site-setting') {
+          queryClient.invalidateQueries({ queryKey: ['site-setting'] });
+        }
       });
     };
     const start = () => { void connectRealtime(); };
@@ -110,6 +114,7 @@ export default function Providers({ children }) {
     <QueryClientProvider client={queryClient}>
       {/* Toast Alert overlay */}
       <Toast />
+      <DynamicSiteFavicon />
 
       {/* Children pages */}
       <div className="flex-1 w-full">
