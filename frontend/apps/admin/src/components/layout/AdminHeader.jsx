@@ -9,7 +9,7 @@ import { ChevronRight, ArrowLeft, Bell, Clock, Menu } from 'lucide-react';
 import { cn } from '@tithi/utils/utils';
 import { useInAppNotificationSummary } from '@/hooks/useAdmin';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
-import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
+import { resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 
 export default function AdminHeader({ onToggleSidebar }) {
   const pathname = usePathname();
@@ -18,7 +18,7 @@ export default function AdminHeader({ onToggleSidebar }) {
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteLogoUrl(site.logoUrl);
   const [logoFailed, setLogoFailed] = useState(false);
-  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
+  const displayLogoSrc = logoFailed ? '' : logoSrc;
   const todayKey = toDateKey(new Date());
 
   useEffect(() => {
@@ -65,16 +65,18 @@ export default function AdminHeader({ onToggleSidebar }) {
         </button>
 
         <Link href="/dashboard" className="md:hidden flex shrink-0 items-center" aria-label={site.companyName || 'Tithi Packers and Movers admin'}>
-          <Image
-            unoptimized
-            src={displayLogoSrc}
-            alt={site.companyName || 'Company logo'}
-            width={128}
-            height={40}
-            priority
-            className="h-9 w-auto max-w-[124px] object-contain"
-            onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
-          />
+          {displayLogoSrc && (
+            <Image
+              unoptimized
+              src={displayLogoSrc}
+              alt={site.companyName || 'Company logo'}
+              width={128}
+              height={40}
+              priority
+              className="h-9 w-auto max-w-[124px] object-contain"
+              onError={() => setLogoFailed(true)}
+            />
+          )}
         </Link>
 
         {isSubpage && (

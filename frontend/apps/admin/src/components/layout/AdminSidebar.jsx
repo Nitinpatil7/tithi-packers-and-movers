@@ -22,7 +22,7 @@ import {
 import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { cn } from '@tithi/utils/utils';
-import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
+import { resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 
 const adminLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -49,7 +49,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteLogoUrl(site.logoUrl);
   const [logoFailed, setLogoFailed] = useState(false);
-  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
+  const displayLogoSrc = logoFailed ? '' : logoSrc;
 
   useEffect(() => {
     setLogoFailed(false);
@@ -97,16 +97,18 @@ export default function AdminSidebar({ isOpen, onClose }) {
         <div className="flex min-h-0 flex-1 flex-col">
           {/* Sidebar Brand */}
           <div className="p-4 md:p-6 border-b border-sky-100 flex items-center justify-start md:justify-center lg:justify-start gap-3">
-            <Image
-              unoptimized
-              src={displayLogoSrc}
-              alt={site.companyName || 'Company logo'}
-              width={140}
-              height={44}
-              priority
-              className="h-10 w-auto max-w-[150px] shrink-0 object-contain md:h-11 md:max-w-[44px] lg:max-w-[150px]"
-              onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
-            />
+            {displayLogoSrc && (
+              <Image
+                unoptimized
+                src={displayLogoSrc}
+                alt={site.companyName || 'Company logo'}
+                width={140}
+                height={44}
+                priority
+                className="h-10 w-auto max-w-[150px] shrink-0 object-contain md:h-11 md:max-w-[44px] lg:max-w-[150px]"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
           </div>
 
           {/* Links Navigation */}

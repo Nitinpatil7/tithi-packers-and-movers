@@ -10,7 +10,7 @@ import { Menu, X, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
 import { useThemeStore } from '@tithi/store/themeStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { cn } from '@tithi/utils/utils';
-import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
+import { resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function Navbar({ minimal = false }) {
@@ -24,7 +24,7 @@ export default function Navbar({ minimal = false }) {
   const { theme, setTheme } = useThemeStore();
   const { data: site = {} } = useSiteSetting();
   const logoSrc = resolveSiteLogoUrl(site.logoUrl);
-  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
+  const displayLogoSrc = logoFailed ? '' : logoSrc;
   const companyName = site.companyName || 'Tithi Packers and Movers';
 
   useEffect(() => {
@@ -75,16 +75,18 @@ export default function Navbar({ minimal = false }) {
         <div className="flex items-center justify-between gap-3 lg:gap-8">
           {/* Logo */}
           <Link href="/" className="flex min-w-0 items-center group shrink-0" aria-label={companyName}>
-            <Image
-              unoptimized
-              src={displayLogoSrc}
-              alt={`${companyName} logo`}
-              width={220}
-              height={68}
-              priority
-              className="h-11 w-auto max-w-[172px] object-contain sm:h-14 sm:max-w-[230px]"
-              onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
-            />
+            {displayLogoSrc && (
+              <Image
+                unoptimized
+                src={displayLogoSrc}
+                alt={`${companyName} logo`}
+                width={220}
+                height={68}
+                priority
+                className="h-11 w-auto max-w-[172px] object-contain sm:h-14 sm:max-w-[230px]"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
           </Link>
 
           {minimal && <div className="min-h-[52px]" />}

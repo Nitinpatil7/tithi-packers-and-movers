@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin, ArrowRight, MessageCircle } from 'lucide-react';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
+import { resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function Footer() {
@@ -22,7 +22,7 @@ export default function Footer() {
   const serviceLabels = site.serviceLabels || {};
   const logoSrc = resolveSiteLogoUrl(site.logoUrl);
   const [logoFailed, setLogoFailed] = useState(false);
-  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
+  const displayLogoSrc = logoFailed ? '' : logoSrc;
 
   useEffect(() => {
     setLogoFailed(false);
@@ -96,15 +96,17 @@ export default function Footer() {
           {/* Brand column */}
           <div className="flex flex-col gap-5 md:col-span-1">
             <Link href="/" className="flex w-fit flex-col text-left" aria-label={companyName}>
-              <Image
-                unoptimized
-                src={displayLogoSrc}
-                alt={`${companyName} logo`}
-                width={170}
-                height={52}
-                className="h-12 w-auto max-w-[180px] object-contain"
-                onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
-              />
+              {displayLogoSrc && (
+                <Image
+                  unoptimized
+                  src={displayLogoSrc}
+                  alt={`${companyName} logo`}
+                  width={170}
+                  height={52}
+                  className="h-12 w-auto max-w-[180px] object-contain"
+                  onError={() => setLogoFailed(true)}
+                />
+              )}
             </Link>
 
             <p className="text-white/55 text-sm leading-relaxed font-medium text-left">
