@@ -24,8 +24,14 @@ const DEFAULT_EMAIL_TEMPLATE = {
 };
 
 const serviceLabels = {
+  local: "Local Shifting",
+  "local-shifting": "Local Shifting",
   local_shifting: "Local Shifting",
+  intercity: "Intercity Moving",
+  "intercity-moving": "Intercity Moving",
   intercity_moving: "Intercity Moving",
+  labour: "Labour & Vehicle",
+  "labour-service": "Labour & Vehicle",
   porter_labour_service: "Labour & Vehicle",
 };
 

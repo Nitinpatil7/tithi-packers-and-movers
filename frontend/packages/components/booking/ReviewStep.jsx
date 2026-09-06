@@ -177,21 +177,23 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
         </ScrollPanel>
       )}
 
-      <ScrollPanel title="Selected Add-ons" subtitle="Optional services chosen for this booking." icon={Sparkles} empty="No add-ons selected.">
-        {addOns.length > 0 && (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {addOns.map((service, index) => (
-              <div key={`${service.name}-${index}`} className="booking-review-chip flex min-w-0 items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
-                {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-white/60"><InlineIconImage icon={service.icon} /></span>}
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
-                  {displaySize(service) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(service)}</span>}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollPanel>
+      {!isLabour && (
+        <ScrollPanel title="Selected Add-ons" subtitle="Optional services chosen for this booking." icon={Sparkles} empty="No add-ons selected.">
+          {addOns.length > 0 && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {addOns.map((service, index) => (
+                <div key={`${service.name}-${index}`} className="booking-review-chip flex min-w-0 items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
+                  {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-white/60"><InlineIconImage icon={service.icon} /></span>}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
+                    {displaySize(service) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(service)}</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollPanel>
+      )}
 
       {truck && !isLabour && (
         <div className="booking-themed-card flex min-w-0 items-center gap-3 rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">
