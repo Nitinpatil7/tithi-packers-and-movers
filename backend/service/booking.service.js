@@ -10,6 +10,7 @@ const logger = require("../utility/logger");
 const { notifyAdminBookingEvent } = require("../utility/bookingEvents");
 const inAppNotificationService = require("./inAppNotification.service");
 const notificationService = require("./notification.service");
+const emailNotificationService = require("./emailNotification.service");
 const { normalizeMobile } = require("./otp.service");
 const { buildStatusMessage } = require("./whatsappTemplate.service");
 const { uploadCompletionProof } = require("./iconUpload.service");
@@ -421,6 +422,15 @@ const confirmBooking = async (bookingid, token, payload) => {
   });
   await booking.save();
   await inAppNotificationService.createNewBookingNotification(booking);
+  try {
+    await emailNotificationService.sendBookingConfirmationEmail(booking, { source: "website" });
+  } catch (error) {
+    logger.error("Booking confirmation email failed", {
+      bookingid: booking.bookingid,
+      error: error.message,
+      stack: error.stack,
+    });
+  }
   notifyAdminBookingEvent("booking:new", {
     bookingid: booking.bookingid,
     status: booking.status,

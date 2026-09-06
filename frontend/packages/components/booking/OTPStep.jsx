@@ -113,12 +113,12 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
             <p className="mb-1 text-sm font-bold text-emerald-800">OTP sent to +91 {mobile}</p>
             <p className="text-xs font-medium text-emerald-700">Enter the one-time password for Tithi Packers and Movers booking verification.</p>
           </div>
-          <motion.div className="my-2 flex justify-center gap-3" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
+          <motion.div className="my-2 grid w-full min-w-0 grid-cols-6 gap-1.5 px-0.5 sm:mx-auto sm:max-w-md sm:gap-3 sm:px-0" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
             {otpValues.map((value, index) => (
-              <input key={index} ref={otpRefs[index]} type="text" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="h-14 w-12 rounded-2xl border-2 border-bg-border bg-bg-white text-center font-mono text-xl font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20" />
+              <input key={index} ref={otpRefs[index]} type="text" inputMode="numeric" pattern="[0-9]*" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="aspect-square h-auto min-h-0 w-full min-w-0 rounded-xl border-2 border-bg-border bg-bg-white text-center font-mono text-lg font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-14 sm:rounded-2xl sm:text-xl" />
             ))}
           </motion.div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm font-medium text-text-tertiary">Didn&apos;t get the code?</span>
             {timer > 0 ? <span className="font-mono text-sm font-bold text-text-secondary">Resend in {timer}s</span> : <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="text-sm font-bold text-primary hover:underline disabled:opacity-60">{checkMobileMutation.isPending ? 'Sending...' : 'Resend OTP'}</button>}
           </div>

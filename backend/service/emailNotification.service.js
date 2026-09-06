@@ -109,7 +109,18 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
 
   const settings = await getSettings();
   const recipients = normalizeRecipients(settings.recipients);
-  if (settings.isActive === false || recipients.length === 0) return null;
+  if (settings.isActive === false) {
+    logger.info("Booking confirmation email skipped because email notifications are disabled", {
+      bookingid: booking?.bookingid,
+    });
+    return null;
+  }
+  if (recipients.length === 0) {
+    logger.info("Booking confirmation email skipped because no recipients are configured", {
+      bookingid: booking?.bookingid,
+    });
+    return null;
+  }
   if (!process.env.RESEND_API_KEY) {
     logger.warn("Booking confirmation email skipped because RESEND_API_KEY is not configured", {
       bookingid: booking?.bookingid,
@@ -130,6 +141,15 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
     html,
     text: stripHtml(html),
   });
+
+  if (result?.error) {
+    logger.error("Booking confirmation email rejected by Resend", {
+      bookingid: booking?.bookingid,
+      recipientCount: recipients.length,
+      error: result.error.message || result.error,
+    });
+    throw new Error(result.error.message || "Resend rejected booking confirmation email");
+  }
 
   logger.info("Booking confirmation email sent", {
     bookingid: booking?.bookingid,
