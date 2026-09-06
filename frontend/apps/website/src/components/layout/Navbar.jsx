@@ -23,7 +23,7 @@ export default function Navbar({ minimal = false }) {
   const language = 'en';
   const { theme, setTheme } = useThemeStore();
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl, site.updatedAt || site._id);
   const displayLogoSrc = logoFailed ? '' : logoSrc;
   const companyName = site.companyName || 'Tithi Packers and Movers';
 

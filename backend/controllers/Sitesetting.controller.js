@@ -1,5 +1,6 @@
 const asynchandler = require("../middlewere/asyncHandler");
 const sitesettingservice = require("../service/Sitesetting.service");
+const { uploadSiteLogo } = require("../service/iconUpload.service");
 const apiresponse = require("../utility/apiresponse");
 
 
@@ -16,11 +17,12 @@ const updatesetting = asynchandler(async(req,res)=>{
 })
 
 const uploadlogo = asynchandler(async(req,res)=>{
-    if (!req.file?.filename) {
+    if (!req.file?.buffer) {
         return res.status(400).json(new apiresponse(400, null, "Please select a logo image to upload"));
     }
 
-    const setting = await sitesettingservice.updateLogo(`/logo/${req.file.filename}`);
+    const uploaded = await uploadSiteLogo(req.file);
+    const setting = await sitesettingservice.updateLogo(uploaded.logoUrl);
 
     return res.status(200).json(new apiresponse(200, setting, "Logo uploaded successfully"));
 })

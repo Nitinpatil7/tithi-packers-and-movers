@@ -24,6 +24,7 @@ const extensionFor = (file) => {
   if (file.mimetype === "image/png") return originalExtension === ".png" ? ".png" : ".png";
   if (file.mimetype === "image/jpeg") return [".jpg", ".jpeg"].includes(originalExtension) ? originalExtension : ".jpg";
   if (file.mimetype === "image/webp") return ".webp";
+  if (file.mimetype === "image/svg+xml") return ".svg";
   return "";
 };
 
@@ -125,6 +126,15 @@ const uploadIcon = async (file) => {
   return { icon: result.icon };
 };
 
+const uploadSiteLogo = async (file) => {
+  const result = await uploadImage(file, {
+    folder: "site-logos",
+    missingMessage: "Please select a logo image to upload",
+    errorLabel: "Logo",
+  });
+  return { logoUrl: result.imageUrl };
+};
+
 const uploadCompletionProof = async (file) => {
   const compressed = await compressCompletionProofImage(file);
   return uploadImage(compressed, {
@@ -151,4 +161,4 @@ const uploadFeedbackImage = async (dataUrl) => {
   });
 };
 
-module.exports = { uploadIcon, uploadCompletionProof, uploadFeedbackImage, compressImageToWebp };
+module.exports = { uploadIcon, uploadSiteLogo, uploadCompletionProof, uploadFeedbackImage, compressImageToWebp };

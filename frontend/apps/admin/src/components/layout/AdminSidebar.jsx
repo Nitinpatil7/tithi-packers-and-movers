@@ -47,7 +47,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
   const router = useRouter();
   const logout = useAdminAuthStore((state) => state.logout);
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl, site.updatedAt || site._id);
   const [logoFailed, setLogoFailed] = useState(false);
   const displayLogoSrc = logoFailed ? '' : logoSrc;
 

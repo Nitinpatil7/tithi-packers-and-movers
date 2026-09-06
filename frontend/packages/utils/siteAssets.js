@@ -25,4 +25,24 @@ export const resolveSiteAssetUrl = (value = '') => {
   return url;
 };
 
-export const resolveSiteLogoUrl = (value = '') => resolveSiteAssetUrl(value);
+export const versionSiteAssetUrl = (value = '', version = '') => {
+  const url = String(value || '').trim();
+  const assetVersion = String(version || '').trim();
+  if (!url || !assetVersion || /^(data:|blob:)/i.test(url)) return url;
+
+  try {
+    const parsed = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+    parsed.searchParams.set('v', assetVersion);
+    return parsed.toString();
+  } catch {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}v=${encodeURIComponent(assetVersion)}`;
+  }
+};
+
+export const siteLogoRouteUrl = (version = '') => {
+  const assetVersion = String(version || '').trim();
+  return assetVersion ? `/site-logo?v=${encodeURIComponent(assetVersion)}` : '/site-logo';
+};
+
+export const resolveSiteLogoUrl = (_value = '', version = '') => siteLogoRouteUrl(version);

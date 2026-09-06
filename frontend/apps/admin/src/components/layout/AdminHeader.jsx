@@ -16,7 +16,7 @@ export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
   const { data: alertSummary } = useInAppNotificationSummary();
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl, site.updatedAt || site._id);
   const [logoFailed, setLogoFailed] = useState(false);
   const displayLogoSrc = logoFailed ? '' : logoSrc;
   const todayKey = toDateKey(new Date());

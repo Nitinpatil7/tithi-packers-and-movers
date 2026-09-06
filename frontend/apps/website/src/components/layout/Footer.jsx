@@ -20,7 +20,7 @@ export default function Footer() {
   const email = site.email || '';
   const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
   const serviceLabels = site.serviceLabels || {};
-  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl, site.updatedAt || site._id);
   const [logoFailed, setLogoFailed] = useState(false);
   const displayLogoSrc = logoFailed ? '' : logoSrc;
 

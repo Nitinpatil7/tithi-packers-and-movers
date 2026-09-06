@@ -1,7 +1,4 @@
 const express = require("express")
-const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 const router = express.Router();
 
@@ -9,7 +6,6 @@ const settingcontroller = require("../controllers/Sitesetting.controller");
 const adminAuth = require("../middlewere/adminAuth.middlewere");
 const ApiError = require("../utility/apierror");
 
-const logoDir = path.join(__dirname, "..", "public", "logo");
 const allowedLogoTypes = new Map([
   ["image/png", ".png"],
   ["image/jpeg", ".jpg"],
@@ -17,20 +13,8 @@ const allowedLogoTypes = new Map([
   ["image/webp", ".webp"],
 ]);
 
-const storage = multer.diskStorage({
-  destination(req, file, callback) {
-    fs.mkdirSync(logoDir, { recursive: true });
-    callback(null, logoDir);
-  },
-  filename(req, file, callback) {
-    const extension = allowedLogoTypes.get(file.mimetype);
-    const suffix = crypto.randomBytes(6).toString("hex");
-    callback(null, `logo-${Date.now()}-${suffix}${extension}`);
-  },
-});
-
 const uploadLogo = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024, files: 1 },
   fileFilter(req, file, callback) {
     if (!allowedLogoTypes.has(file.mimetype)) {
