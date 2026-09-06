@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin, ArrowRight, MessageCircle } from 'lucide-react';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
-import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
+import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function Footer() {
@@ -20,7 +20,13 @@ export default function Footer() {
   const email = site.email || '';
   const address = site.address || site.businessAddress || site.contactAddress || site.officeAddress || '';
   const serviceLabels = site.serviceLabels || {};
-  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoSrc]);
 
   if (pathname.startsWith('/admin')) return null;
 
@@ -90,16 +96,15 @@ export default function Footer() {
           {/* Brand column */}
           <div className="flex flex-col gap-5 md:col-span-1">
             <Link href="/" className="flex w-fit flex-col text-left" aria-label={companyName}>
-              {logoSrc && (
-                <Image
-                  unoptimized
-                  src={logoSrc}
-                  alt={`${companyName} logo`}
-                  width={170}
-                  height={52}
-                  className="h-12 w-auto max-w-[180px] object-contain"
-                />
-              )}
+              <Image
+                unoptimized
+                src={displayLogoSrc}
+                alt={`${companyName} logo`}
+                width={170}
+                height={52}
+                className="h-12 w-auto max-w-[180px] object-contain"
+                onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
+              />
             </Link>
 
             <p className="text-white/55 text-sm leading-relaxed font-medium text-left">

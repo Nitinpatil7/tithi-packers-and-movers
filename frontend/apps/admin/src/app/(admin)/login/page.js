@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff, KeyRound, LockKeyhole, Mail, ShieldCheck, Smartphone } from 'lucide-react';
@@ -8,13 +8,15 @@ import toast from 'react-hot-toast';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { completeAdminPasswordReset, requestAdminPasswordReset, verifyAdminPasswordResetOtp } from '@/lib/adminAuth';
 import { useSiteSetting } from '@hooks/useSiteSetting';
-import { resolveSiteAssetUrl } from '@utils/siteAssets';
+import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@utils/siteAssets';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const login = useAdminAuthStore((state) => state.login);
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
   const [form, setForm] = useState({ email: '', password: '' });
   const [resetEmail, setResetEmail] = useState('');
   const [resetOtp, setResetOtp] = useState('');
@@ -26,6 +28,10 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoSrc]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -118,17 +124,17 @@ export default function AdminLoginPage() {
       <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-cyan-200/50 blur-3xl" />
       <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-white bg-white shadow-[0_30px_80px_rgba(2,132,199,0.18)] lg:grid-cols-[1.05fr_.95fr]">
         <section className="hidden min-h-[610px] flex-col justify-between bg-gradient-to-br from-sky-600 via-sky-500 to-cyan-400 p-12 text-white lg:flex">
-          <div>{logoSrc && <Image unoptimized src={logoSrc} alt={site.companyName || 'Company logo'} width={180} height={56} className="h-14 w-auto max-w-[190px] object-contain" />}</div>
+          <div><Image unoptimized src={displayLogoSrc} alt={site.companyName || 'Company logo'} width={180} height={56} className="h-14 w-auto max-w-[190px] object-contain" onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)} /></div>
           <div>
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold"><ShieldCheck className="h-4 w-4" /> Secure operations portal</p>
             <h1 className="max-w-md text-5xl font-black leading-[1.05]">Move every booking forward.</h1>
             <p className="mt-5 max-w-md text-base leading-7 text-sky-50/90">Manage bookings, item catalog, customers and business insights from one calm, focused workspace.</p>
           </div>
-          <div>{logoSrc && <Image unoptimized src={logoSrc} alt={site.companyName || 'Company logo'} width={140} height={44} className="h-10 w-auto max-w-[150px] object-contain opacity-80" />}</div>
+          <div><Image unoptimized src={displayLogoSrc} alt={site.companyName || 'Company logo'} width={140} height={44} className="h-10 w-auto max-w-[150px] object-contain opacity-80" onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)} /></div>
         </section>
 
         <section className="flex min-h-[610px] flex-col justify-center p-7 sm:p-12">
-          {logoSrc && <div className="mb-9 lg:hidden"><Image unoptimized src={logoSrc} alt={site.companyName || 'Company logo'} width={160} height={50} className="h-12 w-auto max-w-[170px] object-contain" /></div>}
+          <div className="mb-9 lg:hidden"><Image unoptimized src={displayLogoSrc} alt={site.companyName || 'Company logo'} width={160} height={50} className="h-12 w-auto max-w-[170px] object-contain" onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)} /></div>
           <p className="text-xs font-bold uppercase tracking-[.22em] text-sky-600">Administration</p>
           <h2 className="mt-3 text-3xl font-black text-slate-900">{title}</h2>
           <p className="mt-2 text-sm text-slate-500">{subtitle}</p>

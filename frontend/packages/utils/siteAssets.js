@@ -1,4 +1,5 @@
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+export const DEFAULT_SITE_LOGO = '/logo.png';
 
 export const resolveSiteAssetUrl = (value = '') => {
   const url = String(value || '').trim();
@@ -7,3 +8,5 @@ export const resolveSiteAssetUrl = (value = '') => {
   if (url.startsWith('/')) return API_URL ? `${API_URL}${url}` : url;
   return url;
 };
+
+export const resolveSiteLogoUrl = (value = '', fallback = DEFAULT_SITE_LOGO) => resolveSiteAssetUrl(value) || fallback;

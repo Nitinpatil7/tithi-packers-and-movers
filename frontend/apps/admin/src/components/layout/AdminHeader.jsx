@@ -9,16 +9,16 @@ import { ChevronRight, ArrowLeft, Bell, Clock, Menu } from 'lucide-react';
 import { cn } from '@tithi/utils/utils';
 import { useInAppNotificationSummary } from '@/hooks/useAdmin';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
-import { resolveSiteAssetUrl } from '@tithi/utils/siteAssets';
+import { DEFAULT_SITE_LOGO, resolveSiteLogoUrl } from '@tithi/utils/siteAssets';
 
 export default function AdminHeader({ onToggleSidebar }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: alertSummary } = useInAppNotificationSummary();
   const { data: site = {} } = useSiteSetting();
-  const logoSrc = resolveSiteAssetUrl(site.logoUrl);
+  const logoSrc = resolveSiteLogoUrl(site.logoUrl);
   const [logoFailed, setLogoFailed] = useState(false);
-  const displayLogoSrc = !logoFailed && logoSrc ? logoSrc : '';
+  const displayLogoSrc = logoFailed ? DEFAULT_SITE_LOGO : logoSrc;
   const todayKey = toDateKey(new Date());
 
   useEffect(() => {
@@ -65,18 +65,16 @@ export default function AdminHeader({ onToggleSidebar }) {
         </button>
 
         <Link href="/dashboard" className="md:hidden flex shrink-0 items-center" aria-label={site.companyName || 'Tithi Packers and Movers admin'}>
-          {displayLogoSrc && (
-            <Image
-              unoptimized
-              src={displayLogoSrc}
-              alt={site.companyName || 'Company logo'}
-              width={128}
-              height={40}
-              priority
-              className="h-9 w-auto max-w-[124px] object-contain"
-              onError={() => setLogoFailed(true)}
-            />
-          )}
+          <Image
+            unoptimized
+            src={displayLogoSrc}
+            alt={site.companyName || 'Company logo'}
+            width={128}
+            height={40}
+            priority
+            className="h-9 w-auto max-w-[124px] object-contain"
+            onError={() => displayLogoSrc !== DEFAULT_SITE_LOGO && setLogoFailed(true)}
+          />
         </Link>
 
         {isSubpage && (
