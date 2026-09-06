@@ -150,6 +150,9 @@ export default function BookingDetailPage() {
   if (!booking) return null;
 
   const grandTotal = booking.totalAmount || ((booking.manualQuote || 0) + (booking.addOnTotal || 0));
+  const adjustment = booking.rateAdjustment || booking.pricing?.breakdown?.rateAdjustment || null;
+  const baseGrandTotal = Number(booking.baseGrandTotal || booking.pricing?.breakdown?.baseGrandTotal || grandTotal || 0);
+  const adjustmentAmount = Number(booking.rateAdjustmentAmount || booking.pricing?.breakdown?.rateAdjustmentAmount || 0);
   const isLabour = booking.serviceType === 'porter_labour_service' || booking.serviceType === 'labour' || booking.serviceType === 'labour-service';
   const scheduledValue = getBookingScheduledDate(booking);
   const scheduledLabel = formatBookingDate(booking);
@@ -474,9 +477,19 @@ export default function BookingDetailPage() {
                 <span className="font-mono text-text-primary font-semibold">{formatCurrency(booking.manualQuote || 0)}</span>
               </div>
 
+              <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                <span>Original Total:</span>
+                <span className="font-mono text-text-primary font-semibold">{formatCurrency(baseGrandTotal)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                <span>Rate Adjustment:</span>
+                <span className="font-mono text-text-primary font-semibold">{adjustment ? `${Number(adjustment.percentage || 0)}% (${formatCurrency(adjustmentAmount)})` : 'None'}</span>
+              </div>
+
               {/* Combined Total */}
               <div className="flex justify-between items-center text-sm font-bold text-primary pt-1.5">
-                <span>Combined Price:</span>
+                <span>Final Price:</span>
                 <span className="font-mono text-base font-black">{formatCurrency(grandTotal)}</span>
               </div>
 

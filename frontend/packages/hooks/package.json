@@ -10,6 +10,7 @@
     "./useBookingDraft": "./useBookingDraft.js",
     "./useBookingPricingRules": "./useBookingPricingRules.js",
     "./useBranches": "./useBranches.js",
+    "./useEmailNotifications": "./useEmailNotifications.js",
     "./useFaq": "./useFaq.js",
     "./useItems": "./useItems.js",
     "./useLegalPages": "./useLegalPages.js",

@@ -126,6 +126,55 @@ const toNumber = (value, fallback = 0) => {
   return Number.isFinite(number) ? number : fallback;
 };
 
+const dateKey = (value = new Date()) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
+    const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${byType.year}-${byType.month}-${byType.day}`;
+  } catch {
+    return date.toISOString().slice(0, 10);
+  }
+};
+
+const activeRateAdjustment = (rule = {}, referenceDate = new Date()) => {
+  const today = dateKey(referenceDate);
+  return [...(rule.rateAdjustments || [])]
+    .sort((a, b) => toNumber(a.sortOrder, 999) - toNumber(b.sortOrder, 999))
+    .find((adjustment) => {
+      const percentage = toNumber(adjustment.percentage);
+      if (adjustment.isActive === false || percentage < 0 || percentage > 100) return false;
+      const type = String(adjustment.type || "direct").toLowerCase();
+      if (type === "direct") return true;
+      if (type !== "time_period") return false;
+      const start = dateKey(adjustment.startDate);
+      const end = dateKey(adjustment.endDate);
+      return Boolean(start && end && today >= start && today <= end);
+    }) || null;
+};
+
+const applyRateAdjustment = (amount = 0, rule = {}) => {
+  const baseGrandTotal = Math.max(0, toNumber(amount));
+  const adjustment = activeRateAdjustment(rule);
+  const percentage = adjustment ? toNumber(adjustment.percentage) : 0;
+  const adjustmentAmount = percentage > 0 ? Math.round(baseGrandTotal * percentage / 100) : 0;
+  return {
+    baseGrandTotal,
+    rateAdjustmentAmount: adjustmentAmount,
+    grandTotal: baseGrandTotal + adjustmentAmount,
+    rateAdjustment: adjustment ? {
+      id: adjustment._id || adjustment.id || null,
+      name: adjustment.name || (adjustment.type === "time_period" ? "Time-period increase" : "Direct increase"),
+      type: adjustment.type || "direct",
+      percentage,
+      startDate: adjustment.startDate || null,
+      endDate: adjustment.endDate || null,
+      amount: adjustmentAmount,
+    } : null,
+  };
+};
+
 const calculateItemBreakdown = (items = [], rule = {}) => {
   const allowance = Object.fromEntries((rule.freeItemAllowance || []).map((entry) => [String(entry.sizeKey || "").toUpperCase(), Math.max(0, toNumber(entry.quantity))]));
   const groupedPrices = {};
@@ -250,6 +299,7 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
   const sundayHike = toNumber(previousBreakdown.sundayHike);
   const discount = toNumber(previous.discount);
   const tax = toNumber(previous.tax);
+  const adjustedPricing = applyRateAdjustment(subtotal + sundayHike - discount + tax, rule || {});
   const pricing = normalizeSubmittedPricing({
     currency: previous.currency || rule?.currency || "INR",
     itemTotal: itemBreakdown.charge,
@@ -257,7 +307,7 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
     serviceCharge,
     discount,
     tax,
-    totalAmount: subtotal + sundayHike - discount + tax,
+    totalAmount: adjustedPricing.grandTotal,
     breakdown: {
       ...previousBreakdown,
       basePrice,
@@ -277,6 +327,9 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
         total: addon.total,
       })),
       sundayHike,
+      baseGrandTotal: adjustedPricing.baseGrandTotal,
+      rateAdjustmentAmount: adjustedPricing.rateAdjustmentAmount,
+      rateAdjustment: adjustedPricing.rateAdjustment,
     },
   }, calculatedBy);
   return { items, selectedAddons, pricing };

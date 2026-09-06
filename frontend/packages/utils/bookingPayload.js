@@ -131,6 +131,9 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
         employeeTotal: pricing.employeeTotal,
         truckTotal: pricing.truckTotal,
         sundayHike: pricing.sundayHike,
+        baseGrandTotal: pricing.baseGrandTotal,
+        rateAdjustmentAmount: pricing.rateAdjustmentAmount,
+        rateAdjustment: pricing.rateAdjustment,
       },
     },
   };

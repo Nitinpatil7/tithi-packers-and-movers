@@ -37,7 +37,7 @@ export default function DashboardPage() {
   
   // Fetch stats & bookings
   const { data: stats, isLoading: statsLoading } = useAdminStats(token);
-  const { data: bookingsData, isLoading: bookingsLoading } = useAllBookings({}, token);
+  const { data: bookingsData, isLoading: bookingsLoading } = useAllBookings({ limit: 10 }, token);
   const { data: todayScheduledData, isLoading: todayScheduledLoading } = useAllBookings({
     scheduledDate: todayKey,
     limit: 50,

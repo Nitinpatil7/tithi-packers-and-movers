@@ -28,6 +28,7 @@ const bookingRoutes = require("./routes/booking.routes");
 const bookingPricingRuleRoutes = require("./routes/bookingPricingRule.routes");
 const adminAuthRoutes = require("./routes/adminAuth.routes");
 const adminAnalyticsRoutes = require("./routes/adminAnalytics.routes");
+const emailNotificationRoutes = require("./routes/emailNotification.routes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -107,6 +108,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/booking-pricing-rules", bookingPricingRuleRoutes);
 app.use("/api/admin-auth", adminAuthRoutes);
 app.use("/api/admin-analytics", adminAnalyticsRoutes);
+app.use("/api/email-notifications", emailNotificationRoutes);
 
 app.use("/api/v1/health", healthroute);
 app.use(notfoundmiddlewere)

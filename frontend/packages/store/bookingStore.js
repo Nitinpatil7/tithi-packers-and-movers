@@ -150,6 +150,9 @@ export const useBookingStore = create(persist((set) => ({
     updatedData.truckTotal = pricing.truckTotal;
     updatedData.addOnTotal = pricing.addOnTotal;
     updatedData.sundayHike = pricing.sundayHike;
+    updatedData.baseGrandTotal = pricing.baseGrandTotal;
+    updatedData.rateAdjustmentAmount = pricing.rateAdjustmentAmount;
+    updatedData.rateAdjustment = pricing.rateAdjustment;
     updatedData.grandTotal = pricing.grandTotal;
     updatedData.pricingBreakdown = pricing.breakdown;
     updatedData.totalAmount = pricing.grandTotal + (updatedData.manualQuote || 0);

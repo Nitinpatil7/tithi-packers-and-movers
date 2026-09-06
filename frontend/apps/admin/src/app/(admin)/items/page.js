@@ -1,15 +1,28 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Boxes, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, PackagePlus, Plus, Ruler, Search, Trash2 } from 'lucide-react';
+import { Boxes, CalendarRange, ChevronDown, ChevronRight, Edit3, GripVertical, Layers3, PackagePlus, Percent, Plus, Ruler, Search, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
 import { useAdminItemCatalog, useAdminSizes, useCreateGroup, useCreateItem, useCreateSection, useCreateSize, useDeleteGroup, useDeleteItem, useDeleteSection, useDeleteSize, useReorderGroups, useReorderItems, useUpdateGroup, useUpdateItem, useUpdateSection, useUpdateSize, useUploadIcon } from '@hooks/useItems';
+import { useAdminPricingRules, useUpdatePricingRule } from '@hooks/useBookingPricingRules';
 import AdminStatGrid from '@/components/admin/AdminStatGrid';
 import IconInput, { IconPreview } from '@/components/admin/IconInput';
 
 const baseRecord = { name: '', sortOrder: 0, isActive: true };
 const sizeIdOf = (size) => size.sizeId?._id || size.sizeId || size._id;
+const serviceLabel = (serviceType = '') => ({
+  local_shifting: 'Local Shifting',
+  intercity_moving: 'Intercity Moving',
+  porter_labour_service: 'Labour & Vehicle',
+}[serviceType] || serviceType.replace(/_/g, ' '));
+
+const dateInputValue = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
+};
 
 export default function AdminItemsPage() {
   const [activeSection, setActiveSection] = useState('');
@@ -17,17 +30,34 @@ export default function AdminItemsPage() {
   const [search, setSearch] = useState('');
   const [editor, setEditor] = useState(null);
   const [sizeManager, setSizeManager] = useState(false);
+  const [rateManager, setRateManager] = useState(false);
   const [dragging, setDragging] = useState(null);
   const [dragOver, setDragOver] = useState(null);
   const { data = [], isLoading, isError, refetch } = useAdminItemCatalog({});
   const { data: globalSizes = [] } = useAdminSizes({});
+  const { data: pricingRules = [] } = useAdminPricingRules({});
   const sections = useMemo(() => Array.isArray(data) ? data : [], [data]);
   useEffect(() => { if (!activeSection && sections[0]) setActiveSection(sections[0]._id); }, [activeSection, sections]);
   const current = sections.find((section) => section._id === activeSection) || sections[0];
   useEffect(() => {
     setExpandedGroups(Object.fromEntries((current?.groups || []).map((group) => [group._id, false])));
   }, [activeSection, current?._id, current?.groups]);
-  const groups = (current?.groups || []).map((group) => ({ ...group, items: (group.items || []).filter((item) => item.name?.toLowerCase().includes(search.toLowerCase())) })).filter((group) => !search || group.name?.toLowerCase().includes(search.toLowerCase()) || group.items.length);
+  const groups = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return (current?.groups || [])
+      .map((group) => {
+        if (!query) return group;
+        const items = (group.items || []).filter((item) => item.name?.toLowerCase().includes(query));
+        return { ...group, items };
+      })
+      .filter((group) => !query || group.name?.toLowerCase().includes(query) || group.items.length);
+  }, [current?.groups, search]);
+  const catalogCounts = useMemo(() => sections.reduce((totals, section) => {
+    const groups = section.groups || [];
+    totals.groups += groups.length;
+    totals.items += groups.reduce((sum, group) => sum + (group.items?.length || 0), 0);
+    return totals;
+  }, { groups: 0, items: 0 }), [sections]);
 
   const mutations = {
     createSection: useCreateSection(), updateSection: useUpdateSection(), deleteSection: useDeleteSection(),
@@ -36,8 +66,12 @@ export default function AdminItemsPage() {
     createSize: useCreateSize(), updateSize: useUpdateSize(), deleteSize: useDeleteSize(),
     reorderGroups: useReorderGroups(), reorderItems: useReorderItems(),
     uploadIcon: useUploadIcon(),
+    updatePricingRule: useUpdatePricingRule(),
   };
   const busy = Object.values(mutations).some((mutation) => mutation.isPending);
+  const rateAdjustmentCount = useMemo(() => (
+    pricingRules.reduce((sum, rule) => sum + (rule.rateAdjustments?.length || 0), 0)
+  ), [pricingRules]);
 
   const startDrag = (event, payload) => {
     if (search) return;
@@ -106,9 +140,9 @@ export default function AdminItemsPage() {
   };
 
   return <div className="items-manager space-y-7 text-left">
-    <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Item catalog</p><h1 className="mt-1.5 text-2xl font-bold text-slate-900">Items Manager</h1><p className="mt-1 max-w-xl text-sm font-medium leading-6 text-slate-500">Organize booking items by section and group.</p></div><div className="flex flex-wrap gap-2"><Action icon={Ruler} onClick={() => setSizeManager(true)} secondary>Manage sizes</Action><Action icon={Plus} onClick={() => setEditor({ type: 'section' })}>New section</Action></div></header>
+    <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Item catalog</p><h1 className="mt-1.5 text-2xl font-bold text-slate-900">Items Manager</h1><p className="mt-1 max-w-xl text-sm font-medium leading-6 text-slate-500">Organize booking items by section and group.</p></div><div className="flex flex-wrap gap-2"><Action icon={Percent} onClick={() => setRateManager(true)} secondary>Rate adjustments</Action><Action icon={Ruler} onClick={() => setSizeManager(true)} secondary>Manage sizes</Action><Action icon={Plus} onClick={() => setEditor({ type: 'section' })}>New section</Action></div></header>
 
-    <AdminStatGrid><Stat icon={Layers3} label="Sections" value={sections.length} /><Stat icon={Boxes} label="Groups" value={sections.reduce((sum, section) => sum + (section.groups?.length || 0), 0)} /><Stat icon={PackagePlus} label="Items" value={sections.reduce((sum, section) => sum + (section.groups || []).reduce((total, group) => total + (group.items?.length || 0), 0), 0)} /></AdminStatGrid>
+    <AdminStatGrid><Stat icon={Layers3} label="Sections" value={sections.length} /><Stat icon={Boxes} label="Groups" value={catalogCounts.groups} /><Stat icon={PackagePlus} label="Items" value={catalogCounts.items} /><Stat icon={Percent} label="Rate rules" value={rateAdjustmentCount} /></AdminStatGrid>
 
     {isLoading ? <Empty text="Loading item catalog…" /> : isError ? <Empty text="Could not load the item catalog." action={() => refetch()} /> : !sections.length ? <Empty text="No sections yet. Create the first section to start your catalog." /> : <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
       <div className="flex gap-2 overflow-x-auto border-b border-sky-100 bg-sky-50/40 p-3">{sections.map((section) => <button key={section._id} onClick={() => setActiveSection(section._id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${current?._id === section._id ? 'bg-sky-600 text-white shadow-md shadow-sky-100' : 'bg-white text-slate-600 ring-1 ring-sky-100 hover:text-sky-700'}`}><CatalogIconPreview icon={section.icon} className="h-5 w-5" />{section.name}<span className="text-[10px] opacity-70">{section.groups?.length || 0}</span></button>)}</div>
@@ -182,6 +216,7 @@ export default function AdminItemsPage() {
 
     <RecordEditor editor={editor} sections={sections} globalSizes={globalSizes} uploadIcon={mutations.uploadIcon} busy={busy} onClose={() => setEditor(null)} onSave={saveEditor} />
     <SizeManager open={sizeManager} sizes={globalSizes} mutations={mutations} onClose={() => setSizeManager(false)} />
+    <RateAdjustmentManager open={rateManager} pricingRules={pricingRules} mutation={mutations.updatePricingRule} onClose={() => setRateManager(false)} />
   </div>;
 }
 
@@ -209,6 +244,66 @@ function SizeManager({ open, sizes, mutations, onClose }) {
   useEffect(() => { setForm(editing ? { ...editing } : { key: '', label: '', description: '', sortOrder: 0, isActive: true }); }, [editing, open]);
   const save = async (event) => { event.preventDefault(); try { const data = { ...form, key: form.key.trim().toUpperCase(), label: form.label.trim() }; delete data.sortOrder; if (editing) await mutations.updateSize.mutateAsync({ id: editing._id, data }); else await mutations.createSize.mutateAsync(data); toast.success('Size saved'); setEditing(null); } catch (error) { toast.error(error.message); } };
   return <Modal isOpen={open} onClose={onClose} title="Global size choices" size="lg"><div className="grid gap-5 md:grid-cols-2"><div className="space-y-2">{sizes.map((size) => <div key={size._id} className="flex items-center justify-between rounded-xl border border-sky-100 p-3"><div><strong className="text-sm text-slate-800">{size.label}</strong><p className="text-xs font-bold text-sky-600">{size.key}</p></div><div className="flex gap-1"><button onClick={() => setEditing(size)} className="p-2 text-sky-600"><Edit3 className="h-4 w-4" /></button><button onClick={async () => { if (window.confirm(`Deactivate ${size.label}?`)) await mutations.deleteSize.mutateAsync(size._id); }} className="p-2 text-red-500"><Trash2 className="h-4 w-4" /></button></div></div>)}</div><form onSubmit={save} className="space-y-3 rounded-2xl bg-sky-50/50 p-4"><h3 className="font-black text-slate-800">{editing ? 'Edit size' : 'Add size'}</h3><Field label="Key *"><input required value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} className="admin-field" placeholder="XL" /></Field><Field label="Label *"><input required value={form.label} onChange={(event) => setForm({ ...form, label: event.target.value })} className="admin-field" placeholder="Extra Large" /></Field><div className="flex gap-2"><button className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Save</button>{editing && <button type="button" onClick={() => setEditing(null)} className="text-sm font-bold text-slate-500">Cancel edit</button>}</div></form></div></Modal>;
+}
+
+function RateAdjustmentManager({ open, pricingRules, mutation, onClose }) {
+  const firstRuleId = pricingRules[0]?._id || '';
+  const [selectedRuleId, setSelectedRuleId] = useState(firstRuleId);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ name: '', type: 'direct', percentage: 0, startDate: '', endDate: '', isActive: true });
+  useEffect(() => {
+    if (open && !selectedRuleId && firstRuleId) setSelectedRuleId(firstRuleId);
+  }, [firstRuleId, open, selectedRuleId]);
+  useEffect(() => {
+    if (!open) return;
+    setForm(editing ? {
+      name: editing.name || '',
+      type: editing.type || 'direct',
+      percentage: Number(editing.percentage || 0),
+      startDate: dateInputValue(editing.startDate),
+      endDate: dateInputValue(editing.endDate),
+      isActive: editing.isActive !== false,
+    } : { name: '', type: 'direct', percentage: 0, startDate: '', endDate: '', isActive: true });
+  }, [editing, open]);
+  if (!open) return null;
+  const selectedRule = pricingRules.find((rule) => rule._id === selectedRuleId) || pricingRules[0];
+  const adjustments = selectedRule?.rateAdjustments || [];
+  const saveRules = async (nextAdjustments, message) => {
+    await mutation.mutateAsync({ id: selectedRule._id, data: { rateAdjustments: nextAdjustments } });
+    toast.success(message);
+  };
+  const save = async (event) => {
+    event.preventDefault();
+    const percentage = Number(form.percentage);
+    if (!Number.isFinite(percentage) || percentage < 0 || percentage > 100) return toast.error('Percentage must be between 0 and 100.');
+    if (form.type === 'time_period' && (!form.startDate || !form.endDate)) return toast.error('Start date and end date are required.');
+    if (form.type === 'time_period' && form.endDate < form.startDate) return toast.error('End date must be on or after start date.');
+    const payload = {
+      ...(editing || {}),
+      name: form.name.trim() || (form.type === 'direct' ? 'Direct increase' : 'Time-period increase'),
+      type: form.type,
+      percentage,
+      startDate: form.type === 'time_period' ? form.startDate : null,
+      endDate: form.type === 'time_period' ? form.endDate : null,
+      isActive: form.isActive,
+      sortOrder: editing?.sortOrder ?? adjustments.length + 1,
+    };
+    const nextAdjustments = editing
+      ? adjustments.map((rule) => (rule._id === editing._id ? payload : rule))
+      : [...adjustments, payload];
+    await saveRules(form.isActive ? nextAdjustments.map((rule) => ({ ...rule, isActive: rule === payload || rule._id === payload._id })) : nextAdjustments, 'Rate adjustment saved');
+    setEditing(null);
+  };
+  const toggle = async (rule) => {
+    const activating = rule.isActive === false;
+    const nextAdjustments = adjustments.map((item) => ({ ...item, isActive: activating ? item._id === rule._id : item._id === rule._id ? false : item.isActive }));
+    await saveRules(nextAdjustments, activating ? 'Rate adjustment activated' : 'Rate adjustment deactivated');
+  };
+  const remove = async (rule) => {
+    if (!window.confirm(`Delete “${rule.name || 'rate adjustment'}”?`)) return;
+    await saveRules(adjustments.filter((item) => item._id !== rule._id), 'Rate adjustment deleted');
+  };
+  return <Modal isOpen={open} onClose={onClose} title="Rate adjustment rules" size="xl"><div className="space-y-5"><div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><Field label="Service pricing rule"><select value={selectedRule?._id || ''} onChange={(event) => { setSelectedRuleId(event.target.value); setEditing(null); }} className="admin-field">{pricingRules.map((rule) => <option key={rule._id} value={rule._id}>{serviceLabel(rule.serviceType)}</option>)}</select></Field><p className="max-w-md text-xs font-semibold leading-5 text-slate-500">The active rule is baked into booking totals for customers. Admin screens show the original total and adjustment breakdown.</p></div>{selectedRule ? <div className="grid gap-5 lg:grid-cols-[1fr_22rem]"><div className="space-y-2">{adjustments.length ? adjustments.map((rule) => <div key={rule._id || `${rule.type}-${rule.sortOrder}`} className="flex flex-col gap-3 rounded-2xl border border-sky-100 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"><div><strong className="text-sm text-slate-900">{rule.name || (rule.type === 'time_period' ? 'Time-period increase' : 'Direct increase')}</strong><p className="mt-1 text-xs font-semibold text-slate-500">{Number(rule.percentage || 0)}% · {rule.type === 'time_period' ? `${dateInputValue(rule.startDate)} to ${dateInputValue(rule.endDate)}` : 'Direct increase'} · {rule.isActive === false ? 'Inactive' : 'Active'}</p></div><div className="flex gap-2"><SmallButton icon={rule.isActive === false ? ToggleLeft : ToggleRight} onClick={() => toggle(rule)}>{rule.isActive === false ? 'Activate' : 'Deactivate'}</SmallButton><SmallButton icon={Edit3} onClick={() => setEditing(rule)}>Edit</SmallButton><SmallButton icon={Trash2} danger onClick={() => remove(rule)}>Delete</SmallButton></div></div>) : <Empty text="No rate adjustment rules for this service yet." />}</div><form onSubmit={save} className="space-y-3 rounded-2xl border border-sky-100 bg-sky-50/50 p-4"><h3 className="flex items-center gap-2 font-black text-slate-800"><CalendarRange className="h-4 w-4 text-sky-600" />{editing ? 'Edit rule' : 'Add rule'}</h3><Field label="Name"><input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="admin-field" placeholder="Festival increase" /></Field><Field label="Type"><select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} className="admin-field"><option value="direct">Direct increase</option><option value="time_period">Time-period increase</option></select></Field><Field label="Percentage"><input required type="number" min="0" max="100" step="0.01" value={form.percentage} onChange={(event) => setForm({ ...form, percentage: event.target.value })} className="admin-field" /></Field>{form.type === 'time_period' && <div className="grid gap-2 sm:grid-cols-2"><Field label="Start date"><input required type="date" value={form.startDate} onChange={(event) => setForm({ ...form, startDate: event.target.value })} className="admin-field" /></Field><Field label="End date"><input required type="date" value={form.endDate} onChange={(event) => setForm({ ...form, endDate: event.target.value })} className="admin-field" /></Field></div>}<label className="flex h-[46px] items-center gap-3 rounded-xl border border-sky-100 bg-white px-3 text-sm font-bold text-slate-600"><input type="checkbox" checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-sky-600" />Active</label><div className="flex justify-end gap-2 pt-2">{editing && <button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600">Cancel edit</button>}<button disabled={mutation.isPending} className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">Save rule</button></div></form></div> : <Empty text="Create service pricing rules before adding rate adjustments." />}</div></Modal>;
 }
 
 function Action({ icon: Icon, children, onClick, secondary }) { return <button onClick={onClick} className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${secondary ? 'border border-sky-200 bg-white text-sky-700' : 'bg-sky-600 text-white shadow-lg shadow-sky-100'}`}><Icon className="h-4 w-4" />{children}</button>; }

@@ -1996,6 +1996,16 @@ input.booking-input.gm-err-autocomplete {
   background-repeat: no-repeat !important;
 }
 
+.booking-map-picker-modal,
+.booking-map-picker-shell,
+.booking-map-picker-footer {
+  contain: layout paint;
+}
+
+.booking-map-address-field {
+  text-overflow: clip;
+}
+
 /* Step number badge */
 .step-badge {
   background: linear-gradient(135deg, #0EA5E9, #38BDF8);

@@ -1,7 +1,7 @@
 // src/app/(admin)/admin/bookings/page.js
 'use client';
 
-import React, { useState } from 'react';
+import React, { useDeferredValue, useMemo, useState } from 'react';
 import nextDynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useAllBookings } from '@/hooks/useAdmin';
@@ -31,13 +31,14 @@ export default function BookingsPage() {
   const scheduledDate = searchParams.get('scheduledDate') || (filter === 'today' || filter === 'today-schedule' ? todayKey : '');
   const createdDate = searchParams.get('createdDate') || (filter === 'today-booked' ? todayKey : '');
   const upcomingMinutes = searchParams.get('upcomingMinutes') || '';
-  const routeFilters = {
+  const routeFilters = useMemo(() => ({
     ...(scheduledDate ? { scheduledDate } : {}),
     ...(createdDate ? { createdDate } : {}),
     ...(upcomingMinutes ? { upcomingMinutes } : {}),
     ...(statView || filter ? { limit: 100 } : {}),
-  };
+  }), [createdDate, filter, scheduledDate, statView, upcomingMinutes]);
   const [filters, setFilters] = useState({ search: '', serviceType: 'all', status: 'all' });
+  const deferredSearch = useDeferredValue(filters.search);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -46,7 +47,12 @@ export default function BookingsPage() {
   const [editBooking, setEditBooking] = useState(null);
   const [deleteBooking, setDeleteBooking] = useState(null);
 
-  const queryFilters = { ...filters, ...routeFilters };
+  const queryFilters = useMemo(() => ({
+    serviceType: filters.serviceType,
+    status: filters.status,
+    search: deferredSearch,
+    ...routeFilters,
+  }), [deferredSearch, filters.serviceType, filters.status, routeFilters]);
   const { data, isLoading, refetch } = useAllBookings(queryFilters, token);
 
   const handleFilterChange = (newFilters) => {
@@ -54,10 +60,12 @@ export default function BookingsPage() {
     setCurrentPage(1);
   };
 
-  const bookings = data?.bookings || [];
+  const bookings = useMemo(() => data?.bookings || [], [data?.bookings]);
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedBookings = bookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedBookings = useMemo(() => (
+    bookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  ), [bookings, currentPage]);
   const pageTitle = statView === 'today-scheduled' || filter === 'today-schedule' || filter === 'today'
     ? "Today's Scheduled Bookings"
     : statView === 'today-booked' || filter === 'today-booked'
@@ -89,6 +97,7 @@ export default function BookingsPage() {
       const quotePayload = buildDraftUpdatePayload({ ...bookingData, bookingId, draftToken });
       await updateBookingDraft(bookingId, draftToken, quotePayload);
       await confirmBookingDraft(bookingId, draftToken, {
+        source: 'admin',
         customer: {
           name: bookingData.contactDetails?.name || bookingData.customerName,
           email: bookingData.contactDetails?.email || bookingData.email,

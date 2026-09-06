@@ -29,6 +29,18 @@ function cleanText(value) {
   return String(value || '').replace(/\\r\\n|\\n|\\r/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+function displaySize(entry = {}) {
+  return cleanText(
+    entry.sizeLabel
+    || entry.sizeName
+    || entry.sizeTag
+    || entry.sizeKey
+    || entry.tag
+    || entry.label
+    || entry.size
+  );
+}
+
 function DetailCard({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
@@ -154,8 +166,10 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
             <div className="grid gap-2 sm:grid-cols-2">
               {items.map((item, index) => (
                 <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-3 py-2.5">
-                  <span className="min-w-0 truncate text-sm font-bold text-text-primary">{cleanText(item.name)}</span>
-                  <span className="shrink-0 rounded-lg bg-bg-white px-2 py-1 font-mono text-xs font-black text-primary ring-1 ring-sky-100">x{Number(item.quantity || 0)}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold text-text-primary">{cleanText(item.name)}</span>
+                    {displaySize(item) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(item)}</span>}
+                  </span>
                 </div>
               ))}
             </div>
@@ -171,7 +185,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
                 {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-white/60"><InlineIconImage icon={service.icon} /></span>}
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
-                  {Number(service.quantity || 0) > 1 && <span className="mt-0.5 block text-xs font-semibold text-text-tertiary">Quantity {service.quantity}</span>}
+                  {displaySize(service) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(service)}</span>}
                 </span>
               </div>
             ))}

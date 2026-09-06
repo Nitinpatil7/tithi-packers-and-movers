@@ -1,6 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as api from '@lib/bookingPricingApi';
 
+const ADMIN_PRICING_STALE_TIME = 5 * 60 * 1000;
+const ADMIN_PRICING_GC_TIME = 30 * 60 * 1000;
+
 export const usePublicPricingRule = (serviceType) => useQuery({
   queryKey: ['booking-pricing-rule', serviceType],
   queryFn: () => api.getPublicPricingRule(serviceType),
@@ -24,6 +27,10 @@ export const useAdminPricingRules = (filters = {}) => useQuery({
   queryKey: ['admin', 'booking-pricing-rules', filters],
   queryFn: () => api.getAdminPricingRules(filters),
   placeholderData: keepPreviousData,
+  staleTime: ADMIN_PRICING_STALE_TIME,
+  gcTime: ADMIN_PRICING_GC_TIME,
+  refetchOnMount: false,
+  retry: 1,
 });
 
 function usePricingMutation(mutationFn) {

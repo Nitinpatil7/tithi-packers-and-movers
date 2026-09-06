@@ -11,6 +11,7 @@
     "./bookingPricingApi": "./bookingPricingApi.js",
     "./branchApi": "./branchApi.js",
     "./contactApi": "./contactApi.js",
+    "./emailNotificationApi": "./emailNotificationApi.js",
     "./faqApi": "./faqApi.js",
     "./itemApi": "./itemApi.js",
     "./legalApi": "./legalApi.js",

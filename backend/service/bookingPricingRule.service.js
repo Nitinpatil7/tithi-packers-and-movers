@@ -166,6 +166,33 @@ const normalizePayload = (payload = {}) => {
       isActive: true,
     }));
   }
+  if (normalized.rateAdjustments) {
+    normalized.rateAdjustments = sortByOrder(normalized.rateAdjustments).map((rule, index) => {
+      const type = rule.type === "time_period" ? "time_period" : "direct";
+      const percentage = Number(rule.percentage);
+      if (!Number.isFinite(percentage) || percentage < 0 || percentage > 100) {
+        throw new ApiError(400, "Rate adjustment percentage must be between 0 and 100");
+      }
+      const startDate = rule.startDate ? new Date(rule.startDate) : null;
+      const endDate = rule.endDate ? new Date(rule.endDate) : null;
+      if (type === "time_period") {
+        if (!startDate || Number.isNaN(startDate.getTime()) || !endDate || Number.isNaN(endDate.getTime())) {
+          throw new ApiError(400, "Time-period rate adjustments require startDate and endDate");
+        }
+        if (endDate < startDate) throw new ApiError(400, "Rate adjustment endDate must be on or after startDate");
+      }
+      return {
+        ...rule,
+        name: String(rule.name || (type === "direct" ? "Direct increase" : "Time-period increase")).trim(),
+        type,
+        percentage,
+        startDate: type === "time_period" ? startDate : null,
+        endDate: type === "time_period" ? endDate : null,
+        isActive: rule.isActive !== false,
+        sortOrder: rule.sortOrder ?? index + 1,
+      };
+    });
+  }
   return normalized;
 };
 
@@ -183,6 +210,9 @@ const mergeRulePayload = (existing, payload) => {
   }
   if (payload.labourPricing) {
     merged.labourPricing = { ...current.labourPricing, ...payload.labourPricing };
+  }
+  if (payload.rateAdjustments) {
+    merged.rateAdjustments = payload.rateAdjustments;
   }
   return merged;
 };

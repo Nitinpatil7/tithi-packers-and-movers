@@ -19,11 +19,35 @@ import {
   markAllInAppNotificationsRead
 } from '@tithi/lib/api';
 
+const ADMIN_LIVE_STALE_TIME = 30 * 1000;
+const ADMIN_LIST_STALE_TIME = 60 * 1000;
+const ADMIN_REFERENCE_STALE_TIME = 10 * 60 * 1000;
+const ADMIN_GC_TIME = 30 * 60 * 1000;
+
+const adminLiveQueryOptions = {
+  staleTime: ADMIN_LIVE_STALE_TIME,
+  gcTime: ADMIN_GC_TIME,
+  refetchOnMount: false,
+};
+
+const adminListQueryOptions = {
+  staleTime: ADMIN_LIST_STALE_TIME,
+  gcTime: ADMIN_GC_TIME,
+  refetchOnMount: false,
+};
+
+const adminReferenceQueryOptions = {
+  staleTime: ADMIN_REFERENCE_STALE_TIME,
+  gcTime: ADMIN_GC_TIME,
+  refetchOnMount: false,
+};
+
 export function useAdminStats(token) {
   return useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: () => getAdminStats(token),
     enabled: true,
+    ...adminLiveQueryOptions,
   });
 }
 
@@ -32,6 +56,7 @@ export function useAdminAnalyticsOverview() {
     queryKey: ['admin', 'analytics-overview'],
     queryFn: () => getAdminAnalyticsOverview(),
     enabled: true,
+    ...adminListQueryOptions,
   });
 }
 
@@ -41,6 +66,7 @@ export function useAllBookings(filters, token, options = {}) {
     queryFn: () => getAllBookings(filters, token),
     enabled: true,
     placeholderData: keepPreviousData,
+    ...adminListQueryOptions,
     ...options,
   });
 }
@@ -71,6 +97,7 @@ export function usePricingData() {
   return useQuery({
     queryKey: ['admin', 'pricing'],
     queryFn: () => getPricing(),
+    ...adminReferenceQueryOptions,
   });
 }
 
@@ -90,6 +117,7 @@ export function useAdminUsers(filters = {}) {
     queryFn: () => getUsers(filters),
     enabled: true,
     placeholderData: keepPreviousData,
+    ...adminListQueryOptions,
   });
 }
 
@@ -99,6 +127,7 @@ export function useAdminBookingsByPhone(phoneNumber, options = {}) {
     queryFn: () => getBookingsByPhone(phoneNumber),
     enabled: Boolean(phoneNumber),
     placeholderData: keepPreviousData,
+    ...adminListQueryOptions,
     ...options,
   });
 }
@@ -108,6 +137,7 @@ export function useNotifications(filters = {}) {
     queryKey: ['admin', 'notifications', filters],
     queryFn: () => getNotifications(filters),
     placeholderData: keepPreviousData,
+    ...adminListQueryOptions,
   });
 }
 
@@ -124,6 +154,7 @@ export function useNotificationTemplates() {
     queryKey: ['admin', 'notification-templates'],
     queryFn: getNotificationTemplates,
     placeholderData: keepPreviousData,
+    ...adminReferenceQueryOptions,
   });
 }
 
@@ -140,6 +171,7 @@ export function useInAppNotifications(filters = {}) {
     queryKey: ['admin', 'in-app-notifications', filters],
     queryFn: () => getInAppNotifications(filters),
     placeholderData: keepPreviousData,
+    ...adminListQueryOptions,
   });
 }
 
@@ -147,6 +179,9 @@ export function useInAppNotificationSummary() {
   return useQuery({
     queryKey: ['admin', 'in-app-notification-summary'],
     queryFn: () => getInAppNotificationSummary(),
+    staleTime: ADMIN_LIVE_STALE_TIME,
+    gcTime: ADMIN_GC_TIME,
+    refetchOnMount: false,
     refetchInterval: 60000,
   });
 }

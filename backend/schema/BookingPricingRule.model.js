@@ -86,6 +86,19 @@ const employeeRateSchema = new mongoose.Schema(
   { _id: true },
 );
 
+const rateAdjustmentSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true, default: "" },
+    type: { type: String, enum: ["direct", "time_period"], required: true, default: "direct" },
+    percentage: { type: Number, required: true, min: 0, max: 100, default: 0 },
+    startDate: { type: Date, default: null },
+    endDate: { type: Date, default: null },
+    isActive: { type: Boolean, default: true, index: true },
+    sortOrder: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+);
+
 const bookingPricingRuleSchema = new mongoose.Schema(
   {
     serviceType: {
@@ -128,6 +141,7 @@ const bookingPricingRuleSchema = new mongoose.Schema(
       employeeRates: { type: [employeeRateSchema], default: [] },
       hourlyRates: { type: [hourlyRateSchema], default: [] },
     },
+    rateAdjustments: { type: [rateAdjustmentSchema], default: [] },
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0 },
   },

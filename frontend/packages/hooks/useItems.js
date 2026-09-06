@@ -4,6 +4,12 @@ import * as api from '@lib/itemApi';
 
 const ITEM_CATALOG_STALE_TIME = 10 * 60 * 1000;
 const ITEM_CATALOG_GC_TIME = 30 * 60 * 1000;
+const ADMIN_ITEM_QUERY_OPTIONS = {
+  staleTime: ITEM_CATALOG_STALE_TIME,
+  gcTime: ITEM_CATALOG_GC_TIME,
+  refetchOnMount: false,
+  retry: 1,
+};
 
 export const itemCatalogQueryKey = (filters = {}) => ['items', 'catalog', filters];
 export const useItemCatalog = (filters = {}, options = {}) => useQuery({
@@ -30,9 +36,9 @@ export const usePrefetchItemCatalog = () => {
     gcTime: ITEM_CATALOG_GC_TIME,
   }), [client]);
 };
-export const useAdminItemCatalog = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'catalog', filters], queryFn: () => api.getAdminItemCatalog(filters), placeholderData: keepPreviousData });
-export const useAdminSections = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sections', filters], queryFn: () => api.getAdminSections(filters), placeholderData: keepPreviousData });
-export const useAdminSizes = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sizes', filters], queryFn: () => api.getAdminSizes(filters), placeholderData: keepPreviousData });
+export const useAdminItemCatalog = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'catalog', filters], queryFn: () => api.getAdminItemCatalog(filters), placeholderData: keepPreviousData, ...ADMIN_ITEM_QUERY_OPTIONS });
+export const useAdminSections = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sections', filters], queryFn: () => api.getAdminSections(filters), placeholderData: keepPreviousData, ...ADMIN_ITEM_QUERY_OPTIONS });
+export const useAdminSizes = (filters = {}) => useQuery({ queryKey: ['admin', 'items', 'sizes', filters], queryFn: () => api.getAdminSizes(filters), placeholderData: keepPreviousData, ...ADMIN_ITEM_QUERY_OPTIONS });
 
 function useItemMutation(mutationFn) {
   const client = useQueryClient();

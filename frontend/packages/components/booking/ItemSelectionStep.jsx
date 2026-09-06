@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronRight, Minus, Package, Plus, Search, Send, ShieldCheck, ShoppingCart, Trash2 } from 'lucide-react';
 import Spinner from '@ui/Spinner';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ import BookingActionBar from './BookingActionBar';
 const variantId = (size) => size._id || size.sizeId?._id || size.sizeId || size.sizeKey;
 const itemKey = (itemId, size) => `${itemId}:${variantId(size)}`;
 const sameJson = (left, right) => JSON.stringify(left || null) === JSON.stringify(right || null);
+const nameIncludes = (name, query) => String(name || '').toLowerCase().includes(query);
 
 function CatalogIcon({ icon, alt = '', className = 'h-5 w-5', priority = false, sizes = '48px' }) {
   return icon ? (
@@ -34,7 +36,8 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
   const updateBookingData = useBookingStore((state) => state.updateBookingData);
   const { data: catalogSections = [], isLoading, isFetching: catalogFetching, isError, refetch } = useItemCatalog({});
   const [activeSection, setActiveSection] = useState('');
-  const [expandedGroups, setExpandedGroups] = useState({});
+  const [openGroupId, setOpenGroupId] = useState('');
+  const [sectionDirection, setSectionDirection] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedItems, setSelectedItems] = useState(initialData.items || []);
@@ -43,8 +46,11 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
   const [notFoundSubmitting, setNotFoundSubmitting] = useState(false);
   const [notFoundSubmitted, setNotFoundSubmitted] = useState('');
   const sectionTopRef = useRef(null);
+  const tabRefs = useRef({});
   const itemRefs = useRef({});
   const searchTargetRef = useRef(null);
+  const shouldTrackSectionRef = useRef(false);
+  const prefersReducedMotion = useReducedMotion();
   const initialItemsKey = JSON.stringify(initialData.items || []);
   const initialInsuranceSelected = Boolean(initialData.specialServices?.some((service) => service.name === 'Cargo Insurance'));
 
@@ -72,36 +78,30 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
     if (!normalizedSearch) return [];
     return sections.flatMap((catalogSection) => (catalogSection.groups || []).flatMap((group) => (
       (group.items || [])
-        .filter((item) => item.name?.toLowerCase().includes(normalizedSearch))
+        .filter((item) => nameIncludes(item.name, normalizedSearch) || nameIncludes(group.name, normalizedSearch))
         .map((item) => ({ section: catalogSection, group, item }))
     )));
   }, [normalizedSearch, sections]);
   const highlightedIds = useMemo(() => new Set(highlightedItems), [highlightedItems]);
-  const groups = useMemo(() => (section?.groups || []).map((group) => ({
-    ...group,
-    items: (group.items || []).filter((item) => !normalizedSearch || item.name?.toLowerCase().includes(normalizedSearch)),
-  })).filter((group) => !normalizedSearch || group.items.length), [normalizedSearch, section?.groups]);
+  const groups = useMemo(() => (section?.groups || []).map((group) => {
+    const groupMatches = nameIncludes(group.name, normalizedSearch);
+    return {
+      ...group,
+      items: (group.items || []).filter((item) => !normalizedSearch || groupMatches || nameIncludes(item.name, normalizedSearch)),
+    };
+  }).filter((group) => !normalizedSearch || group.items.length), [normalizedSearch, section?.groups]);
 
   useEffect(() => {
-    setExpandedGroups(Object.fromEntries((section?.groups || []).map((group) => [group._id, false])));
-  }, [section?._id, section?.groups]);
+    setOpenGroupId('');
+  }, [section?._id]);
 
   useEffect(() => {
-    if (!selectedItems.length || !section?.groups?.length) return;
-    const selectedGroupIds = new Set(selectedItems.map((item) => String(item.groupId || '')).filter(Boolean));
-    if (!selectedGroupIds.size) return;
-    setExpandedGroups((current) => {
-      let changed = false;
-      const next = { ...current };
-      section.groups.forEach((group) => {
-        if (selectedGroupIds.has(String(group._id)) && next[group._id] !== true) {
-          next[group._id] = true;
-          changed = true;
-        }
-      });
-      return changed ? next : current;
-    });
-  }, [section?.groups, selectedItems]);
+    if (!activeSection) return;
+    tabRefs.current[activeSection]?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest', inline: 'center' });
+    if (!shouldTrackSectionRef.current) return;
+    shouldTrackSectionRef.current = false;
+    sectionTopRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+  }, [activeSection, prefersReducedMotion]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search), 250);
@@ -125,25 +125,20 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
     searchTargetRef.current = firstMatch.item._id;
     const activeMatch = allSearchMatches.some(({ section: matchSection }) => matchSection._id === activeSection);
     if (!activeMatch) {
+      const nextIndex = sections.findIndex((entry) => entry._id === firstMatch.section._id);
+      setSectionDirection(nextIndex >= activeSectionIndex ? 1 : -1);
+      shouldTrackSectionRef.current = true;
       setActiveSection(firstMatch.section._id);
       return;
     }
-    setExpandedGroups((current) => (
-      current[firstMatch.group._id] ? current : { ...current, [firstMatch.group._id]: true }
-    ));
-  }, [activeSection, allSearchMatches, normalizedSearch]);
+    setOpenGroupId((current) => (current === firstMatch.group._id ? current : firstMatch.group._id));
+  }, [activeSection, activeSectionIndex, allSearchMatches, normalizedSearch, sections]);
 
   useEffect(() => {
     if (!normalizedSearch) return;
-    setExpandedGroups((current) => {
-      const next = Object.fromEntries(groups.map((group) => [group._id, true]));
-      const currentKeys = Object.keys(current);
-      const nextKeys = Object.keys(next);
-      return currentKeys.length === nextKeys.length && nextKeys.every((key) => current[key] === next[key])
-        ? current
-        : next;
-    });
-  }, [groups, normalizedSearch]);
+    if (groups.some((group) => group._id === openGroupId)) return;
+    setOpenGroupId(groups[0]?._id || '');
+  }, [groups, normalizedSearch, openGroupId]);
 
   useEffect(() => {
     if (!highlightedItems.length || !section?._id) return;
@@ -251,11 +246,13 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
     updateBookingData(nextData);
   }, [insuranceSelected, isIntercity, selectedItems, totalPrice, updateBookingData]);
   const goToSection = (sectionId) => {
+    const nextIndex = sections.findIndex((entry) => entry._id === sectionId);
+    setSectionDirection(nextIndex >= activeSectionIndex ? 1 : -1);
+    shouldTrackSectionRef.current = true;
     setActiveSection(sectionId);
-    setExpandedGroups({});
+    setOpenGroupId('');
     setSearch('');
     setDebouncedSearch('');
-    window.requestAnimationFrame(() => sectionTopRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
   };
   const handleMissingItemSubmit = async () => {
     const searchedTerm = debouncedSearch.trim();
@@ -296,8 +293,8 @@ export default function ItemSelectionStep({ onSubmit, onBack, initialData = {}, 
     {isLoading ? <div className="grid min-h-72 place-items-center rounded-3xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="rounded-3xl border border-red-200 bg-red-50 p-10 text-center"><p className="text-sm font-bold text-red-600">Could not load moving items.</p><button onClick={() => refetch()} className="mt-3 text-sm font-black text-primary">Try again</button></div> : !sections.length ? <div className="rounded-3xl border border-dashed border-bg-border p-10 text-center text-sm font-semibold text-text-secondary">No moving items are currently available.</div> : <div className="grid gap-7 lg:grid-cols-12 lg:items-start">
       <main ref={sectionTopRef} className="min-w-0 space-y-5 scroll-mt-32 lg:col-span-8"><label className="relative block"><Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" /><input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full rounded-2xl border border-bg-border bg-bg-white py-3 pl-11 pr-4 text-sm text-text-primary outline-none focus:border-primary" placeholder="Search all moving items..." /></label>
         {normalizedSearch && !allSearchMatches.length && <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-black text-amber-900">Item not found?</p><p className="mt-1 text-xs font-semibold text-amber-700">Let us know about "{debouncedSearch.trim()}" and our team will review it.</p>{notFoundSubmitted === debouncedSearch.trim() && <p className="mt-1 text-xs font-black text-emerald-700">Submitted. Thank you.</p>}</div><button type="button" onClick={handleMissingItemSubmit} disabled={notFoundSubmitting || notFoundSubmitted === debouncedSearch.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-xs font-black text-white transition hover:bg-amber-700 disabled:opacity-60"><Send className="h-3.5 w-3.5" />Submit</button></div>}
-        <div className="booking-category-tabs scrollbar-none flex w-full max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pb-2 pr-[18vw] sm:pr-2">{sections.map((entry, index) => <button key={entry._id} onClick={() => goToSection(entry._id)} className={`inline-flex min-h-11 w-auto shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-black transition active:scale-[.98] ${section?._id === entry._id ? 'bg-primary text-white shadow-sky' : 'border border-bg-border bg-bg-white text-text-secondary hover:border-primary/30 hover:text-primary hover:shadow-xs'}`}><CatalogIcon icon={entry.icon} alt="" className="h-5 w-5 shrink-0" priority={index < 4} sizes="20px" />{entry.name}</button>)}</div>
-        {catalogFetching && !sections.length ? <div className="grid min-h-60 place-items-center rounded-3xl border border-bg-border"><Spinner size="md" /></div> : <div className="space-y-4">{groups.map((group, groupIndex) => { const open = expandedGroups[group._id] || Boolean(search); return <section key={group._id} className="booking-group-card overflow-hidden rounded-3xl border border-sky-100 bg-bg-white py-1.5 shadow-xs"><button type="button" onClick={() => setExpandedGroups((value) => ({ ...value, [group._id]: !open }))} className="booking-group-toggle flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-sky-50/70"><span className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary-soft/25 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><CatalogIcon icon={group.icon || section?.icon} alt="" className="h-9 w-9" priority={groupIndex < 3} sizes="36px" /></span><span className="min-w-0"><strong className="block truncate text-sm text-text-primary">{group.name}</strong><small className="font-semibold text-text-tertiary">{group.items?.length || 0} choices</small></span></span>{open ? <ChevronDown className="h-4 w-4 shrink-0 text-primary" /> : <ChevronRight className="h-4 w-4 shrink-0 text-text-tertiary" />}</button>{open && <div className="booking-item-list grid gap-3 border-t border-sky-100 bg-gradient-to-b from-sky-50/60 to-white p-3 sm:grid-cols-2">{group.items?.map((item) => { const size = primarySize(item); if (!size) return null; const key = itemKey(item._id, size); const qty = quantity(key); const highlighted = highlightedIds.has(item._id); return <article key={item._id} ref={(node) => { itemRefs.current[item._id] = node; }} className={`booking-item-row group relative h-full overflow-hidden rounded-2xl border bg-bg-white px-3 py-3.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-sky active:scale-[.99] ${highlighted ? 'border-amber-400 shadow-[0_0_0_4px_rgba(251,191,36,.25)]' : qty ? 'border-primary/40 bg-primary-soft/70 shadow-xs' : 'border-bg-border hover:border-primary/30'}`}><div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-50/70 via-white to-orange-50/30 opacity-0 transition-opacity group-hover:opacity-100" /><div className="booking-item-content relative z-10"><span className="booking-item-main"><h4 className="min-w-0 pr-1 text-sm font-semibold leading-snug text-text-primary line-clamp-2">{item.name}</h4></span>{qty ? <div className="booking-item-qty"><button type="button" onClick={() => changeQuantity(item, size, group, -1)} className="grid h-9 w-9 place-items-center rounded-lg bg-bg-white text-text-primary transition hover:text-primary sm:h-10 sm:w-10"><Minus className="h-3.5 w-3.5" /></button><strong className="min-w-5 text-center text-sm font-semibold text-primary">{qty}</strong><button type="button" onClick={() => changeQuantity(item, size, group, 1)} className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-white transition hover:bg-primary-dark sm:h-10 sm:w-10"><Plus className="h-3.5 w-3.5" /></button></div> : <button type="button" onClick={() => changeQuantity(item, size, group, 1)} className="booking-item-add">Add</button>}</div></article>; })}</div>}</section>; })}{!groups.length && <div className="rounded-2xl border border-dashed border-bg-border p-10 text-center text-sm font-semibold text-text-tertiary">No matching items in this category.</div>}</div>}
+        <div className="booking-category-tabs scrollbar-none flex w-full max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pb-2 pr-[18vw] sm:pr-2">{sections.map((entry, index) => <button key={entry._id} ref={(node) => { tabRefs.current[entry._id] = node; }} onClick={() => goToSection(entry._id)} className={`inline-flex min-h-11 w-auto shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-black transition active:scale-[.98] ${section?._id === entry._id ? 'bg-primary text-white shadow-sky' : 'border border-bg-border bg-bg-white text-text-secondary hover:border-primary/30 hover:text-primary hover:shadow-xs'}`}><CatalogIcon icon={entry.icon} alt="" className="h-5 w-5 shrink-0" priority={index < 4} sizes="20px" />{entry.name}</button>)}</div>
+        {catalogFetching && !sections.length ? <div className="grid min-h-60 place-items-center rounded-3xl border border-bg-border"><Spinner size="md" /></div> : <div className="overflow-hidden"><AnimatePresence initial={false} mode="wait" custom={sectionDirection}><motion.div key={section?._id || activeSection || 'section'} custom={sectionDirection} initial={prefersReducedMotion ? false : { opacity: 0, x: sectionDirection > 0 ? 36 : -36 }} animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }} exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: sectionDirection > 0 ? -36 : 36 }} transition={{ duration: 0.24, ease: 'easeOut' }} className="space-y-4">{groups.map((group, groupIndex) => { const open = openGroupId === group._id; return <section key={group._id} className="booking-group-card overflow-hidden rounded-3xl border border-sky-100 bg-bg-white py-1.5 shadow-xs"><button type="button" onClick={() => setOpenGroupId((current) => (current === group._id ? '' : group._id))} className="booking-group-toggle flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-sky-50/70"><span className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary-soft/25 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><CatalogIcon icon={group.icon || section?.icon} alt="" className="h-9 w-9" priority={groupIndex < 3} sizes="36px" /></span><span className="min-w-0"><strong className="block truncate text-sm text-text-primary">{group.name}</strong><small className="font-semibold text-text-tertiary">{group.items?.length || 0} choices</small></span></span>{open ? <ChevronDown className="h-4 w-4 shrink-0 text-primary" /> : <ChevronRight className="h-4 w-4 shrink-0 text-text-tertiary" />}</button>{open && <div className="booking-item-list grid gap-3 border-t border-sky-100 bg-gradient-to-b from-sky-50/60 to-white p-3 sm:grid-cols-2">{group.items?.map((item) => { const size = primarySize(item); if (!size) return null; const key = itemKey(item._id, size); const qty = quantity(key); const highlighted = highlightedIds.has(item._id); return <article key={item._id} ref={(node) => { itemRefs.current[item._id] = node; }} className={`booking-item-row group relative h-full overflow-hidden rounded-2xl border bg-bg-white px-3 py-3.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-sky active:scale-[.99] ${highlighted ? 'border-amber-400 shadow-[0_0_0_4px_rgba(251,191,36,.25)]' : qty ? 'border-primary/40 bg-primary-soft/70 shadow-xs' : 'border-bg-border hover:border-primary/30'}`}><div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-50/70 via-white to-orange-50/30 opacity-0 transition-opacity group-hover:opacity-100" /><div className="booking-item-content relative z-10"><span className="booking-item-main"><h4 className="min-w-0 pr-1 text-sm font-semibold leading-snug text-text-primary line-clamp-2">{item.name}</h4></span>{qty ? <div className="booking-item-qty"><button type="button" onClick={() => changeQuantity(item, size, group, -1)} className="grid h-9 w-9 place-items-center rounded-lg bg-bg-white text-text-primary transition hover:text-primary sm:h-10 sm:w-10"><Minus className="h-3.5 w-3.5" /></button><strong className="min-w-5 text-center text-sm font-semibold text-primary">{qty}</strong><button type="button" onClick={() => changeQuantity(item, size, group, 1)} className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-white transition hover:bg-primary-dark sm:h-10 sm:w-10"><Plus className="h-3.5 w-3.5" /></button></div> : <button type="button" onClick={() => changeQuantity(item, size, group, 1)} className="booking-item-add">Add</button>}</div></article>; })}</div>}</section>; })}{!groups.length && <div className="rounded-2xl border border-dashed border-bg-border p-10 text-center text-sm font-semibold text-text-tertiary">No matching items in this category.</div>}</motion.div></AnimatePresence></div>}
         {nextSection && <button type="button" onClick={() => goToSection(nextSection._id)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary-soft px-5 py-4 text-sm font-black text-primary transition hover:bg-primary hover:text-white">Next: {nextSection.name}<ArrowRight className="h-4 w-4" /></button>}
       </main>
 

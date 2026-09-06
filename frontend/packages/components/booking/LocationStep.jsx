@@ -626,8 +626,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-[2147483000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-bg-border bg-bg-white shadow-2xl sm:h-[82vh] sm:rounded-3xl">
+    <div className="booking-map-picker-modal fixed inset-0 z-[2147483000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="booking-map-picker-shell flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-bg-border bg-bg-white shadow-2xl sm:h-[82vh] sm:rounded-3xl">
         <div className="flex items-start justify-between gap-3 border-b border-bg-border p-4 sm:p-5">
           <div>
             <h3 className="text-base font-black text-text-primary">{title || 'Choose location from map'}</h3>
@@ -660,11 +660,23 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             Use my current location
           </button>
         </div>
-        <div className="border-t border-bg-border px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:p-5">
-          <div className="rounded-2xl bg-bg-section p-3 text-sm font-semibold text-text-secondary">
-            {loadingAddress ? <span className="flex items-center gap-2"><span className="h-4 w-4 animate-pulse rounded bg-sky-200" /> Finding address under pin...</span> : readableAddress ? `Selected: ${readableAddress}` : 'Pan the map to place the pin'}
+        <div className="booking-map-picker-footer border-t border-bg-border px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:p-5">
+          <div className="relative">
+            <input
+              readOnly
+              value={readableAddress}
+              aria-busy={loadingAddress}
+              aria-label="Selected map address"
+              title={readableAddress || 'Pan the map to place the pin'}
+              placeholder="Pan the map to place the pin"
+              className="booking-map-address-field h-12 w-full min-w-0 overflow-x-auto overflow-y-hidden whitespace-nowrap rounded-2xl border border-bg-border bg-bg-section px-3 pr-12 text-sm font-semibold text-text-secondary outline-none"
+            />
+            {loadingAddress && <Loader2 className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />}
           </div>
-          {error && <p className="mt-2 flex items-center gap-1 text-xs font-bold text-red-600"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
+          <p className={cn('mt-2 flex min-h-5 items-center gap-1 text-xs font-bold text-red-600', !error && 'invisible')}>
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0 truncate">{error || 'Map address ready'}</span>
+          </p>
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-xl border border-bg-border px-5 py-3 text-sm font-bold text-text-secondary">Cancel</button>
             <button type="button" onClick={confirm} disabled={!readableAddress || loadingAddress} className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-white shadow-sky disabled:cursor-not-allowed disabled:opacity-50">Confirm this location</button>

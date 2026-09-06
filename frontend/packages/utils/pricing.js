@@ -57,10 +57,60 @@ export function fallbackPricingRule(serviceType = 'local_shifting') {
     floorPricing: { enabled: !isLabour, slabs: [] },
     liftPricing: { enabled: true, withLiftCharge: 0, withoutLiftCharge: 0 },
     labourPricing: { enabled: isLabour, trucks: [], employeeRates: [], hourlyRates: [] },
+    rateAdjustments: [],
   };
 }
 
 const sortSlabs = (slabs = [], key = 'fromKm') => [...slabs].sort((a, b) => toNumber(a.sortOrder, 999) - toNumber(b.sortOrder, 999) || toNumber(a[key]) - toNumber(b[key]));
+const sortAdjustments = (rules = []) => [...(rules || [])].sort((a, b) => toNumber(a.sortOrder, 999) - toNumber(b.sortOrder, 999));
+
+const dateKey = (value = new Date()) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
+    const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${byType.year}-${byType.month}-${byType.day}`;
+  } catch {
+    return date.toISOString().slice(0, 10);
+  }
+};
+
+export function getActiveRateAdjustment(rule = {}, referenceDate = new Date()) {
+  const today = dateKey(referenceDate);
+  return sortAdjustments(rule.rateAdjustments)
+    .find((adjustment) => {
+      const percentage = toNumber(adjustment.percentage);
+      if (adjustment.isActive === false || percentage < 0 || percentage > 100) return false;
+      const type = String(adjustment.type || 'direct').toLowerCase();
+      if (type === 'direct') return true;
+      if (type !== 'time_period') return false;
+      const start = dateKey(adjustment.startDate);
+      const end = dateKey(adjustment.endDate);
+      return Boolean(start && end && today >= start && today <= end);
+    }) || null;
+}
+
+export function applyRateAdjustment(amount = 0, rule = {}, referenceDate = new Date()) {
+  const baseGrandTotal = Math.max(0, toNumber(amount));
+  const adjustment = getActiveRateAdjustment(rule, referenceDate);
+  const percentage = adjustment ? toNumber(adjustment.percentage) : 0;
+  const amountAdded = percentage > 0 ? Math.round(baseGrandTotal * percentage / 100) : 0;
+  return {
+    baseGrandTotal,
+    rateAdjustment: adjustment ? {
+      id: adjustment._id || adjustment.id || null,
+      name: adjustment.name || (adjustment.type === 'time_period' ? 'Time-period increase' : 'Direct increase'),
+      type: adjustment.type || 'direct',
+      percentage,
+      startDate: adjustment.startDate || null,
+      endDate: adjustment.endDate || null,
+      amount: amountAdded,
+    } : null,
+    rateAdjustmentAmount: amountAdded,
+    grandTotal: baseGrandTotal + amountAdded,
+  };
+}
 
 export function getDistanceCharges(distance, rule) {
   const km = toNumber(distance);
@@ -201,7 +251,8 @@ export function calculateBookingPrice(bookingData = {}) {
   const sundayHike = hasLockedPricing
     ? toNumber(lockedPricing.sundayHike)
     : dateValue && new Date(`${dateValue}T00:00:00`).getDay() === 0 ? Math.round(subtotal * 0.05) : 0;
-  const grandTotal = subtotal + sundayHike;
+  const adjustedPricing = applyRateAdjustment(subtotal + sundayHike, rule);
+  const grandTotal = adjustedPricing.grandTotal;
   return {
     basePrice,
     itemsExtraCharge,
@@ -214,6 +265,9 @@ export function calculateBookingPrice(bookingData = {}) {
     truckTotal,
     addOnTotal,
     sundayHike,
+    baseGrandTotal: adjustedPricing.baseGrandTotal,
+    rateAdjustmentAmount: adjustedPricing.rateAdjustmentAmount,
+    rateAdjustment: adjustedPricing.rateAdjustment,
     grandTotal,
     breakdown: {
       distanceKm: distance,
@@ -226,6 +280,9 @@ export function calculateBookingPrice(bookingData = {}) {
       addOnBreakdown,
       distanceSlabs: rule.distancePricing?.slabs || [],
       floorSlabs: rule.floorPricing?.slabs || [],
+      baseGrandTotal: adjustedPricing.baseGrandTotal,
+      rateAdjustmentAmount: adjustedPricing.rateAdjustmentAmount,
+      rateAdjustment: adjustedPricing.rateAdjustment,
     },
   };
 }
