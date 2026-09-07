@@ -15,6 +15,7 @@ const { normalizeMobile } = require("./otp.service");
 const { buildStatusMessage } = require("./whatsappTemplate.service");
 const { uploadCompletionProof } = require("./iconUpload.service");
 const { isItemCatalogService } = require("../constants/serviceTypes");
+const { calculateItemBreakdown } = require("../utility/bookingPricingSnapshot");
 
 const FINAL_STATUSES = ["completed", "cancelled"];
 const MANUAL_STATUS_VALUES = ["pending", "quote_sent", "confirmed", "in_progress", "cancelled"];
@@ -173,36 +174,6 @@ const applyRateAdjustment = (amount = 0, rule = {}) => {
       endDate: adjustment.endDate || null,
       amount: adjustmentAmount,
     } : null,
-  };
-};
-
-const calculateItemBreakdown = (items = [], rule = {}) => {
-  const allowance = Object.fromEntries((rule.freeItemAllowance || []).map((entry) => [String(entry.sizeKey || "").toUpperCase(), Math.max(0, toNumber(entry.quantity))]));
-  const groupedPrices = {};
-  items.forEach((item) => {
-    const sizeKey = String(item.sizeTag || "").toUpperCase();
-    if (!groupedPrices[sizeKey]) groupedPrices[sizeKey] = [];
-    for (let index = 0; index < Math.max(0, toNumber(item.quantity)); index += 1) groupedPrices[sizeKey].push(toNumber(item.unitPrice));
-  });
-  const bySize = Object.entries(groupedPrices).map(([sizeKey, prices]) => {
-    const sorted = prices.sort((a, b) => b - a);
-    const freeCount = Math.min(sorted.length, allowance[sizeKey] || 0);
-    const charged = sorted.slice(freeCount);
-    return {
-      sizeKey,
-      selected: sorted.length,
-      included: freeCount,
-      charged: charged.length,
-      charge: charged.reduce((sum, price) => sum + price, 0),
-    };
-  });
-  return {
-    allowances: allowance,
-    bySize,
-    selectedCount: items.reduce((sum, item) => sum + Math.max(0, toNumber(item.quantity)), 0),
-    includedCount: bySize.reduce((sum, item) => sum + item.included, 0),
-    chargedCount: bySize.reduce((sum, item) => sum + item.charged, 0),
-    charge: bySize.reduce((sum, item) => sum + item.charge, 0),
   };
 };
 
@@ -423,7 +394,9 @@ const confirmBooking = async (bookingid, token, payload) => {
   await booking.save();
   await inAppNotificationService.createNewBookingNotification(booking);
   try {
-    await emailNotificationService.sendBookingConfirmationEmail(booking, { source: "website" });
+    await emailNotificationService.sendBookingConfirmationEmail(booking, {
+      source: payload.source === "admin" ? "admin" : "website",
+    });
   } catch (error) {
     logger.error("Booking confirmation email failed", {
       bookingid: booking.bookingid,

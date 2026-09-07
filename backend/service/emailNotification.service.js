@@ -2,6 +2,7 @@ const { Resend } = require("resend");
 const EmailNotificationSetting = require("../schema/EmailNotificationSetting.model");
 const ApiError = require("../utility/apierror");
 const logger = require("../utility/logger");
+const { generateBookingQuotaPDF } = require("../utility/bookingQuotaPdf");
 
 const EMAIL_KEY = "booking_confirmation";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -110,7 +111,6 @@ const bookingValues = (booking = {}) => ({
 });
 
 const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}) => {
-  if (source !== "website") return null;
   if (process.env.BOOKING_CONFIRMATION_EMAILS === "false") return null;
 
   const settings = await getSettings();
@@ -139,6 +139,23 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
   const html = renderTemplate(settings.template?.html || DEFAULT_EMAIL_TEMPLATE.html, values);
   const subject = renderTemplate(settings.template?.subject || DEFAULT_EMAIL_TEMPLATE.subject, values);
   const from = process.env.RESEND_FROM_EMAIL || "Tithi Packers and Movers <onboarding@resend.dev>";
+  const attachments = [];
+
+  try {
+    const pdfBuffer = await generateBookingQuotaPDF(booking);
+    attachments.push({
+      filename: `${values.bookingId}_Tithi_booking_quota.pdf`,
+      content: pdfBuffer,
+      contentType: "application/pdf",
+    });
+  } catch (error) {
+    logger.error("Booking quotation PDF generation failed", {
+      bookingid: booking?.bookingid,
+      source,
+      error: error.message,
+      stack: error.stack,
+    });
+  }
 
   const result = await resend.emails.send({
     from,
@@ -146,6 +163,7 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
     subject,
     html,
     text: stripHtml(html),
+    ...(attachments.length ? { attachments } : {}),
   });
 
   if (result?.error) {
@@ -159,8 +177,10 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
 
   logger.info("Booking confirmation email sent", {
     bookingid: booking?.bookingid,
+    source,
     recipientCount: recipients.length,
     resendId: result?.data?.id,
+    attachmentCount: attachments.length,
   });
   return result;
 };
