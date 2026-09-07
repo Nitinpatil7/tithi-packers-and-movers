@@ -1,7 +1,7 @@
 // src/app/admin/dashboard/page.js
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { 
   CalendarDays, 
@@ -20,6 +20,7 @@ import AdminStatGrid from '@/components/admin/AdminStatGrid';
 import BookingTable from '@/components/admin/BookingTable';
 import dynamic from 'next/dynamic';
 import Card from '@tithi/ui/Card';
+import AnalyticsRangeFilter, { analyticsRangeQuery, defaultAnalyticsRange } from '@/components/admin/AnalyticsRangeFilter';
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,
@@ -34,9 +35,12 @@ const ServicePieChart = dynamic(() => import('@/components/admin/ServicePieChart
 export default function DashboardPage() {
   const { token } = useAuthStore();
   const todayKey = useMemo(() => toDateKey(new Date()), []);
+  const [chartRange, setChartRange] = useState(defaultAnalyticsRange);
+  const chartFilters = useMemo(() => analyticsRangeQuery(chartRange), [chartRange]);
   
   // Fetch stats & bookings
-  const { data: stats, isLoading: statsLoading } = useAdminStats(token);
+  const { data: stats, isLoading: statsLoading } = useAdminStats({}, token);
+  const { data: chartStats, isLoading: chartStatsLoading } = useAdminStats(chartFilters, token);
   const { data: bookingsData, isLoading: bookingsLoading } = useAllBookings({ limit: 10 }, token);
   const { data: todayScheduledData, isLoading: todayScheduledLoading } = useAllBookings({
     scheduledDate: todayKey,
@@ -116,13 +120,16 @@ export default function DashboardPage() {
         
         {/* Daily Bookings Line Chart */}
         <Card className="lg:col-span-8 p-6 bg-bg-card border border-bg-border/60 glass flex flex-col gap-4">
-          <div className="flex flex-col text-left">
-            <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-              Daily Booking Frequency
-            </h3>
-            <span className="text-[10px] text-text-tertiary">Calculated monthly cycles</span>
+          <div className="flex flex-col gap-3 text-left sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col">
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
+                Daily Booking Frequency
+              </h3>
+              <span className="text-[10px] text-text-tertiary">Filtered by chart range</span>
+            </div>
+            <AnalyticsRangeFilter value={chartRange} onChange={setChartRange} compact />
           </div>
-          {statsLoading ? <ChartSkeleton /> : <BookingLineChart data={stats?.dailyBookings || []} />}
+          {chartStatsLoading ? <ChartSkeleton /> : <BookingLineChart data={chartStats?.dailyBookings || []} />}
         </Card>
 
         {/* Bookings share distribution Donut/Pie Chart */}

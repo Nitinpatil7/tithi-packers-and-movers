@@ -67,9 +67,16 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
     return (addon.triggerCategoryIds || []).map((category) => category?._id || category?.id || category).filter(Boolean).map(String);
   };
   const matchedItemsForAddon = (addon) => {
+    const unit = String(addon.unit || 'global').toLowerCase();
     const triggerItemIds = new Set(addonItemIds(addon));
     const triggerGroupIds = new Set(addonGroupIds(addon));
     const triggerCategoryIds = new Set(addonCategoryIds(addon));
+    if (unit === 'per_group' && triggerGroupIds.size) {
+      return selectedItems.filter((item) => triggerGroupIds.has(selectedGroupId(item)));
+    }
+    if (unit === 'per_category' && triggerCategoryIds.size) {
+      return selectedItems.filter((item) => triggerCategoryIds.has(selectedCategoryId(item)));
+    }
     return triggerItemIds.size
       ? selectedItems.filter((item) => triggerItemIds.has(selectedItemId(item)))
       : triggerGroupIds.size
@@ -81,17 +88,9 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   const autoQuantity = (addon) => {
     const unit = String(addon.unit || 'global').toLowerCase();
     const matchedItems = matchedItemsForAddon(addon);
-    if (['per_item', 'per_unit'].includes(unit)) {
-      const totalQuantity = matchedItems.reduce((sum, item) => sum + Math.max(0, Number(item.quantity || 0)), 0);
-      return Math.max(1, totalQuantity);
-    }
-    if (unit === 'per_group') {
-      const groups = new Set(matchedItems.map(selectedGroupId).filter(Boolean));
-      return Math.max(1, groups.size);
-    }
-    if (unit === 'per_category') {
-      const categories = new Set(matchedItems.map(selectedCategoryId).filter(Boolean));
-      return Math.max(1, categories.size);
+    const totalMatchedQuantity = () => matchedItems.reduce((sum, item) => sum + Math.max(0, Number(item.quantity || 0)), 0);
+    if (['per_item', 'per_unit', 'per_group', 'per_category'].includes(unit)) {
+      return Math.max(1, totalMatchedQuantity());
     }
     if (unit === 'per_room') {
       const rooms = new Set(matchedItems.map((item) => item.room || item.roomName || item.location).filter(Boolean).map(String));

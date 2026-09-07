@@ -7,6 +7,7 @@ const SERVICE_LABELS = {
   intercity_moving: "Intercity Moving",
   porter_labour_service: "Labour & Vehicle",
 };
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const startOfUtcDay = (date) => {
   const value = new Date(date);
@@ -14,15 +15,65 @@ const startOfUtcDay = (date) => {
   return value;
 };
 
+const toDateKey = (date) => date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+const fromDateKey = (dateKey) => new Date(`${dateKey}T00:00:00+05:30`);
+const endAfterDateKey = (dateKey) => new Date(fromDateKey(dateKey).getTime() + DAY_MS);
+
+const resolveDateRange = (params = {}) => {
+  const now = new Date();
+  const todayKey = toDateKey(now);
+  const todayStart = fromDateKey(todayKey);
+  const range = String(params.range || "month").toLowerCase();
+
+  if (range === "custom" && params.startDate && params.endDate) {
+    const start = fromDateKey(params.startDate);
+    const end = endAfterDateKey(params.endDate);
+    if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+      return start <= end
+        ? { key: range, start, end, startDate: params.startDate, endDate: params.endDate }
+        : { key: range, start: fromDateKey(params.endDate), end: endAfterDateKey(params.startDate), startDate: params.endDate, endDate: params.startDate };
+    }
+  }
+
+  if (range === "day") {
+    return { key: range, start: todayStart, end: new Date(todayStart.getTime() + DAY_MS), startDate: todayKey, endDate: todayKey };
+  }
+
+  if (range === "week") {
+    const day = todayStart.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const start = new Date(todayStart.getTime() + mondayOffset * DAY_MS);
+    return { key: range, start, end: new Date(todayStart.getTime() + DAY_MS), startDate: toDateKey(start), endDate: todayKey };
+  }
+
+  if (range === "year") {
+    const year = Number(todayKey.slice(0, 4));
+    const start = fromDateKey(`${year}-01-01`);
+    return { key: range, start, end: new Date(todayStart.getTime() + DAY_MS), startDate: `${year}-01-01`, endDate: todayKey };
+  }
+
+  const monthStartKey = `${todayKey.slice(0, 7)}-01`;
+  const monthStart = fromDateKey(monthStartKey);
+  return { key: "month", start: monthStart, end: new Date(todayStart.getTime() + DAY_MS), startDate: monthStartKey, endDate: todayKey };
+};
+
+const dateRangeMatch = (range) => ({
+  ...BUSINESS_BOOKINGS,
+  createdAt: { $gte: range.start, $lt: range.end },
+});
+
 const moneyExpression = { $ifNull: ["$pricing.totalAmount", 0] };
 
-const getDashboard = async () => {
-  const graphStart = startOfUtcDay(new Date(Date.now() - 29 * 24 * 60 * 60 * 1000));
+const getDashboard = async (params = {}) => {
+  const range = resolveDateRange(params);
+  const dashboardMatch = dateRangeMatch(range);
+  const graphStart = range.start;
+  const graphDays = Math.max(1, Math.ceil((range.end.getTime() - range.start.getTime()) / DAY_MS));
   const todayStart = startOfUtcDay(new Date());
 
   const [summaryRows, serviceRows, dailyRows, recentBookings, pendingFeedbackCount] = await Promise.all([
     Booking.aggregate([
-      { $match: BUSINESS_BOOKINGS },
+      { $match: dashboardMatch },
       {
         $group: {
           _id: null,
@@ -36,12 +87,12 @@ const getDashboard = async () => {
       { $project: { _id: 0 } },
     ]),
     Booking.aggregate([
-      { $match: BUSINESS_BOOKINGS },
+      { $match: dashboardMatch },
       { $group: { _id: "$serviceType", bookings: { $sum: 1 } } },
       { $sort: { bookings: -1 } },
     ]),
     Booking.aggregate([
-      { $match: { ...BUSINESS_BOOKINGS, createdAt: { $gte: graphStart } } },
+      { $match: dashboardMatch },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Asia/Kolkata" } },
@@ -50,7 +101,7 @@ const getDashboard = async () => {
       },
       { $sort: { _id: 1 } },
     ]),
-    Booking.find(BUSINESS_BOOKINGS)
+    Booking.find(dashboardMatch)
       .select("bookingid customer.name customer.mobile serviceType status scheduledate pricing.totalAmount createdAt")
       .sort({ createdAt: -1 })
       .limit(5)
@@ -59,9 +110,9 @@ const getDashboard = async () => {
   ]);
 
   const dailyMap = new Map(dailyRows.map((row) => [row._id, row.bookings]));
-  const dailyBookingGraph = Array.from({ length: 30 }, (_, index) => {
-    const date = new Date(graphStart.getTime() + index * 24 * 60 * 60 * 1000);
-    const key = date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const dailyBookingGraph = Array.from({ length: graphDays }, (_, index) => {
+    const date = new Date(graphStart.getTime() + index * DAY_MS);
+    const key = toDateKey(date);
     return { date: key, bookings: dailyMap.get(key) || 0 };
   });
   const mostUsed = serviceRows[0] || null;
@@ -85,16 +136,20 @@ const getDashboard = async () => {
     })),
     recentBookings,
     pendingFeedbackCount,
+    range: { key: range.key, startDate: range.startDate, endDate: range.endDate },
   };
 };
 
-const getAnalytics = async () => {
-  const currentStart = startOfUtcDay(new Date(Date.now() - 29 * 24 * 60 * 60 * 1000));
-  const previousStart = startOfUtcDay(new Date(Date.now() - 59 * 24 * 60 * 60 * 1000));
+const getAnalytics = async (params = {}) => {
+  const range = resolveDateRange(params);
+  const analyticsMatch = dateRangeMatch(range);
+  const duration = Math.max(DAY_MS, range.end.getTime() - range.start.getTime());
+  const currentStart = range.start;
+  const previousStart = new Date(range.start.getTime() - duration);
 
   const [overallRows, serviceRows, periodRows] = await Promise.all([
     Booking.aggregate([
-      { $match: BUSINESS_BOOKINGS },
+      { $match: analyticsMatch },
       {
         $group: {
           _id: null,
@@ -106,12 +161,12 @@ const getAnalytics = async () => {
       { $project: { _id: 0, estimatedRevenue: { $round: ["$estimatedRevenue", 2] }, averageBookingValue: { $round: ["$averageBookingValue", 2] }, bookings: 1 } },
     ]),
     Booking.aggregate([
-      { $match: BUSINESS_BOOKINGS },
+      { $match: analyticsMatch },
       { $group: { _id: "$serviceType", bookings: { $sum: 1 }, estimatedRevenue: { $sum: moneyExpression } } },
       { $sort: { bookings: -1 } },
     ]),
     Booking.aggregate([
-      { $match: { ...BUSINESS_BOOKINGS, createdAt: { $gte: previousStart } } },
+      { $match: { ...BUSINESS_BOOKINGS, createdAt: { $gte: previousStart, $lt: range.end } } },
       {
         $group: {
           _id: null,
@@ -147,6 +202,7 @@ const getAnalytics = async () => {
       growthPercentage,
     },
     servicePopularityBreakdown: popularity,
+    range: { key: range.key, startDate: range.startDate, endDate: range.endDate },
   };
 };
 

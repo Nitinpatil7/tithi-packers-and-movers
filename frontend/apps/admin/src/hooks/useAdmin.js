@@ -42,19 +42,19 @@ const adminReferenceQueryOptions = {
   refetchOnMount: false,
 };
 
-export function useAdminStats(token) {
+export function useAdminStats(filters = {}, token) {
   return useQuery({
-    queryKey: ['admin', 'stats'],
-    queryFn: () => getAdminStats(token),
+    queryKey: ['admin', 'stats', filters],
+    queryFn: () => getAdminStats(filters, token),
     enabled: true,
     ...adminLiveQueryOptions,
   });
 }
 
-export function useAdminAnalyticsOverview() {
+export function useAdminAnalyticsOverview(filters = {}) {
   return useQuery({
-    queryKey: ['admin', 'analytics-overview'],
-    queryFn: () => getAdminAnalyticsOverview(),
+    queryKey: ['admin', 'analytics-overview', filters],
+    queryFn: () => getAdminAnalyticsOverview(filters),
     enabled: true,
     ...adminListQueryOptions,
   });

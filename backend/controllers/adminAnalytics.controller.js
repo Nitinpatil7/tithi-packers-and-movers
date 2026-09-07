@@ -3,12 +3,12 @@ const ApiResponse = require("../utility/apiresponse");
 const adminAnalyticsService = require("../service/adminAnalytics.service");
 
 const getDashboard = asyncHandler(async (req, res) => {
-  const dashboard = await adminAnalyticsService.getDashboard();
+  const dashboard = await adminAnalyticsService.getDashboard(req.query);
   res.status(200).json(new ApiResponse(200, dashboard, "Admin dashboard statistics fetched"));
 });
 
 const getAnalytics = asyncHandler(async (req, res) => {
-  const analytics = await adminAnalyticsService.getAnalytics();
+  const analytics = await adminAnalyticsService.getAnalytics(req.query);
   res.status(200).json(new ApiResponse(200, analytics, "Admin analytics fetched"));
 });
 

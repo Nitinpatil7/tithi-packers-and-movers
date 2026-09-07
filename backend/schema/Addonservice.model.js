@@ -28,7 +28,7 @@ const addOnServiceSchema = new mongoose.Schema(
 
     unit: {
       type: String,
-      enum: ["global", "flat", "per_unit", "per_item", "per_group", "per_category", "per_room", "percentage"],
+      enum: ["global", "per_unit", "per_group", "per_category", "percentage"],
       required: true,
     },
 

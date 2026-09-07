@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Edit3, GripVertical, Plus, Search, Trash2 } from 'lucide-react';
+import { Edit3, GripVertical, Plus, Search, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
 import { useAdminSections, useUploadIcon } from '@hooks/useItems';
@@ -10,19 +10,23 @@ import IconInput, { IconPreview } from '@/components/admin/IconInput';
 
 const ADDON_UNITS = [
   ['global', 'Global / one price'],
-  ['flat', 'Flat charge'],
-  ['per_unit', 'Per selected unit'],
-  ['per_item', 'Per selected item'],
-  ['per_group', 'Per matched group'],
-  ['per_category', 'Per matched category'],
-  ['per_room', 'Per room'],
+  ['per_unit', 'Per Item'],
+  ['per_group', 'Per Group'],
+  ['per_category', 'Section'],
   ['percentage', 'Percentage of quote'],
 ];
 
 const EMPTY = { name: '', description: '', icon: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true };
+const ADDON_UNIT_LABELS = new Map([
+  ...ADDON_UNITS,
+  ['flat', 'Flat charge'],
+  ['per_item', 'Per Item'],
+  ['per_room', 'Per room'],
+]);
 const categoryId = (value) => String(value?._id || value?.id || value || '');
 const groupId = (value) => String(value?._id || value?.id || value || '');
 const itemId = (value) => String(value?._id || value?.id || value || '');
+const addonUnitLabel = (unit) => ADDON_UNIT_LABELS.get(String(unit || 'global').toLowerCase()) || String(unit || 'Add-on').replaceAll('_', ' ');
 const byCatalogOrder = (sectionOrder) => (a, b) => {
   const aSection = sectionOrder.get(String(a.sectionId || '')) ?? Number.MAX_SAFE_INTEGER;
   const bSection = sectionOrder.get(String(b.sectionId || '')) ?? Number.MAX_SAFE_INTEGER;
@@ -64,7 +68,7 @@ export default function AdminAddonsPage() {
     {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">{addons.map((item) => {
       const active = draggingId === item._id;
       const over = dragOverId === item._id && draggingId !== item._id;
-      return <article key={item._id} draggable={canReorder} onDragStart={() => canReorder && setDraggingId(item._id)} onDragEnter={(event) => { event.preventDefault(); if (canReorder) setDragOverId(item._id); }} onDragOver={(event) => event.preventDefault()} onDragEnd={() => { setDraggingId(null); setDragOverId(null); }} onDrop={(event) => { event.preventDefault(); reorder(item._id); setDraggingId(null); setDragOverId(null); }} className={`admin-drag-card flex min-h-56 min-w-0 max-w-full flex-col rounded-2xl border bg-white p-5 shadow-sm ${active ? 'admin-drag-card-active border-sky-300 opacity-90' : over ? 'admin-drag-card-over border-orange-200' : 'border-sky-100'}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-2"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-sky-100 bg-sky-50 text-sky-500 ${canReorder ? 'cursor-grab active:cursor-grabbing' : 'opacity-40'}`} title={canReorder ? 'Drag add-on' : 'Show all add-ons to reorder'}><GripVertical className="h-4 w-4" /></span>{item.icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><IconPreview icon={item.icon} className="h-9 w-9" /></span>}<div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{item.name}</h2><p className="text-xs font-medium text-slate-400">{item.unit?.replaceAll('_', ' ')} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p></div></div></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span></div><p className="mt-4 line-clamp-4 min-h-[5.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p><div className="mt-auto flex justify-end gap-2 border-t border-slate-100 pt-4"><button onClick={() => setEditor(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(item)} disabled={item.isActive === false} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button></div></article>;
+      return <article key={item._id} draggable={canReorder} onDragStart={() => canReorder && setDraggingId(item._id)} onDragEnter={(event) => { event.preventDefault(); if (canReorder) setDragOverId(item._id); }} onDragOver={(event) => event.preventDefault()} onDragEnd={() => { setDraggingId(null); setDragOverId(null); }} onDrop={(event) => { event.preventDefault(); reorder(item._id); setDraggingId(null); setDragOverId(null); }} className={`admin-drag-card flex min-h-56 min-w-0 max-w-full flex-col rounded-2xl border bg-white p-5 shadow-sm ${active ? 'admin-drag-card-active border-sky-300 opacity-90' : over ? 'admin-drag-card-over border-orange-200' : 'border-sky-100'}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-2"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-sky-100 bg-sky-50 text-sky-500 ${canReorder ? 'cursor-grab active:cursor-grabbing' : 'opacity-40'}`} title={canReorder ? 'Drag add-on' : 'Show all add-ons to reorder'}><GripVertical className="h-4 w-4" /></span>{item.icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><IconPreview icon={item.icon} className="h-9 w-9" /></span>}<div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{item.name}</h2><p className="text-xs font-medium text-slate-400">{addonUnitLabel(item.unit)} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p></div></div></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span></div><p className="mt-4 line-clamp-4 min-h-[5.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p><div className="mt-auto flex justify-end gap-2 border-t border-slate-100 pt-4"><button onClick={() => setEditor(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(item)} disabled={item.isActive === false} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button></div></article>;
     })}</div>}
     <AddonEditor record={editor} uploadIcon={uploadIcon} onClose={() => setEditor(null)} onSave={async (payload) => { try { if (editor?._id) await updateMutation.mutateAsync({ id: editor._id, data: payload }); else await createMutation.mutateAsync(payload); toast.success(editor?._id ? 'Add-on updated' : 'Add-on created'); setEditor(null); } catch (error) { toast.error(error.message); } }} busy={createMutation.isPending || updateMutation.isPending || uploadIcon.isPending} />
   </div>;
@@ -159,9 +163,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
       triggerGroupIds: selected
         ? current.triggerGroupIds.filter((item) => item !== id)
         : [...new Set([...current.triggerGroupIds, id])],
-      triggerItemIds: selected
-        ? current.triggerItemIds.filter((item) => !idsInGroup.includes(item))
-        : [...new Set([...current.triggerItemIds, ...idsInGroup])],
+      triggerItemIds: current.triggerItemIds.filter((item) => !idsInGroup.includes(item)),
     };
   });
   const toggleItem = (id) => setForm((current) => ({
@@ -182,7 +184,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
           <Field label="Unit"><select value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} className="admin-field">{ADDON_UNITS.map(([unit, label]) => <option key={unit} value={unit}>{label}</option>)}</select></Field>
           <Field label="Price *"><input required type="number" min="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} className="admin-field" /></Field>
         </div>
-        <Field label="Services *">
+        <Field label="Services *" as="div">
           <div className="flex flex-wrap gap-2">
             {[
               ['local_shifting','Local shifting'],
@@ -195,7 +197,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
             ))}
           </div>
         </Field>
-        <Field label="Applicability">
+        <Field label="Applicability" as="div">
           <div className="rounded-2xl border border-bg-border bg-bg-section/45 p-3">
             <div className="grid gap-2 border-b border-bg-border pb-3 sm:grid-cols-2">
               <select value={section} onChange={(event) => setSection(event.target.value)} className="admin-field">
@@ -209,16 +211,13 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
             </div>
             <div className="grid gap-3 p-3 lg:grid-cols-3">
               <div className="min-w-0">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">Apply to category</p>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">Apply to section</p>
                 <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                   {orderedSections.map((category) => {
                     const id = categoryId(category);
                     return (
                       <label key={id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition ${selectedCategoryIds.has(id) ? 'border-primary/40 bg-white text-primary shadow-sm' : 'border-bg-border bg-white/70 text-text-primary hover:border-primary/20'}`}>
-                        <input type="checkbox" checked={selectedCategoryIds.has(id)} onChange={() => toggleCategory(category)} className="sr-only" />
-                        <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border ${selectedCategoryIds.has(id) ? 'border-primary bg-primary text-white' : 'border-bg-border bg-white text-transparent'}`}>
-                          <Check className="h-3.5 w-3.5" />
-                        </span>
+                        <input type="checkbox" checked={selectedCategoryIds.has(id)} onChange={() => toggleCategory(category)} className="mt-1 h-4 w-4 shrink-0 accent-sky-600" />
                         <span className="min-w-0 flex-1">
                           <strong className="block truncate font-bold">{category.name}</strong>
                           <small className="mt-0.5 block truncate text-[10px] font-semibold uppercase text-text-tertiary">All groups/items</small>
@@ -238,10 +237,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
                     const checked = categorySelected || selectedGroupIds.has(group.id);
                     return (
                       <label key={group.id} className={`flex items-start gap-3 rounded-xl border p-3 text-sm transition ${checked ? 'border-primary/40 bg-white text-primary shadow-sm' : 'border-bg-border bg-white/70 text-text-primary hover:border-primary/20'} ${categorySelected ? 'cursor-default opacity-85' : 'cursor-pointer'}`}>
-                        <input type="checkbox" checked={checked} disabled={categorySelected} onChange={() => toggleGroup(group)} className="sr-only" />
-                        <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border ${checked ? 'border-primary bg-primary text-white' : 'border-bg-border bg-white text-transparent'}`}>
-                          <Check className="h-3.5 w-3.5" />
-                        </span>
+                        <input type="checkbox" checked={checked} disabled={categorySelected} onChange={() => toggleGroup(group)} className="mt-1 h-4 w-4 shrink-0 accent-sky-600" />
                         <span className="min-w-0 flex-1">
                           <strong className="block truncate font-bold">{group.name}</strong>
                           <small className="mt-0.5 block truncate text-[10px] font-semibold uppercase text-text-tertiary">{group.section}</small>
@@ -270,10 +266,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
                             const checked = groupSelected || selectedItemIds.has(item.id);
                             return (
                               <label key={item.id} className={`flex items-start gap-3 rounded-xl border p-3 text-sm transition ${checked ? 'border-primary/40 bg-white text-primary shadow-sm' : 'border-bg-border bg-white/70 text-text-primary hover:border-primary/20'} ${groupSelected ? 'cursor-default opacity-85' : 'cursor-pointer'}`}>
-                                <input type="checkbox" checked={checked} disabled={groupSelected} onChange={() => toggleItem(item.id)} className="sr-only" />
-                                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border ${checked ? 'border-primary bg-primary text-white' : 'border-bg-border bg-white text-transparent'}`}>
-                                  <Check className="h-3.5 w-3.5" />
-                                </span>
+                                <input type="checkbox" checked={checked} disabled={groupSelected} onChange={() => toggleItem(item.id)} className="mt-1 h-4 w-4 shrink-0 accent-sky-600" />
                                 <span className="min-w-0 flex-1">
                                   <strong className="block truncate font-bold">{item.name}</strong>
                                   <small className="mt-0.5 block truncate text-[10px] font-semibold uppercase text-text-tertiary">{group.name}</small>
@@ -288,7 +281,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
                 </div>
               </div>
             </div>
-            <p className="border-t border-sky-100 px-3 py-2 text-xs font-medium text-slate-400">{hasTriggers ? `${form.triggerCategoryIds.length} categor${form.triggerCategoryIds.length === 1 ? 'y' : 'ies'}, ${form.triggerGroupIds.length} group(s), ${form.triggerItemIds.length} item(s) selected` : 'No category, group, or item selected - this add-on will be global.'}</p>
+            <p className="border-t border-sky-100 px-3 py-2 text-xs font-medium text-slate-400">{hasTriggers ? `${form.triggerCategoryIds.length} section(s), ${form.triggerGroupIds.length} group(s), ${form.triggerItemIds.length} item(s) selected` : 'No section, group, or item selected - this add-on will be global.'}</p>
           </div>
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -305,4 +298,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
 }
 
 function State({ text, action }) { return <div className="rounded-2xl border border-dashed border-sky-200 p-12 text-center text-sm font-medium text-slate-400">{text}{action && <button onClick={action} className="ml-2 font-semibold text-sky-600">Try again</button>}</div>; }
-function Field({ label, children }) { return <label className="block"><span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>{children}</label>; }
+function Field({ label, children, as = 'label' }) {
+  const Component = as;
+  return <Component className="block"><span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>{children}</Component>;
+}

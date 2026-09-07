@@ -1,5 +1,4 @@
 const PDFDocument = require("pdfkit");
-const { calculateItemBreakdown } = require("./bookingPricingSnapshot");
 
 const ACCENT = "#0284c7";
 const TEXT = "#0f172a";
@@ -19,70 +18,51 @@ const serviceLabels = {
   porter_labour_service: "Labour & Vehicle",
 };
 
+const asObject = (value = {}) => (value && typeof value.toObject === "function" ? value.toObject() : value) || {};
 const toNumber = (value, fallback = 0) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 };
-
-const asObject = (value = {}) => (value && typeof value.toObject === "function" ? value.toObject() : value) || {};
-const formatCurrency = (value = 0) => `₹${toNumber(value).toFixed(2)}`;
 const formatDate = (value = new Date()) => {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 };
 
-const getPricing = (booking = {}) => asObject(booking.pricing);
-const getBreakdown = (booking = {}) => asObject(getPricing(booking).breakdown);
-const getTotal = (booking = {}) => toNumber(getPricing(booking).totalAmount);
 const getBookingId = (booking = {}) => booking.bookingid || booking.bookingId || "";
 const getCustomer = (booking = {}) => asObject(booking.customer);
 const getLocation = (booking = {}, key) => asObject(booking[key]);
 const getItems = (booking = {}) => (booking.items || []).map(asObject);
 const getAddons = (booking = {}) => (booking.selectedAddons || []).map(asObject);
 
-const line = (doc, label, value, options = {}) => {
-  const x = doc.page.margins.left;
-  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const y = doc.y;
-  doc.font(options.bold ? "Helvetica-Bold" : "Helvetica").fontSize(options.size || 10).fillColor(options.color || TEXT);
-  doc.text(label, x, y, { width: width - 120 });
-  doc.text(value, x + width - 115, y, { width: 115, align: "right" });
-  doc.moveDown(0.55);
+const contentWidth = (doc) => doc.page.width - doc.page.margins.left - doc.page.margins.right;
+const ensureSpace = (doc, neededHeight) => {
+  if (doc.y + neededHeight > doc.page.height - doc.page.margins.bottom) doc.addPage();
 };
 
 const section = (doc, title) => {
-  doc.moveDown(0.55);
+  ensureSpace(doc, 34);
+  doc.moveDown(0.5);
   const x = doc.page.margins.left;
-  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  doc.roundedRect(x, doc.y, width, 22, 3).fill(LIGHT);
-  doc.fillColor(ACCENT).font("Helvetica-Bold").fontSize(11).text(title, x + 8, doc.y + 6, { width: width - 16 });
-  doc.moveDown(1.3);
-};
-
-const addRows = (doc, rows = [], emptyLabel = "No entries") => {
-  if (!rows.length) {
-    doc.font("Helvetica").fontSize(10).fillColor(MUTED).text(emptyLabel);
-    return;
-  }
-  rows.forEach((row) => line(doc, row.label, formatCurrency(row.value), row));
+  const width = contentWidth(doc);
+  const y = doc.y;
+  doc.roundedRect(x, y, width, 22, 3).fill(LIGHT);
+  doc.fillColor(ACCENT).font("Helvetica-Bold").fontSize(11).text(title, x + 8, y + 6, { width: width - 16 });
+  doc.y = y + 31;
 };
 
 const drawHeader = (doc, booking) => {
-  const pricing = getPricing(booking);
   const customer = getCustomer(booking);
   const pickup = getLocation(booking, "pickuplocation");
   const drop = getLocation(booking, "droplocation");
   const x = doc.page.margins.left;
-  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const width = contentWidth(doc);
   const headerY = doc.y;
 
-  doc.roundedRect(x, headerY, width, 124, 6).fill(LIGHT);
+  doc.roundedRect(x, headerY, width, 158, 6).fill(LIGHT);
   doc.fillColor(ACCENT).font("Helvetica-Bold").fontSize(20).text("Tithi Packers & Movers", x + 16, headerY + 16);
-  doc.fillColor(TEXT).fontSize(10).text("Booking Quotation", x + 16, headerY + 42);
-  doc.fillColor(ACCENT).fontSize(18).text(formatCurrency(pricing.totalAmount), x + width - 180, headerY + 18, { width: 164, align: "right" });
-  doc.fillColor(MUTED).font("Helvetica").fontSize(8).text("Total Quotation Amount", x + width - 180, headerY + 44, { width: 164, align: "right" });
-  doc.y = headerY + 68;
+  doc.fillColor(TEXT).font("Helvetica-Bold").fontSize(11).text("Move Completion Checklist", x + 16, headerY + 43);
+  doc.fillColor(MUTED).font("Helvetica").fontSize(8.5).text("For field verification and customer signature", x + 16, headerY + 60);
 
   const details = [
     ["Booking ID", getBookingId(booking)],
@@ -96,116 +76,90 @@ const drawHeader = (doc, booking) => {
     ["Drop", drop.address || ""],
   ];
   const colWidth = (width - 32) / 2;
-  const startY = doc.y;
+  const startY = headerY + 82;
   details.forEach(([label, value], index) => {
     const col = index % 2;
     const row = Math.floor(index / 2);
     const tx = x + 16 + col * colWidth;
-    const ty = startY + row * 17;
+    const ty = startY + row * 15;
     doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(7).text(label.toUpperCase(), tx, ty, { width: 82 });
     doc.fillColor(TEXT).font("Helvetica").fontSize(8.5).text(String(value || "-"), tx + 84, ty, { width: colWidth - 94, ellipsis: true });
   });
-  doc.y = startY + Math.ceil(details.length / 2) * 17 + 8;
-  doc.moveDown(1.2);
+  doc.y = headerY + 170;
 };
 
-const drawItemsGrid = (doc, booking) => {
-  section(doc, "Selected Items");
+const drawChecklistRow = (doc, leftText, rightText = "") => {
+  ensureSpace(doc, 28);
+  const x = doc.page.margins.left;
+  const width = contentWidth(doc);
+  const y = doc.y;
+  doc.roundedRect(x, y, width, 24, 3).strokeColor(BORDER).lineWidth(1).stroke();
+  doc.rect(x + 10, y + 7, 10, 10).strokeColor(TEXT).lineWidth(0.9).stroke();
+  doc.fillColor(TEXT).font("Helvetica-Bold").fontSize(9.8).text(leftText || "Selected item", x + 30, y + 7, { width: width - 110, ellipsis: true });
+  if (rightText) {
+    doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(9).text(rightText, x + width - 70, y + 7, { width: 60, align: "right" });
+  }
+  doc.y = y + 29;
+};
+
+const drawItemsChecklist = (doc, booking) => {
+  section(doc, "Selected Items Checklist");
   const items = getItems(booking);
   if (!items.length) {
     doc.fillColor(MUTED).font("Helvetica").fontSize(10).text("No selected items for this booking.");
+    doc.moveDown(0.7);
     return;
   }
-  const x = doc.page.margins.left;
-  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const gap = 12;
-  const cellWidth = (width - gap) / 2;
-  const cellHeight = 38;
-  items.forEach((item, index) => {
-    const col = index % 2;
-    if (doc.y + cellHeight > doc.page.height - doc.page.margins.bottom) doc.addPage();
-    const y = doc.y;
-    const cellX = x + col * (cellWidth + gap);
-    doc.roundedRect(cellX, y, cellWidth, cellHeight, 4).strokeColor(BORDER).lineWidth(1).stroke();
-    doc.fillColor(TEXT).font("Helvetica-Bold").fontSize(9.5).text(item.name || "Selected item", cellX + 9, y + 8, { width: cellWidth - 88, ellipsis: true });
-    doc.fillColor(MUTED).font("Helvetica").fontSize(8).text(`Qty ${toNumber(item.quantity, 1)}${item.sizeTag ? ` - ${item.sizeTag}` : ""}`, cellX + 9, y + 22, { width: cellWidth - 88 });
-    doc.fillColor(ACCENT).font("Helvetica-Bold").fontSize(9).text(formatCurrency(toNumber(item.unitPrice ?? item.price)), cellX + cellWidth - 76, y + 13, { width: 66, align: "right" });
-    if (col === 1 || index === items.length - 1) doc.y = y + cellHeight + 8;
+  items.forEach((item) => {
+    drawChecklistRow(doc, item.name || "Selected item", `Qty ${Math.max(0, toNumber(item.quantity, 0))}`);
   });
 };
 
-const drawAddons = (doc, booking) => {
-  const addons = getAddons(booking);
-  if (!addons.length) return;
+const drawAddonsChecklist = (doc, booking) => {
   section(doc, "Add-ons");
-  addRows(doc, addons.map((addon) => ({
-    label: `${addon.name || "Add-on"}${addon.quantity ? ` x ${addon.quantity}` : ""}`,
-    value: toNumber(addon.total ?? addon.pricesnapshot),
-  })));
-};
-
-const getAllowanceRuleFromBooking = (booking = {}) => ({
-  freeItemAllowance: getBreakdown(booking).freeItemAllowance || [],
-});
-
-const summarizeFreeAllowance = (booking = {}, calculated = {}) => {
-  const allowanceEntries = Object.entries(calculated.allowances || {});
-  if (!allowanceEntries.length) return "No free item allowance configured";
-  return allowanceEntries.map(([sizeKey, quantity]) => `${quantity} ${sizeKey}`).join(", ");
-};
-
-const drawPricingBreakdown = (doc, booking) => {
-  const pricing = getPricing(booking);
-  const breakdown = getBreakdown(booking);
-  const calculatedItems = calculateItemBreakdown(getItems(booking), getAllowanceRuleFromBooking(booking), { includeItemUnits: true });
-  const itemBreakdown = breakdown.itemBreakdown || calculatedItems;
   const addons = getAddons(booking);
-
-  doc.addPage();
-  doc.fillColor(TEXT).font("Helvetica-Bold").fontSize(18).text("Pricing Breakdown");
-
-  section(doc, "1. Base Local Charge");
-  line(doc, "Base service charge", formatCurrency(breakdown.basePrice ?? pricing.serviceCharge ?? 0));
-  doc.fillColor(MUTED).font("Helvetica").fontSize(9).text(`Free Allowance Included: ${summarizeFreeAllowance(booking, itemBreakdown)}`);
-
-  section(doc, "2. Extra/Paid Allowance Items");
-  addRows(doc, calculatedItems.chargedAllowanceItems.map((unit) => ({ label: unit.name, value: unit.unitPrice })), "No selected items exceeded the free allowance.");
-  line(doc, "Extra allowance subtotal", formatCurrency(itemBreakdown.charge ?? pricing.itemTotal), { bold: true });
-
-  section(doc, "3. Base Item List with Pricing");
-  addRows(doc, calculatedItems.includedItems.map((unit) => ({ label: unit.name, value: unit.unitPrice })), "No selected items are included in the base allowance.");
-
-  section(doc, "4. Extra Items with Charges");
-  addRows(doc, [], "No separate extra item charges beyond the paid allowance items above.");
-
-  if (addons.length) {
-    section(doc, "5. Add-ons");
-    addRows(doc, addons.map((addon) => ({
-      label: `${addon.name || "Add-on"}${addon.quantity ? ` x ${addon.quantity}` : ""}`,
-      value: toNumber(addon.total ?? addon.pricesnapshot),
-    })));
+  if (!addons.length) {
+    doc.fillColor(MUTED).font("Helvetica").fontSize(10).text("No add-ons selected for this booking.");
+    doc.moveDown(0.7);
+    return;
   }
+  addons.forEach((addon) => {
+    drawChecklistRow(doc, addon.name || addon.key || "Add-on service");
+  });
+};
 
-  const logisticsRows = [
-    { label: "Distance charge", value: breakdown.distanceCharge },
-    { label: "Pickup floor / lift charge", value: breakdown.pickupFloorCharge },
-    { label: "Drop floor / lift charge", value: breakdown.dropFloorCharge },
-    { label: "Floor charge", value: breakdown.floorTotalCharge },
-    { label: "Truck charge", value: breakdown.truckTotal },
-    { label: "Labour charge", value: breakdown.employeeTotal },
-    { label: "Sunday hike", value: breakdown.sundayHike },
-    { label: "Rate adjustment", value: breakdown.rateAdjustmentAmount },
-  ].filter((row) => toNumber(row.value) > 0);
-  section(doc, "6. Logistics Charges");
-  addRows(doc, logisticsRows, "No extra logistics charges apply.");
-
-  section(doc, "7. GRAND TOTAL");
+const drawAdditionalItemsCard = (doc) => {
+  section(doc, "Additional Items Added On Site");
+  ensureSpace(doc, 118);
   const x = doc.page.margins.left;
-  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const totalY = doc.y;
-  doc.roundedRect(x, totalY, width, 34, 4).fill(ACCENT);
-  doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(13).text("GRAND TOTAL", x + 10, totalY + 10, { width: width / 2 });
-  doc.text(formatCurrency(getTotal(booking)), x + width - 160, totalY + 10, { width: 150, align: "right" });
+  const width = contentWidth(doc);
+  const y = doc.y;
+  doc.roundedRect(x, y, width, 104, 5).strokeColor(BORDER).lineWidth(1.2).stroke();
+  doc.y = y + 118;
+};
+
+const drawSignatureSection = (doc, booking) => {
+  ensureSpace(doc, 78);
+  const customer = getCustomer(booking);
+  const x = doc.page.margins.left;
+  const width = contentWidth(doc);
+  const y = doc.y + 4;
+  const fieldWidth = (width - 28) / 3;
+
+  const fields = [
+    ["Signature of Customer", ""],
+    ["Customer Name", customer.name || ""],
+    ["Date", ""],
+  ];
+  fields.forEach(([label, value], index) => {
+    const fx = x + index * (fieldWidth + 14);
+    doc.strokeColor(TEXT).lineWidth(0.8).moveTo(fx, y + 28).lineTo(fx + fieldWidth, y + 28).stroke();
+    if (value) {
+      doc.fillColor(TEXT).font("Helvetica").fontSize(9).text(value, fx, y + 10, { width: fieldWidth, align: "center", ellipsis: true });
+    }
+    doc.fillColor(MUTED).font("Helvetica-Bold").fontSize(8).text(label, fx, y + 35, { width: fieldWidth, align: "center" });
+  });
+  doc.y = y + 58;
 };
 
 const generateBookingQuotaPDF = async (booking) => new Promise((resolve, reject) => {
@@ -216,9 +170,10 @@ const generateBookingQuotaPDF = async (booking) => new Promise((resolve, reject)
   doc.on("end", () => resolve(Buffer.concat(chunks)));
 
   drawHeader(doc, booking);
-  drawItemsGrid(doc, booking);
-  drawAddons(doc, booking);
-  drawPricingBreakdown(doc, booking);
+  drawItemsChecklist(doc, booking);
+  drawAddonsChecklist(doc, booking);
+  drawAdditionalItemsCard(doc);
+  drawSignatureSection(doc, booking);
   doc.end();
 });
 

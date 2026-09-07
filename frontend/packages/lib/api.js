@@ -121,38 +121,41 @@ export const getBookingById = async (id, token, mobile) => {
   return authFetch(`${API_URL}/api/bookings/admin/${encodeURIComponent(id)}`, { credentials: 'include' }).then(readResponse).then(normalizeBooking);
 };
 
-export const getAdminStats = async () => authFetch(`${API_URL}/api/admin-analytics/dashboard`, { credentials: 'include' })
-  .then(readResponse)
-  .then((payload) => {
-    const stats = payload?.stats || {};
-    const serviceKeyMap = {
-      local_shifting: 'local',
-      intercity_moving: 'intercity',
-      porter_labour_service: 'porterLabour',
-    };
-    const bookingsByService = {};
-    (payload?.serviceBreakdown || []).forEach((item) => {
-      if (!item.serviceType) return;
-      const count = Number(item.bookings || 0);
-      bookingsByService[item.serviceType] = count;
-      bookingsByService[serviceKeyMap[item.serviceType] || item.serviceType] = count;
-    });
-    return {
-      ...payload,
-      ...stats,
-      todayBookings: stats.todayBookings || 0,
-      pendingBookings: stats.pendingBookings || 0,
-      confirmedBookings: stats.inProgressBookings || 0,
-      completedThisMonth: stats.completedBookings || 0,
-      dailyBookings: (payload?.dailyBookingGraph || []).map((item) => ({
-        ...item,
-        count: Number(item.count ?? item.bookings ?? 0),
-      })),
-      bookingsByService,
-      recentBookings: (payload?.recentBookings || []).map(normalizeBooking),
-    };
+export const getAdminStats = async (filters = {}) => {
+  const query = queryString(filters);
+  const payload = await authFetch(`${API_URL}/api/admin-analytics/dashboard${query ? `?${query}` : ''}`, { credentials: 'include' }).then(readResponse);
+  const stats = payload?.stats || {};
+  const serviceKeyMap = {
+    local_shifting: 'local',
+    intercity_moving: 'intercity',
+    porter_labour_service: 'porterLabour',
+  };
+  const bookingsByService = {};
+  (payload?.serviceBreakdown || []).forEach((item) => {
+    if (!item.serviceType) return;
+    const count = Number(item.bookings || 0);
+    bookingsByService[item.serviceType] = count;
+    bookingsByService[serviceKeyMap[item.serviceType] || item.serviceType] = count;
   });
-export const getAdminAnalyticsOverview = async () => authFetch(`${API_URL}/api/admin-analytics/overview`, { credentials: 'include' }).then(readResponse);
+  return {
+    ...payload,
+    ...stats,
+    todayBookings: stats.todayBookings || 0,
+    pendingBookings: stats.pendingBookings || 0,
+    confirmedBookings: stats.inProgressBookings || 0,
+    completedThisMonth: stats.completedBookings || 0,
+    dailyBookings: (payload?.dailyBookingGraph || []).map((item) => ({
+      ...item,
+      count: Number(item.count ?? item.bookings ?? 0),
+    })),
+    bookingsByService,
+    recentBookings: (payload?.recentBookings || []).map(normalizeBooking),
+  };
+};
+export const getAdminAnalyticsOverview = async (filters = {}) => {
+  const query = queryString(filters);
+  return authFetch(`${API_URL}/api/admin-analytics/overview${query ? `?${query}` : ''}`, { credentials: 'include' }).then(readResponse);
+};
 
 export const getAllBookings = async (filters = {}) => {
   const query = queryString(filters);

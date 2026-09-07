@@ -1031,10 +1031,24 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Service Lift</label>
-          <label className="booking-input flex h-[50px] cursor-pointer select-none items-center gap-3">
-            <input type="checkbox" checked={liftAvailable} onChange={(event) => setLiftAvailable(event.target.checked)} className="w-4 h-4 accent-primary" />
-            <span className="text-sm font-semibold text-text-secondary">Lift Available</span>
-          </label>
+          <div className="grid h-[50px] grid-cols-2 gap-2 rounded-2xl border border-bg-border bg-white p-1">
+            {[
+              ['yes', 'Yes', true],
+              ['no', 'No', false],
+            ].map(([key, label, nextValue]) => (
+              <label key={key} className={cn('flex cursor-pointer select-none items-center justify-center rounded-xl text-sm font-bold transition',
+                liftAvailable === nextValue ? 'bg-primary text-white shadow-sky-sm' : 'text-text-secondary hover:bg-primary-soft')}>
+                <input
+                  type="radio"
+                  name={`${role}-service-lift`}
+                  checked={liftAvailable === nextValue}
+                  onChange={() => setLiftAvailable(nextValue)}
+                  className="sr-only"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
         </div>
       </div>
       <MapPickerModal open={mapOpen} title={title} role={role} serviceType={serviceType} initialValue={mapInitialValue} onClose={() => setMapOpen(false)} onPick={acceptMapLocation} />
