@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
 import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
@@ -20,6 +21,7 @@ const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP
 const STEP_RULES = ['location', 'items', 'optional', 'schedule', 'optional', 'optional'];
 
 export default function LocalShiftingPage() {
+  const router = useRouter();
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
@@ -86,10 +88,11 @@ export default function LocalShiftingPage() {
       if (!bookingId || !draftToken) throw new Error('Booking draft missing. Please go back and try again.');
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: buildDraftUpdatePayload(finalData) });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: buildDraftUpdatePayload(finalData).pricing } });
-      setCreatedBookingId(response.bookingid || response.booking?.bookingid || bookingId);
-      nextStep(STEP_RULES);
+      const confirmedBookingId = response.bookingid || response.booking?.bookingid || bookingId;
+      setCreatedBookingId(confirmedBookingId);
       useBookingStore.persist.clearStorage();
       toast.success('Local shifting scheduled successfully!');
+      router.replace(`/my-bookings/${encodeURIComponent(confirmedBookingId)}`);
     } catch (error) {
       toast.error(error.message || 'Error submitting request. Please try again.');
     }

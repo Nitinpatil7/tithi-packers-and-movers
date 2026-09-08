@@ -33,7 +33,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
   }, [currentStep, prefersReducedMotion]);
 
   return (
-    <div className="booking-layout-shell relative min-h-screen overflow-hidden pt-24 pb-24 sm:pt-28">
+    <div className="booking-layout-shell relative min-h-screen overflow-hidden pt-6 pb-24 sm:pt-28">
       <div className="booking-top-wash absolute top-0 left-0 right-0 h-72 pointer-events-none" />
       <div className="booking-flow-bg pointer-events-none absolute inset-x-0 top-16 h-64" />
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

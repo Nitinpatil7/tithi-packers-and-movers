@@ -315,6 +315,67 @@ const buildClientSnapshot = (booking, pricing, source = "frontend") => ({
   selectedAddons: booking.selectedAddons.map((item) => item.toObject ? item.toObject() : item),
 });
 
+const asPlainObject = (value = {}) => (value && typeof value.toObject === "function" ? value.toObject() : value) || {};
+const sortedSignature = (entries = [], projector) => entries
+  .map((entry) => projector(asPlainObject(entry)))
+  .sort()
+  .join("|");
+
+const itemChangeSignature = (items = []) => sortedSignature(items, (item) => [
+  normalizeId(item.itemId || item._id),
+  String(item.itemkey || item.itemKey || ""),
+  normalizeId(item.sizeVariantId || item.sizeId || item.options?.sizeVariantId || item.options?.sizeId),
+  String(item.name || "").trim().toLowerCase(),
+  Math.max(0, toNumber(item.quantity, 0)),
+].join(":"));
+
+const addonChangeSignature = (addons = []) => sortedSignature(addons, (addon) => [
+  normalizeId(addon.addonid || addon.addonId || addon._id),
+  String(addon.key || "").trim().toLowerCase(),
+  String(addon.name || "").trim().toLowerCase(),
+  Math.max(0, toNumber(addon.quantity, 0)),
+].join(":"));
+
+const dateChangeSignature = (value) => {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+};
+
+const pricingChangeSignature = (pricing = {}) => JSON.stringify({
+  currency: pricing.currency || "INR",
+  itemTotal: toNumber(pricing.itemTotal),
+  addOnTotal: toNumber(pricing.addOnTotal),
+  serviceCharge: toNumber(pricing.serviceCharge),
+  discount: toNumber(pricing.discount),
+  tax: toNumber(pricing.tax),
+  totalAmount: toNumber(pricing.totalAmount),
+  breakdown: pricing.breakdown || {},
+});
+
+const hasItemOrAddonChanges = (beforeItems, beforeAddons, afterItems, afterAddons, payload = {}) => {
+  const itemChanged = payload.items !== undefined && itemChangeSignature(beforeItems) !== itemChangeSignature(afterItems);
+  const addonChanged = payload.selectedAddons !== undefined && addonChangeSignature(beforeAddons) !== addonChangeSignature(afterAddons);
+  return itemChanged || addonChanged;
+};
+
+const shouldSendBookingUpdateEmail = (booking) => Boolean(booking && booking.status !== "draft");
+
+const sendBookingUpdateEmailQuietly = async (booking, source) => {
+  if (!shouldSendBookingUpdateEmail(booking)) return null;
+  try {
+    return await emailNotificationService.sendBookingUpdateEmail(booking, { source });
+  } catch (error) {
+    logger.error("Booking update email failed", {
+      bookingid: booking.bookingid,
+      source,
+      error: error.message,
+      stack: error.stack,
+    });
+    return null;
+  }
+};
+
 const enqueueStatusNotification = async (booking) => {
   if (!booking?.customer?.mobile || process.env.WHATSAPP_STATUS_NOTIFICATIONS === "false") return null;
   try {
@@ -559,6 +620,11 @@ const updateBookingDetails = async (bookingid, payload) => {
   if (!booking) throw new ApiError(404, "Booking not found");
   if (FINAL_STATUSES.includes(booking.status) && payload.status && payload.status !== booking.status) throw new ApiError(409, "Finalized bookings cannot be changed");
   let statusChanged = false;
+  let itemOrAddonChanged = false;
+  let bookingDetailChanged = false;
+  const previousSchedule = dateChangeSignature(booking.scheduledate);
+  const previousTimeslot = String(booking.timeslot || "");
+  const previousPricing = pricingChangeSignature(booking.pricing || {});
   if (payload.status) {
     if (!MANUAL_STATUS_VALUES.includes(payload.status)) throw new ApiError(400, "Completed status requires completion proof upload");
     if (booking.status !== payload.status) {
@@ -570,17 +636,30 @@ const updateBookingDetails = async (bookingid, payload) => {
   if (payload.scheduledate !== undefined) booking.scheduledate = payload.scheduledate ? new Date(payload.scheduledate) : undefined;
   if (payload.timeslot !== undefined) booking.timeslot = payload.timeslot || null;
   if (payload.items !== undefined || payload.selectedAddons !== undefined) {
+    const previousItems = booking.items;
+    const previousAddons = booking.selectedAddons;
     const recomputed = await recomputeBookingPricing(
       booking,
       payload.items !== undefined ? payload.items : booking.items,
       payload.selectedAddons !== undefined ? payload.selectedAddons : booking.selectedAddons,
       "admin",
     );
+    itemOrAddonChanged = hasItemOrAddonChanges(
+      previousItems,
+      previousAddons,
+      recomputed.items,
+      recomputed.selectedAddons,
+      payload,
+    );
     booking.items = recomputed.items;
     booking.selectedAddons = recomputed.selectedAddons;
     booking.pricing = recomputed.pricing;
     booking.quoteSnapshot = buildClientSnapshot(booking, recomputed.pricing, "admin");
   } else if (payload.pricing) booking.pricing = normalizeSubmittedPricing(payload.pricing, "admin");
+  bookingDetailChanged = itemOrAddonChanged
+    || (payload.scheduledate !== undefined && previousSchedule !== dateChangeSignature(booking.scheduledate))
+    || (payload.timeslot !== undefined && previousTimeslot !== String(booking.timeslot || ""))
+    || (payload.pricing && previousPricing !== pricingChangeSignature(booking.pricing || {}));
   if (payload.note) {
     booking.quoteSnapshot = {
       ...(booking.quoteSnapshot || {}),
@@ -590,6 +669,7 @@ const updateBookingDetails = async (bookingid, payload) => {
   }
   await booking.save();
   if (statusChanged) await enqueueStatusNotification(booking);
+  if (bookingDetailChanged) await sendBookingUpdateEmailQuietly(booking, "admin");
   notifyAdminBookingEvent(statusChanged ? "booking:status" : "booking:updated", {
     bookingid: booking.bookingid,
     status: booking.status,
@@ -606,13 +686,23 @@ const updateCustomerBookingItems = async (bookingid, mobileInput, payload) => {
   if (normalizeMobile(mobileInput) !== booking.customer?.mobile) throw new ApiError(401, "Mobile number does not match this booking");
   if (FINAL_STATUSES.includes(booking.status)) throw new ApiError(409, "Completed or cancelled bookings cannot be updated");
   if (!isItemCatalogService(booking.serviceType)) throw new ApiError(400, "Item and add-on updates are not available for this service");
+  const previousItems = booking.items;
+  const previousAddons = booking.selectedAddons;
   const recomputed = await recomputeBookingPricing(booking, payload.items || [], payload.selectedAddons || [], "frontend");
+  const itemOrAddonChanged = hasItemOrAddonChanges(
+    previousItems,
+    previousAddons,
+    recomputed.items,
+    recomputed.selectedAddons,
+    { items: payload.items || [], selectedAddons: payload.selectedAddons || [] },
+  );
   booking.items = recomputed.items;
   booking.selectedAddons = recomputed.selectedAddons;
   booking.pricing = recomputed.pricing;
   booking.quoteSnapshot = buildClientSnapshot(booking, recomputed.pricing, "frontend");
   booking.statusHistory.push({ status: booking.status, note: "Customer updated selected items/add-ons", changedby: "Customer" });
   await booking.save();
+  if (itemOrAddonChanged) await sendBookingUpdateEmailQuietly(booking, "website");
   notifyAdminBookingEvent("booking:updated", {
     bookingid: booking.bookingid,
     status: booking.status,
@@ -659,12 +749,14 @@ const updateAdminQuote = async (bookingid, payload) => {
   const booking = await Booking.findOne({ bookingid });
   if (!booking) throw new ApiError(404, "Booking not found");
   if (FINAL_STATUSES.includes(booking.status)) throw new ApiError(409, "Finalized bookings cannot be changed");
+  const previousPricing = pricingChangeSignature(booking.pricing || {});
   const quote = buildClientSnapshot(booking, payload.pricing, "admin");
   booking.quoteSnapshot = quote;
   booking.pricing = quote.pricing;
   booking.status = "quote_sent";
   booking.statusHistory.push({ status: "quote_sent", note: payload.note || "Quotation updated", changedby: "Admin" });
   await booking.save();
+  if (previousPricing !== pricingChangeSignature(booking.pricing || {})) await sendBookingUpdateEmailQuietly(booking, "admin");
   notifyAdminBookingEvent("booking:quote", {
     bookingid: booking.bookingid,
     status: booking.status,

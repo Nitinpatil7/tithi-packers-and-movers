@@ -239,7 +239,7 @@ function EmailNotificationsSection({ settings, loading, saving, onSave }) {
             </div>
           </div>
           <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs font-semibold leading-5 text-amber-900">
-            These emails are sent only for website booking confirmations. Admin-created bookings do not trigger this channel.
+            These settings control booking confirmation and update emails for website and admin-created bookings.
           </div>
         </div>
       </Panel>

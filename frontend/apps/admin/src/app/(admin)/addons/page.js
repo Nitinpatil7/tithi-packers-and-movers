@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Edit3, GripVertical, Plus, Search, Trash2 } from 'lucide-react';
+import { Reorder, useDragControls } from 'framer-motion';
+import { Edit3, GripVertical, Plus, Search, Star, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
 import { useAdminSections, useUploadIcon } from '@hooks/useItems';
@@ -16,7 +17,7 @@ const ADDON_UNITS = [
   ['percentage', 'Percentage of quote'],
 ];
 
-const EMPTY = { name: '', description: '', icon: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true };
+const EMPTY = { name: '', description: '', icon: '', unit: 'global', price: 0, appliesToServiceTypes: ['local_shifting', 'intercity_moving'], triggerCategoryIds: [], triggerGroupIds: [], triggerItemIds: [], isOptional: true, isActive: true, isFeatured: false };
 const ADDON_UNIT_LABELS = new Map([
   ...ADDON_UNITS,
   ['flat', 'Flat charge'],
@@ -36,42 +37,143 @@ const byCatalogOrder = (sectionOrder) => (a, b) => {
   if (aSort !== bSort) return aSort - bSort;
   return String(a.name || '').localeCompare(String(b.name || ''));
 };
+const sameIds = (left, right) => left.length === right.length && left.every((item, index) => item._id === right[index]?._id);
+const reconcileOrder = (current, next) => {
+  const nextById = new Map(next.map((item) => [item._id, item]));
+  const kept = current.map((item) => nextById.get(item._id)).filter(Boolean);
+  const keptIds = new Set(kept.map((item) => item._id));
+  return [...kept, ...next.filter((item) => !keptIds.has(item._id))];
+};
 
 export default function AdminAddonsPage() {
   const [filters, setFilters] = useState({ isActive: 'all', serviceType: 'all' });
   const [editor, setEditor] = useState(null);
-  const [draggingId, setDraggingId] = useState(null);
-  const [dragOverId, setDragOverId] = useState(null);
+  const [featuredOrder, setFeaturedOrder] = useState([]);
+  const [regularOrder, setRegularOrder] = useState([]);
   const { data = [], isLoading, isError, refetch } = useAdminAddons(filters);
   const createMutation = useCreateAddon(); const updateMutation = useUpdateAddon(); const deleteMutation = useDeleteAddon(); const reorderMutation = useReorderAddons();
   const uploadIcon = useUploadIcon();
   const addons = useMemo(() => Array.isArray(data) ? data : [], [data]);
+  const featuredAddons = useMemo(() => addons.filter((item) => item.isFeatured), [addons]);
+  const regularAddons = useMemo(() => addons.filter((item) => !item.isFeatured), [addons]);
   const canReorder = filters.isActive === 'all' && filters.serviceType === 'all';
   const remove = async (item) => { if (!window.confirm(`Deactivate “${item.name}”?`)) return; try { await deleteMutation.mutateAsync(item._id); toast.success('Add-on deactivated'); } catch (error) { toast.error(error.message); } };
-  const reorder = async (targetId) => {
-    if (!canReorder || !draggingId || draggingId === targetId) return;
-    const from = addons.findIndex((item) => item._id === draggingId);
-    const to = addons.findIndex((item) => item._id === targetId);
-    if (from < 0 || to < 0) return;
-    const ordered = [...addons];
-    const [moved] = ordered.splice(from, 1);
-    ordered.splice(to, 0, moved);
+  useEffect(() => {
+    setFeaturedOrder((current) => {
+      const next = reconcileOrder(current, featuredAddons);
+      return sameIds(current, next) ? current : next;
+    });
+  }, [featuredAddons]);
+  useEffect(() => {
+    setRegularOrder((current) => {
+      const next = reconcileOrder(current, regularAddons);
+      return sameIds(current, next) ? current : next;
+    });
+  }, [regularAddons]);
+  const saveOrder = async (ordered, group) => {
+    if (!canReorder || ordered.length < 2) return;
     try {
-      await reorderMutation.mutateAsync(ordered.map((item) => item._id));
+      await reorderMutation.mutateAsync({ group, orderedIds: ordered.map((item) => item._id) });
       toast.success('Add-on order saved');
     } catch (error) {
       toast.error(error.message || 'Could not save add-on order');
     }
   };
+  const toggleFeatured = async (item) => {
+    try {
+      await updateMutation.mutateAsync({ id: item._id, data: { isFeatured: !item.isFeatured } });
+      toast.success(item.isFeatured ? 'Removed from Featured' : 'Marked as Featured');
+    } catch (error) {
+      toast.error(error.message || 'Could not update Featured status');
+    }
+  };
   return <div className="min-w-0 space-y-6"><header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Booking services</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Add-on Services</h1><p className="mt-1 text-sm font-medium text-slate-500">Group-triggered optional services for local and intercity moves.</p></div><button onClick={() => setEditor({})} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white"><Plus className="h-4 w-4" />New add-on</button></header>
     <div className="flex flex-wrap gap-2 rounded-2xl border border-sky-100 bg-white p-3"><select value={filters.serviceType} onChange={(event) => setFilters({ ...filters, serviceType: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All services</option><option value="local_shifting">Local shifting</option><option value="intercity_moving">Intercity moving</option></select><select value={filters.isActive} onChange={(event) => setFilters({ ...filters, isActive: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All statuses</option><option value="true">Active</option><option value="false">Inactive</option></select></div>
-    {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">{addons.map((item) => {
-      const active = draggingId === item._id;
-      const over = dragOverId === item._id && draggingId !== item._id;
-      return <article key={item._id} draggable={canReorder} onDragStart={() => canReorder && setDraggingId(item._id)} onDragEnter={(event) => { event.preventDefault(); if (canReorder) setDragOverId(item._id); }} onDragOver={(event) => event.preventDefault()} onDragEnd={() => { setDraggingId(null); setDragOverId(null); }} onDrop={(event) => { event.preventDefault(); reorder(item._id); setDraggingId(null); setDragOverId(null); }} className={`admin-drag-card flex min-h-56 min-w-0 max-w-full flex-col rounded-2xl border bg-white p-5 shadow-sm ${active ? 'admin-drag-card-active border-sky-300 opacity-90' : over ? 'admin-drag-card-over border-orange-200' : 'border-sky-100'}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-2"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-sky-100 bg-sky-50 text-sky-500 ${canReorder ? 'cursor-grab active:cursor-grabbing' : 'opacity-40'}`} title={canReorder ? 'Drag add-on' : 'Show all add-ons to reorder'}><GripVertical className="h-4 w-4" /></span>{item.icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><IconPreview icon={item.icon} className="h-9 w-9" /></span>}<div className="min-w-0"><h2 className="truncate font-semibold text-slate-900">{item.name}</h2><p className="text-xs font-medium text-slate-400">{addonUnitLabel(item.unit)} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p></div></div></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span></div><p className="mt-4 line-clamp-4 min-h-[5.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p><div className="mt-auto flex justify-end gap-2 border-t border-slate-100 pt-4"><button onClick={() => setEditor(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(item)} disabled={item.isActive === false} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button></div></article>;
-    })}</div>}
+    {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid min-w-0 gap-5 xl:grid-cols-2">
+      <AddonReorderSection title="Featured add-ons" hint="Shown first on the website carousel." items={featuredOrder} onReorder={setFeaturedOrder} onReorderEnd={() => saveOrder(featuredOrder, 'featured')} canReorder={canReorder} onEdit={setEditor} onRemove={remove} onToggleFeatured={toggleFeatured} busy={updateMutation.isPending || deleteMutation.isPending || reorderMutation.isPending} />
+      <AddonReorderSection title="Recommended add-ons" hint="Shown below Featured in this saved order." items={regularOrder} onReorder={setRegularOrder} onReorderEnd={() => saveOrder(regularOrder, 'regular')} canReorder={canReorder} onEdit={setEditor} onRemove={remove} onToggleFeatured={toggleFeatured} busy={updateMutation.isPending || deleteMutation.isPending || reorderMutation.isPending} />
+    </div>}
     <AddonEditor record={editor} uploadIcon={uploadIcon} onClose={() => setEditor(null)} onSave={async (payload) => { try { if (editor?._id) await updateMutation.mutateAsync({ id: editor._id, data: payload }); else await createMutation.mutateAsync(payload); toast.success(editor?._id ? 'Add-on updated' : 'Add-on created'); setEditor(null); } catch (error) { toast.error(error.message); } }} busy={createMutation.isPending || updateMutation.isPending || uploadIcon.isPending} />
   </div>;
+}
+
+function AddonReorderSection({ title, hint, items, onReorder, onReorderEnd, canReorder, onEdit, onRemove, onToggleFeatured, busy }) {
+  return (
+    <section className="min-w-0 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex min-w-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-sm font-black uppercase tracking-wide text-slate-900">{title}</h2>
+          <p className="text-xs font-semibold text-slate-400">{hint}</p>
+        </div>
+        {!canReorder && <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Clear filters to reorder</span>}
+      </div>
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-sky-100 p-8 text-center text-sm font-semibold text-slate-400">No add-ons in this group.</div>
+      ) : (
+        <Reorder.Group as="div" axis="y" values={items} onReorder={onReorder} className="flex min-w-0 flex-col gap-3">
+          {items.map((item) => (
+            <AddonCard
+              key={item._id}
+              item={item}
+              canReorder={canReorder}
+              onReorderEnd={onReorderEnd}
+              onEdit={onEdit}
+              onRemove={onRemove}
+              onToggleFeatured={onToggleFeatured}
+              busy={busy}
+            />
+          ))}
+        </Reorder.Group>
+      )}
+    </section>
+  );
+}
+
+function AddonCard({ item, canReorder, onReorderEnd, onEdit, onRemove, onToggleFeatured, busy }) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      as="article"
+      value={item}
+      dragListener={false}
+      dragControls={dragControls}
+      onDragEnd={onReorderEnd}
+      className="admin-drag-card flex min-w-0 max-w-full flex-col rounded-2xl border border-sky-100 bg-white p-4 shadow-sm transition hover:border-sky-200 hover:shadow-md sm:p-5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onPointerDown={(event) => {
+                if (canReorder) dragControls.start(event);
+              }}
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-sky-100 bg-sky-50 text-sky-500 ${canReorder ? 'cursor-grab touch-none active:cursor-grabbing' : 'cursor-not-allowed opacity-40'}`}
+              title={canReorder ? 'Press and drag add-on' : 'Show all add-ons to reorder'}
+              aria-label={canReorder ? `Reorder ${item.name}` : 'Show all add-ons to reorder'}
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+            {item.icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sky-50/30 text-sky-600 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><IconPreview icon={item.icon} className="h-9 w-9" /></span>}
+            <div className="min-w-0">
+              <h3 className="truncate font-semibold text-slate-900">{item.name}</h3>
+              <p className="text-xs font-medium text-slate-400">{addonUnitLabel(item.unit)} · ₹{Number(item.price || 0).toLocaleString('en-IN')}</p>
+            </div>
+          </div>
+        </div>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase ${item.isActive === false ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-700'}`}>{item.isActive === false ? 'Inactive' : 'Active'}</span>
+      </div>
+      <p className="mt-4 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-500">{item.description || 'No description added.'}</p>
+      <div className="mt-auto flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4">
+        <button type="button" onClick={() => onToggleFeatured(item)} disabled={busy} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold ${item.isFeatured ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+          <Star className={`h-3.5 w-3.5 ${item.isFeatured ? 'fill-current' : ''}`} />
+          {item.isFeatured ? 'Featured' : 'Mark Featured'}
+        </button>
+        <button type="button" onClick={() => onEdit(item)} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 px-3 py-2 text-xs font-semibold text-sky-700"><Edit3 className="h-3.5 w-3.5" />Edit</button>
+        <button type="button" onClick={() => onRemove(item)} disabled={item.isActive === false || busy} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 disabled:opacity-35"><Trash2 className="h-3.5 w-3.5" />Deactivate</button>
+      </div>
+    </Reorder.Item>
+  );
 }
 
 function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
@@ -287,6 +389,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-medium text-slate-600"><input type="checkbox" checked={form.isOptional} onChange={(event) => setForm({ ...form, isOptional: event.target.checked })} className="accent-sky-600" />Optional service</label>
           <label className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-medium text-slate-600"><input type="checkbox" checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="accent-sky-600" />Active</label>
+          <label className="flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50/60 p-3 text-sm font-medium text-amber-700"><input type="checkbox" checked={form.isFeatured} onChange={(event) => setForm({ ...form, isFeatured: event.target.checked })} className="accent-amber-500" />Featured on website</label>
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel</button>

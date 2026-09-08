@@ -15,21 +15,18 @@ export default function BookingLineChart({ data = [] }) {
     return <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>;
   }
 
-  const hasBookings = data.some((item) => Number(item.count ?? item.bookings ?? 0) > 0);
-
-  if (!hasBookings) {
-    return (
-      <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-bg-border bg-bg-section px-6 text-center text-xs font-semibold text-text-secondary">
-        No confirmed booking frequency in the last 30 days yet.
-      </div>
-    );
-  }
+  const chartData = data.length
+    ? data.map((item) => ({
+        ...item,
+        count: Number(item.count ?? item.bookings ?? 0),
+      }))
+    : [{ date: 'No data', count: 0 }];
 
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={data}
+          data={chartData}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#232328" vertical={false} />
@@ -45,6 +42,8 @@ export default function BookingLineChart({ data = [] }) {
             fontSize={10}
             tickLine={false}
             axisLine={false}
+            domain={[0, (dataMax) => Math.max(1, dataMax)]}
+            allowDecimals={false}
           />
           <Tooltip
             contentStyle={{
@@ -63,6 +62,7 @@ export default function BookingLineChart({ data = [] }) {
             strokeWidth={3}
             dot={{ r: 3, fill: '#FF5722', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
+            isAnimationActive={false}
           />
         </LineChart>
       </ResponsiveContainer>

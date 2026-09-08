@@ -17,16 +17,35 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(DEFAULT_RESEND_SECONDS);
   const [shake, setShake] = useState(false);
+  const [confirmingBooking, setConfirmingBooking] = useState(false);
   const sendingOtpRef = useRef(false);
+  const verifyingOtpRef = useRef(false);
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
   const checkMobileMutation = useCheckMobile();
   const verifyOTPMutation = useVerifyOTP();
+  const verifyBusy = verifyOTPMutation.isPending || confirmingBooking;
 
   useEffect(() => {
     if (!otpSent || timer <= 0) return undefined;
     const interval = window.setInterval(() => setTimer((value) => value - 1), 1000);
     return () => window.clearInterval(interval);
   }, [otpSent, timer]);
+
+  useEffect(() => {
+    if (!otpSent || typeof window === 'undefined' || !('OTPCredential' in window) || !navigator.credentials) return undefined;
+    const controller = new AbortController();
+    navigator.credentials.get({
+      otp: { transport: ['sms'] },
+      signal: controller.signal,
+    }).then((credential) => {
+      const code = String(credential?.code || '').replace(/\D/g, '').slice(0, 6);
+      if (code.length === 6) {
+        setOtpValues(code.split(''));
+        otpRefs[5]?.current?.focus();
+      }
+    }).catch(() => {});
+    return () => controller.abort();
+  }, [otpSent]);
 
   const sendOtp = async () => {
     if (sendingOtpRef.current || checkMobileMutation.isPending) return;
@@ -48,17 +67,32 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   };
 
   const verifyOtp = async () => {
+    if (verifyingOtpRef.current || verifyBusy) return;
     const otp = otpValues.join('');
     if (otp.length !== 6) return toast.error('Please enter the complete 6-digit OTP code.');
+    verifyingOtpRef.current = true;
+    let response;
     try {
-      const response = await verifyOTPMutation.mutateAsync({ mobile, otp });
-      if (response.success) onSubmit({ contactDetails: { name: name.trim(), email: email.trim(), mobile }, verificationId: response.verificationId || response.data?.verificationId || response.verification?.id });
+      response = await verifyOTPMutation.mutateAsync({ mobile, otp });
     } catch (error) {
       setShake(true);
       window.setTimeout(() => setShake(false), 500);
       setOtpValues(['', '', '', '', '', '']);
       otpRefs[0]?.current?.focus();
       toast.error(error.message || 'Invalid OTP code.');
+      verifyingOtpRef.current = false;
+      return;
+    }
+    if (!response.success) {
+      verifyingOtpRef.current = false;
+      return;
+    }
+    try {
+      setConfirmingBooking(true);
+      await onSubmit({ contactDetails: { name: name.trim(), email: email.trim(), mobile }, verificationId: response.verificationId || response.data?.verificationId || response.verification?.id });
+    } finally {
+      verifyingOtpRef.current = false;
+      setConfirmingBooking(false);
     }
   };
 
@@ -115,14 +149,14 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
           </div>
           <motion.div className="my-2 grid w-full min-w-0 grid-cols-6 gap-1.5 px-0.5 sm:mx-auto sm:max-w-md sm:gap-3 sm:px-0" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
             {otpValues.map((value, index) => (
-              <input key={index} ref={otpRefs[index]} type="text" inputMode="numeric" pattern="[0-9]*" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="aspect-square h-auto min-h-0 w-full min-w-0 rounded-xl border-2 border-bg-border bg-bg-white text-center font-mono text-lg font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-14 sm:rounded-2xl sm:text-xl" />
+              <input key={index} ref={otpRefs[index]} type="text" inputMode="numeric" autoComplete={index === 0 ? 'one-time-code' : 'off'} pattern="[0-9]*" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="aspect-square h-auto min-h-0 w-full min-w-0 rounded-xl border-2 border-bg-border bg-bg-white text-center font-mono text-lg font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-14 sm:rounded-2xl sm:text-xl" />
             ))}
           </motion.div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm font-medium text-text-tertiary">Didn&apos;t get the code?</span>
             {timer > 0 ? <span className="font-mono text-sm font-bold text-text-secondary">Resend in {timer}s</span> : <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="text-sm font-bold text-primary hover:underline disabled:opacity-60">{checkMobileMutation.isPending ? 'Sending...' : 'Resend OTP'}</button>}
           </div>
-          <BookingActionBar onBack={() => setOtpSent(false)} backLabel="Edit" onNext={verifyOtp} tone="orange" nextLabel={verifyOTPMutation.isPending ? 'Verifying...' : 'Verify & Confirm'} disabled={verifyOTPMutation.isPending} summary={`+91 ${mobile}`} />
+          <BookingActionBar onBack={() => setOtpSent(false)} backLabel="Edit" onNext={verifyOtp} tone="orange" nextLabel={confirmingBooking ? 'Confirming...' : verifyOTPMutation.isPending ? 'Verifying...' : 'Verify & Confirm'} disabled={verifyBusy} summary={`+91 ${mobile}`} />
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 export const useThemeStore = create((set, get) => ({
-  theme: 'system', // 'light' | 'dark' | 'system'
+  theme: 'light', // 'light' | 'dark' | 'system'
   
   setTheme: (newTheme) => {
     if (typeof window !== 'undefined') {
@@ -47,7 +47,7 @@ export const useThemeStore = create((set, get) => ({
   
   initializeTheme: () => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('tithi_theme') || 'system';
+      const saved = localStorage.getItem('tithi_theme') || 'light';
       set({ theme: saved });
       get().applyTheme(saved);
       

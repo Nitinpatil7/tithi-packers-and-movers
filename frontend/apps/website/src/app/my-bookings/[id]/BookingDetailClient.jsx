@@ -387,14 +387,10 @@ export default function CustomerBookingDetailPage() {
                     <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 rounded-xl border border-bg-border bg-white px-3 py-2">
                       <div className="flex min-w-0 items-center gap-2">
                         <span className="min-w-0">
-                          <span className="block truncate font-bold text-text-primary">{item.name}</span>
-                          <span className="text-[10px] font-semibold text-text-tertiary">{item.category || item.sizeTag || 'Item detail'}</span>
+                          <span className="block truncate font-medium text-text-primary">{item.name}</span>
                         </span>
                       </div>
-                      <span className="shrink-0 text-right font-mono font-black text-text-primary">
-                        x{Number(item.quantity || 1)}
-                        {Number(item.lineTotal || 0) > 0 && <span className="block text-[10px] text-primary">{formatCurrency(item.lineTotal)}</span>}
-                      </span>
+                      <span className="shrink-0 text-right font-mono font-semibold text-text-primary">x{Number(item.quantity || 1)}</span>
                     </div>
                   ))}
                 </div>
@@ -410,15 +406,13 @@ export default function CustomerBookingDetailPage() {
               {addonRows.length ? (
                 <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
                   {addonRows.map((addon) => (
-                    <div key={`${addon.key || addon.name}-${addon.quantity}`} className="flex items-center justify-between gap-3 rounded-xl border border-orange-100 bg-white px-3 py-2">
+                    <div key={`${addon.key || addon.name}-${addon.quantity}`} className="flex items-center gap-3 rounded-xl border border-orange-100 bg-white px-3 py-2">
                       <span className="flex min-w-0 items-center gap-3">
                         {addon.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/60 dark:shadow-[0_10px_18px_rgba(0,0,0,0.18)]"><InlineIconImage icon={addon.icon} /></span>}
                         <span className="min-w-0">
-                          <span className="block truncate font-bold text-text-primary">{addon.name}</span>
-                          <span className="text-[10px] font-semibold text-text-tertiary">{addon.unit?.replaceAll('_', ' ') || 'Add-on'} x {Number(addon.quantity || 1)}</span>
+                          <span className="block truncate font-medium text-text-primary">{addon.name}</span>
                         </span>
                       </span>
-                      <span className="shrink-0 font-mono font-black text-primary">{formatCurrency(addon.total || 0)}</span>
                     </div>
                   ))}
                 </div>

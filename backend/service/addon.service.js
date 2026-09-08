@@ -69,7 +69,7 @@ const getAllAddOnsForAdmin = (query = {}) => {
   if (query.isActive === "true") filter.isActive = true;
   if (query.isActive === "false") filter.isActive = false;
   if (query.serviceType) filter.appliesToServiceTypes = query.serviceType;
-  return populated(AddOnService.find(filter)).sort({ sortOrder: 1, createdAt: 1 });
+  return populated(AddOnService.find(filter)).sort({ isFeatured: -1, sortOrder: 1, createdAt: 1 });
 };
 const getAddOnById = async (id) => {
   const addOn = await populated(AddOnService.findById(id));
@@ -196,7 +196,7 @@ const getAvailableAddOns = async (query = {}) => {
       { triggerGroupIds: { $in: selectedGroupIds } },
       { triggerItemIds: { $in: itemIds } },
     ],
-  })).sort({ isOptional: 1, sortOrder: 1, createdAt: 1 }).lean();
+  })).sort({ isFeatured: -1, sortOrder: 1, createdAt: 1 }).lean();
 
   const selectedCategorySet = new Set(selectedCategoryIds);
   const selectedSet = new Set(selectedGroupIds);
@@ -215,10 +215,15 @@ const getAvailableAddOns = async (query = {}) => {
   });
 };
 
-const reorderAddOns = async (orderedIds = []) => {
+const reorderAddOns = async (orderedIds = [], group = "all") => {
   const ids = orderedIds.map(String).filter(Boolean);
   if (!ids.length || ids.some((id) => !mongoose.isValidObjectId(id))) throw new ApiError(400, "Valid add-on IDs are required");
-  const existingCount = await AddOnService.countDocuments({ _id: { $in: ids } });
+  const groupFilter = group === "featured"
+    ? { isFeatured: true }
+    : group === "regular"
+      ? { isFeatured: { $ne: true } }
+      : {};
+  const existingCount = await AddOnService.countDocuments({ _id: { $in: ids }, ...groupFilter });
   if (existingCount !== ids.length) throw new ApiError(400, "One or more add-ons are invalid");
   await AddOnService.bulkWrite(ids.map((id, index) => ({
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },

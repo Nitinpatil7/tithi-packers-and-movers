@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Check, Sparkles } from 'lucide-react';
 import Spinner from '@ui/Spinner';
@@ -9,22 +9,21 @@ import { useBookingStore } from '@tithi/store/bookingStore';
 import BookingActionBar from './BookingActionBar';
 
 const SERVICE_TYPES = { local: 'local_shifting', intercity: 'intercity_moving', local_shifting: 'local_shifting', intercity_moving: 'intercity_moving' };
-const formatAddonPrice = (addon) => `₹${Number(addon.price || 0).toLocaleString('en-IN')}`;
 const selectedItemId = (item) => String(item.itemId || item._id || item.id || '');
 const selectedGroupId = (item) => String(item.groupId || item.group?._id || item.group?.id || '');
 const selectedCategoryId = (item) => String(item.sectionId || item.categoryId || item.category?._id || item.category?.id || '');
 const sameJson = (left, right) => JSON.stringify(left || null) === JSON.stringify(right || null);
 
-function AddonIcon({ icon, priority = false }) {
+function AddonIcon({ icon, priority = false, className = 'h-12 w-12', sizes = '48px' }) {
   return icon ? (
     <Image
       src={icon}
       alt=""
-      width={56}
-      height={56}
+      width={160}
+      height={96}
       priority={priority}
-      sizes="48px"
-      className="h-12 w-12 rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]"
+      sizes={sizes}
+      className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : null;
 }
@@ -39,7 +38,12 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   const apiServiceType = SERVICE_TYPES[serviceType] || serviceType;
   const { data = [], isLoading, isError, refetch } = useAvailableAddons({ serviceType: apiServiceType, ...(itemIds.length ? { itemIds } : {}), ...(groupIds.length ? { groupIds } : {}), ...(categoryIds.length ? { categoryIds } : {}) });
   const addons = useMemo(() => Array.isArray(data) ? data : [], [data]);
+  const featuredAddons = useMemo(() => addons.filter((addon) => addon.isFeatured), [addons]);
+  const regularAddons = useMemo(() => addons.filter((addon) => !addon.isFeatured), [addons]);
   const [selected, setSelected] = useState(initialData.specialServices || []);
+  const featuredScrollerRef = useRef(null);
+  const [featuredPage, setFeaturedPage] = useState(0);
+  const [featuredPages, setFeaturedPages] = useState(1);
   const initialServicesKey = JSON.stringify(initialData.specialServices || []);
 
   useEffect(() => {
@@ -140,16 +144,62 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
       return [...current, addonSnapshot(addon)];
     });
   };
+  useEffect(() => {
+    const scroller = featuredScrollerRef.current;
+    if (!scroller || !featuredAddons.length) return undefined;
+    const updateCarouselState = () => {
+      const maxScroll = Math.max(1, scroller.scrollWidth - scroller.clientWidth);
+      const pages = Math.max(1, Math.ceil(scroller.scrollWidth / Math.max(1, scroller.clientWidth)));
+      setFeaturedPages(pages);
+      setFeaturedPage(Math.min(pages - 1, Math.round((scroller.scrollLeft / maxScroll) * (pages - 1))));
+    };
+    updateCarouselState();
+    scroller.addEventListener('scroll', updateCarouselState, { passive: true });
+    window.addEventListener('resize', updateCarouselState);
+    return () => {
+      scroller.removeEventListener('scroll', updateCarouselState);
+      window.removeEventListener('resize', updateCarouselState);
+    };
+  }, [featuredAddons.length]);
 
   const handleNext = () => onSubmit({ specialServices: selected.map((item) => { const addon = addons.find((entry) => entry._id === item.addonId || entry.key === item.key || entry.name === item.name); return addon ? addonSnapshot(addon) : item; }) });
-  const shouldScrollAddons = addons.length >= 3;
 
-  return <div className="flex min-h-[calc(100svh-18rem)] min-w-0 flex-col gap-6 pb-24 text-left sm:min-h-[calc(100svh-20rem)] sm:pb-4"><header className="flex min-w-0 items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft/40 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><Sparkles className="h-6 w-6" /></span><div className="min-w-0"><h3 className="text-2xl font-bold text-text-primary">Add-on Services</h3><p className="mt-1 text-sm font-medium leading-6 text-text-secondary">Optional services available for the groups in your selected items.</p></div></header>
-    <section className="mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col rounded-3xl border border-sky-100 bg-bg-white p-3 shadow-card sm:p-4">
-      {isLoading ? <div className="grid min-h-52 flex-1 place-items-center rounded-2xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><p className="text-sm font-semibold text-red-600">Could not load add-on services.</p><button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-primary">Try again</button></div> : addons.length === 0 ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-bg-border px-5 text-center"><Sparkles className="h-9 w-9 text-primary/50" /><h4 className="mt-3 text-base font-semibold text-text-primary">No add-on service available</h4><p className="mt-1 text-sm text-text-secondary">There are no add-ons for your selected items. You can continue.</p></div> : <div className={`grid min-h-0 min-w-0 gap-3 pr-0 sm:pr-1 md:grid-cols-2 ${shouldScrollAddons ? 'flex-1 overflow-y-auto overscroll-contain' : 'flex-1 content-start'}`}>{addons.map((addon, index) => { const active = isSelected(addon); return <article key={addon._id} className={`flex min-h-36 min-w-0 flex-col justify-between rounded-2xl border p-4 transition ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10 backdrop-blur-sm' : 'border-bg-border bg-bg-white hover:border-primary/20 hover:shadow-[0_10px_24px_rgba(15,23,42,0.06)]'}`}><div className="min-w-0"><div className="flex min-w-0 items-start justify-between gap-3"><div className="flex min-w-0 items-start gap-3">{addon.icon && <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><AddonIcon icon={addon.icon} priority={index < 4} /></span>}<h4 className="min-w-0 break-words font-semibold text-text-primary">{addon.name}</h4></div><span className="shrink-0 rounded-lg bg-primary-soft px-2.5 py-1 text-xs font-black text-primary">{formatAddonPrice(addon)}</span></div>{addon.description && <p className="mt-1.5 line-clamp-3 text-xs leading-5 text-text-secondary">{addon.description}</p>}</div><div className="mt-4 flex justify-end border-t border-bg-border/60 pt-3"><button type="button" onClick={() => toggleAddon(addon)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${active ? 'border-bg-border bg-bg-muted text-text-primary shadow-sm' : 'border-primary/20 bg-bg-white text-primary hover:border-primary/30 hover:shadow-sm'}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Add service'}</button></div></article>; })}</div>}
+  return <div className="flex min-h-[calc(100svh-18rem)] min-w-0 flex-col gap-4 pb-24 text-left sm:min-h-[calc(100svh-20rem)] sm:gap-5 sm:pb-4"><header className="flex min-w-0 items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft/40 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><Sparkles className="h-6 w-6" /></span><div className="min-w-0"><h3 className="text-2xl font-bold text-text-primary">Add-on Services</h3><p className="mt-1 text-sm font-medium leading-6 text-text-secondary">Optional services available for the groups in your selected items.</p></div></header>
+    <section className="mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col rounded-3xl border border-sky-100 bg-bg-white p-3 shadow-card">
+      {isLoading ? <div className="grid min-h-52 flex-1 place-items-center rounded-2xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><p className="text-sm font-semibold text-red-600">Could not load add-on services.</p><button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-primary">Try again</button></div> : addons.length === 0 ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-bg-border px-5 text-center"><Sparkles className="h-9 w-9 text-primary/50" /><h4 className="mt-3 text-base font-semibold text-text-primary">No add-on service available</h4><p className="mt-1 text-sm text-text-secondary">There are no add-ons for your selected items. You can continue.</p></div> : <div className="flex min-w-0 flex-col gap-4">
+        {featuredAddons.length > 0 && <div className="min-w-0 overflow-hidden">
+          <div ref={featuredScrollerRef} className="scrollbar-none -mx-1 flex max-w-full snap-x snap-proximity touch-pan-x gap-2 overflow-x-auto overscroll-x-contain px-1 pb-1.5">
+            {featuredAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={index < 3} featured />)}
+          </div>
+          {featuredPages > 1 && <div className="mt-0.5 flex justify-center gap-1.5">{Array.from({ length: featuredPages }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${featuredPage === index ? 'w-5 bg-primary' : 'w-1.5 bg-bg-border'}`} />)}</div>}
+        </div>}
+        <div className="min-w-0">
+          <h4 className="mb-2 text-lg font-bold text-text-primary">Recommended Add-ons</h4>
+          {regularAddons.length === 0 ? <p className="rounded-2xl border border-dashed border-bg-border p-6 text-center text-sm font-semibold text-text-secondary">No regular add-ons available.</p> : <div className="grid min-w-0 content-start gap-3 pr-0 sm:pr-1 md:grid-cols-2">{regularAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={featuredAddons.length === 0 && index < 4} />)}</div>}
+        </div>
+      </div>}
     </section>
     <BookingActionBar onBack={onBack} onNext={handleNext} nextLabel="Continue" />
   </div>;
+}
+
+function AddonCard({ addon, active, onToggle, priority = false, featured = false }) {
+  return (
+    <article className={`${featured ? 'min-h-[10.5rem] w-[44vw] max-w-[11.5rem] shrink-0 snap-start sm:w-[min(58vw,18rem)] sm:max-w-[18rem] md:w-[min(36vw,18rem)]' : 'min-h-36'} flex min-w-0 flex-col justify-between rounded-2xl border p-3 transition-colors sm:p-4 ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10' : 'border-bg-border bg-bg-white hover:border-primary/20'}`}>
+      <div className="min-w-0">
+        <div className={`flex min-w-0 items-start gap-2 ${featured ? 'flex-col' : 'justify-between'}`}>
+          <div className={`flex min-w-0 items-start gap-3 ${featured ? 'w-full flex-col' : ''}`}>
+            {addon.icon && <span className={`${featured ? 'h-20 w-full sm:h-24' : 'h-12 w-12'} grid shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : 'h-12 w-12'} sizes={featured ? '(max-width: 640px) 44vw, 18rem' : '48px'} /></span>}
+            <h4 className="min-w-0 break-words text-sm font-semibold text-text-primary sm:text-base">{addon.name}</h4>
+          </div>
+        </div>
+        {addon.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-secondary">{addon.description}</p>}
+      </div>
+      <div className="mt-3 flex justify-end border-t border-bg-border/60 pt-2.5">
+        <button type="button" onClick={() => onToggle(addon)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${active ? 'border-bg-border bg-bg-muted text-text-primary shadow-sm' : 'border-primary/20 bg-bg-white text-primary hover:border-primary/30 hover:shadow-sm'}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Add service'}</button>
+      </div>
+    </article>
+  );
 }
 
 export { SpecialServicesStep };

@@ -626,8 +626,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   };
 
   return (
-    <div className="booking-map-picker-modal fixed inset-0 z-[2147483000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="booking-map-picker-shell flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-bg-border bg-bg-white shadow-2xl sm:h-[82vh] sm:rounded-3xl">
+    <div className="booking-map-picker-modal fixed inset-0 z-[2147483000] flex items-start justify-center overflow-y-auto bg-slate-950/60 p-0 py-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="booking-map-picker-shell flex w-full max-w-5xl flex-col overflow-visible rounded-t-3xl border border-bg-border bg-bg-white shadow-2xl sm:h-[82vh] sm:overflow-hidden sm:rounded-3xl">
         <div className="flex items-start justify-between gap-3 border-b border-bg-border p-4 sm:p-5">
           <div>
             <h3 className="text-base font-black text-text-primary">{title || 'Choose location from map'}</h3>
@@ -637,7 +637,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="relative h-[54vh] min-h-[320px] flex-1 bg-bg-section sm:min-h-[380px]">
+        <div className="relative h-[44svh] min-h-[240px] flex-none bg-bg-section sm:min-h-[380px] sm:flex-1">
           <div ref={mapRef} className={cn('absolute inset-0 transition-opacity duration-200', mapReady ? 'opacity-100' : 'opacity-0')} />
           {!mapReady && (
             <div className="absolute inset-0 z-10 grid place-items-center bg-bg-section">
@@ -1087,6 +1087,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   const [distanceLoading, setDistanceLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
+  const submitErrorRef = useRef(null);
   const labour = serviceType === 'labour';
   const dropOptional = labour;
 
@@ -1143,12 +1144,31 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   const freeEmployees = pricingRule?.labourPricing?.employeeRates?.filter((item) => item.isFree).sort((a, b) => Number(b.employees) - Number(a.employees))[0];
   const freeHours = pricingRule?.labourPricing?.hourlyRates?.filter((item) => item.isFree).sort((a, b) => Number(b.hours) - Number(a.hours))[0];
 
+  useEffect(() => {
+    if (!submitError || typeof window === 'undefined') return;
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      submitErrorRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    submitErrorRef.current?.focus({ preventScroll: true });
+  }, [submitError]);
+
   return (
     <div className="flex min-w-0 flex-col gap-6 text-left">
       <div className="flex flex-col gap-1">
         <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Pickup &amp; Drop Locations</h3>
         <p className="text-sm text-text-secondary font-medium">Search and select an exact Google Maps address, or use your current location.</p>
       </div>
+      {submitError && (
+        <div
+          ref={submitErrorRef}
+          tabIndex={-1}
+          role="alert"
+          className="booking-submit-error flex scroll-mt-4 items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 outline-none"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span className="min-w-0">{submitError}</span>
+        </div>
+      )}
       <PlacesAddressBlock title={labels.pickup} icon={<MapPin className="w-4 h-4 text-primary" />} role="pickup" serviceType={serviceType}
         value={pickupData} onChange={updatePickupData} onError={handleError} clearError={clearError} />
       <div className="flex items-center gap-3"><div className="flex-1 h-px bg-bg-border" /><ArrowRight className="w-4 h-4 text-primary" /><div className="flex-1 h-px bg-bg-border" /></div>
@@ -1174,7 +1194,6 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
           )}
         </div>
       )}
-      {submitError && <div className="booking-submit-error flex items-center gap-2 p-4 bg-red-50 rounded-xl border border-red-200 text-sm font-semibold text-red-700"><AlertCircle className="w-4 h-4" />{submitError}</div>}
       <div className="booking-location-note rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
         {labour ? 'Pickup/work location is required. Drop/work-end location is optional for Labour & Vehicle bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
       </div>

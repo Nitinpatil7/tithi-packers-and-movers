@@ -18,6 +18,8 @@ const startOfUtcDay = (date) => {
 const toDateKey = (date) => date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const fromDateKey = (dateKey) => new Date(`${dateKey}T00:00:00+05:30`);
 const endAfterDateKey = (dateKey) => new Date(fromDateKey(dateKey).getTime() + DAY_MS);
+const addDays = (date, days) => new Date(date.getTime() + days * DAY_MS);
+const padMonth = (month) => String(month).padStart(2, "0");
 
 const resolveDateRange = (params = {}) => {
   const now = new Date();
@@ -36,25 +38,31 @@ const resolveDateRange = (params = {}) => {
   }
 
   if (range === "day") {
-    return { key: range, start: todayStart, end: new Date(todayStart.getTime() + DAY_MS), startDate: todayKey, endDate: todayKey };
+    return { key: range, start: todayStart, end: addDays(todayStart, 1), startDate: todayKey, endDate: todayKey };
   }
 
   if (range === "week") {
     const day = todayStart.getDay();
     const mondayOffset = day === 0 ? -6 : 1 - day;
-    const start = new Date(todayStart.getTime() + mondayOffset * DAY_MS);
-    return { key: range, start, end: new Date(todayStart.getTime() + DAY_MS), startDate: toDateKey(start), endDate: todayKey };
+    const start = addDays(todayStart, mondayOffset);
+    const end = addDays(start, 7);
+    return { key: range, start, end, startDate: toDateKey(start), endDate: toDateKey(addDays(end, -1)) };
   }
 
   if (range === "year") {
     const year = Number(todayKey.slice(0, 4));
     const start = fromDateKey(`${year}-01-01`);
-    return { key: range, start, end: new Date(todayStart.getTime() + DAY_MS), startDate: `${year}-01-01`, endDate: todayKey };
+    const end = fromDateKey(`${year + 1}-01-01`);
+    return { key: range, start, end, startDate: `${year}-01-01`, endDate: `${year}-12-31` };
   }
 
-  const monthStartKey = `${todayKey.slice(0, 7)}-01`;
+  const year = Number(todayKey.slice(0, 4));
+  const month = Number(todayKey.slice(5, 7));
+  const monthStartKey = `${year}-${padMonth(month)}-01`;
+  const nextMonthKey = month === 12 ? `${year + 1}-01-01` : `${year}-${padMonth(month + 1)}-01`;
   const monthStart = fromDateKey(monthStartKey);
-  return { key: "month", start: monthStart, end: new Date(todayStart.getTime() + DAY_MS), startDate: monthStartKey, endDate: todayKey };
+  const monthEnd = fromDateKey(nextMonthKey);
+  return { key: "month", start: monthStart, end: monthEnd, startDate: monthStartKey, endDate: toDateKey(addDays(monthEnd, -1)) };
 };
 
 const dateRangeMatch = (range) => ({

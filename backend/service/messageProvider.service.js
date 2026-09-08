@@ -11,6 +11,23 @@ const normalizeApitxtMobile = (mobile) => {
   return digits;
 };
 
+const webOtpOrigin = () => {
+  if (process.env.APITXT_ENABLE_WEBOTP !== "true") return "";
+  const configured = String(process.env.WEBOTP_ORIGIN || process.env.WEBSITE_URL || "").split(",")[0].trim();
+  if (!configured) return "";
+  try {
+    return new URL(configured).hostname;
+  } catch {
+    return configured.replace(/^https?:\/\//i, "").split("/")[0];
+  }
+};
+
+const buildOtpMessage = (otp) => {
+  const message = `${otp} is your one-time password for Tithi Packers and Movers booking verification. Do not share this OTP with anyone.`;
+  const origin = webOtpOrigin();
+  return origin ? `${message}\n\n@${origin} #${otp}` : message;
+};
+
 const readProviderBody = async (response) => {
   const text = await response.text();
   if (!text) return {};
@@ -41,10 +58,7 @@ const sendViaApitxtOtp = async ({ mobile, otp }) => {
     channel: process.env.APITXT_OTP_CHANNEL || "sms",
     country: process.env.APITXT_COUNTRY || "91",
   });
-  params.set(
-    "message",
-    `${otp} is your one-time password for Tithi Packers and Movers booking verification. Do not share this OTP with anyone.`,
-  );
+  params.set("message", buildOtpMessage(otp));
 
   if (process.env.APITXT_SMS_TEMPLATE_ID) {
     params.set("template_id", process.env.APITXT_SMS_TEMPLATE_ID);

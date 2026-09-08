@@ -65,7 +65,7 @@ const getTriggerItems = asyncHandler(async (req, res) => {
 });
 
 const reorderAddOns = asyncHandler(async (req, res) => {
-  const addOns = await addOnService.reorderAddOns(req.body?.orderedIds || req.body?.ids || []);
+  const addOns = await addOnService.reorderAddOns(req.body?.orderedIds || req.body?.ids || [], req.body?.group);
   return res
     .status(200)
     .json(new ApiResponse(200, addOns, "Add-on services reordered successfully"));

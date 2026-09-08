@@ -21,6 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useUpdateBookingStatus } from '@/hooks/useAdmin';
+import { useItemCatalog } from '@hooks/useItems';
 import { completeBookingWithProof, getBookingById } from '@tithi/lib/api'; // direct fallback
 import { useAuthStore } from '@tithi/store/authStore';
 import Card, { CardHeader, CardContent, CardFooter } from '@tithi/ui/Card';
@@ -61,6 +62,7 @@ export default function BookingDetailPage() {
   const fetchErrorToastShown = useRef(false);
 
   const updateStatusMutation = useUpdateBookingStatus();
+  const { data: catalogSections = [] } = useItemCatalog({}, { enabled: Boolean(booking && serviceHasItemCatalog(booking.serviceType)) });
 
   // Load details
   const loadDetails = useCallback(async () => {
@@ -164,7 +166,9 @@ export default function BookingDetailPage() {
   const selectedItems = getSelectedItems(booking);
   const selectedAddons = getSelectedAddons(booking);
   const freeAllowanceItems = deriveFreeAllowanceItems(selectedItems, booking.pricing?.breakdown?.itemBreakdown || {});
+  const inventoryGroups = buildInventoryGroups(selectedItems, freeAllowanceItems, buildCatalogGroupLookup(catalogSections));
   const itemSummary = getItemSummary(selectedItems);
+  const extraItemCount = Math.max(0, itemSummary.totalQuantity - freeAllowanceItems.length);
   const isCompleted = booking.status === 'completed';
   const isFinal = ['completed', 'cancelled'].includes(booking.status);
 
@@ -323,55 +327,63 @@ export default function BookingDetailPage() {
               </div>
             ) : selectedItems.length > 0 ? (
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-4">
                   <DetailMetric label="Selected items" value={`${itemSummary.totalQuantity} unit(s)`} />
+                  <DetailMetric label="Free allowance" value={`${freeAllowanceItems.length} unit(s)`} />
+                  <DetailMetric label="Extra items" value={`${extraItemCount} unit(s)`} />
                   <DetailMetric label="Size mix" value={itemSummary.sizeLabel} />
-                  <DetailMetric label="Items charge" value={formatCurrency(itemSummary.totalAmount)} />
                 </div>
-                {freeAllowanceItems.length > 0 && (
-                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                    <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-700">Items used under free allowance</span>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {freeAllowanceItems.map((item, index) => (
-                        <div key={`${item.name}-${item.sizeKey}-${index}`} className="rounded-xl bg-white px-3 py-2 text-xs ring-1 ring-emerald-100">
-                          <strong className="block text-text-primary">{item.name}</strong>
-                          <span className="text-[10px] font-semibold text-text-tertiary">{item.category || 'Inventory item'}</span>
+                <div className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-3xl border border-sky-100 bg-sky-50/35 p-3 pr-2 sm:max-h-[30rem]">
+                  <div className="space-y-4">
+                    {inventoryGroups.map((section) => (
+                      <section key={section.key} className="space-y-3">
+                        <div className="flex items-center justify-between gap-3 px-1">
+                          <h4 className="text-sm font-black uppercase tracking-wide text-primary">{section.name}</h4>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-text-secondary ring-1 ring-sky-100">
+                            {section.totalQuantity} unit(s)
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="max-h-[22rem] overflow-y-auto overscroll-contain rounded-2xl border border-bg-border/60 bg-bg-elevated/25 p-2 pr-1 sm:max-h-72">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {selectedItems.map((item, idx) => {
-                      const quantity = Number(item.quantity || 0);
-                      const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
-                      const lineTotal = Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
-                      const size = item.sizeTag || item.sizeKey || item.tag || '-';
-                      return (
-                        <div
-                          key={`${item.itemkey || item.itemId || item.name}-${idx}`}
-                          className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0 text-left">
-                              <span className="block truncate font-black text-text-primary">{item.name}</span>
-                              <span className="mt-0.5 block truncate text-[10px] font-semibold text-text-tertiary">
-                                {item.category || item.section || 'Inventory item'}
-                              </span>
+                        <div className="space-y-3">
+                          {section.groups.map((group) => (
+                            <div key={group.key} className="rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">
+                              <div className="mb-2 flex items-center justify-between gap-3">
+                                <h5 className="truncate text-xs font-black uppercase tracking-wide text-text-secondary">{group.name}</h5>
+                                <span className="shrink-0 text-[10px] font-bold text-text-tertiary">{group.totalQuantity} item(s)</span>
+                              </div>
+                              <div className="grid gap-2">
+                                {group.items.map((item) => (
+                                  <div key={item.key} className="rounded-xl border border-bg-border/60 bg-bg-elevated/70 px-3 py-2.5">
+                                    <div className="flex min-w-0 items-start justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <span className="block truncate text-sm font-semibold text-text-primary">{item.name}</span>
+                                        <span className="mt-0.5 block truncate text-[11px] font-medium text-text-tertiary">
+                                          Size {item.size} | Rate {formatCurrency(item.unitPrice)} | Line {formatCurrency(item.lineTotal)}
+                                        </span>
+                                      </div>
+                                      <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-mono text-xs font-black text-white">
+                                        x{item.quantity}
+                                      </span>
+                                    </div>
+                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                      {item.freeQuantity > 0 && (
+                                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700">
+                                          Free allowance x{item.freeQuantity}
+                                        </span>
+                                      )}
+                                      {item.extraQuantity > 0 && (
+                                        <span className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                                          Extra x{item.extraQuantity}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <span className="shrink-0 rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-sm font-black text-primary">
-                              x{quantity}
-                            </span>
-                          </div>
-                          <div className="mt-3 grid grid-cols-3 gap-2 border-t border-bg-border/50 pt-2 text-[10px] font-bold text-text-secondary">
-                            <span>Size <b className="block text-text-primary">{size}</b></span>
-                            <span>Rate <b className="block font-mono text-text-primary">{formatCurrency(unitPrice)}</b></span>
-                            <span>Total <b className="block font-mono text-text-primary">{formatCurrency(lineTotal)}</b></span>
-                          </div>
+                          ))}
                         </div>
-                      );
-                    })}
+                      </section>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -626,6 +638,82 @@ function getSelectedAddons(booking) {
   if (Array.isArray(booking.selectedAddons) && booking.selectedAddons.length) return booking.selectedAddons;
   if (Array.isArray(booking.quoteSnapshot?.selectedAddons) && booking.quoteSnapshot.selectedAddons.length) return booking.quoteSnapshot.selectedAddons;
   return [];
+}
+
+const cleanInventoryText = (value, fallback = '') => String(value || fallback).replace(/\s+/g, ' ').trim();
+const normalizeLookupKey = (value) => String(value?._id || value?.id || value || '').trim();
+
+const allowanceKey = (item = {}) => [
+  cleanInventoryText(item.name, 'Inventory item').toLowerCase(),
+  cleanInventoryText(item.category || item.section, 'Inventory').toLowerCase(),
+  cleanInventoryText(item.sizeKey || item.sizeTag || item.tag, 'NA').toUpperCase(),
+].join('|');
+
+function buildCatalogGroupLookup(sections = []) {
+  const lookup = new Map();
+  (sections || []).forEach((section) => {
+    (section.groups || []).forEach((group) => {
+      const groupName = cleanInventoryText(group.name, 'Selected items');
+      const groupId = normalizeLookupKey(group._id || group.id);
+      if (groupId) lookup.set(groupId, groupName);
+      (group.items || []).forEach((item) => {
+        const itemId = normalizeLookupKey(item._id || item.id);
+        if (itemId) lookup.set(itemId, groupName);
+      });
+    });
+  });
+  return lookup;
+}
+
+function buildInventoryGroups(items = [], freeItems = [], groupLookup = new Map()) {
+  const allowanceCounts = new Map();
+  freeItems.forEach((item) => {
+    const key = allowanceKey(item);
+    allowanceCounts.set(key, (allowanceCounts.get(key) || 0) + 1);
+  });
+
+  const sections = new Map();
+  items.forEach((item, index) => {
+    const quantity = Math.max(0, Number(item.quantity || 0));
+    const unitPrice = Number(item.unitPrice ?? item.price ?? item.pricesnapshot ?? 0);
+    const lineTotal = Number(item.lineTotal ?? item.total ?? unitPrice * quantity);
+    const sectionName = cleanInventoryText(item.category || item.section, 'Inventory');
+    const sectionKey = sectionName.toLowerCase();
+    const groupId = normalizeLookupKey(item.groupId || item.options?.groupId);
+    const itemId = normalizeLookupKey(item.itemId || item._id);
+    const groupName = cleanInventoryText(
+      item.group || item.groupName || item.options?.groupName || groupLookup.get(groupId) || groupLookup.get(itemId),
+      'Selected items',
+    );
+    const groupKey = `${sectionKey}|${cleanInventoryText(groupId || groupName, groupName).toLowerCase()}`;
+    const size = cleanInventoryText(item.sizeTag || item.sizeKey || item.tag, '-').toUpperCase();
+    const key = allowanceKey({ ...item, category: sectionName, sizeKey: size });
+    const freeQuantity = Math.min(quantity, allowanceCounts.get(key) || 0);
+    allowanceCounts.set(key, Math.max(0, (allowanceCounts.get(key) || 0) - freeQuantity));
+    const row = {
+      key: `${item.itemkey || item.itemId || item.name || 'item'}-${index}`,
+      name: cleanInventoryText(item.name, 'Inventory item'),
+      quantity,
+      freeQuantity,
+      extraQuantity: Math.max(0, quantity - freeQuantity),
+      size,
+      unitPrice,
+      lineTotal,
+    };
+
+    if (!sections.has(sectionKey)) sections.set(sectionKey, { key: sectionKey, name: sectionName, totalQuantity: 0, groups: new Map() });
+    const section = sections.get(sectionKey);
+    if (!section.groups.has(groupKey)) section.groups.set(groupKey, { key: groupKey, name: groupName, totalQuantity: 0, items: [] });
+    const group = section.groups.get(groupKey);
+    section.totalQuantity += quantity;
+    group.totalQuantity += quantity;
+    group.items.push(row);
+  });
+
+  return [...sections.values()].map((section) => ({
+    ...section,
+    groups: [...section.groups.values()],
+  }));
 }
 
 function getItemSummary(items = []) {

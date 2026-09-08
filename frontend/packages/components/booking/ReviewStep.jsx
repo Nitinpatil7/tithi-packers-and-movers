@@ -29,17 +29,32 @@ function cleanText(value) {
   return String(value || '').replace(/\\r\\n|\\n|\\r/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function displaySize(entry = {}) {
-  return cleanText(
-    entry.sizeLabel
-    || entry.sizeName
-    || entry.sizeTag
-    || entry.sizeKey
-    || entry.tag
-    || entry.label
-    || entry.size
-  );
-}
+const selectedSectionKey = (item) => String(item.sectionId || item.categoryId || item.category || 'other');
+const selectedGroupKey = (item) => String(item.groupId || item.group || 'other');
+const groupSelectedItems = (items = []) => {
+  const sectionsMap = new Map();
+  items.forEach((item) => {
+    const sectionKey = selectedSectionKey(item);
+    const groupKey = selectedGroupKey(item);
+    if (!sectionsMap.has(sectionKey)) {
+      sectionsMap.set(sectionKey, {
+        key: sectionKey,
+        name: cleanText(item.category || item.section || 'Other'),
+        groups: new Map(),
+      });
+    }
+    const section = sectionsMap.get(sectionKey);
+    if (!section.groups.has(groupKey)) {
+      section.groups.set(groupKey, {
+        key: groupKey,
+        name: cleanText(item.group || 'Other'),
+        items: [],
+      });
+    }
+    section.groups.get(groupKey).items.push(item);
+  });
+  return [...sectionsMap.values()].map((section) => ({ ...section, groups: [...section.groups.values()] }));
+};
 
 function DetailCard({ icon: Icon, label, value }) {
   if (!value) return null;
@@ -115,6 +130,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
   const isLabour = ['labour', 'labour-service', 'porter_labour_service'].includes(serviceType);
   const totalItems = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const total = Number(totalAmount || grandTotal || 0);
+  const groupedItems = groupSelectedItems(items);
   const reviewCopy = nextLabel === 'Update'
     ? 'Review your updated booking total and selected services.'
     : 'Review your booking details before phone verification. Detailed price calculation is kept internal.';
@@ -163,14 +179,26 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
       ) : (
         <ScrollPanel title="Selected Items" subtitle={`${totalItems || 0} item(s) selected`} icon={PackageCheck} empty="No selected items found.">
           {items.length > 0 && (
-            <div className="grid gap-2 sm:grid-cols-2">
-              {items.map((item, index) => (
-                <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-3 py-2.5">
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-bold text-text-primary">{cleanText(item.name)}</span>
-                    {displaySize(item) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(item)}</span>}
-                  </span>
-                </div>
+            <div className="space-y-4">
+              {groupedItems.map((section) => (
+                <section key={section.key} className="space-y-3">
+                  <h5 className="text-sm font-black uppercase tracking-wide text-primary">{section.name}</h5>
+                  <div className="space-y-3">
+                    {section.groups.map((group) => (
+                      <div key={group.key} className="rounded-2xl border border-sky-100 bg-sky-50/45 p-3">
+                        <h6 className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">{group.name}</h6>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {group.items.map((item, index) => (
+                            <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 rounded-xl border border-sky-100 bg-white px-3 py-2.5">
+                              <span className="min-w-0 truncate text-sm font-medium text-text-primary">{cleanText(item.name)}</span>
+                              <span className="shrink-0 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-black text-primary">x{Number(item.quantity || 0)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           )}
@@ -185,8 +213,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
                 <div key={`${service.name}-${index}`} className="booking-review-chip flex min-w-0 items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 px-3 py-2.5">
                   {service.icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-white/60"><InlineIconImage icon={service.icon} /></span>}
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-bold text-text-primary">{cleanText(service.name)}</span>
-                    {displaySize(service) && <span className="mt-0.5 block truncate text-xs font-semibold text-text-tertiary">{displaySize(service)}</span>}
+                    <span className="block truncate text-sm font-medium text-text-primary">{cleanText(service.name)}</span>
                   </span>
                 </div>
               ))}

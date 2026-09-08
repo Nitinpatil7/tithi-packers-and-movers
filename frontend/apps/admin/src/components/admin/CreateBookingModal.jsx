@@ -144,7 +144,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSave }) {
   const body = () => {
     if (currentStep === 0) return <ServiceChooser services={activeServices} onChoose={chooseService} />;
     if (currentStep === 1) return <LocationStep onSubmit={submitStep} initialData={bookingData} serviceType={bookingData.serviceType} pricingRule={pricingRule} />;
-    if (!isLabour && currentStep === 2) return <ItemSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} isIntercity={bookingData.serviceType === 'intercity'} />;
+    if (!isLabour && currentStep === 2) return <ItemSelectionStep onSubmit={submitStep} onBack={back} initialData={bookingData} isIntercity={bookingData.serviceType === 'intercity'} showCartBar={false} />;
     if (!isLabour && currentStep === 3) return <SpecialServicesStep onSubmit={submitStep} onBack={back} initialData={bookingData} serviceType={bookingData.serviceType} />;
     if (!isLabour && currentStep === 4) return <DateTimeStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;
     if (!isLabour && currentStep === 5) return <CustomerStep onSubmit={submitStep} onBack={back} initialData={bookingData} />;

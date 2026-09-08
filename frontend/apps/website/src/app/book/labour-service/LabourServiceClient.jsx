@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
 import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
@@ -24,6 +25,7 @@ const OTPStep = dynamic(() => import('@tithi/components/booking/OTPStep'), { ssr
 const SuccessStep = dynamic(() => import('@tithi/components/booking/SuccessStep'), { ssr: false, loading: stepLoader });
 
 export default function LabourServicePage() {
+  const router = useRouter();
   const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
@@ -94,10 +96,11 @@ export default function LabourServicePage() {
       const draftPayload = buildDraftUpdatePayload(finalData);
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: draftPayload });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: draftPayload.pricing } });
-      setCreatedBookingId(response.bookingid || response.booking?.bookingid || bookingId);
-      nextStep(STEP_RULES);
+      const confirmedBookingId = response.bookingid || response.booking?.bookingid || bookingId;
+      setCreatedBookingId(confirmedBookingId);
       useBookingStore.persist.clearStorage();
       toast.success('Labour & Vehicle booking confirmed!');
+      router.replace(`/my-bookings/${encodeURIComponent(confirmedBookingId)}`);
     } catch (error) {
       toast.error(error.message || 'Error submitting request. Please try again.');
     }

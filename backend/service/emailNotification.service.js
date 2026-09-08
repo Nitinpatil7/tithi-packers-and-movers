@@ -110,25 +110,44 @@ const bookingValues = (booking = {}) => ({
   totalPrice: formatCurrency(booking.pricing?.totalAmount || 0),
 });
 
-const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}) => {
+const customerRecipient = (booking = {}) => normalizeRecipients([booking.customer?.email]);
+
+const resolveRecipients = (booking, settings, recipientMode) => {
+  if (recipientMode === "customer") return customerRecipient(booking);
+  if (recipientMode === "settings_and_customer") {
+    return normalizeRecipients([
+      ...normalizeRecipients(settings.recipients),
+      ...customerRecipient(booking),
+    ]);
+  }
+  return normalizeRecipients(settings.recipients);
+};
+
+const sendBookingEmailWithPdf = async (booking, {
+  source = "website",
+  recipientMode = "settings",
+  subjectOverride,
+  logLabel = "Booking confirmation email",
+} = {}) => {
   if (process.env.BOOKING_CONFIRMATION_EMAILS === "false") return null;
 
   const settings = await getSettings();
-  const recipients = normalizeRecipients(settings.recipients);
+  const recipients = resolveRecipients(booking, settings, recipientMode);
   if (settings.isActive === false) {
-    logger.info("Booking confirmation email skipped because email notifications are disabled", {
+    logger.info(`${logLabel} skipped because email notifications are disabled`, {
       bookingid: booking?.bookingid,
     });
     return null;
   }
   if (recipients.length === 0) {
-    logger.info("Booking confirmation email skipped because no recipients are configured", {
+    logger.info(`${logLabel} skipped because no recipients are configured`, {
       bookingid: booking?.bookingid,
+      recipientMode,
     });
     return null;
   }
   if (!process.env.RESEND_API_KEY) {
-    logger.warn("Booking confirmation email skipped because RESEND_API_KEY is not configured", {
+    logger.warn(`${logLabel} skipped because RESEND_API_KEY is not configured`, {
       bookingid: booking?.bookingid,
     });
     return null;
@@ -137,7 +156,9 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
   const resend = new Resend(process.env.RESEND_API_KEY);
   const values = bookingValues(booking);
   const html = renderTemplate(settings.template?.html || DEFAULT_EMAIL_TEMPLATE.html, values);
-  const subject = renderTemplate(settings.template?.subject || DEFAULT_EMAIL_TEMPLATE.subject, values);
+  const subject = subjectOverride
+    ? renderTemplate(subjectOverride, values)
+    : renderTemplate(settings.template?.subject || DEFAULT_EMAIL_TEMPLATE.subject, values);
   const from = process.env.RESEND_FROM_EMAIL || "Tithi Packers and Movers <onboarding@resend.dev>";
   const attachments = [];
 
@@ -167,17 +188,18 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
   });
 
   if (result?.error) {
-    logger.error("Booking confirmation email rejected by Resend", {
+    logger.error(`${logLabel} rejected by Resend`, {
       bookingid: booking?.bookingid,
       recipientCount: recipients.length,
       error: result.error.message || result.error,
     });
-    throw new Error(result.error.message || "Resend rejected booking confirmation email");
+    throw new Error(result.error.message || `Resend rejected ${logLabel.toLowerCase()}`);
   }
 
-  logger.info("Booking confirmation email sent", {
+  logger.info(`${logLabel} sent`, {
     bookingid: booking?.bookingid,
     source,
+    recipientMode,
     recipientCount: recipients.length,
     resendId: result?.data?.id,
     attachmentCount: attachments.length,
@@ -185,9 +207,30 @@ const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}
   return result;
 };
 
+const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}) => sendBookingEmailWithPdf(booking, {
+  source,
+  recipientMode: "settings_and_customer",
+  logLabel: "Booking confirmation email",
+});
+
+const sendBookingUpdateEmail = async (booking, { source = "website" } = {}) => {
+  const values = bookingValues(booking);
+  const customerParts = [
+    values.customerName,
+    values.contactNumber,
+  ].filter(Boolean).join(" - ");
+  return sendBookingEmailWithPdf(booking, {
+    source,
+    recipientMode: "settings_and_customer",
+    subjectOverride: `Booking Update - ID: {{bookingId}}${customerParts ? ` - ${customerParts}` : ""}`,
+    logLabel: "Booking update email",
+  });
+};
+
 module.exports = {
   DEFAULT_EMAIL_TEMPLATE,
   getSettings,
   updateSettings,
   sendBookingConfirmationEmail,
+  sendBookingUpdateEmail,
 };

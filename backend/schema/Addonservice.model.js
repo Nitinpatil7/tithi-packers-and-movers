@@ -81,6 +81,12 @@ const addOnServiceSchema = new mongoose.Schema(
       index: true,
     },
 
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
     sortOrder: {
       type: Number,
       default: 0,
@@ -94,5 +100,6 @@ addOnServiceSchema.index({ triggerCategoryIds: 1 });
 addOnServiceSchema.index({ triggerGroupIds: 1 });
 addOnServiceSchema.index({ triggerItemIds: 1 });
 addOnServiceSchema.index({ isActive: 1, sortOrder: 1 });
+addOnServiceSchema.index({ isFeatured: -1, sortOrder: 1 });
 
 module.exports = mongoose.model("AddOnService", addOnServiceSchema);

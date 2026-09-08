@@ -65,7 +65,8 @@ export default function Navbar({ minimal = false }) {
   return (
     <header
       className={cn(
-        'navbar-shell fixed top-0 left-0 right-0 z-40 w-full backdrop-blur-lg transition-all duration-400',
+        'navbar-shell top-0 z-40 w-full backdrop-blur-lg transition-all duration-400',
+        isBookingPage ? 'relative sm:fixed sm:left-0 sm:right-0' : 'fixed left-0 right-0',
         scrolled
           ? 'border-b border-bg-border/50 bg-bg-page/65 py-2.5 sm:py-2'
           : 'border-b border-transparent bg-bg-page/20 py-3.5 sm:py-3'

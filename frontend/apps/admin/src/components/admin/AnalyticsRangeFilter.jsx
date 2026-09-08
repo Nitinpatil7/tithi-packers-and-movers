@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { CalendarDays } from 'lucide-react';
 
 const RANGE_OPTIONS = [
   ['day', 'Day'],
@@ -41,35 +40,37 @@ export default function AnalyticsRangeFilter({ value, onChange, compact = false 
   const setDate = (key, nextValue) => onChange?.({ ...selection, range: 'custom', [key]: nextValue });
 
   return (
-    <div className={`flex min-w-0 flex-col gap-2 ${compact ? '' : 'sm:items-end'}`}>
-      <div className="flex min-w-0 flex-wrap items-center gap-1 rounded-2xl border border-bg-border bg-white p-1">
-        {RANGE_OPTIONS.map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setRange(key)}
-            className={`rounded-xl px-3 py-2 text-xs font-black transition ${selection.range === key ? 'bg-primary text-white shadow-sky-sm' : 'text-text-secondary hover:bg-primary-soft'}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+    <div className={`flex w-full min-w-0 flex-col gap-2 ${compact ? 'sm:w-auto' : 'sm:w-auto sm:items-end'}`}>
+      <label className="flex w-full min-w-0 flex-col gap-1 sm:w-auto">
+        <span className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Time range</span>
+        <select
+          value={selection.range || 'month'}
+          onChange={(event) => setRange(event.target.value)}
+          className={`admin-field h-10 w-full min-w-0 px-3 py-2 text-sm font-extrabold text-text-primary ${compact ? 'sm:w-40' : 'sm:w-44'}`}
+          aria-label="Analytics time range"
+        >
+          {RANGE_OPTIONS.map(([key, label]) => (
+            <option key={key} value={key}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
       {selection.range === 'custom' && (
-        <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs font-bold text-text-secondary">
-          <CalendarDays className="h-3.5 w-3.5 text-primary" />
+        <div className="grid w-full min-w-0 grid-cols-1 items-center gap-2 text-xs font-bold text-text-secondary min-[420px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:w-auto sm:grid-cols-[9rem_auto_9rem]">
           <input
             type="date"
             value={selection.startDate || ''}
             onChange={(event) => setDate('startDate', event.target.value)}
-            className="admin-field h-9 w-36 px-2 py-1 text-xs"
+            className="admin-field h-9 w-full min-w-0 px-2 py-1 text-xs"
             aria-label="Analytics start date"
           />
-          <span>to</span>
+          <span className="text-center">to</span>
           <input
             type="date"
             value={selection.endDate || ''}
             onChange={(event) => setDate('endDate', event.target.value)}
-            className="admin-field h-9 w-36 px-2 py-1 text-xs"
+            className="admin-field h-9 w-full min-w-0 px-2 py-1 text-xs"
             aria-label="Analytics end date"
           />
         </div>
