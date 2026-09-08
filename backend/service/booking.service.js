@@ -186,6 +186,16 @@ const addonLineTotal = (addon, baseAmount = 0) => {
   return price * quantity;
 };
 
+const selectedItemQuantityForAddon = (addon = {}, selectedItems = []) => {
+  const triggerItemIds = new Set((addon.triggerItemIds || []).map(normalizeId).filter(Boolean));
+  if (!triggerItemIds.size) return null;
+  return selectedItems.reduce((sum, item) => (
+    triggerItemIds.has(normalizeId(item.itemId || item._id))
+      ? sum + Math.max(0, toNumber(item.quantity, 0))
+      : sum
+  ), 0);
+};
+
 const rebuildItemSnapshots = async (submittedItems = []) => {
   const requested = (submittedItems || [])
     .map((item) => ({ ...item, itemId: normalizeId(item.itemId || item._id), sizeCandidates: sizeCandidatesForItem(item), quantity: Math.max(1, toNumber(item.quantity, 1)) }))
@@ -210,12 +220,12 @@ const rebuildItemSnapshots = async (submittedItems = []) => {
       quantity: request.quantity,
       unitPrice,
       lineTotal: unitPrice * request.quantity,
-      options: { sizeVariantId: variant._id, groupId: item.groupId },
+      options: { sizeVariantId: variant._id, groupId: item.groupId, categoryId: item.categoryId },
     };
   });
 };
 
-const rebuildAddonSnapshots = async (submittedAddons = [], baseAmount = 0) => {
+const rebuildAddonSnapshots = async (submittedAddons = [], baseAmount = 0, selectedItems = []) => {
   const requested = (submittedAddons || []).map((addon) => ({ ...addon, addonid: normalizeId(addon.addonid || addon.addonId || addon._id) })).filter((addon) => addon.addonid || addon.key || addon.name);
   if (!requested.length) return [];
   const addonIds = requested.map((addon) => addon.addonid).filter(Boolean);
@@ -244,6 +254,10 @@ const rebuildAddonSnapshots = async (submittedAddons = [], baseAmount = 0) => {
       quantity: Math.max(1, toNumber(request.quantity, 1)),
       pricesnapshot: toNumber(addon.price),
     };
+    if (["per_item", "per_unit"].includes(snapshot.unit)) {
+      const triggerQuantity = selectedItemQuantityForAddon(addon, selectedItems);
+      if (triggerQuantity !== null) snapshot.quantity = Math.max(1, triggerQuantity);
+    }
     snapshot.total = addonLineTotal(snapshot, baseAmount);
     return snapshot;
   });
@@ -265,7 +279,7 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
   const truckTotal = toNumber(previousBreakdown.truckTotal);
   const serviceCharge = basePrice + distanceCharge + floorTotalCharge + employeeTotal + truckTotal;
   const addOnBaseAmount = serviceCharge + itemBreakdown.charge;
-  const selectedAddons = await rebuildAddonSnapshots(submittedAddons, addOnBaseAmount);
+  const selectedAddons = await rebuildAddonSnapshots(submittedAddons, addOnBaseAmount, items);
   const addOnTotal = selectedAddons.reduce((sum, addon) => sum + toNumber(addon.total), 0);
   const subtotal = serviceCharge + itemBreakdown.charge + addOnTotal;
   const sundayHike = toNumber(previousBreakdown.sundayHike);
