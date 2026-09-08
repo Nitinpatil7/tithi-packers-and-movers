@@ -99,6 +99,15 @@ const stripHtml = (html = "") => String(html)
   .replace(/\n{3,}/g, "\n\n")
   .trim();
 
+const applyTitleOverride = (html = "", titleOverride) => {
+  if (!titleOverride) return html;
+  const rendered = String(html || "");
+  const updated = rendered.replace(/New\s+booking\s+received/gi, titleOverride);
+  return updated === rendered
+    ? rendered.replace(/(<h[1-6][^>]*>)(.*?)(<\/h[1-6]>)/i, `$1${titleOverride}$3`)
+    : updated;
+};
+
 const bookingValues = (booking = {}) => ({
   customerName: booking.customer?.name || "Customer",
   bookingName: booking.customer?.name || "Customer",
@@ -127,6 +136,7 @@ const sendBookingEmailWithPdf = async (booking, {
   source = "website",
   recipientMode = "settings",
   subjectOverride,
+  titleOverride,
   logLabel = "Booking confirmation email",
 } = {}) => {
   if (process.env.BOOKING_CONFIRMATION_EMAILS === "false") return null;
@@ -155,7 +165,7 @@ const sendBookingEmailWithPdf = async (booking, {
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const values = bookingValues(booking);
-  const html = renderTemplate(settings.template?.html || DEFAULT_EMAIL_TEMPLATE.html, values);
+  const html = applyTitleOverride(renderTemplate(settings.template?.html || DEFAULT_EMAIL_TEMPLATE.html, values), titleOverride);
   const subject = subjectOverride
     ? renderTemplate(subjectOverride, values)
     : renderTemplate(settings.template?.subject || DEFAULT_EMAIL_TEMPLATE.subject, values);
@@ -223,6 +233,7 @@ const sendBookingUpdateEmail = async (booking, { source = "website" } = {}) => {
     source,
     recipientMode: "settings_and_customer",
     subjectOverride: `Booking Update - ID: {{bookingId}}${customerParts ? ` - ${customerParts}` : ""}`,
+    titleOverride: "Booking Update",
     logLabel: "Booking update email",
   });
 };
