@@ -114,47 +114,47 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   };
 
   return (
-    <div className="flex flex-col gap-6 text-left">
+    <div className="flex flex-col gap-4 text-left sm:gap-6">
       <div>
-        <h3 className="text-2xl font-black text-text-primary mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
+        <h3 className="mb-1 text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>
           Verify & Confirm Booking
         </h3>
-        <p className="text-sm text-text-secondary font-medium">
+        <p className="text-sm font-normal text-text-secondary">
           First enter customer details, then verify OTP to confirm the order.
         </p>
       </div>
 
       {!otpSent ? (
-        <div className="flex flex-col gap-6">
-          <div className="booking-themed-card grid gap-4 rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50/90 via-white to-orange-50/80 p-5 shadow-[0_18px_50px_rgba(14,165,233,0.12)] ring-1 ring-white/70 sm:grid-cols-2 sm:p-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="booking-themed-card grid gap-3 rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/90 via-white to-orange-50/80 p-3.5 shadow-[0_18px_50px_rgba(14,165,233,0.12)] ring-1 ring-white/70 sm:grid-cols-2 sm:gap-4 sm:rounded-3xl sm:p-6">
             <Field label="Full Name *" icon={User}><input value={name} onChange={(event) => setName(event.target.value)} className="booking-input text-base" placeholder="Enter full name" /></Field>
             <Field label="Email Address" icon={Mail}><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="booking-input text-base" placeholder="customer@email.com" /></Field>
             <div className="sm:col-span-2">
               <Field label="Mobile Number *" icon={Phone}>
-                <div className="flex gap-3">
-                  <div className="shrink-0 rounded-xl border border-bg-border bg-bg-white px-4 py-3.5 text-sm font-bold text-text-secondary">+91</div>
+                <div className="flex gap-2.5 sm:gap-3">
+                  <div className="shrink-0 rounded-xl border border-bg-border bg-bg-white px-3.5 py-3 text-sm font-semibold text-text-secondary sm:px-4 sm:py-3.5">+91</div>
                   <input value={mobile} onChange={(event) => setMobile(event.target.value.replace(/\D/g, '').slice(0, 10))} className="booking-input flex-1 text-base font-mono" placeholder="10-digit mobile number" />
                 </div>
               </Field>
-              <p className="mt-2 text-xs font-medium text-text-tertiary">OTP will be sent to this number for booking confirmation.</p>
+              <p className="mt-1.5 text-xs font-normal text-text-tertiary">OTP will be sent to this number for booking confirmation.</p>
             </div>
           </div>
           <BookingActionBar onBack={onBack} onNext={sendOtp} tone="orange" nextLabel={checkMobileMutation.isPending ? 'Sending...' : 'Send OTP'} disabled={checkMobileMutation.isPending} />
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
-          <div className="booking-themed-card booking-otp-sent-card rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-5 shadow-[0_16px_44px_rgba(16,185,129,0.12)]">
-            <p className="mb-1 text-sm font-bold text-emerald-800">OTP sent to +91 {mobile}</p>
-            <p className="text-xs font-medium text-emerald-700">Enter the one-time password for Tithi Packers and Movers booking verification.</p>
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="booking-themed-card booking-otp-sent-card rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-3.5 shadow-[0_16px_44px_rgba(16,185,129,0.12)] sm:rounded-3xl sm:p-5">
+            <p className="mb-1 text-sm font-semibold text-emerald-800">OTP sent to +91 {mobile}</p>
+            <p className="text-xs font-normal text-emerald-700">Enter the one-time password for Tithi Packers and Movers booking verification.</p>
           </div>
-          <motion.div className="my-2 grid w-full min-w-0 grid-cols-6 gap-1.5 px-0.5 sm:mx-auto sm:max-w-md sm:gap-3 sm:px-0" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
+          <motion.div className="my-1 grid w-full min-w-0 grid-cols-6 gap-1.5 px-0.5 sm:mx-auto sm:my-2 sm:max-w-md sm:gap-3 sm:px-0" animate={shake ? 'shake' : ''} variants={{ shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } } }}>
             {otpValues.map((value, index) => (
-              <input key={index} ref={otpRefs[index]} type="text" inputMode="numeric" autoComplete={index === 0 ? 'one-time-code' : 'off'} pattern="[0-9]*" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="aspect-square h-auto min-h-0 w-full min-w-0 rounded-xl border-2 border-bg-border bg-bg-white text-center font-mono text-lg font-black text-text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-14 sm:rounded-2xl sm:text-xl" />
+              <input key={index} ref={otpRefs[index]} type="text" inputMode="numeric" autoComplete={index === 0 ? 'one-time-code' : 'off'} pattern="[0-9]*" maxLength={1} value={value} onChange={(event) => handleOtpChange(event.target.value, index)} onPaste={handleOtpPaste} onKeyDown={(event) => { if (event.key === 'Backspace' && !otpValues[index] && index > 0) otpRefs[index - 1].current?.focus(); }} className="aspect-square h-auto min-h-0 w-full min-w-0 rounded-xl border-2 border-bg-border bg-bg-white text-center font-mono text-lg font-semibold text-slate-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-14 sm:rounded-2xl sm:text-xl" />
             ))}
           </motion.div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm font-medium text-text-tertiary">Didn&apos;t get the code?</span>
-            {timer > 0 ? <span className="font-mono text-sm font-bold text-text-secondary">Resend in {timer}s</span> : <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="text-sm font-bold text-primary hover:underline disabled:opacity-60">{checkMobileMutation.isPending ? 'Sending...' : 'Resend OTP'}</button>}
+            {timer > 0 ? <span className="font-mono text-sm font-semibold text-text-secondary">Resend in {timer}s</span> : <button onClick={sendOtp} disabled={checkMobileMutation.isPending} className="text-sm font-semibold text-primary hover:underline disabled:opacity-60">{checkMobileMutation.isPending ? 'Sending...' : 'Resend OTP'}</button>}
           </div>
           <BookingActionBar onBack={() => setOtpSent(false)} backLabel="Edit" onNext={verifyOtp} tone="orange" nextLabel={confirmingBooking ? 'Confirming...' : verifyOTPMutation.isPending ? 'Verifying...' : 'Verify & Confirm'} disabled={verifyBusy} summary={`+91 ${mobile}`} />
         </div>
@@ -164,7 +164,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
 }
 
 function Field({ label, icon: Icon, children }) {
-  return <label className="flex flex-col gap-1.5"><span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-text-secondary"><Icon className="h-3.5 w-3.5 text-primary" />{label}</span>{children}</label>;
+  return <label className="flex flex-col gap-1.5"><span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-secondary"><Icon className="h-3.5 w-3.5 text-primary" />{label}</span>{children}</label>;
 }
 
 export { OTPStep };

@@ -338,40 +338,40 @@ export default function BookingDetailPage() {
                     {inventoryGroups.map((section) => (
                       <section key={section.key} className="space-y-3">
                         <div className="flex items-center justify-between gap-3 px-1">
-                          <h4 className="text-sm font-black uppercase tracking-wide text-primary">{section.name}</h4>
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-text-secondary ring-1 ring-sky-100">
+                          <h4 className="text-sm font-semibold uppercase tracking-wide text-primary">{section.name}</h4>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-text-secondary ring-1 ring-sky-100">
                             {section.totalQuantity} unit(s)
                           </span>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {section.groups.map((group) => (
-                            <div key={group.key} className="rounded-2xl border border-sky-100 bg-white p-3 shadow-xs">
-                              <div className="mb-2 flex items-center justify-between gap-3">
-                                <h5 className="truncate text-xs font-black uppercase tracking-wide text-text-secondary">{group.name}</h5>
-                                <span className="shrink-0 text-[10px] font-bold text-text-tertiary">{group.totalQuantity} item(s)</span>
+                            <div key={group.key} className="rounded-2xl bg-white p-2.5 ring-1 ring-sky-100 shadow-xs">
+                              <div className="flex items-center justify-between gap-3 px-1 pb-1.5">
+                                <h5 className="truncate text-[11px] font-semibold uppercase tracking-wide text-text-secondary">{group.name}</h5>
+                                <span className="shrink-0 text-[10px] font-semibold text-text-tertiary">{group.totalQuantity} item(s)</span>
                               </div>
-                              <div className="grid gap-2">
+                              <div className="divide-y divide-bg-border/60 overflow-hidden rounded-xl bg-bg-elevated/70">
                                 {group.items.map((item) => (
-                                  <div key={item.key} className="rounded-xl border border-bg-border/60 bg-bg-elevated/70 px-3 py-2.5">
+                                  <div key={item.key} className="px-3 py-2.5">
                                     <div className="flex min-w-0 items-start justify-between gap-3">
                                       <div className="min-w-0">
-                                        <span className="block truncate text-sm font-semibold text-text-primary">{item.name}</span>
+                                        <span className="block truncate text-sm font-normal text-text-primary">{item.name}</span>
                                         <span className="mt-0.5 block truncate text-[11px] font-medium text-text-tertiary">
                                           Size {item.size} | Rate {formatCurrency(item.unitPrice)} | Line {formatCurrency(item.lineTotal)}
                                         </span>
                                       </div>
-                                      <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-mono text-xs font-black text-white">
+                                      <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-mono text-xs font-semibold text-white">
                                         x{item.quantity}
                                       </span>
                                     </div>
                                     <div className="mt-2 flex flex-wrap items-center gap-2">
                                       {item.freeQuantity > 0 && (
-                                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700">
+                                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
                                           Free allowance x{item.freeQuantity}
                                         </span>
                                       )}
                                       {item.extraQuantity > 0 && (
-                                        <span className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                                        <span className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-700">
                                           Extra x{item.extraQuantity}
                                         </span>
                                       )}

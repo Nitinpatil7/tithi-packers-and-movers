@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Layers, Loader2, Map as MapIcon, MapPin, Truck, Users, X } from 'lucide-react';
 import { cn } from '@utils/utils';
 import { useBookingStore } from '@tithi/store/bookingStore';
+import { getDistanceKM } from '@tithi/utils/pricing';
 import BookingActionBar from './BookingActionBar';
 
 const SURAT_BOUNDS = { north: 21.35, south: 20.97, east: 73.08, west: 72.65 };
@@ -904,7 +905,7 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     : 'Search a drop address anywhere in India';
 
   return (
-    <div className={cn('booking-location-card flex min-w-0 flex-col gap-4 rounded-2xl border-2 p-4 shadow-sm transition-colors sm:p-6',
+    <div className={cn('booking-location-card flex min-w-0 flex-col gap-3 rounded-xl border-2 p-2.5 shadow-sm transition-colors sm:gap-4 sm:p-6',
       isSelected ? 'border-primary/30 bg-gradient-to-br from-sky-50 to-white shadow-sky-sm' : validationMsg ? 'border-red-300 bg-red-50' : 'border-sky-100 bg-white hover:border-primary/25')}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', isSelected ? 'bg-primary text-white' : 'bg-primary-soft')}>
@@ -1056,27 +1057,13 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
   );
 }
 
-function getGoogleRouteDistanceKM(pickup, drop) {
-  return new Promise((resolve) => {
-    if (!window.google?.maps?.DirectionsService || !pickup?.lat || !pickup?.lng || !drop?.lat || !drop?.lng) {
-      resolve(null);
-      return;
-    }
-    const directions = new window.google.maps.DirectionsService();
-    directions.route({
-      origin: { lat: Number(pickup.lat), lng: Number(pickup.lng) },
-      destination: { lat: Number(drop.lat), lng: Number(drop.lng) },
-      travelMode: window.google.maps.TravelMode.DRIVING,
-      provideRouteAlternatives: false,
-    }, (result, status) => {
-      if (status !== 'OK') {
-        resolve(null);
-        return;
-      }
-      const meters = result?.routes?.[0]?.legs?.reduce((sum, leg) => sum + (leg.distance?.value || 0), 0) || 0;
-      resolve(meters ? Math.round((meters / 1000) * 10) / 10 : null);
-    });
-  });
+function getEstimatedDistanceKM(pickup, drop) {
+  const pickupLat = Number(pickup?.lat);
+  const pickupLng = Number(pickup?.lng);
+  const dropLat = Number(drop?.lat);
+  const dropLng = Number(drop?.lng);
+  if (![pickupLat, pickupLng, dropLat, dropLng].every(Number.isFinite)) return null;
+  return getDistanceKM(pickupLat, pickupLng, dropLat, dropLng) || null;
 }
 
 export default function LocationStep({ onSubmit, initialData = {}, serviceType = 'local', pricingRule = null }) {
@@ -1114,11 +1101,11 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
       return undefined;
     }
     setDistanceLoading(true);
-    getGoogleRouteDistanceKM(pickupData, dropData).then((km) => {
-      if (cancelled) return;
+    const km = getEstimatedDistanceKM(pickupData, dropData);
+    if (!cancelled) {
       setDistanceKm(km);
       setDistanceLoading(false);
-    });
+    }
     return () => { cancelled = true; };
   }, [dropData, pickupData]);
 
@@ -1153,9 +1140,9 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   }, [submitError]);
 
   return (
-    <div className="flex min-w-0 flex-col gap-6 text-left">
+    <div className="flex min-w-0 flex-col gap-4 text-left sm:gap-6">
       <div className="flex flex-col gap-1">
-        <h3 className="text-2xl font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Pickup &amp; Drop Locations</h3>
+        <h3 className="text-2xl font-bold text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>Pickup &amp; Drop Locations</h3>
         <p className="text-sm text-text-secondary font-medium">Search and select an exact Google Maps address, or use your current location.</p>
       </div>
       {submitError && (
@@ -1175,8 +1162,8 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
       <PlacesAddressBlock title={labels.drop} icon={<Building2 className="w-4 h-4 text-primary" />} role="drop" serviceType={serviceType}
         value={dropData} onChange={updateDropData} onError={handleError} clearError={clearError} optional={dropOptional} />
       {(distanceLoading || distanceKm) && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/15 bg-sky-50 px-4 py-3 text-sm font-bold text-primary">
-          <span>{distanceLoading ? 'Calculating route distance from Google Maps...' : 'Google route distance'}</span>
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/15 bg-sky-50 px-4 py-3 text-sm font-bold text-primary">
+          <span>{distanceLoading ? 'Calculating distance...' : 'Estimated distance'}</span>
           <span>{distanceLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : `${distanceKm} km`}</span>
         </div>
       )}

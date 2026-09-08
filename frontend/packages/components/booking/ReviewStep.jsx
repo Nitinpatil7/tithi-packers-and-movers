@@ -59,14 +59,14 @@ const groupSelectedItems = (items = []) => {
 function DetailCard({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
-    <div className="booking-themed-card min-w-0 rounded-2xl border border-sky-100 bg-white/90 p-4 shadow-xs">
-      <div className="flex min-w-0 items-start gap-3">
+    <div className="booking-themed-card min-w-0 rounded-2xl border border-sky-100 bg-white/90 p-3 shadow-xs sm:p-4">
+      <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
           <Icon className="h-4 w-4" />
         </span>
         <span className="min-w-0">
           <span className="block text-[10px] font-black uppercase tracking-wide text-text-tertiary">{label}</span>
-          <span className="mt-1 block break-words text-sm font-bold leading-5 text-text-primary">{value}</span>
+          <span className="mt-1 block break-words text-sm font-medium leading-5 text-slate-800">{value}</span>
         </span>
       </div>
     </div>
@@ -76,18 +76,18 @@ function DetailCard({ icon: Icon, label, value }) {
 function ScrollPanel({ title, subtitle, icon: Icon, children, empty }) {
   return (
     <section className="booking-themed-card min-w-0 overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-card">
-      <div className="booking-themed-card-head border-b border-sky-100 bg-gradient-to-r from-sky-50 via-white to-orange-50 px-5 py-4 sm:px-6">
+      <div className="booking-themed-card-head border-b border-sky-100 bg-gradient-to-r from-sky-50 via-white to-orange-50 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
             <Icon className="h-4 w-4" />
           </span>
           <span className="min-w-0">
-            <h4 className="text-base font-black text-text-primary">{title}</h4>
+            <h4 className="text-base font-semibold text-slate-800">{title}</h4>
             {subtitle && <p className="mt-0.5 text-xs font-semibold leading-5 text-text-tertiary">{subtitle}</p>}
           </span>
         </div>
       </div>
-      <div className="h-60 overflow-y-auto overscroll-contain p-4 pr-3 sm:h-64 sm:p-5">
+      <div className="h-60 overflow-y-auto overscroll-contain p-3 pr-2 sm:h-64 sm:p-5">
         {children || <p className="rounded-2xl border border-dashed border-bg-border p-8 text-center text-sm font-semibold text-text-tertiary">{empty}</p>}
       </div>
     </section>
@@ -142,14 +142,14 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
   const addOns = (specialServices || []).filter((service) => cleanText(service.name));
 
   return (
-    <div className="booking-review-ui flex min-w-0 flex-col gap-6 text-left sm:gap-7">
+    <div className="booking-review-ui flex min-w-0 flex-col gap-4 text-left sm:gap-7">
       <motion.header
-        className="booking-themed-card booking-review-total relative mb-1 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/95 via-white to-sky-50/95 p-5 shadow-card sm:mb-2 sm:p-6"
+        className="booking-themed-card booking-review-total relative rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50/95 via-white to-sky-50/95 p-4 shadow-card sm:mb-2 sm:p-6"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
-        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary text-white shadow-sky">
               <IndianRupee className="h-6 w-6" />
@@ -159,7 +159,7 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
               <strong className="mt-1 block font-mono text-3xl font-black text-text-primary sm:text-4xl">{formatCurrency(total)}</strong>
             </span>
           </div>
-          <p className="max-w-md text-sm font-semibold leading-6 text-text-secondary">{reviewCopy}</p>
+          <p className="max-w-md text-sm font-medium leading-6 text-text-secondary">{reviewCopy}</p>
         </div>
       </motion.header>
 
@@ -182,16 +182,16 @@ export default function ReviewStep({ onSubmit, onBack, bookingData = {}, nextLab
             <div className="space-y-4">
               {groupedItems.map((section) => (
                 <section key={section.key} className="space-y-3">
-                  <h5 className="text-sm font-black uppercase tracking-wide text-primary">{section.name}</h5>
-                  <div className="space-y-3">
+                  <h5 className="px-1 text-sm font-semibold uppercase tracking-wide text-primary">{section.name}</h5>
+                  <div className="space-y-2">
                     {section.groups.map((group) => (
-                      <div key={group.key} className="rounded-2xl border border-sky-100 bg-sky-50/45 p-3">
-                        <h6 className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">{group.name}</h6>
-                        <div className="grid gap-2 sm:grid-cols-2">
+                      <div key={group.key} className="rounded-2xl bg-bg-section/85 p-2.5 ring-1 ring-sky-100 dark:bg-bg-muted dark:ring-slate-700">
+                        <h6 className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">{group.name}</h6>
+                        <div className="divide-y divide-bg-border/60 overflow-hidden rounded-xl bg-bg-white dark:divide-slate-700 dark:bg-slate-800">
                           {group.items.map((item, index) => (
-                            <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 rounded-xl border border-sky-100 bg-white px-3 py-2.5">
-                              <span className="min-w-0 truncate text-sm font-medium text-text-primary">{cleanText(item.name)}</span>
-                              <span className="shrink-0 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-black text-primary">x{Number(item.quantity || 0)}</span>
+                            <div key={item.itemKey || item.key || `${item.name}-${index}`} className="booking-review-chip flex min-w-0 items-center justify-between gap-3 px-3 py-2.5">
+                              <span className="min-w-0 truncate text-sm font-normal text-text-primary">{cleanText(item.name)}</span>
+                              <span className="shrink-0 text-sm font-semibold text-text-secondary">x {Number(item.quantity || 0)}</span>
                             </div>
                           ))}
                         </div>

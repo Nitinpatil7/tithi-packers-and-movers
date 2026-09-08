@@ -65,9 +65,9 @@ function CustomCalendar({ selectedDate, onSelect }) {
     (viewYear === tomorrow.getFullYear() && viewMonth > tomorrow.getMonth());
 
   return (
-    <div className="bg-white rounded-2xl border border-bg-border shadow-card overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-bg-border bg-white shadow-card">
       {/* Month nav */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-bg-border bg-sky-50">
+      <div className="flex items-center justify-between border-b border-bg-border bg-sky-50 px-3.5 py-3 sm:px-5 sm:py-4">
         <button
           type="button"
           onClick={goToPrev}
@@ -76,7 +76,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
         >
           <ChevronLeft className="w-4 h-4 text-text-secondary" />
         </button>
-        <span className="text-sm font-black text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+        <span className="text-sm font-semibold text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
           {MONTH_NAMES[viewMonth]} {viewYear}
         </span>
         <button
@@ -92,7 +92,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
       <div className="grid grid-cols-7 border-b border-bg-border">
         {DAY_NAMES.map((d) => (
           <div key={d} className={cn(
-            "py-2 text-center text-[11px] font-black uppercase tracking-widest",
+            "py-1.5 text-center text-[11px] font-semibold uppercase tracking-widest sm:py-2",
             d === 'Sun' ? "text-red-500" : "text-text-tertiary"
           )}>
             {d}
@@ -101,7 +101,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
       </div>
 
       {/* Days grid */}
-      <div className="grid grid-cols-7 gap-0.5 p-3">
+      <div className="grid grid-cols-7 gap-0.5 p-2 sm:p-3">
         {calendarDays.map((day, idx) => {
           if (!day) return <div key={`empty-${idx}`} />;
 
@@ -137,7 +137,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
       </div>
 
       {/* Legend */}
-      <div className="px-4 py-3 border-t border-bg-border bg-sky-50 flex items-center gap-4 flex-wrap">
+      <div className="flex flex-wrap items-center gap-3 border-t border-bg-border bg-sky-50 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-5 rounded-md bg-sky-500" />
           <span className="text-[10px] font-semibold text-text-secondary">Selected</span>
@@ -212,10 +212,10 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
   };
 
   return (
-    <div className="flex flex-col gap-7 text-left">
+    <div className="flex flex-col gap-5 text-left sm:gap-7">
       {/* Title */}
       <div>
-        <h3 className="text-2xl font-black text-text-primary mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
+        <h3 className="mb-1 text-2xl font-bold text-text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
           📅 Schedule Your Move
         </h3>
         <p className="text-sm text-text-secondary font-medium">
@@ -224,8 +224,8 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
       </div>
 
       {/* Calendar */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-black uppercase tracking-wider text-text-secondary">
+      <div className="flex flex-col gap-1.5 sm:gap-2">
+        <label className="text-xs font-semibold uppercase leading-tight tracking-wider text-text-secondary">
           Select Moving Date *
         </label>
         {calendarReady ? (
@@ -277,8 +277,8 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
       </AnimatePresence>
 
       {/* Time Slot */}
-      <div className="flex flex-col gap-3">
-        <label className="text-xs font-black uppercase tracking-wider text-text-secondary flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:gap-3">
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase leading-tight tracking-wider text-text-secondary sm:gap-2">
           <Clock className="w-4 h-4 text-primary" />
           Preferred Arrival Time *
         </label>
@@ -291,14 +291,14 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 type="button"
                 onClick={() => { setSlot(item.id); setError(''); }}
                 className={cn(
-                  "flex min-w-[76vw] max-w-[300px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-4 text-center cursor-pointer select-none transition-all duration-200 sm:min-h-[9.5rem] sm:min-w-[12rem] sm:max-w-none sm:p-5",
+                  "flex min-w-[76vw] max-w-[300px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-3.5 text-center cursor-pointer select-none transition-all duration-200 sm:min-h-[9.5rem] sm:min-w-[12rem] sm:max-w-none sm:p-5",
                   isSelected
                     ? "border-primary bg-primary-soft shadow-sky"
                     : "border-bg-border bg-white hover:border-primary/30 hover:bg-sky-50 shadow-xs"
                 )}
               >
                 <item.icon className="mb-2 h-7 w-7 text-primary" strokeWidth={1.7} />
-                <span className={cn("text-sm font-black mb-1", isSelected ? "text-primary" : "text-text-primary")}
+                <span className={cn("mb-1 text-sm font-semibold", isSelected ? "text-primary" : "text-text-primary")}
                   style={{ fontFamily: 'var(--font-heading)' }}>
                   {item.label}
                 </span>

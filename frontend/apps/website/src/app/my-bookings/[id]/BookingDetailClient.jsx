@@ -29,6 +29,29 @@ function InlineIconImage({ icon, className = 'h-9 w-9' }) {
   ) : null;
 }
 
+const cleanItemText = (value, fallback = '') => String(value || fallback).replace(/\s+/g, ' ').trim();
+const itemSectionKey = (item = {}) => cleanItemText(item.sectionId || item.categoryId || item.category || item.section, 'Other').toLowerCase();
+const itemGroupKey = (item = {}) => cleanItemText(item.groupId || item.group || item.groupName || item.options?.groupId || item.options?.groupName, 'Selected items').toLowerCase();
+
+function groupBookingItems(items = []) {
+  const sections = new Map();
+  (items || []).forEach((item) => {
+    const sectionKey = itemSectionKey(item);
+    const sectionName = cleanItemText(item.category || item.section, 'Other');
+    const groupKey = `${sectionKey}|${itemGroupKey(item)}`;
+    const groupName = cleanItemText(item.group || item.groupName || item.options?.groupName, 'Selected items');
+    const quantity = Number(item.quantity || 0);
+    if (!sections.has(sectionKey)) sections.set(sectionKey, { key: sectionKey, name: sectionName, quantity: 0, groups: new Map() });
+    const section = sections.get(sectionKey);
+    if (!section.groups.has(groupKey)) section.groups.set(groupKey, { key: groupKey, name: groupName, quantity: 0, items: [] });
+    const group = section.groups.get(groupKey);
+    section.quantity += quantity;
+    group.quantity += quantity;
+    group.items.push(item);
+  });
+  return [...sections.values()].map((section) => ({ ...section, groups: [...section.groups.values()] }));
+}
+
 const DETAIL_TRANSLATIONS = {
   en: {
     back: "Back to Bookings",
@@ -173,6 +196,7 @@ export default function CustomerBookingDetailPage() {
   const breakdown = booking.pricingBreakdown || pricing.breakdown || {};
   const isLabour = booking.serviceType === 'porter_labour_service';
   const itemRows = Array.isArray(booking.items) ? booking.items : [];
+  const groupedItemRows = groupBookingItems(itemRows);
   const addonRows = Array.isArray(booking.selectedAddons) ? booking.selectedAddons : [];
   const itemTotal = Number(booking.itemTotal || pricing.itemTotal || 0);
   const addOnTotal = Number(booking.addOnTotal || pricing.addOnTotal || addonRows.reduce((sum, item) => sum + Number(item.total || 0), 0));
@@ -382,16 +406,26 @@ export default function CustomerBookingDetailPage() {
                 <PackageCheck className="w-4 h-4 text-primary" /> Selected Items
               </h4>
               {itemRows.length ? (
-                <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
-                  {itemRows.map((item) => (
-                    <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 rounded-xl border border-bg-border bg-white px-3 py-2">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <span className="min-w-0">
-                          <span className="block truncate font-medium text-text-primary">{item.name}</span>
-                        </span>
+                <div className="max-h-72 space-y-4 overflow-y-auto pr-1">
+                  {groupedItemRows.map((section) => (
+                    <section key={section.key} className="space-y-2">
+                      <h5 className="px-1 text-sm font-semibold uppercase tracking-wide text-primary">{section.name}</h5>
+                      <div className="space-y-2">
+                        {section.groups.map((group) => (
+                          <div key={group.key} className="rounded-2xl bg-bg-section/85 p-2.5 ring-1 ring-sky-100 dark:bg-bg-muted dark:ring-slate-700">
+                            <h6 className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">{group.name}</h6>
+                            <div className="divide-y divide-bg-border/60 overflow-hidden rounded-xl bg-bg-white dark:divide-slate-700 dark:bg-slate-800">
+                              {group.items.map((item) => (
+                                <div key={`${item.itemkey || item.name}-${item.sizeTag || ''}`} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                                  <span className="min-w-0 truncate text-sm font-normal text-text-primary">{item.name}</span>
+                                  <span className="shrink-0 text-right text-sm font-semibold text-text-secondary">x {Number(item.quantity || 1)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <span className="shrink-0 text-right font-mono font-semibold text-text-primary">x{Number(item.quantity || 1)}</span>
-                    </div>
+                    </section>
                   ))}
                 </div>
               ) : (
