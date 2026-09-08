@@ -103,6 +103,11 @@ export const buildDraftUpdatePayload = (bookingData = {}) => {
       icon: addon.icon || '',
       quantity,
       pricesnapshot: unitPrice,
+      addOnBaseAmount: Number(line?.addOnBaseAmount ?? addon.addOnBaseAmount ?? 0),
+      rawPercentageAmount: line?.rawPercentageAmount ?? addon.rawPercentageAmount ?? null,
+      matchedTriggerCategoryIds: line?.matchedTriggerCategoryIds || addon.matchedTriggerCategoryIds || [],
+      matchedTriggerGroupIds: line?.matchedTriggerGroupIds || addon.matchedTriggerGroupIds || [],
+      matchedTriggerItemIds: line?.matchedTriggerItemIds || addon.matchedTriggerItemIds || [],
       total: Number(line?.total ?? addon.total ?? (unitPrice * quantity)),
     };
   });

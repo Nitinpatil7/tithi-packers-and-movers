@@ -223,6 +223,13 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
         </p>
       </div>
 
+      {error && (
+        <div className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Calendar */}
       <div className="flex flex-col gap-1.5 sm:gap-2">
         <label className="text-xs font-semibold uppercase leading-tight tracking-wider text-text-secondary">
@@ -282,7 +289,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           <Clock className="w-4 h-4 text-primary" />
           Preferred Arrival Time *
         </label>
-        <div className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pr-[12vw] sm:mx-0 sm:grid sm:grid-cols-[repeat(3,minmax(12rem,1fr))] sm:overflow-visible sm:px-0 sm:pr-0">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-[repeat(3,minmax(12rem,1fr))] sm:gap-3">
           {TIME_SLOTS.map((item) => {
             const isSelected = slot === item.id;
             return (
@@ -291,21 +298,21 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
                 type="button"
                 onClick={() => { setSlot(item.id); setError(''); }}
                 className={cn(
-                  "flex min-w-[76vw] max-w-[300px] snap-start flex-col items-center justify-center rounded-2xl border-2 p-3.5 text-center cursor-pointer select-none transition-all duration-200 sm:min-h-[9.5rem] sm:min-w-[12rem] sm:max-w-none sm:p-5",
+                  "flex min-h-[7rem] min-w-0 flex-col items-center justify-center rounded-xl border-2 p-2 text-center cursor-pointer select-none transition-all duration-200 sm:min-h-[9.5rem] sm:min-w-[12rem] sm:rounded-2xl sm:p-5",
                   isSelected
                     ? "border-primary bg-primary-soft shadow-sky"
                     : "border-bg-border bg-white hover:border-primary/30 hover:bg-sky-50 shadow-xs"
                 )}
               >
-                <item.icon className="mb-2 h-7 w-7 text-primary" strokeWidth={1.7} />
-                <span className={cn("mb-1 text-sm font-semibold", isSelected ? "text-primary" : "text-text-primary")}
+                <item.icon className="mb-1.5 h-5 w-5 text-primary sm:mb-2 sm:h-7 sm:w-7" strokeWidth={1.7} />
+                <span className={cn("mb-0.5 text-[11px] font-semibold sm:mb-1 sm:text-sm", isSelected ? "text-primary" : "text-text-primary")}
                   style={{ fontFamily: 'var(--font-heading)' }}>
                   {item.label}
                 </span>
-                <span className="text-xs font-mono leading-5 text-text-secondary">{item.time}</span>
-                <span className="text-[10px] text-text-tertiary font-semibold mt-1 uppercase tracking-wider">{item.desc}</span>
+                <span className="text-[9px] font-mono leading-3 text-text-secondary sm:text-xs sm:leading-5">{item.time}</span>
+                <span className="mt-0.5 text-[8px] font-semibold uppercase text-text-tertiary sm:mt-1 sm:text-[10px] sm:tracking-wider">{item.desc}</span>
                 {isSelected && (
-                  <span className="mt-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="mt-1 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase text-white sm:mt-2 sm:px-2 sm:text-[10px] sm:tracking-wider">
                     Selected
                   </span>
                 )}
@@ -325,10 +332,6 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
           </p>
         </div>
       </div>
-
-      {error && (
-        <p className="text-sm text-red-500 font-bold text-center">{error}</p>
-      )}
 
       {/* Actions */}
       <BookingActionBar onBack={onBack} onNext={handleNext} />

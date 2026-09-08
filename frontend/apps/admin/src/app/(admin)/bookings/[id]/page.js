@@ -165,6 +165,8 @@ export default function BookingDetailPage() {
     : booking.truckType?.replace?.(/[_-]/g, ' ') || '-';
   const selectedItems = getSelectedItems(booking);
   const selectedAddons = getSelectedAddons(booking);
+  const addOnBreakdown = getAddonBreakdown(booking);
+  const addonRows = mergeAddonRows(selectedAddons, addOnBreakdown);
   const freeAllowanceItems = deriveFreeAllowanceItems(selectedItems, booking.pricing?.breakdown?.itemBreakdown || {});
   const inventoryGroups = buildInventoryGroups(selectedItems, freeAllowanceItems, buildCatalogGroupLookup(catalogSections));
   const itemSummary = getItemSummary(selectedItems);
@@ -400,16 +402,22 @@ export default function BookingDetailPage() {
                 <Sparkles className="w-4.5 h-4.5 text-primary" />
                 Selected Add-ons
               </h3>
-              {selectedAddons.length > 0 ? (
+              {addonRows.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {selectedAddons.map((addon, index) => (
+                  {addonRows.map((addon, index) => (
                     <div key={`${addon.key || addon.name}-${index}`} className="rounded-xl border border-bg-border/60 bg-bg-elevated/45 p-3 text-xs">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <strong className="block truncate text-text-primary">{addon.name || addon.key || 'Add-on service'}</strong>
-                          <span className="mt-0.5 block text-[10px] font-semibold uppercase text-text-tertiary">{String(addon.unit || 'service').replace(/_/g, ' ')}</span>
+                          <span className="mt-0.5 block text-[10px] font-semibold uppercase text-text-tertiary">{addonLineLabel(addon)}</span>
                         </div>
                         <span className="rounded-lg border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-xs font-black text-primary">x{Number(addon.quantity || 1)}</span>
+                      </div>
+                      <div className="mt-3 space-y-1.5 rounded-lg bg-white/70 p-2">
+                        <AddonCalcRow label="Unit price" value={addon.unit === 'percentage' ? `${Number(addon.unitPrice ?? addon.pricesnapshot ?? 0)}%` : formatCurrency(Number(addon.unitPrice ?? addon.pricesnapshot ?? addon.price ?? addon.charge ?? 0))} />
+                        {addon.unit === 'percentage' && <AddonCalcRow label="Base before add-on" value={formatCurrency(Number(addon.addOnBaseAmount || 0))} />}
+                        {addon.unit === 'percentage' && addon.rawPercentageAmount !== null && addon.rawPercentageAmount !== undefined && <AddonCalcRow label="Raw percentage" value={formatCurrency(Number(addon.rawPercentageAmount || 0))} />}
+                        {addon.unit !== 'percentage' && <AddonCalcRow label="Quantity rule" value={`${Number(addon.quantity || 1)} matched unit(s)`} />}
                       </div>
                       <div className="mt-3 flex items-center justify-between border-t border-bg-border/50 pt-2">
                         <span className="font-semibold text-text-secondary">Total</span>
@@ -638,6 +646,31 @@ function getSelectedAddons(booking) {
   if (Array.isArray(booking.selectedAddons) && booking.selectedAddons.length) return booking.selectedAddons;
   if (Array.isArray(booking.quoteSnapshot?.selectedAddons) && booking.quoteSnapshot.selectedAddons.length) return booking.quoteSnapshot.selectedAddons;
   return [];
+}
+
+function getAddonBreakdown(booking) {
+  const breakdown = booking.pricing?.breakdown?.addOnBreakdown || booking.quoteSnapshot?.pricing?.breakdown?.addOnBreakdown || [];
+  return Array.isArray(breakdown) ? breakdown : [];
+}
+
+function mergeAddonRows(addons = [], breakdown = []) {
+  return addons.map((addon) => {
+    const match = breakdown.find((line) => (
+      (addon.addonid || addon.addonId || addon._id) && String(line.addonId || line.addonid || line._id) === String(addon.addonid || addon.addonId || addon._id)
+    ) || (addon.key && line.key === addon.key) || line.name === addon.name);
+    return { ...addon, ...(match || {}) };
+  });
+}
+
+function addonLineLabel(addon = {}) {
+  const unit = String(addon.unit || 'service').replace(/_/g, ' ');
+  if (addon.unit === 'percentage') return `${unit} of pre add-on subtotal`;
+  if (['per_unit', 'per_item', 'per_group', 'per_category'].includes(addon.unit)) return `${unit} from selected triggers`;
+  return unit;
+}
+
+function AddonCalcRow({ label, value }) {
+  return <div className="flex items-center justify-between gap-2 text-[10px] font-semibold"><span className="text-text-tertiary">{label}</span><span className="text-right font-mono text-text-primary">{value}</span></div>;
 }
 
 const cleanInventoryText = (value, fallback = '') => String(value || fallback).replace(/\s+/g, ' ').trim();

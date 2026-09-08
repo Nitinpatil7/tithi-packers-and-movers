@@ -62,7 +62,7 @@ export default function LocalShiftingPage() {
   };
   const handleLocationSubmit = async (stepData) => {
     const nextData = { ...bookingData, ...stepData, serviceType: 'local', pricingRule: pricingRule || bookingData.pricingRule };
-    updateBookingData(stepData);
+    updateBookingData({ ...stepData, itemActiveSectionId: '' });
     if (!bookingData.bookingId || !bookingData.draftToken) {
       try {
         const response = await createDraftMutation.mutateAsync(buildDraftCreatePayload(nextData));

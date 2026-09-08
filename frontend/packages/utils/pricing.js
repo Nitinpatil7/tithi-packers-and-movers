@@ -176,22 +176,43 @@ const addonUnit = (service = {}) => String(service.unit || 'global').toLowerCase
 const addonPrice = (service = {}) => toNumber(service.unitPrice ?? service.price ?? service.charge ?? service.pricesnapshot);
 const addonQuantity = (service = {}) => Math.max(1, toNumber(service.quantity, 1));
 
+export function roundToFriendlyPrice(amount = 0) {
+  const value = Math.max(0, Math.round(toNumber(amount)));
+  if (!value) return 0;
+  const lowerBase = Math.max(0, Math.floor(value / 50) * 50);
+  const candidates = [];
+  for (let base = Math.max(0, lowerBase - 100); base <= lowerBase + 150; base += 50) {
+    candidates.push(base + 49, base + 99);
+  }
+  return candidates
+    .filter((price) => price > 0)
+    .sort((a, b) => Math.abs(a - value) - Math.abs(b - value) || a - b)[0];
+}
+
 export function calculateAddOnLineTotal(service = {}, baseAmount = 0) {
   const unit = addonUnit(service);
   const price = addonPrice(service);
-  if (unit === 'percentage') return Math.round(Math.max(0, toNumber(baseAmount)) * price / 100);
+  if (unit === 'percentage') return roundToFriendlyPrice(Math.max(0, toNumber(baseAmount)) * price / 100);
   if (['global', 'flat'].includes(unit)) return price;
   return price * addonQuantity(service);
 }
 
 export function calculateAddOnBreakdown(addons = [], baseAmount = 0) {
-  return (addons || []).map((service) => ({
-    ...service,
-    unit: addonUnit(service),
-    quantity: addonQuantity(service),
-    unitPrice: addonPrice(service),
-    total: calculateAddOnLineTotal(service, baseAmount),
-  }));
+  return (addons || []).map((service) => {
+    const unit = addonUnit(service);
+    const unitPrice = addonPrice(service);
+    const quantity = addonQuantity(service);
+    const rawPercentageAmount = unit === 'percentage' ? Math.max(0, toNumber(baseAmount)) * unitPrice / 100 : null;
+    return {
+      ...service,
+      unit,
+      quantity,
+      unitPrice,
+      addOnBaseAmount: unit === 'percentage' ? Math.max(0, toNumber(baseAmount)) : undefined,
+      rawPercentageAmount,
+      total: calculateAddOnLineTotal(service, baseAmount),
+    };
+  });
 }
 
 export function calculateBookingPrice(bookingData = {}) {

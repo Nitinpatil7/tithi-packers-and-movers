@@ -4,19 +4,24 @@ import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useInView, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowRight, Building2, CheckCircle, Clock, HardHat, Headphones, House, MapPinned, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Headphones, House, MapPinned, ShieldCheck } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import StarRating from '@tithi/ui/StarRating';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 import { useLanguageStore } from '@tithi/store/languageStore';
-import AnimatedServiceIcon from '@/components/hero/AnimatedServiceIcon';
 
 const SERVICE_ICONS = {
-  local: '/local_moving.lottie',
-  intercity: '/Intercity_moving.lottie',
-  labour: '/labour_service.lottie',
+  local: '/local.png',
+  intercity: '/intercity.png',
+  labour: '/labour.png',
+};
+
+const SERVICE_ICON_SCALE = {
+  local: 'scale-[1.06]',
+  intercity: 'scale-[1.06]',
+  labour: 'scale-[1.06]',
 };
 
 export default function HeroSection() {
@@ -41,9 +46,9 @@ export default function HeroSection() {
   ];
 
   const services = [
-    { key: 'local', serviceType: 'local_shifting', name: site.serviceLabels?.local_shifting || t.localShifting, path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE', icon: Building2 },
-    { key: 'intercity', serviceType: 'intercity_moving', name: site.serviceLabels?.intercity_moving || t.intercityMoving, path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD', icon: Truck },
-    { key: 'labour', serviceType: 'porter_labour_service', name: site.serviceLabels?.porter_labour_service || t.labourService || 'Labour & Vehicle', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE', icon: HardHat },
+    { key: 'local', serviceType: 'local_shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE' },
+    { key: 'intercity', serviceType: 'intercity_moving', path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD' },
+    { key: 'labour', serviceType: 'porter_labour_service', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE' },
   ];
 
   const trustBadges = [
@@ -164,7 +169,7 @@ export default function HeroSection() {
       <div className="relative z-[60] mt-8 w-full px-4 sm:mt-10 sm:px-6 lg:z-20 lg:mt-12 lg:px-8">
         <div className="mx-auto grid max-w-5xl grid-cols-3 items-stretch gap-3 sm:gap-5 lg:gap-6">
           {services.map((service) => (
-            <HeroServiceCard key={service.key} service={service} cta={t.bookNow || 'Book Now'} />
+            <HeroServiceCard key={service.key} service={service} />
           ))}
         </div>
       </div>
@@ -181,7 +186,7 @@ export default function HeroSection() {
   );
 }
 
-function HeroServiceCard({ service, cta }) {
+function HeroServiceCard({ service }) {
   const [focused, setFocused] = useState(false);
   const [pressed, setPressed] = useState(false);
   const cardRef = useRef(null);
@@ -192,7 +197,6 @@ function HeroServiceCard({ service, cta }) {
   const iconX = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
   const iconY = useTransform(pointerY, [-0.5, 0.5], [-4, 4]);
   const isInView = useInView(cardRef, { amount: 0.35 });
-  const Icon = service.icon;
   const iconSrc = SERVICE_ICONS[service.key];
   const isActive = focused || pressed || isInView;
   const handlePointerMove = (event) => {
@@ -225,30 +229,29 @@ function HeroServiceCard({ service, cta }) {
         style={{ rotateX, rotateY, transformPerspective: 900 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className={`hero-service-card android-stable-hero-card group flex h-full min-h-[116px] cursor-pointer flex-col items-center justify-between gap-3 rounded-2xl px-3.5 pb-3.5 pt-5 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 sm:min-h-[142px] sm:gap-4 sm:px-5 sm:pb-5 sm:pt-6 xl:min-h-[164px] xl:gap-5 xl:px-6 xl:pb-6 xl:pt-7 ${
+        className={`hero-service-card android-stable-hero-card group grid h-full min-h-[160px] cursor-pointer place-items-center overflow-hidden rounded-2xl px-2 py-3 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 sm:min-h-[200px] sm:px-3 sm:py-4 xl:min-h-[240px] ${
           isActive
             ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
             : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
         }`}
       >
         <motion.div
-          className="android-stable-hero-icon grid h-14 w-14 place-items-center rounded-xl p-0 transition-transform duration-300 group-hover:scale-105 sm:h-16 sm:w-16 md:h-20 md:w-20 xl:h-24 xl:w-24 2xl:h-28 2xl:w-28"
+          className="android-stable-hero-icon grid h-full min-h-[132px] w-full place-items-center rounded-xl p-0 transition-transform duration-300 group-hover:scale-105 sm:min-h-[164px] xl:min-h-[204px]"
           style={{ color: service.color }}
           animate={{ rotate: isActive ? [0, -3, 3, 0] : 0 }}
           transition={{ duration: 1.2, repeat: isActive ? Infinity : 0, repeatDelay: 1.8 }}
         >
           <motion.span className="grid h-full w-full place-items-center" style={{ x: iconX, y: iconY }}>
-            {iconSrc ? (
-              <AnimatedServiceIcon src={iconSrc} isActive={isActive} className="h-full w-full rounded-xl" />
-            ) : (
-              <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12" strokeWidth={1.9} />
-            )}
+            <Image
+              src={iconSrc}
+              alt=""
+              width={180}
+              height={180}
+              sizes="(min-width: 1280px) 10rem, (min-width: 768px) 9rem, 6rem"
+              className={`${SERVICE_ICON_SCALE[service.key] || ''} h-full max-h-[132px] w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(14,165,233,0.18)] sm:max-h-[164px] xl:max-h-[204px]`}
+            />
           </motion.span>
         </motion.div>
-        <div className="flex flex-col items-center gap-1">
-          <span className="android-stable-hero-title text-[11px] font-bold leading-tight transition-colors group-hover:text-primary sm:text-sm">{service.name}</span>
-          <span className="android-stable-hero-cta text-[10px] font-bold transition-transform group-hover:translate-x-0.5 sm:text-xs">{cta}</span>
-        </div>
       </motion.div>
     </Link>
   );

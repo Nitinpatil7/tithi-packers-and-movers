@@ -6,6 +6,8 @@ import { Check, Sparkles } from 'lucide-react';
 import Spinner from '@ui/Spinner';
 import { useAvailableAddons } from '@hooks/useAddons';
 import { useBookingStore } from '@tithi/store/bookingStore';
+import { calculateAddOnBreakdown, calculateBookingPrice } from '@tithi/utils/pricing';
+import { formatCurrency } from '@tithi/utils/utils';
 import BookingActionBar from './BookingActionBar';
 
 const SERVICE_TYPES = { local: 'local_shifting', intercity: 'intercity_moving', local_shifting: 'local_shifting', intercity_moving: 'intercity_moving' };
@@ -23,7 +25,7 @@ function AddonIcon({ icon, priority = false, className = 'h-12 w-12', sizes = '4
       height={96}
       priority={priority}
       sizes={sizes}
-      className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
+      className={`${className} rounded-lg object-contain dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : null;
 }
@@ -45,6 +47,10 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   const [featuredPage, setFeaturedPage] = useState(0);
   const [featuredPages, setFeaturedPages] = useState(1);
   const initialServicesKey = JSON.stringify(initialData.specialServices || []);
+  const addOnBaseAmount = useMemo(() => {
+    const pricing = calculateBookingPrice({ ...initialData, serviceType: apiServiceType, specialServices: [] });
+    return Number(pricing.breakdown?.addOnBaseAmount || 0);
+  }, [apiServiceType, initialData]);
 
   useEffect(() => {
     const nextServices = initialData.specialServices || [];
@@ -106,6 +112,7 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
     const quantity = autoQuantity(addon);
     const price = Number(addon.price) || 0;
     const unit = String(addon.unit || 'global').toLowerCase();
+    const [line] = calculateAddOnBreakdown([{ addonId: addon._id, key: addon.key, name: addon.name, unit, unitPrice: price, price, quantity }], addOnBaseAmount);
     return {
       addonId: addon._id,
       key: addon.key,
@@ -116,7 +123,9 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
       price,
       charge: price,
       quantity,
-      total: unit === 'percentage' ? 0 : quantity * price,
+      addOnBaseAmount: line?.addOnBaseAmount,
+      rawPercentageAmount: line?.rawPercentageAmount,
+      total: Number(line?.total ?? (quantity * price)),
       matchedTriggerCategoryIds: addonCategoryIds(addon),
       matchedTriggerGroupIds: addonGroupIds(addon),
       matchedTriggerItemIds: addonItemIds(addon),
@@ -169,13 +178,13 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
       {isLoading ? <div className="grid min-h-52 flex-1 place-items-center rounded-2xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><p className="text-sm font-semibold text-red-600">Could not load add-on services.</p><button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-primary">Try again</button></div> : addons.length === 0 ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-bg-border px-5 text-center"><Sparkles className="h-9 w-9 text-primary/50" /><h4 className="mt-3 text-base font-semibold text-text-primary">No add-on service available</h4><p className="mt-1 text-sm text-text-secondary">There are no add-ons for your selected items. You can continue.</p></div> : <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
         {featuredAddons.length > 0 && <div className="min-w-0 overflow-hidden">
           <div ref={featuredScrollerRef} className="scrollbar-none -mx-1 flex max-w-full snap-x snap-proximity touch-pan-x gap-2 overflow-x-auto overscroll-x-contain px-1 pb-1.5">
-            {featuredAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={index < 3} featured />)}
+            {featuredAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={index < 3} featured getSnapshot={addonSnapshot} />)}
           </div>
           {featuredPages > 1 && <div className="mt-0.5 flex justify-center gap-1.5">{Array.from({ length: featuredPages }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${featuredPage === index ? 'w-5 bg-primary' : 'w-1.5 bg-bg-border'}`} />)}</div>}
         </div>}
         <div className="min-w-0">
           <h4 className="mb-2 text-lg font-semibold text-text-primary">Recommended Add-ons</h4>
-          {regularAddons.length === 0 ? <p className="rounded-2xl border border-dashed border-bg-border p-6 text-center text-sm font-semibold text-text-secondary">No regular add-ons available.</p> : <div className="grid min-w-0 content-start gap-2.5 pr-0 sm:gap-3 sm:pr-1 md:grid-cols-2">{regularAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={featuredAddons.length === 0 && index < 4} />)}</div>}
+          {regularAddons.length === 0 ? <p className="rounded-2xl border border-dashed border-bg-border p-6 text-center text-sm font-semibold text-text-secondary">No regular add-ons available.</p> : <div className="grid min-w-0 content-start gap-2.5 pr-0 sm:gap-3 sm:pr-1 md:grid-cols-2">{regularAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={featuredAddons.length === 0 && index < 4} getSnapshot={addonSnapshot} />)}</div>}
         </div>
       </div>}
     </section>
@@ -183,17 +192,19 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   </div>;
 }
 
-function AddonCard({ addon, active, onToggle, priority = false, featured = false }) {
+function AddonCard({ addon, active, onToggle, priority = false, featured = false, getSnapshot }) {
+  const snapshot = getSnapshot(addon);
   return (
-    <article className={`${featured ? 'min-h-[10rem] w-[calc((100%-0.5rem)/2)] max-w-none shrink-0 snap-start sm:w-[min(58vw,18rem)] sm:max-w-[18rem] md:w-[min(36vw,18rem)]' : 'min-h-32'} flex min-w-0 flex-col justify-between rounded-2xl border p-2.5 transition-colors sm:p-4 ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10' : 'border-bg-border bg-bg-white hover:border-primary/20'}`}>
+    <article className={`${featured ? 'min-h-[13rem] w-[calc((100%-0.5rem)/2)] max-w-none shrink-0 snap-start sm:w-[min(58vw,18rem)] sm:max-w-[18rem] md:w-[min(36vw,18rem)]' : 'min-h-32'} flex min-w-0 flex-col justify-between rounded-2xl border p-2.5 transition-colors sm:p-4 ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10' : 'border-bg-border bg-bg-white hover:border-primary/20'}`}>
       <div className="min-w-0">
         <div className={`flex min-w-0 items-start gap-2 ${featured ? 'flex-col' : 'justify-between'}`}>
-          <div className={`flex min-w-0 items-start gap-3 ${featured ? 'w-full flex-col' : ''}`}>
-            {addon.icon && <span className={`${featured ? 'h-[4.5rem] w-full sm:h-24' : 'h-11 w-11 sm:h-12 sm:w-12'} grid shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : 'h-11 w-11 sm:h-12 sm:w-12'} sizes={featured ? '(max-width: 640px) 48vw, 18rem' : '48px'} /></span>}
+          <div className={`flex min-w-0 items-center gap-3 ${featured ? 'w-full flex-col !items-start' : ''}`}>
+            {addon.icon && <span className={`${featured ? 'h-[6.5rem] w-full sm:h-24' : 'h-14 w-14 sm:h-12 sm:w-12'} grid shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : 'h-14 w-14 sm:h-12 sm:w-12'} sizes={featured ? '(max-width: 640px) 48vw, 18rem' : '56px'} /></span>}
             <h4 className="min-w-0 break-words text-sm font-semibold text-text-primary sm:text-base">{addon.name}</h4>
           </div>
         </div>
         {addon.description && <p className="mt-1 line-clamp-2 text-xs font-normal leading-5 text-text-secondary">{addon.description}</p>}
+        <strong className="mt-2 block font-mono text-sm font-black text-primary">{formatCurrency(snapshot.total)}</strong>
       </div>
       <div className="mt-2.5 flex justify-end border-t border-bg-border/60 pt-2">
         <button type="button" onClick={() => onToggle(addon)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${active ? 'border-bg-border bg-bg-muted text-text-primary shadow-sm' : 'border-primary/20 bg-bg-white text-primary hover:border-primary/30 hover:shadow-sm'}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Add service'}</button>

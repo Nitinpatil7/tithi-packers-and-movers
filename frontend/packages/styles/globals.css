@@ -928,7 +928,6 @@ svg[aria-label$="coverage map"] path[stroke-dasharray] {
   display: none;
 }
 
-.booking-items-ui main > div:first-child button,
 .items-manager section > div:first-child button {
   display: inline-flex;
   align-items: center;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -49,7 +49,7 @@ function TrackingContent() {
   const prefilledBookingId = searchParams.get('bookingId') || searchParams.get('id') || '';
   const prefilledMobile = (searchParams.get('mobile') || '').replace(/\D/g, '').slice(0, 10);
 
-  const [lookupMode, setLookupMode] = useState(prefilledMobile && !prefilledBookingId ? 'mobile' : 'bookingId');
+  const [lookupMode, setLookupMode] = useState(prefilledBookingId && !prefilledMobile ? 'bookingId' : 'mobile');
   const [bookingId, setBookingId] = useState(prefilledBookingId);
   const [mobile, setMobile] = useState(prefilledMobile);
   const [captcha, setCaptcha] = useState('0000');
@@ -57,6 +57,7 @@ function TrackingContent() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const resultsRef = useRef(null);
 
   const canSubmit = useMemo(() => {
     if (captchaInput !== captcha) return false;
@@ -76,6 +77,12 @@ function TrackingContent() {
       setMobile(prefilledMobile);
     }
   }, [prefilledBookingId, prefilledMobile]);
+
+  useEffect(() => {
+    if (!bookings.length) return;
+    if (!window.matchMedia('(max-width: 1023px)').matches) return;
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [bookings.length]);
 
   const refreshCaptcha = () => {
     setCaptcha(makeCaptcha());
@@ -140,8 +147,8 @@ function TrackingContent() {
 
           <form onSubmit={submit} className="mt-6 space-y-5">
             <div className="grid grid-cols-2 gap-2 rounded-2xl bg-bg-section p-1">
-              <LookupPill icon={TicketCheck} label="Booking ID" note="Fastest" active={lookupMode === 'bookingId'} onClick={() => changeLookupMode('bookingId')} />
               <LookupPill icon={Smartphone} label="Mobile No." note="All bookings" active={lookupMode === 'mobile'} onClick={() => changeLookupMode('mobile')} />
+              <LookupPill icon={TicketCheck} label="Booking ID" note="Fastest" active={lookupMode === 'bookingId'} onClick={() => changeLookupMode('bookingId')} />
             </div>
 
             {lookupMode === 'bookingId' ? (
@@ -176,21 +183,11 @@ function TrackingContent() {
           </form>
         </Card>
 
-        <section className="space-y-4">
-          <div className="rounded-3xl border border-bg-border bg-bg-white p-5 shadow-xs">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <div>
-                <h2 className="font-black text-text-primary">Live Booking Status</h2>
-                <p className="text-sm font-medium text-text-secondary">Fresh status is fetched from backend every time you track.</p>
-              </div>
-            </div>
-          </div>
-
+        <section ref={resultsRef} className="flex flex-col gap-4 scroll-mt-24">
           {loading ? (
             <div className="grid min-h-72 place-items-center rounded-3xl border border-bg-border bg-bg-white"><Spinner size="lg" /></div>
           ) : bookings.length ? (
-            <div className="space-y-4">
+            <div className="order-1 space-y-4 lg:order-2">
               {bookings.map((booking) => (
                 <BookingCard
                   key={booking._id || booking.bookingid || booking.bookingId}
@@ -200,8 +197,20 @@ function TrackingContent() {
                 />
               ))}
             </div>
-          ) : (
-            <div className="grid min-h-72 place-items-center rounded-3xl border border-dashed border-bg-border bg-bg-white p-8 text-center">
+          ) : null}
+
+          <div className="order-2 rounded-3xl border border-bg-border bg-bg-white p-5 shadow-xs lg:order-1">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <div>
+                <h2 className="font-black text-text-primary">Live Booking Status</h2>
+                <p className="text-sm font-medium text-text-secondary">Fresh status is fetched from backend every time you track.</p>
+              </div>
+            </div>
+          </div>
+
+          {!loading && !bookings.length && (
+            <div className="order-3 grid min-h-72 place-items-center rounded-3xl border border-dashed border-bg-border bg-bg-white p-8 text-center">
               <div>
                 <ClipboardList className="mx-auto h-12 w-12 text-text-tertiary" />
                 <p className="mt-3 font-bold text-text-primary">No booking loaded</p>

@@ -158,6 +158,33 @@ const SelectedAddonSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    addOnBaseAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    rawPercentageAmount: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+
+    matchedTriggerCategoryIds: {
+      type: [String],
+      default: [],
+    },
+
+    matchedTriggerGroupIds: {
+      type: [String],
+      default: [],
+    },
+
+    matchedTriggerItemIds: {
+      type: [String],
+      default: [],
+    },
   },
   { _id: false },
 );

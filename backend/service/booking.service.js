@@ -177,20 +177,39 @@ const applyRateAdjustment = (amount = 0, rule = {}) => {
   };
 };
 
+const roundToFriendlyPrice = (amount = 0) => {
+  const value = Math.max(0, Math.round(toNumber(amount)));
+  if (!value) return 0;
+  const lowerBase = Math.max(0, Math.floor(value / 50) * 50);
+  const candidates = [];
+  for (let base = Math.max(0, lowerBase - 100); base <= lowerBase + 150; base += 50) {
+    candidates.push(base + 49, base + 99);
+  }
+  return candidates
+    .filter((price) => price > 0)
+    .sort((a, b) => Math.abs(a - value) - Math.abs(b - value) || a - b)[0];
+};
+
 const addonLineTotal = (addon, baseAmount = 0) => {
   const unit = String(addon.unit || "global").toLowerCase();
   const price = toNumber(addon.pricesnapshot);
   const quantity = Math.max(1, toNumber(addon.quantity, 1));
-  if (unit === "percentage") return Math.round(Math.max(0, toNumber(baseAmount)) * price / 100);
+  if (unit === "percentage") return roundToFriendlyPrice(Math.max(0, toNumber(baseAmount)) * price / 100);
   if (["global", "flat"].includes(unit)) return price;
   return price * quantity;
 };
 
-const selectedItemQuantityForAddon = (addon = {}, selectedItems = []) => {
+const selectedQuantityForAddon = (addon = {}, selectedItems = []) => {
+  const unit = String(addon.unit || "global").toLowerCase();
   const triggerItemIds = new Set((addon.triggerItemIds || []).map(normalizeId).filter(Boolean));
-  if (!triggerItemIds.size) return null;
+  const triggerGroupIds = new Set((addon.triggerGroupIds || []).map(normalizeId).filter(Boolean));
+  const triggerCategoryIds = new Set((addon.triggerCategoryIds || []).map(normalizeId).filter(Boolean));
+  const hasTriggers = triggerItemIds.size || triggerGroupIds.size || triggerCategoryIds.size;
+  if (!["per_item", "per_unit", "per_group", "per_category"].includes(unit) || !hasTriggers) return null;
   return selectedItems.reduce((sum, item) => (
-    triggerItemIds.has(normalizeId(item.itemId || item._id))
+    (triggerItemIds.size && triggerItemIds.has(normalizeId(item.itemId || item._id)))
+      || (triggerGroupIds.size && triggerGroupIds.has(normalizeId(item.groupId || item.options?.groupId)))
+      || (triggerCategoryIds.size && triggerCategoryIds.has(normalizeId(item.categoryId || item.options?.categoryId || item.sectionId)))
       ? sum + Math.max(0, toNumber(item.quantity, 0))
       : sum
   ), 0);
@@ -253,10 +272,19 @@ const rebuildAddonSnapshots = async (submittedAddons = [], baseAmount = 0, selec
       icon: addon.icon || "",
       quantity: Math.max(1, toNumber(request.quantity, 1)),
       pricesnapshot: toNumber(addon.price),
+      addOnBaseAmount: 0,
+      rawPercentageAmount: null,
+      matchedTriggerCategoryIds: (addon.triggerCategoryIds || []).map(normalizeId).filter(Boolean),
+      matchedTriggerGroupIds: (addon.triggerGroupIds || []).map(normalizeId).filter(Boolean),
+      matchedTriggerItemIds: (addon.triggerItemIds || []).map(normalizeId).filter(Boolean),
     };
-    if (["per_item", "per_unit"].includes(snapshot.unit)) {
-      const triggerQuantity = selectedItemQuantityForAddon(addon, selectedItems);
+    if (["per_item", "per_unit", "per_group", "per_category"].includes(snapshot.unit)) {
+      const triggerQuantity = selectedQuantityForAddon(addon, selectedItems);
       if (triggerQuantity !== null) snapshot.quantity = Math.max(1, triggerQuantity);
+    }
+    if (snapshot.unit === "percentage") {
+      snapshot.addOnBaseAmount = Math.max(0, toNumber(baseAmount));
+      snapshot.rawPercentageAmount = snapshot.addOnBaseAmount * snapshot.pricesnapshot / 100;
     }
     snapshot.total = addonLineTotal(snapshot, baseAmount);
     return snapshot;
@@ -310,6 +338,11 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
         unit: addon.unit,
         quantity: addon.quantity,
         unitPrice: addon.pricesnapshot,
+        addOnBaseAmount: addon.addOnBaseAmount,
+        rawPercentageAmount: addon.rawPercentageAmount,
+        matchedTriggerCategoryIds: addon.matchedTriggerCategoryIds || [],
+        matchedTriggerGroupIds: addon.matchedTriggerGroupIds || [],
+        matchedTriggerItemIds: addon.matchedTriggerItemIds || [],
         total: addon.total,
       })),
       sundayHike,
