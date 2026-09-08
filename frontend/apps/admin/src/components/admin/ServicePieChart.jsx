@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import Spinner from '@tithi/ui/Spinner';
 
 export default function ServicePieChart({ data = {} }) {
   const [mounted, setMounted] = useState(false);
@@ -18,7 +19,7 @@ export default function ServicePieChart({ data = {} }) {
   ].filter(item => item.value > 0);
 
   if (!mounted) {
-    return <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>;
+    return <div className="flex h-64 items-center justify-center"><Spinner size="md" /></div>;
   }
 
   if (chartData.length === 0) {

@@ -5,6 +5,7 @@ import { Reorder, useDragControls } from 'framer-motion';
 import { Edit3, GripVertical, Plus, Search, Star, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '@ui/Modal';
+import Spinner from '@tithi/ui/Spinner';
 import { useAdminSections, useUploadIcon } from '@hooks/useItems';
 import { useAdminAddons, useCreateAddon, useDeleteAddon, useReorderAddons, useTriggerGroups, useTriggerItems, useUpdateAddon } from '@hooks/useAddons';
 import IconInput, { IconPreview } from '@/components/admin/IconInput';
@@ -89,7 +90,7 @@ export default function AdminAddonsPage() {
   };
   return <div className="min-w-0 space-y-6"><header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-sky-600">Booking services</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Add-on Services</h1><p className="mt-1 text-sm font-medium text-slate-500">Group-triggered optional services for local and intercity moves.</p></div><button onClick={() => setEditor({})} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white"><Plus className="h-4 w-4" />New add-on</button></header>
     <div className="flex flex-wrap gap-2 rounded-2xl border border-sky-100 bg-white p-3"><select value={filters.serviceType} onChange={(event) => setFilters({ ...filters, serviceType: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All services</option><option value="local_shifting">Local shifting</option><option value="intercity_moving">Intercity moving</option></select><select value={filters.isActive} onChange={(event) => setFilters({ ...filters, isActive: event.target.value })} className="rounded-xl border border-sky-100 px-3 py-2 text-sm font-semibold text-slate-600"><option value="all">All statuses</option><option value="true">Active</option><option value="false">Inactive</option></select></div>
-    {isLoading ? <State text="Loading add-ons…" /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid min-w-0 gap-5 xl:grid-cols-2">
+    {isLoading ? <State loading /> : isError ? <State text="Could not load add-ons." action={refetch} /> : addons.length === 0 ? <State text="No add-on services found." /> : <div className="grid min-w-0 gap-5 xl:grid-cols-2">
       <AddonReorderSection title="Featured add-ons" hint="Shown first on the website carousel." items={featuredOrder} onReorder={setFeaturedOrder} onReorderEnd={() => saveOrder(featuredOrder, 'featured')} canReorder={canReorder} onEdit={setEditor} onRemove={remove} onToggleFeatured={toggleFeatured} busy={updateMutation.isPending || deleteMutation.isPending || reorderMutation.isPending} />
       <AddonReorderSection title="Recommended add-ons" hint="Shown below Featured in this saved order." items={regularOrder} onReorder={setRegularOrder} onReorderEnd={() => saveOrder(regularOrder, 'regular')} canReorder={canReorder} onEdit={setEditor} onRemove={remove} onToggleFeatured={toggleFeatured} busy={updateMutation.isPending || deleteMutation.isPending || reorderMutation.isPending} />
     </div>}
@@ -333,7 +334,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">Apply to whole group</p>
                 <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                   {isLoading ? (
-                    <p className="p-4 text-center text-xs text-slate-400">Loading groups...</p>
+                    <div className="grid min-h-24 place-items-center p-4"><Spinner size="sm" /></div>
                   ) : orderedApplicabilityGroups.map((group) => {
                     const categorySelected = selectedCategoryIds.has(String(group.sectionId || ''));
                     const checked = categorySelected || selectedGroupIds.has(group.id);
@@ -353,7 +354,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide text-text-secondary">Apply to specific items</p>
                 <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
                   {isLoadingItems ? (
-                    <p className="p-4 text-center text-xs text-slate-400">Loading items...</p>
+                    <div className="grid min-h-24 place-items-center p-4"><Spinner size="sm" /></div>
                   ) : orderedApplicabilityGroups.map((group) => {
                     const categorySelected = selectedCategoryIds.has(String(group.sectionId || ''));
                     const groupSelected = categorySelected || selectedGroupIds.has(group.id);
@@ -400,7 +401,7 @@ function AddonEditor({ record, uploadIcon, onClose, onSave, busy }) {
   );
 }
 
-function State({ text, action }) { return <div className="rounded-2xl border border-dashed border-sky-200 p-12 text-center text-sm font-medium text-slate-400">{text}{action && <button onClick={action} className="ml-2 font-semibold text-sky-600">Try again</button>}</div>; }
+function State({ text, action, loading = false }) { return <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-sky-200 p-12 text-center text-sm font-medium text-slate-400">{loading ? <Spinner size="md" /> : <span>{text}{action && <button onClick={action} className="ml-2 font-semibold text-sky-600">Try again</button>}</span>}</div>; }
 function Field({ label, children, as = 'label' }) {
   const Component = as;
   return <Component className="block"><span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>{children}</Component>;

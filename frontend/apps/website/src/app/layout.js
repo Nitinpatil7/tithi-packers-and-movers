@@ -1,6 +1,7 @@
 // apps/website/src/app/layout.js
 import React from 'react';
 import localFont from 'next/font/local';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import Providers from '@tithi/components/layout/Providers';
 import WebsiteChrome from '@/components/layout/WebsiteChrome';
@@ -8,6 +9,8 @@ import '@tithi/styles/globals.css';
 
 const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableGoogleMapsKey = Boolean(googleMapsKey && !googleMapsKey.includes('PLACEHOLDER'));
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const hasGaMeasurementId = Boolean(gaMeasurementId);
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
   variable: '--font-display',
@@ -79,6 +82,22 @@ export default function RootLayout({ children }) {
         )}
       </head>
       <body className="bg-bg-page text-text-primary min-h-screen flex flex-col justify-between">
+        {hasGaMeasurementId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaMeasurementId)}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', ${JSON.stringify(gaMeasurementId)});
+              `}
+            </Script>
+          </>
+        )}
         <Providers>
           <WebsiteChrome>{children}</WebsiteChrome>
           <Analytics />

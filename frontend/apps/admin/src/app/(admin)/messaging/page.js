@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Card from '@tithi/ui/Card';
 import Button from '@tithi/ui/Button';
 import Input from '@tithi/ui/Input';
+import Spinner from '@tithi/ui/Spinner';
 import { useAdminUsers, useInAppNotifications, useMarkInAppNotificationRead, useNotificationTemplates, useNotifications, useSendNotification, useUpdateNotificationTemplate } from '@/hooks/useAdmin';
 
 const WEBSITE_URL = (process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000').replace(/\/$/, '');
@@ -297,7 +298,7 @@ function TemplateSettingsPanel({ templates, loading, saving, onSave }) {
       </div>
       <div className="mt-4 space-y-2">
         {loading ? (
-          <p className="rounded-xl border border-dashed border-sky-100 p-4 text-center font-semibold text-slate-400">Loading templates...</p>
+          <div className="grid min-h-28 place-items-center rounded-xl border border-dashed border-sky-100 p-4"><Spinner size="sm" /></div>
         ) : templates.map((template) => (
           <div key={template.status} className="rounded-xl border border-sky-100 bg-sky-50/50 p-3">
             {editingStatus === template.status ? (
@@ -380,7 +381,7 @@ function RecipientMobilePicker({ mobile, name, onMobileChange, onPick }) {
         {open && (showAll || mobile) && (
           <div className="absolute z-30 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-sky-100 bg-white p-2 shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
             {isLoading ? (
-              <div className="rounded-xl px-3 py-5 text-center text-xs font-semibold text-slate-400">Loading customers...</div>
+              <div className="grid min-h-24 place-items-center rounded-xl px-3 py-5"><Spinner size="sm" /></div>
             ) : visibleUsers.length ? (
               visibleUsers.map((user) => (
                 <button

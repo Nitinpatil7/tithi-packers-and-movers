@@ -20,16 +20,17 @@ import AdminStatGrid from '@/components/admin/AdminStatGrid';
 import BookingTable from '@/components/admin/BookingTable';
 import dynamic from 'next/dynamic';
 import Card from '@tithi/ui/Card';
+import Spinner from '@tithi/ui/Spinner';
 import AnalyticsRangeFilter, { analyticsRangeQuery, defaultAnalyticsRange } from '@/components/admin/AnalyticsRangeFilter';
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,
-  loading: () => <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>
+  loading: () => <div className="flex h-64 items-center justify-center"><Spinner size="md" /></div>
 });
 
 const ServicePieChart = dynamic(() => import('@/components/admin/ServicePieChart'), {
   ssr: false,
-  loading: () => <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>
+  loading: () => <div className="flex h-64 items-center justify-center"><Spinner size="md" /></div>
 });
 
 export default function DashboardPage() {

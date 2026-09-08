@@ -5,6 +5,7 @@ import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Lay
 import { cn } from '@utils/utils';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { getDistanceKM } from '@tithi/utils/pricing';
+import Spinner from '@tithi/ui/Spinner';
 import BookingActionBar from './BookingActionBar';
 
 const SURAT_BOUNDS = { north: 21.35, south: 20.97, east: 73.08, west: 72.65 };
@@ -642,10 +643,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           <div ref={mapRef} className={cn('absolute inset-0 transition-opacity duration-200', mapReady ? 'opacity-100' : 'opacity-0')} />
           {!mapReady && (
             <div className="absolute inset-0 z-10 grid place-items-center bg-bg-section">
-              <span className="inline-flex items-center gap-2 rounded-2xl border border-bg-border bg-bg-white px-4 py-3 text-xs font-black text-text-secondary shadow-card">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                Loading map...
-              </span>
+              <Spinner size="md" />
             </div>
           )}
           <div className="pointer-events-none absolute inset-0 grid place-items-center">

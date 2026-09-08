@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Card from '@ui/Card';
 import Modal from '@ui/Modal';
 import Button from '@ui/Button';
+import Spinner from '@tithi/ui/Spinner';
 import { useContactDetail, useContacts, useDeleteContact, useUpdateContact } from '@/hooks/useContacts';
 import { formatDate } from '@utils/utils';
 import AdminStatGrid from '@/components/admin/AdminStatGrid';
@@ -71,7 +72,7 @@ export default function ContactQueriesPage() {
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm font-bold text-slate-600"><option value="all">All statuses</option>{statuses.map((item) => <option key={item}>{item}</option>)}</select>
         </div>
 
-        {isLoading ? <div className="p-12 text-center text-sm text-slate-500">Loading inquiries...</div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load inquiries.</p><button onClick={() => refetch()} className="mt-3 font-bold text-sky-600">Try again</button></div> : visible.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No contact inquiries found.</div> : (
+        {isLoading ? <div className="grid min-h-44 place-items-center p-12"><Spinner size="md" /></div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load inquiries.</p><button onClick={() => refetch()} className="mt-3 font-bold text-sky-600">Try again</button></div> : visible.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No contact inquiries found.</div> : (
           <div className="divide-y divide-sky-50">{visible.map((item) => (
             <div key={item._id} ref={(node) => { rowRefs.current[item._id] = node; }} className={`flex flex-col gap-4 p-5 transition lg:flex-row lg:items-center ${highlightedId === item._id ? 'bg-amber-50 ring-2 ring-inset ring-amber-300' : 'hover:bg-sky-50/40'}`}>
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-sky-100 text-sky-600"><MessageSquareText className="h-5 w-5" /></div>
@@ -83,7 +84,7 @@ export default function ContactQueriesPage() {
       </Card>
 
       <Modal isOpen={Boolean(selectedId)} onClose={() => setSelectedId(null)} title="Contact Inquiry" size="lg">
-        {detailLoading || !detail ? <div className="py-10 text-center text-sm text-slate-500">Loading full inquiry...</div> : (
+        {detailLoading || !detail ? <div className="grid min-h-32 place-items-center py-10"><Spinner size="md" /></div> : (
           <div className="space-y-5">
             <div className="grid gap-3 rounded-2xl bg-sky-50 p-5 sm:grid-cols-2"><p className="flex items-center gap-2 font-bold text-slate-800"><UserRound className="h-4 w-4 text-sky-600" />{detail.name || 'Item search visitor'}</p>{detail.mobile && <p className="flex items-center gap-2 text-sm text-slate-600"><Phone className="h-4 w-4 text-sky-600" />{detail.mobile}</p>}{detail.email && <p className="flex items-center gap-2 text-sm text-slate-600"><Mail className="h-4 w-4 text-sky-600" />{detail.email}</p>}{detail.source === 'item_search' && <p className="text-sm font-bold text-amber-700">Searched: {detail.searchedTerm || 'Not provided'}</p>}</div>
             <div><p className="text-xs font-bold uppercase text-slate-400">{detail.subject || 'General inquiry'}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{detail.message}</p></div>

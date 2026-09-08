@@ -13,7 +13,7 @@ import AnalyticsRangeFilter, { analyticsRangeQuery, defaultAnalyticsRange } from
 
 const BookingLineChart = dynamic(() => import('@/components/admin/BookingLineChart'), {
   ssr: false,
-  loading: () => <div className="h-64 flex items-center justify-center text-text-tertiary">Loading chart...</div>,
+  loading: () => <div className="flex h-64 items-center justify-center"><Spinner size="md" /></div>,
 });
 
 export default function AdminAnalyticsPage() {

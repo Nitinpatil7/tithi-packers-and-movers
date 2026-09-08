@@ -16,6 +16,7 @@ import ReviewStep from '@tithi/components/booking/ReviewStep';
 import OTPStep from '@tithi/components/booking/OTPStep';
 import SuccessStep from '@tithi/components/booking/SuccessStep';
 import ServiceComingSoon from '@tithi/components/booking/ServiceComingSoon';
+import Spinner from '@tithi/ui/Spinner';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
@@ -106,7 +107,7 @@ export default function IntercityMovingPage() {
     updateBookingData({ serviceType: 'intercity' });
   };
 
-  if (pricingLoading) return <div className="grid min-h-screen place-items-center bg-bg-page pt-24">Checking service availability...</div>;
+  if (pricingLoading) return <div className="grid min-h-screen place-items-center bg-bg-page pt-24"><Spinner size="lg" /></div>;
   if (!pricingRule) return <ServiceComingSoon serviceName="Intercity Moving" />;
 
   return (

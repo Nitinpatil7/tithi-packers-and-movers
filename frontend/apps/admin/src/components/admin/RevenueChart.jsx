@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '@tithi/utils/utils';
+import Spinner from '@tithi/ui/Spinner';
 
 export default function RevenueChart({ data = [] }) {
   const [mounted, setMounted] = useState(false);
@@ -20,7 +21,7 @@ export default function RevenueChart({ data = [] }) {
   };
 
   if (!mounted) {
-    return <div className="h-72 flex items-center justify-center text-text-tertiary">Loading chart...</div>;
+    return <div className="flex h-72 items-center justify-center"><Spinner size="md" /></div>;
   }
 
   return (

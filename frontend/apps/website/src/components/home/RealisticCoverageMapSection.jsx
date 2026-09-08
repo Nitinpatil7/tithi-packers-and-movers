@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Globe2, Map as MapIcon, MapPin, Navigation2, UserRound, X } from 'lucide-react';
 import StarRating from '@tithi/ui/StarRating';
+import Spinner from '@tithi/ui/Spinner';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 
 const SURAT_HUB = { name: 'Surat Hub', lat: 21.1702, lng: 72.8311 };
@@ -483,8 +484,8 @@ export default function RealisticCoverageMapSection() {
               <div className="relative h-[360px] w-full overflow-hidden rounded-2xl bg-slate-950 sm:h-[430px] lg:h-[520px]">
                 <div ref={mapRef} className="absolute inset-0" />
                 {!mapsReady && (
-                  <div className="absolute inset-0 grid place-items-center text-sm font-bold text-slate-300">
-                    Loading satellite coverage map...
+                  <div className="absolute inset-0 grid place-items-center">
+                    <Spinner size="md" className="text-sky-400" />
                   </div>
                 )}
                 <TestimonialHoverCard node={activeNode} position={cardPosition} onClose={hideCard} />

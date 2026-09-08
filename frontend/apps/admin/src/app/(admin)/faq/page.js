@@ -7,6 +7,7 @@ import Card from '@ui/Card';
 import Modal from '@ui/Modal';
 import Button from '@ui/Button';
 import Input from '@ui/Input';
+import Spinner from '@tithi/ui/Spinner';
 import { useCreateFaq, useDeleteFaq, useFaqs, useReorderFaqs, useUpdateFaq } from '@hooks/useFaq';
 import AdminStatGrid from '@/components/admin/AdminStatGrid';
 
@@ -95,7 +96,7 @@ export default function AdminFaqPage() {
           <div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search questions or answers..." className="w-full rounded-xl border border-sky-100 bg-sky-50/50 py-2.5 pl-10 pr-4 text-sm" /></div>
           <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600"><option value="all">All categories</option>{categories.map((item) => <option key={item} value={item}>{item}</option>)}</select>
         </div>
-        {isLoading ? <div className="p-12 text-center text-sm text-slate-500">Loading FAQs...</div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load FAQs.</p><button onClick={() => refetch()} className="mt-3 text-sm font-bold text-sky-600">Try again</button></div> : filtered.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No FAQs found.</div> : (
+        {isLoading ? <div className="grid min-h-44 place-items-center p-12"><Spinner size="md" /></div> : isError ? <div className="p-12 text-center"><p className="text-sm text-red-500">Could not load FAQs.</p><button onClick={() => refetch()} className="mt-3 text-sm font-bold text-sky-600">Try again</button></div> : filtered.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">No FAQs found.</div> : (
           <div className="divide-y divide-sky-50">
             {filtered.map((faq) => (
               <div

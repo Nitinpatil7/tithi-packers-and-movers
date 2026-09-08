@@ -10,6 +10,7 @@ import { usePublicPricingRule } from '@tithi/hooks/useBookingPricingRules';
 import { buildDraftCreatePayload, buildDraftUpdatePayload } from '@tithi/utils/bookingPayload';
 import BookingLayout from '@tithi/components/booking/BookingLayout';
 import ServiceComingSoon from '@tithi/components/booking/ServiceComingSoon';
+import Spinner from '@tithi/ui/Spinner';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Truck', 'Employees', 'Hours', 'Schedule', 'Review', 'Verify OTP'];
@@ -154,10 +155,7 @@ export default function LabourServicePage() {
 function LabourLoading() {
   return (
     <div className="grid min-h-screen place-items-center bg-hero-gradient px-4 pt-24">
-      <div className="w-full max-w-xl rounded-3xl border border-sky-100 bg-white/90 p-8 text-center shadow-card">
-        <div className="mx-auto h-12 w-12 animate-pulse rounded-2xl bg-primary-soft" />
-        <p className="mt-4 text-sm font-black text-text-primary">Checking service availability...</p>
-      </div>
+      <Spinner size="lg" />
     </div>
   );
 }
