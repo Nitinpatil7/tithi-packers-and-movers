@@ -15,6 +15,10 @@ const selectedItemId = (item) => String(item.itemId || item._id || item.id || ''
 const selectedGroupId = (item) => String(item.groupId || item.group?._id || item.group?.id || '');
 const selectedCategoryId = (item) => String(item.sectionId || item.categoryId || item.category?._id || item.category?.id || '');
 const sameJson = (left, right) => JSON.stringify(left || null) === JSON.stringify(right || null);
+const normalizeAddonName = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const PACKING_ADDON_NAMES = new Set(['single layer packing', 'multi layer packing', 'no packing']);
+const isPackingAddon = (addon = {}) => PACKING_ADDON_NAMES.has(normalizeAddonName(addon.name || addon.key));
+const isDefaultPackingAddon = (addon = {}) => normalizeAddonName(addon.name || addon.key) === 'single layer packing';
 
 function AddonIcon({ icon, priority = false, className = 'h-12 w-12', sizes = '48px' }) {
   return icon ? (
@@ -24,6 +28,8 @@ function AddonIcon({ icon, priority = false, className = 'h-12 w-12', sizes = '4
       width={160}
       height={96}
       priority={priority}
+      loading={priority ? undefined : 'eager'}
+      decoding="async"
       sizes={sizes}
       className={`${className} rounded-lg object-contain dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
@@ -40,8 +46,9 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   const apiServiceType = SERVICE_TYPES[serviceType] || serviceType;
   const { data = [], isLoading, isError, refetch } = useAvailableAddons({ serviceType: apiServiceType, ...(itemIds.length ? { itemIds } : {}), ...(groupIds.length ? { groupIds } : {}), ...(categoryIds.length ? { categoryIds } : {}) });
   const addons = useMemo(() => Array.isArray(data) ? data : [], [data]);
-  const featuredAddons = useMemo(() => addons.filter((addon) => addon.isFeatured), [addons]);
-  const regularAddons = useMemo(() => addons.filter((addon) => !addon.isFeatured), [addons]);
+  const packingAddons = useMemo(() => addons.filter(isPackingAddon), [addons]);
+  const featuredAddons = useMemo(() => addons.filter((addon) => addon.isFeatured && !isPackingAddon(addon)), [addons]);
+  const regularAddons = useMemo(() => addons.filter((addon) => !addon.isFeatured && !isPackingAddon(addon)), [addons]);
   const [selected, setSelected] = useState(initialData.specialServices || []);
   const featuredScrollerRef = useRef(null);
   const [featuredPage, setFeaturedPage] = useState(0);
@@ -132,6 +139,23 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
     };
   };
   useEffect(() => {
+    if (!packingAddons.length) return;
+    setSelected((current) => {
+      const currentPacking = current.find(isPackingAddon);
+      const nextPackingAddon = currentPacking
+        ? packingAddons.find((addon) => addon._id === currentPacking.addonId || addon.key === currentPacking.key || addon.name === currentPacking.name)
+        : packingAddons.find(isDefaultPackingAddon) || packingAddons[0];
+      if (!nextPackingAddon) return current;
+      const next = [
+        ...current.filter((item) => !isPackingAddon(item)),
+        addonSnapshot(nextPackingAddon),
+      ];
+      return sameJson(current, next) ? current : next;
+    });
+  // Keep exactly one packing option selected while preserving the existing add-on data model.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packingAddons, selectedItemQuantityKey]);
+  useEffect(() => {
     setSelected((current) => {
       if (!current.length || !addons.length) return current;
       const next = current.map((item) => {
@@ -148,6 +172,14 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   }, [selected, updateBookingData]);
   const toggleAddon = (addon) => {
     setSelected((current) => {
+      if (isPackingAddon(addon)) {
+        const currentPacking = current.find(isPackingAddon);
+        if (currentPacking && (currentPacking.addonId === addon._id || currentPacking.key === addon.key || currentPacking.name === addon.name)) return current;
+        return [
+          ...current.filter((item) => !isPackingAddon(item)),
+          addonSnapshot(addon),
+        ];
+      }
       const index = current.findIndex((item) => item.addonId === addon._id || item.key === addon.key || item.name === addon.name);
       if (index >= 0) return current.filter((_, itemIndex) => itemIndex !== index);
       return [...current, addonSnapshot(addon)];
@@ -176,6 +208,12 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   return <div className="flex min-h-[calc(100svh-18rem)] min-w-0 flex-col gap-4 pb-24 text-left sm:min-h-[calc(100svh-20rem)] sm:gap-5 sm:pb-4"><header className="flex min-w-0 items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft/40 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><Sparkles className="h-6 w-6" /></span><div className="min-w-0"><h3 className="text-2xl font-semibold text-text-primary">Add-on Services</h3></div></header>
     <section className="mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col rounded-3xl border border-sky-100 bg-bg-white p-2.5 shadow-card sm:p-3">
       {isLoading ? <div className="grid min-h-52 flex-1 place-items-center rounded-2xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><p className="text-sm font-semibold text-red-600">Could not load add-on services.</p><button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-primary">Try again</button></div> : addons.length === 0 ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-bg-border px-5 text-center"><Sparkles className="h-9 w-9 text-primary/50" /><h4 className="mt-3 text-base font-semibold text-text-primary">No add-on service available</h4><p className="mt-1 text-sm text-text-secondary">There are no add-ons for your selected items. You can continue.</p></div> : <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
+        {packingAddons.length > 0 && <div className="min-w-0">
+          <h4 className="mb-2 text-lg font-semibold text-text-primary">Packing Option</h4>
+          <div className="grid min-w-0 grid-cols-3 content-start gap-1.5 pr-0 sm:gap-3 sm:pr-1">
+            {packingAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={featuredAddons.length === 0 && index < 3} getSnapshot={addonSnapshot} singleSelect />)}
+          </div>
+        </div>}
         {featuredAddons.length > 0 && <div className="min-w-0 overflow-hidden">
           <div ref={featuredScrollerRef} className="scrollbar-none -mx-1 flex max-w-full snap-x snap-proximity touch-pan-x gap-2 overflow-x-auto overscroll-x-contain px-1 pb-1.5">
             {featuredAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={index < 3} featured getSnapshot={addonSnapshot} />)}
@@ -192,22 +230,22 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   </div>;
 }
 
-function AddonCard({ addon, active, onToggle, priority = false, featured = false, getSnapshot }) {
+function AddonCard({ addon, active, onToggle, priority = false, featured = false, getSnapshot, singleSelect = false }) {
   const snapshot = getSnapshot(addon);
   return (
-    <article className={`${featured ? 'min-h-[13rem] w-[calc((100%-0.5rem)/2)] max-w-none shrink-0 snap-start sm:w-[min(58vw,18rem)] sm:max-w-[18rem] md:w-[min(36vw,18rem)]' : 'min-h-32'} flex min-w-0 flex-col justify-between rounded-2xl border p-2.5 transition-colors sm:p-4 ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10' : 'border-bg-border bg-bg-white hover:border-primary/20'}`}>
+    <article className={`${featured ? 'min-h-[13rem] w-[calc((100%-0.5rem)/2)] max-w-none shrink-0 snap-start sm:w-[min(58vw,18rem)] sm:max-w-[18rem] md:w-[min(36vw,18rem)]' : singleSelect ? 'min-h-[9.75rem]' : 'min-h-32'} flex min-w-0 flex-col justify-between rounded-2xl border ${singleSelect ? 'p-1.5 sm:p-3' : 'p-2.5 sm:p-4'} transition-colors ${active ? 'border-primary/20 bg-bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-1 ring-primary/10' : 'border-bg-border bg-bg-white hover:border-primary/20'}`}>
       <div className="min-w-0">
-        <div className={`flex min-w-0 items-start gap-2 ${featured ? 'flex-col' : 'justify-between'}`}>
-          <div className={`flex min-w-0 items-center gap-3 ${featured ? 'w-full flex-col !items-start' : ''}`}>
-            {addon.icon && <span className={`${featured ? 'h-[6.5rem] w-full sm:h-24' : 'h-14 w-14 sm:h-12 sm:w-12'} grid shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : 'h-14 w-14 sm:h-12 sm:w-12'} sizes={featured ? '(max-width: 640px) 48vw, 18rem' : '56px'} /></span>}
-            <h4 className="min-w-0 break-words text-sm font-semibold text-text-primary sm:text-base">{addon.name}</h4>
+        <div className={`flex min-w-0 items-start gap-2 ${featured || singleSelect ? 'flex-col' : 'justify-between'}`}>
+          <div className={`flex min-w-0 items-center gap-3 ${featured ? 'w-full flex-col !items-start' : singleSelect ? 'w-full flex-col gap-1.5 text-center' : ''}`}>
+            {addon.icon && <span className={`${featured ? 'h-[6.5rem] w-full sm:h-24' : singleSelect ? 'h-16 w-full sm:h-20' : 'h-14 w-14 sm:h-12 sm:w-12'} grid shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : singleSelect ? 'h-full w-full' : 'h-14 w-14 sm:h-12 sm:w-12'} sizes={featured ? '(max-width: 640px) 48vw, 18rem' : singleSelect ? '31vw' : '56px'} /></span>}
+            <h4 className={`min-w-0 break-words font-semibold text-text-primary ${singleSelect ? 'text-[11px] leading-4 sm:text-sm' : 'text-sm sm:text-base'}`}>{addon.name}</h4>
           </div>
         </div>
-        {addon.description && <p className="mt-1 line-clamp-2 text-xs font-normal leading-5 text-text-secondary">{addon.description}</p>}
-        <strong className="mt-2 block font-mono text-sm font-black text-primary">{formatCurrency(snapshot.total)}</strong>
+        {addon.description && !singleSelect && <p className="mt-1 line-clamp-2 text-xs font-normal leading-5 text-text-secondary">{addon.description}</p>}
+        <strong className={`mt-2 block font-mono font-black text-primary ${singleSelect ? 'text-xs text-center' : 'text-sm'}`}>{formatCurrency(snapshot.total)}</strong>
       </div>
-      <div className="mt-2.5 flex justify-end border-t border-bg-border/60 pt-2">
-        <button type="button" onClick={() => onToggle(addon)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${active ? 'border-bg-border bg-bg-muted text-text-primary shadow-sm' : 'border-primary/20 bg-bg-white text-primary hover:border-primary/30 hover:shadow-sm'}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Add service'}</button>
+      <div className={`mt-2.5 flex border-t border-bg-border/60 pt-2 ${singleSelect ? 'justify-center' : 'justify-end'}`}>
+        <button type="button" onClick={() => onToggle(addon)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${singleSelect ? 'max-w-full px-2 text-[10px] sm:px-3 sm:text-xs' : ''} ${active ? 'border-bg-border bg-bg-muted text-text-primary shadow-sm' : 'border-primary/20 bg-bg-white text-primary hover:border-primary/30 hover:shadow-sm'}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : singleSelect ? 'Select' : 'Add service'}</button>
       </div>
     </article>
   );

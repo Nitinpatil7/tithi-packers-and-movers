@@ -2,10 +2,11 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Sun, Sunset, Sunrise } from 'lucide-react';
 import Spinner from '@tithi/ui/Spinner';
 import { cn } from '@tithi/utils/utils';
+import { isSundayCalendarDate } from '@tithi/utils/pricing';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import BookingActionBar from './BookingActionBar';
 
@@ -119,13 +120,11 @@ function CustomCalendar({ selectedDate, onSelect }) {
               onClick={() => !isDisabled && onSelect(day)}
               className={cn(
                 "calendar-day mx-auto",
-                isSelected && isSunday ? "calendar-day-selected calendar-day-sunday bg-red-500 text-white" : "",
-                isSelected && !isSunday ? "calendar-day-selected" : "",
-                !isSelected && isSunday && !isDisabled ? "calendar-day-sunday" : "",
+                isSelected ? "calendar-day-selected" : "",
+                isSunday && !isDisabled ? "calendar-day-sunday" : "",
                 isDisabled ? "calendar-day-disabled" : "",
                 isToday && !isSelected ? "ring-2 ring-primary/40 font-black" : ""
               )}
-              title={isSunday && !isDisabled ? 'Sunday booking' : undefined}
             >
               {day.getDate()}
               {isSunday && !isDisabled && (
@@ -143,7 +142,7 @@ function CustomCalendar({ selectedDate, onSelect }) {
           <span className="text-[10px] font-semibold text-text-secondary">Selected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-md bg-red-100 text-red-500 flex items-center justify-center text-[9px] font-bold ring-1 ring-red-300">
+          <div className="flex h-5 w-5 items-center justify-center rounded-md bg-red-50 text-[9px] font-black text-red-500 ring-1 ring-red-200">
             S
           </div>
           <span className="text-[10px] font-semibold text-text-secondary">Sunday</span>
@@ -174,7 +173,8 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
   const initialScheduledDate = initialData.scheduledDate || null;
   const initialTimeSlot = initialData.timeSlot || null;
 
-  const isSunday = selectedDate?.getDay() === 0;
+  const selectedDateValue = selectedDate ? toDateStr(selectedDate) : null;
+  const isSunday = isSundayCalendarDate(selectedDateValue);
 
   useEffect(() => {
     setCalendarReady(true);
@@ -189,7 +189,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
   }, [initialTimeSlot]);
 
   useEffect(() => {
-    const scheduledDate = selectedDate ? toDateStr(selectedDate) : null;
+    const scheduledDate = selectedDateValue;
     const currentData = useBookingStore.getState().bookingData || {};
     if (
       (currentData.scheduledDate || null) === scheduledDate
@@ -199,7 +199,7 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
       return;
     }
     updateBookingData({ scheduledDate, timeSlot: slot, isSunday });
-  }, [isSunday, selectedDate, slot, updateBookingData]);
+  }, [isSunday, selectedDateValue, slot, updateBookingData]);
 
   const handleNext = () => {
     if (!selectedDate) { setError('Please select a moving date.'); return; }
@@ -254,34 +254,21 @@ export default function DateTimeStep({ onSubmit, onBack, initialData = {} }) {
               isSunday ? "text-red-600" : "text-primary"
             )}
           >
-            {isSunday ? '⚠️' : '✓'}{' '}
+            ✓{' '}
             {selectedDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            {isSunday && ' - Weekend crew availability will be reflected in your final quote summary.'}
           </motion.p>
         )}
       </div>
 
-      {/* Sunday warning banner */}
-      <AnimatePresence>
-        {isSunday && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-200">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-bold text-amber-800">Sunday Booking</p>
-                <p className="text-xs text-amber-700 font-medium mt-0.5">
-                  Sunday bookings use weekend crew availability. Any applicable adjustment will be shown only in your final quote summary.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+        <div>
+          <p className="text-sm font-bold text-amber-800">Sunday Booking</p>
+          <p className="mt-0.5 text-xs font-medium leading-relaxed text-amber-700">
+            Sunday bookings use weekend crew availability. Any applicable adjustment will be shown only in your final quote summary.
+          </p>
+        </div>
+      </div>
 
       {/* Time Slot */}
       <div className="flex flex-col gap-2 sm:gap-3">

@@ -76,6 +76,23 @@ const dateKey = (value = new Date()) => {
   }
 };
 
+const selectedCalendarDateKey = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+  return dateKey(value);
+};
+
+export function isSundayCalendarDate(value) {
+  const key = selectedCalendarDateKey(value);
+  if (!key) return false;
+  const [year, month, day] = key.split('-').map(Number);
+  if (!year || !month || !day) return false;
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0;
+}
+
 export function getActiveRateAdjustment(rule = {}, referenceDate = new Date()) {
   const today = dateKey(referenceDate);
   return sortAdjustments(rule.rateAdjustments)
@@ -271,7 +288,7 @@ export function calculateBookingPrice(bookingData = {}) {
   const dateValue = bookingData.scheduledDate || bookingData.scheduledate;
   const sundayHike = hasLockedPricing
     ? toNumber(lockedPricing.sundayHike)
-    : dateValue && new Date(`${dateValue}T00:00:00`).getDay() === 0 ? Math.round(subtotal * 0.05) : 0;
+    : isSundayCalendarDate(dateValue) ? Math.round(subtotal * 0.05) : 0;
   const adjustedPricing = applyRateAdjustment(subtotal + sundayHike, rule);
   const grandTotal = adjustedPricing.grandTotal;
   return {

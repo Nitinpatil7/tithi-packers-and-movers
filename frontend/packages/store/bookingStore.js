@@ -78,6 +78,20 @@ const hasSchedule = (bookingData) => Boolean(bookingData.scheduledDate && bookin
 const hasTruckChoice = (bookingData) => bookingData.labourOnly === true || Boolean(bookingData.selectedTruck || bookingData.truckType || bookingData.selectedTruckData);
 const hasEmployees = (bookingData) => Number(bookingData.employeeCount || 0) > 0;
 const hasHours = (bookingData) => Number(bookingData.hoursCount || 0) > 0;
+const resetBookingScroll = () => {
+  if (typeof window === 'undefined') return;
+  const reset = () => {
+    const scroller = document.scrollingElement || document.documentElement;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    scroller?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+    if (scroller) scroller.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  reset();
+  window.requestAnimationFrame(reset);
+  [80, 220, 420, 720, 1100].forEach((delay) => window.setTimeout(reset, delay));
+};
 
 const validators = {
   location: (bookingData, rule = {}) => hasAddress(bookingData.pickupLocation) && (rule.dropOptional || hasAddress(bookingData.dropLocation)),
@@ -112,6 +126,7 @@ export const useBookingStore = create(persist((set) => ({
 
   setStep: (step, stepRules) => set((state) => {
     const nextStep = firstReachableStep(step, state.bookingData, stepRules);
+    if (nextStep !== state.currentStep) resetBookingScroll();
     return nextStep === state.currentStep ? state : { currentStep: nextStep };
   }),
 
@@ -162,13 +177,23 @@ export const useBookingStore = create(persist((set) => ({
 
   resetBooking: () => set({ currentStep: 0, bookingData: getInitialBookingData() }),
 
+  clearBookingDraft: () => {
+    set({ currentStep: 0, bookingData: getInitialBookingData() });
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('tithi_booking_draft');
+      window.sessionStorage.removeItem('tithi_intercity_location_handoff');
+    }
+  },
+
   nextStep: (stepRules) => set((state) => {
     const nextStep = firstReachableStep(state.currentStep + 1, state.bookingData, stepRules);
+    if (nextStep !== state.currentStep) resetBookingScroll();
     return nextStep === state.currentStep ? state : { currentStep: nextStep };
   }),
 
   prevStep: () => set((state) => {
     const nextStep = Math.max(0, state.currentStep - 1);
+    if (nextStep !== state.currentStep) resetBookingScroll();
     return nextStep === state.currentStep ? state : { currentStep: nextStep };
   }),
 }), {

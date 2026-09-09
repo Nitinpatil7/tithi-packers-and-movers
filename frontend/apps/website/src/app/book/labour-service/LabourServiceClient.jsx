@@ -1,7 +1,7 @@
 // src/app/(website)/book/labour-service/page.js
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@tithi/store/bookingStore';
@@ -27,14 +27,16 @@ const SuccessStep = dynamic(() => import('@tithi/components/booking/SuccessStep'
 
 export default function LabourServicePage() {
   const router = useRouter();
-  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
+  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, clearBookingDraft, setStep } = useBookingStore();
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
   const confirmDraftMutation = useConfirmBookingDraft();
   const { data: pricingRule, isLoading: pricingLoading } = usePublicPricingRule('porter_labour_service');
   const [createdBookingId, setCreatedBookingId] = useState(null);
+  const bookingCompletedRef = useRef(false);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
     if (bookingData.serviceType !== 'labour') {
       resetBooking();
       updateBookingData({ serviceType: 'labour' });
@@ -42,6 +44,7 @@ export default function LabourServicePage() {
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
     if (currentStep > STEPS.length && !createdBookingId) {
       resetBooking();
       updateBookingData({ serviceType: 'labour' });
@@ -98,8 +101,9 @@ export default function LabourServicePage() {
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: draftPayload });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: draftPayload.pricing } });
       const confirmedBookingId = response.bookingid || response.booking?.bookingid || bookingId;
+      bookingCompletedRef.current = true;
       setCreatedBookingId(confirmedBookingId);
-      useBookingStore.persist.clearStorage();
+      clearBookingDraft();
       toast.success('Labour & Vehicle booking confirmed!');
       router.replace(`/my-bookings/${encodeURIComponent(confirmedBookingId)}`);
     } catch (error) {
@@ -108,6 +112,7 @@ export default function LabourServicePage() {
   };
 
   const handleReset = () => {
+    bookingCompletedRef.current = false;
     resetBooking();
     setStep(0, STEP_RULES);
     setCreatedBookingId(null);

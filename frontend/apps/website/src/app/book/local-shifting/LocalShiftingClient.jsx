@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
@@ -20,22 +20,25 @@ import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
 const STEP_RULES = ['location', 'items', 'optional', 'schedule', 'optional', 'optional'];
+const INTERCITY_HANDOFF_KEY = 'tithi_intercity_location_handoff';
 
 export default function LocalShiftingPage() {
   const router = useRouter();
-  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
+  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, clearBookingDraft, setStep } = useBookingStore();
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
   const confirmDraftMutation = useConfirmBookingDraft();
   const { data: pricingRule, isLoading: pricingLoading } = usePublicPricingRule('local_shifting');
   const [createdBookingId, setCreatedBookingId] = useState(null);
   const [basePackageMode, setBasePackageMode] = useState(false);
+  const bookingCompletedRef = useRef(false);
 
   useEffect(() => {
     setBasePackageMode(new URLSearchParams(window.location.search).get('basePackage') === '1');
   }, []);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
     if (bookingData.serviceType !== 'local') {
       resetBooking();
       updateBookingData({ serviceType: 'local' });
@@ -44,6 +47,7 @@ export default function LocalShiftingPage() {
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
     if (currentStep > STEPS.length && !createdBookingId) {
       resetBooking();
       updateBookingData({ serviceType: 'local' });
@@ -59,6 +63,17 @@ export default function LocalShiftingPage() {
     updateBookingData(stepData);
     if (basePackageMode) setStep(4, STEP_RULES);
     else nextStep(STEP_RULES);
+  };
+  const handleIntercityHandoff = (locationData = {}) => {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(INTERCITY_HANDOFF_KEY, JSON.stringify({
+        pickupLocation: locationData.pickupLocation,
+        dropLocation: locationData.dropLocation,
+        distance: locationData.distance,
+        distanceKm: locationData.distanceKm,
+      }));
+    }
+    router.push('/book/intercity-moving?handoff=local');
   };
   const handleLocationSubmit = async (stepData) => {
     const nextData = { ...bookingData, ...stepData, serviceType: 'local', pricingRule: pricingRule || bookingData.pricingRule };
@@ -90,8 +105,9 @@ export default function LocalShiftingPage() {
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: buildDraftUpdatePayload(finalData) });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: buildDraftUpdatePayload(finalData).pricing } });
       const confirmedBookingId = response.bookingid || response.booking?.bookingid || bookingId;
+      bookingCompletedRef.current = true;
       setCreatedBookingId(confirmedBookingId);
-      useBookingStore.persist.clearStorage();
+      clearBookingDraft();
       toast.success('Local shifting scheduled successfully!');
       router.replace(`/my-bookings/${encodeURIComponent(confirmedBookingId)}`);
     } catch (error) {
@@ -100,6 +116,7 @@ export default function LocalShiftingPage() {
   };
 
   const handleReset = () => {
+    bookingCompletedRef.current = false;
     resetBooking();
     setStep(0, STEP_RULES);
     setCreatedBookingId(null);
@@ -117,7 +134,7 @@ export default function LocalShiftingPage() {
       onBack={prevStep}
     >
       {currentStep === 0 && (
-        <LocationStep onSubmit={handleLocationSubmit} initialData={bookingData} serviceType="local" />
+        <LocationStep onSubmit={handleLocationSubmit} initialData={bookingData} serviceType="local" onIntercityHandoff={handleIntercityHandoff} />
       )}
       {currentStep === 1 && (
         <ItemSelectionStep onSubmit={handleStepSubmit} onBack={prevStep} initialData={bookingData} />

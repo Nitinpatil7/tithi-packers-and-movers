@@ -1696,24 +1696,71 @@ input:focus, select:focus, textarea:focus {
 
 .hero-service-card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
 }
 
 .hero-service-card::after {
-  content: "";
+  content: none;
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  background: none;
   transform: translateX(-120%);
-  animation: serviceShine 5s ease-in-out infinite;
+  animation: none;
 }
 
 .hero-service-card:hover::after,
 .hero-service-card:focus-within::after,
 .hero-service-card:active::after {
   animation-duration: 1.45s;
+}
+
+.public-theme .hero-service-card,
+.dark .public-theme .hero-service-card {
+  border: 0 !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.public-theme .hero-service-card .android-stable-hero-icon,
+.dark .public-theme .hero-service-card .android-stable-hero-icon {
+  padding: 0 !important;
+  border: 0 !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.public-theme .hero-service-card::before,
+.public-theme .hero-service-card::after,
+.dark .public-theme .hero-service-card::before,
+.dark .public-theme .hero-service-card::after,
+.public-theme .hero-service-card .android-stable-hero-icon::before,
+.public-theme .hero-service-card .android-stable-hero-icon::after,
+.dark .public-theme .hero-service-card .android-stable-hero-icon::before,
+.dark .public-theme .hero-service-card .android-stable-hero-icon::after {
+  content: none !important;
+  border: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 .process-step-aura {
@@ -1742,6 +1789,21 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 767px) {
+  .hero-mobile-front-truck {
+    bottom: -13% !important;
+    width: 92vw !important;
+    max-width: 430px !important;
+  }
+
+  .public-theme .hero-service-card .android-stable-hero-icon,
+  .dark .public-theme .hero-service-card .android-stable-hero-icon {
+    min-height: 144px;
+  }
+
+  .public-theme .hero-service-card .android-stable-hero-icon img {
+    max-height: 144px;
+  }
+
   .section-texture,
   .section-texture-warm,
   .section-topography,
@@ -2100,33 +2162,28 @@ input.booking-input.gm-err-autocomplete {
   box-shadow: var(--shadow-sky);
 }
 
-.calendar-day-disabled {
-  color: var(--color-text-tertiary);
-  cursor: not-allowed;
-  opacity: 0.45;
+.calendar-day-sunday:not(.calendar-day-disabled) {
+  color: #dc2626;
 }
 
-.calendar-day-sunday {
-  color: #DC2626;
-  font-weight: 700;
-}
-
-.calendar-day-sunday.calendar-day-selected {
-  background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+.calendar-day-selected.calendar-day-sunday {
+  color: #dc2626;
 }
 
 .sunday-hike-badge {
   position: absolute;
-  top: 1px;
-  right: 1px;
-  font-size: 7px;
-  font-weight: 800;
-  background: #FEF3C7;
-  color: #D97706;
-  border-radius: 8px;
-  padding: 1px 2px;
+  right: 3px;
+  bottom: 2px;
+  font-size: 8px;
+  font-weight: 900;
   line-height: 1;
-  letter-spacing: 0;
+  color: #f97316;
+}
+
+.calendar-day-disabled {
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* Google Places autocomplete dropdown override */

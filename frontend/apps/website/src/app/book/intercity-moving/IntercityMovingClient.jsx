@@ -1,7 +1,7 @@
 // src/app/(website)/book/intercity-moving/page.js
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@tithi/store/bookingStore';
 import { useConfirmBookingDraft, useCreateBookingDraft, useUpdateBookingDraft } from '@tithi/hooks/useBookingDraft';
@@ -21,22 +21,54 @@ import toast from 'react-hot-toast';
 
 const STEPS = ['Location', 'Items', 'Add-ons', 'Schedule', 'Review', 'Verify OTP'];
 const STEP_RULES = ['location', 'items', 'optional', 'schedule', 'optional', 'optional'];
+const INTERCITY_HANDOFF_KEY = 'tithi_intercity_location_handoff';
 
 export default function IntercityMovingPage() {
   const router = useRouter();
-  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, setStep } = useBookingStore();
+  const { currentStep, bookingData, updateBookingData, nextStep, prevStep, resetBooking, clearBookingDraft, setStep } = useBookingStore();
   const createDraftMutation = useCreateBookingDraft();
   const updateDraftMutation = useUpdateBookingDraft();
   const confirmDraftMutation = useConfirmBookingDraft();
   const { data: pricingRule, isLoading: pricingLoading } = usePublicPricingRule('intercity_moving');
   const [createdBookingId, setCreatedBookingId] = useState(null);
   const [basePackageMode, setBasePackageMode] = useState(false);
+  const consumedHandoffRef = useRef(false);
+  const bookingCompletedRef = useRef(false);
 
   useEffect(() => {
     setBasePackageMode(new URLSearchParams(window.location.search).get('basePackage') === '1');
   }, []);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
+    if (typeof window === 'undefined') return;
+    const rawHandoff = window.sessionStorage.getItem(INTERCITY_HANDOFF_KEY);
+    if (!rawHandoff) return;
+
+    try {
+      const handoff = JSON.parse(rawHandoff);
+      consumedHandoffRef.current = true;
+      resetBooking();
+      updateBookingData({
+        serviceType: 'intercity',
+        pickupLocation: handoff.pickupLocation || null,
+        dropLocation: handoff.dropLocation || null,
+        distance: handoff.distance || null,
+        distanceKm: handoff.distanceKm || null,
+        itemActiveSectionId: '',
+      });
+      setStep(0, STEP_RULES);
+    } catch (error) {
+      console.error('Could not restore intercity handoff.', error);
+    } finally {
+      window.sessionStorage.removeItem(INTERCITY_HANDOFF_KEY);
+    }
+  }, [resetBooking, setStep, updateBookingData]);
+
+  useEffect(() => {
+    if (bookingCompletedRef.current) return;
+    if (typeof window !== 'undefined' && window.sessionStorage.getItem(INTERCITY_HANDOFF_KEY)) return;
+    if (consumedHandoffRef.current) return;
     if (bookingData.serviceType !== 'intercity') {
       resetBooking();
       updateBookingData({ serviceType: 'intercity' });
@@ -44,6 +76,7 @@ export default function IntercityMovingPage() {
   }, [bookingData.serviceType, resetBooking, updateBookingData]);
 
   useEffect(() => {
+    if (bookingCompletedRef.current) return;
     if (currentStep > STEPS.length && !createdBookingId) {
       resetBooking();
       updateBookingData({ serviceType: 'intercity' });
@@ -91,8 +124,9 @@ export default function IntercityMovingPage() {
       await updateDraftMutation.mutateAsync({ bookingId, draftToken, data: draftPayload });
       const response = await confirmDraftMutation.mutateAsync({ bookingId, draftToken, data: { customer: { name: finalData.contactDetails?.name, email: finalData.contactDetails?.email, mobile: finalData.contactDetails?.mobile }, verificationId: finalData.verificationId, pricing: draftPayload.pricing } });
       const confirmedBookingId = response.bookingid || response.booking?.bookingid || bookingId;
+      bookingCompletedRef.current = true;
       setCreatedBookingId(confirmedBookingId);
-      useBookingStore.persist.clearStorage();
+      clearBookingDraft();
       toast.success('Intercity moving request scheduled!');
       router.replace(`/my-bookings/${encodeURIComponent(confirmedBookingId)}`);
     } catch (error) {
@@ -101,6 +135,7 @@ export default function IntercityMovingPage() {
   };
 
   const handleReset = () => {
+    bookingCompletedRef.current = false;
     resetBooking();
     setStep(0, STEP_RULES);
     setCreatedBookingId(null);

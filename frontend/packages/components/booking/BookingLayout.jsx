@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, CheckCircle, Truck } from 'lucide-react';
 import { cn } from '@utils/utils';
@@ -17,9 +17,30 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
     exit: { opacity: 0, x: -30, transition: { duration: 0.28, ease: 'easeIn' } },
   };
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-  }, [currentStep, prefersReducedMotion]);
+  const resetPageScroll = useCallback(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    const scroller = document.scrollingElement || document.documentElement;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    scroller?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+    if (scroller) scroller.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
+  useLayoutEffect(() => {
+    resetPageScroll();
+    let secondFrameId;
+    const frameId = window.requestAnimationFrame(() => {
+      resetPageScroll();
+      secondFrameId = window.requestAnimationFrame(resetPageScroll);
+    });
+    const timeoutIds = [80, 220, 420, 720, 1100].map((delay) => window.setTimeout(resetPageScroll, delay));
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      if (secondFrameId) window.cancelAnimationFrame(secondFrameId);
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    };
+  }, [currentStep, resetPageScroll]);
 
   useEffect(() => {
     const track = stepsTrackRef.current;
@@ -36,7 +57,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
     <div className="booking-layout-shell relative min-h-screen overflow-hidden pt-6 pb-24 sm:pt-28">
       <div className="booking-top-wash absolute top-0 left-0 right-0 h-72 pointer-events-none" />
       <div className="booking-flow-bg pointer-events-none absolute inset-x-0 top-16 h-64" />
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl w-full mx-auto px-2 sm:px-4 lg:px-6 relative z-10">
         {showBackButton && (
           <div className="mb-2 flex items-center max-w-6xl mx-auto min-h-7 sm:mb-3 sm:min-h-8">
             <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold text-text-secondary hover:text-primary transition-colors group">
@@ -57,7 +78,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
             </span>
           </motion.div>
           <div>
-            <div ref={stepsTrackRef} className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div ref={stepsTrackRef} className="flex items-center justify-between gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {steps.map((step, idx) => {
                 const isActive = idx === currentStep;
                 const isCompleted = idx < currentStep;
@@ -70,7 +91,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
                       <span className={cn('max-w-[76px] truncate text-[11px] font-bold transition-all duration-300 sm:max-w-none sm:text-xs', isActive ? 'text-primary scale-102' : isCompleted ? 'text-emerald-600 font-bold' : 'text-text-tertiary')}>{step}</span>
                     </div>
                     {idx < steps.length - 1 && (
-                      <div className="flex-1 min-w-[20px] h-0.5 bg-bg-border mx-2 relative rounded-full">
+                      <div className="flex-1 min-w-4 h-0.5 bg-bg-border mx-1.5 relative rounded-full">
                         <div className={cn('absolute top-0 left-0 h-full transition-all duration-500', isCompleted ? 'w-full bg-emerald-500' : isActive ? 'w-1/2 bg-primary' : 'w-0 bg-transparent')} />
                       </div>
                     )}
@@ -83,7 +104,7 @@ export default function BookingLayout({ title, steps = [], currentStep = 0, onBa
 
         <div ref={contentTopRef} className="booking-content-panel w-full max-w-6xl mx-auto overflow-hidden rounded-[1.35rem] border border-sky-100 bg-white shadow-[0_20px_60px_rgba(14,165,233,0.10)] sm:rounded-3xl">
           <AnimatePresence initial={false}>
-            <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" className="p-3 sm:p-6 md:p-10">
+            <motion.div key={currentStep} variants={slideVariants} initial="initial" animate="animate" exit="exit" onAnimationComplete={resetPageScroll} className="p-3 sm:p-6 md:p-10">
               {children}
             </motion.div>
           </AnimatePresence>

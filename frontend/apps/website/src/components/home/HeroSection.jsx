@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useInView, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Clock, Headphones, House, MapPinned, ShieldCheck } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import StarRating from '@tithi/ui/StarRating';
@@ -180,79 +180,37 @@ export default function HeroSection() {
         width={620}
         height={360}
         sizes="(min-width: 768px) 520px, 82vw"
-        className="pointer-events-none absolute bottom-[-15%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-56 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[520px] lg:hidden"
+        className="hero-mobile-front-truck pointer-events-none absolute bottom-[-8%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-56 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[520px] lg:hidden"
       />
     </section>
   );
 }
 
 function HeroServiceCard({ service }) {
-  const [focused, setFocused] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const cardRef = useRef(null);
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
-  const rotateX = useTransform(pointerY, [-0.5, 0.5], [7, -7]);
-  const rotateY = useTransform(pointerX, [-0.5, 0.5], [-7, 7]);
-  const iconX = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
-  const iconY = useTransform(pointerY, [-0.5, 0.5], [-4, 4]);
-  const isInView = useInView(cardRef, { amount: 0.35 });
   const iconSrc = SERVICE_ICONS[service.key];
-  const isActive = focused || pressed || isInView;
-  const handlePointerMove = (event) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    pointerX.set((event.clientX - bounds.left) / bounds.width - 0.5);
-    pointerY.set((event.clientY - bounds.top) / bounds.height - 0.5);
-  };
-  const resetPointer = () => {
-    setFocused(false);
-    pointerX.set(0);
-    pointerY.set(0);
-  };
 
   return (
     <Link
       href={service.path}
-      ref={cardRef}
-      className="h-full min-w-0 outline-none"
-      onMouseEnter={() => setFocused(true)}
-      onMouseLeave={resetPointer}
-      onPointerMove={handlePointerMove}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      onPointerDown={() => setPressed(true)}
-      onPointerUp={() => setPressed(false)}
-      onPointerCancel={() => setPressed(false)}
+      className="group h-full min-w-0 outline-none"
     >
-      <motion.div
-        animate={{ y: isActive ? -4 : 0, scale: isActive ? 1.04 : 1 }}
-        style={{ rotateX, rotateY, transformPerspective: 900 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className={`hero-service-card android-stable-hero-card group grid h-full min-h-[160px] cursor-pointer place-items-center overflow-hidden rounded-2xl px-2 py-3 text-center shadow-[0_18px_48px_rgba(15,23,42,0.10)] transition-shadow duration-300 sm:min-h-[200px] sm:px-3 sm:py-4 xl:min-h-[240px] ${
-          isActive
-            ? 'shadow-[0_24px_56px_rgba(14,165,233,0.18)] ring-2 ring-primary/15'
-            : 'hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]'
-        }`}
-      >
-        <motion.div
-          className="android-stable-hero-icon grid h-full min-h-[132px] w-full place-items-center rounded-xl p-0 transition-transform duration-300 group-hover:scale-105 sm:min-h-[164px] xl:min-h-[204px]"
+      <div className="hero-service-card grid h-full min-h-[160px] cursor-pointer place-items-center px-2 py-3 text-center sm:min-h-[200px] sm:px-3 sm:py-4 xl:min-h-[240px]">
+        <div
+          className="android-stable-hero-icon grid h-full min-h-[144px] w-full place-items-center p-0 sm:min-h-[176px] xl:min-h-[216px]"
           style={{ color: service.color }}
-          animate={{ rotate: isActive ? [0, -3, 3, 0] : 0 }}
-          transition={{ duration: 1.2, repeat: isActive ? Infinity : 0, repeatDelay: 1.8 }}
         >
-          <motion.span className="grid h-full w-full place-items-center" style={{ x: iconX, y: iconY }}>
+          <span className="grid h-full w-full place-items-center">
             <Image
               src={iconSrc}
               alt=""
               width={180}
               height={180}
-              sizes="(min-width: 1280px) 10rem, (min-width: 768px) 9rem, 6rem"
-              className={`${SERVICE_ICON_SCALE[service.key] || ''} h-full max-h-[132px] w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(14,165,233,0.18)] sm:max-h-[164px] xl:max-h-[204px]`}
+              sizes="(min-width: 1280px) 11rem, (min-width: 768px) 10rem, 7rem"
+              className={`${SERVICE_ICON_SCALE[service.key] || ''} h-full max-h-[144px] w-full object-contain object-center transition-transform duration-300 ease-out group-hover:scale-110 sm:max-h-[176px] xl:max-h-[216px]`}
             />
-          </motion.span>
-        </motion.div>
-      </motion.div>
+          </span>
+        </div>
+      </div>
     </Link>
   );
 }

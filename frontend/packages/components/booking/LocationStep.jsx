@@ -8,12 +8,14 @@ import { getDistanceKM } from '@tithi/utils/pricing';
 import Spinner from '@tithi/ui/Spinner';
 import BookingActionBar from './BookingActionBar';
 
-const SURAT_BOUNDS = { north: 21.35, south: 20.97, east: 73.08, west: 72.65 };
 const configuredMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableMapsKey = Boolean(configuredMapsKey && !configuredMapsKey.includes('PLACEHOLDER'));
 const debugMaps = process.env.NEXT_PUBLIC_DEBUG_MAPS === 'true';
 
 const SURAT_CENTER = { lat: 21.1702, lng: 72.8311 };
+const SURAT_SERVICE_RADIUS_KM = 50;
+const SURAT_RADIUS_LAT_DELTA = SURAT_SERVICE_RADIUS_KM / 111;
+const SURAT_RADIUS_LNG_DELTA = SURAT_SERVICE_RADIUS_KM / (111 * Math.cos((SURAT_CENTER.lat * Math.PI) / 180));
 const needsSurat = (serviceType, role) => serviceType === 'local' || serviceType === 'labour' || role === 'pickup';
 const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 };
 const GEOLOCATION_TARGET_ACCURACY_METERS = 80;
@@ -151,6 +153,25 @@ function distanceMeters(left, right) {
   return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function distanceFromSuratKm(location) {
+  const latLng = toLatLngLiteral(location);
+  if (!latLng || !Number.isFinite(latLng.lat) || !Number.isFinite(latLng.lng)) return null;
+  return Math.round((distanceMeters(SURAT_CENTER, latLng) / 1000) * 10) / 10;
+}
+
+function isWithinSuratServiceRadius(location) {
+  const distanceKm = distanceFromSuratKm(location);
+  return distanceKm !== null && distanceKm <= SURAT_SERVICE_RADIUS_KM;
+}
+
+function suratRadiusMessage(serviceType, role) {
+  if (serviceType === 'intercity') return 'Pickup must be in the Surat service area.';
+  if (serviceType === 'local') return role === 'drop'
+    ? 'This drop location looks outside the local shifting area. Switch to Intercity Shifting for this drop location.'
+    : 'Local shifting pickup must be in the Surat service area.';
+  return 'Pickup must be in the Surat service area.';
+}
+
 function chooseReadablePlace(results = [], origin = null) {
   return [...results]
     .filter((place) => readableAddressFromPlace(place))
@@ -245,18 +266,10 @@ function validatePlace(place, serviceType, role) {
   if (needsSurat(serviceType, role)) {
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
-    const localityText = [
-      getAddressComponent(place, 'locality'),
-      getAddressComponent(place, 'administrative_area_level_2'),
-      getAddressComponent(place, 'postal_town'),
-    ].join(' ').toLowerCase();
-    const insideSuratBounds = lat >= SURAT_BOUNDS.south && lat <= SURAT_BOUNDS.north
-      && lng >= SURAT_BOUNDS.west && lng <= SURAT_BOUNDS.east;
+    const isLocalDrop = serviceType === 'local' && role === 'drop';
 
-    if (!insideSuratBounds || !localityText.includes('surat')) {
-      return serviceType === 'local'
-        ? 'Local shifting allows pickup and drop only within Surat city.'
-        : 'Pickup must be within Surat city.';
+    if (!isWithinSuratServiceRadius({ lat, lng }) && !isLocalDrop) {
+      return suratRadiusMessage(serviceType, role);
     }
   }
 
@@ -267,12 +280,9 @@ function validateLatLng(location, serviceType, role) {
   const latLng = toLatLngLiteral(location);
   if (!latLng || !Number.isFinite(latLng.lat) || !Number.isFinite(latLng.lng)) return 'Please choose a valid map location.';
   if (needsSurat(serviceType, role)) {
-    const insideSuratBounds = latLng.lat >= SURAT_BOUNDS.south && latLng.lat <= SURAT_BOUNDS.north
-      && latLng.lng >= SURAT_BOUNDS.west && latLng.lng <= SURAT_BOUNDS.east;
-    if (!insideSuratBounds) {
-      return serviceType === 'intercity'
-        ? 'Pickup must be within Surat city.'
-        : 'This service allows locations only within Surat city.';
+    const isLocalDrop = serviceType === 'local' && role === 'drop';
+    if (!isWithinSuratServiceRadius(latLng) && !isLocalDrop) {
+      return suratRadiusMessage(serviceType, role);
     }
   }
   return '';
@@ -283,8 +293,8 @@ function validateManualAddress(address, serviceType, role) {
   if (cleanAddress.length < 8) return 'Please enter a complete address.';
   if (needsSurat(serviceType, role) && !/\bsurat\b/i.test(cleanAddress)) {
     return serviceType === 'local'
-      ? 'Local shifting allows pickup and drop only within Surat city.'
-      : 'Pickup address must include Surat city.';
+      ? 'Local shifting supports Surat pickup and drop. Please choose the address from Google Maps to confirm service availability.'
+      : 'Pickup address must be in Surat. Please choose the address from Google Maps to confirm service availability.';
   }
   return '';
 }
@@ -503,13 +513,13 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         mapTypeControlOptions: {
           mapTypeIds: ['roadmap', 'satellite', 'terrain'],
         },
-        restriction: needsSurat(serviceType, role)
+        restriction: needsSurat(serviceType, role) && !(serviceType === 'local' && role === 'drop')
           ? {
             latLngBounds: {
-              north: SURAT_BOUNDS.north,
-              south: SURAT_BOUNDS.south,
-              east: SURAT_BOUNDS.east,
-              west: SURAT_BOUNDS.west,
+              north: SURAT_CENTER.lat + SURAT_RADIUS_LAT_DELTA,
+              south: SURAT_CENTER.lat - SURAT_RADIUS_LAT_DELTA,
+              east: SURAT_CENTER.lng + SURAT_RADIUS_LNG_DELTA,
+              west: SURAT_CENTER.lng - SURAT_RADIUS_LNG_DELTA,
             },
             strictBounds: false,
           }
@@ -686,7 +696,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   );
 }
 
-function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, onError, clearError, optional = false }) {
+function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, onError, clearError, optional = false, onIntercityHandoff }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const selectedRef = useRef(Boolean(visibleAddress(value) && value?.lat && value?.lng));
@@ -797,10 +807,10 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
 
       if (needsSurat(serviceType, role)) {
         options.bounds = new window.google.maps.LatLngBounds(
-          { lat: SURAT_BOUNDS.south, lng: SURAT_BOUNDS.west },
-          { lat: SURAT_BOUNDS.north, lng: SURAT_BOUNDS.east }
+          { lat: SURAT_CENTER.lat - SURAT_RADIUS_LAT_DELTA, lng: SURAT_CENTER.lng - SURAT_RADIUS_LNG_DELTA },
+          { lat: SURAT_CENTER.lat + SURAT_RADIUS_LAT_DELTA, lng: SURAT_CENTER.lng + SURAT_RADIUS_LNG_DELTA }
         );
-        options.strictBounds = true;
+        options.strictBounds = serviceType !== 'local' || role !== 'drop';
       }
 
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, options);
@@ -899,8 +909,10 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
   const mapInitialValue = useMemo(() => value || { address: inputVal }, [inputVal, value]);
 
   const placeholder = needsSurat(serviceType, role)
-    ? 'Search an exact address in Surat'
+    ? 'Search an address in Surat'
     : 'Search a drop address anywhere in India';
+  const dropDistanceFromSurat = serviceType === 'local' && role === 'drop' ? distanceFromSuratKm(value) : null;
+  const showIntercityHandoff = Boolean(onIntercityHandoff && visibleAddress(value) && dropDistanceFromSurat !== null && dropDistanceFromSurat > SURAT_SERVICE_RADIUS_KM);
 
   return (
     <div className={cn('booking-location-card flex min-w-0 flex-col gap-3 rounded-xl border-2 p-2.5 shadow-sm transition-colors sm:gap-4 sm:p-6',
@@ -1010,8 +1022,18 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="min-w-0">{validationMsg}</span>
           </p>
         )}
+        {showIntercityHandoff && (
+          <button
+            type="button"
+            onClick={onIntercityHandoff}
+            className="mt-1 inline-flex w-fit items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-left text-xs font-semibold leading-5 text-orange-700 transition hover:border-orange-300 hover:bg-orange-100"
+          >
+            Want to drop outside Surat? Continue with Intercity Shifting.
+            <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+          </button>
+        )}
         <p className="text-[11px] text-primary font-medium mt-0.5">
-          {needsSurat(serviceType, role) ? 'Surat city locations only' : 'Drop can be anywhere within India'}
+          {needsSurat(serviceType, role) ? 'Surat' : 'Drop can be anywhere within India'}
         </p>
         {mapsState !== 'error' && (
           <button type="button" onClick={() => setMapOpen(true)} className="booking-map-button mt-2 inline-flex w-fit items-center gap-2 rounded-xl border border-primary/20 bg-white px-3 py-2 text-xs font-black text-primary shadow-xs transition hover:bg-primary-soft">
@@ -1064,7 +1086,7 @@ function getEstimatedDistanceKM(pickup, drop) {
   return getDistanceKM(pickupLat, pickupLng, dropLat, dropLng) || null;
 }
 
-export default function LocationStep({ onSubmit, initialData = {}, serviceType = 'local', pricingRule = null }) {
+export default function LocationStep({ onSubmit, initialData = {}, serviceType = 'local', pricingRule = null, onIntercityHandoff }) {
   const updateBookingData = useBookingStore((state) => state.updateBookingData);
   const [pickupData, setPickupData] = useState(initialData.pickupLocation || null);
   const [dropData, setDropData] = useState(initialData.dropLocation || null);
@@ -1075,6 +1097,15 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   const submitErrorRef = useRef(null);
   const labour = serviceType === 'labour';
   const dropOptional = labour;
+  const localDropDistanceFromSurat = serviceType === 'local' ? distanceFromSuratKm(dropData) : null;
+  const localDropOutsideRadius = localDropDistanceFromSurat !== null && localDropDistanceFromSurat > SURAT_SERVICE_RADIUS_KM;
+  const handleIntercityHandoff = () => {
+    onIntercityHandoff?.({
+      pickupLocation: pickupData,
+      dropLocation: dropData,
+      ...(distanceKm && dropData?.address ? { distance: distanceKm, distanceKm } : {}),
+    });
+  };
 
   const handleError = (role, message) => setErrors((previous) => ({ ...previous, [role]: message }));
   const clearError = (role) => setErrors((previous) => {
@@ -1112,6 +1143,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
     if (!pickupData?.address || (!pickupData?.manual && (!pickupData?.lat || !pickupData?.lng))) return setSubmitError('Enter or select a valid pickup location.');
     if (!dropOptional && (!dropData?.address || (!dropData?.manual && (!dropData?.lat || !dropData?.lng)))) return setSubmitError('Enter or select a valid drop location.');
     if (Object.keys(errors).length) return setSubmitError('Please fix the location errors before continuing.');
+    if (localDropOutsideRadius) return setSubmitError(suratRadiusMessage('local', 'drop'));
     onSubmit({
       pickupLocation: pickupData,
       dropLocation: dropData?.address ? dropData : null,
@@ -1121,9 +1153,9 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
   };
 
   const labels = {
-    local: { pickup: 'Pickup Location (Surat only)', drop: 'Drop Location (Surat only)' },
+    local: { pickup: 'Pickup Location (Surat)', drop: 'Drop Location (Surat)' },
     intercity: { pickup: 'Pickup Location (Surat)', drop: 'Drop Location (Anywhere in India)' },
-    labour: { pickup: 'Pickup / Work Location (Surat only)', drop: 'Drop / Work End Location (optional)' },
+    labour: { pickup: 'Pickup / Work Location (Surat)', drop: 'Drop / Work End Location (optional)' },
   }[serviceType] || { pickup: 'Pickup Location (Surat)', drop: 'Drop Location (Anywhere in India)' };
   const freeTruck = pricingRule?.labourPricing?.trucks?.find((item) => item.isFree);
   const freeEmployees = pricingRule?.labourPricing?.employeeRates?.filter((item) => item.isFree).sort((a, b) => Number(b.employees) - Number(a.employees))[0];
@@ -1158,13 +1190,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         value={pickupData} onChange={updatePickupData} onError={handleError} clearError={clearError} />
       <div className="flex items-center gap-3"><div className="flex-1 h-px bg-bg-border" /><ArrowRight className="w-4 h-4 text-primary" /><div className="flex-1 h-px bg-bg-border" /></div>
       <PlacesAddressBlock title={labels.drop} icon={<Building2 className="w-4 h-4 text-primary" />} role="drop" serviceType={serviceType}
-        value={dropData} onChange={updateDropData} onError={handleError} clearError={clearError} optional={dropOptional} />
-      {(distanceLoading || distanceKm) && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/15 bg-sky-50 px-4 py-3 text-sm font-bold text-primary">
-          <span>{distanceLoading ? 'Calculating distance...' : 'Estimated distance'}</span>
-          <span>{distanceLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : `${distanceKm} km`}</span>
-        </div>
-      )}
+        value={dropData} onChange={updateDropData} onError={handleError} clearError={clearError} optional={dropOptional} onIntercityHandoff={handleIntercityHandoff} />
       {labour && pricingRule && (
         <div className="booking-base-package rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Base package includes</p>
@@ -1180,7 +1206,7 @@ export default function LocationStep({ onSubmit, initialData = {}, serviceType =
         </div>
       )}
       <div className="booking-location-note rounded-2xl border border-primary/15 bg-gradient-to-r from-sky-50 to-white p-4 text-xs font-bold leading-5 text-primary shadow-xs">
-        {labour ? 'Pickup/work location is required. Drop/work-end location is optional for Labour & Vehicle bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports Surat pickup and Surat drop only.'}
+        {labour ? 'Pickup/work location is required. Drop/work-end location is optional for Labour & Vehicle bookings.' : serviceType === 'intercity' ? 'Pickup must be in Surat; drop can be anywhere in India.' : 'This service supports pickup and drop in Surat.'}
       </div>
       <BookingActionBar onBack={undefined} onNext={() => handleSubmit()} nextLabel={labour ? 'Customize Package' : 'Next Step'} />
     </div>
