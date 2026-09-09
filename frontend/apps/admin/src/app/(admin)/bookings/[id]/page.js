@@ -151,10 +151,11 @@ export default function BookingDetailPage() {
 
   if (!booking) return null;
 
+  const breakdown = booking.pricingBreakdown || booking.pricing?.breakdown || {};
   const grandTotal = booking.totalAmount || ((booking.manualQuote || 0) + (booking.addOnTotal || 0));
-  const adjustment = booking.rateAdjustment || booking.pricing?.breakdown?.rateAdjustment || null;
-  const baseGrandTotal = Number(booking.baseGrandTotal || booking.pricing?.breakdown?.baseGrandTotal || grandTotal || 0);
-  const adjustmentAmount = Number(booking.rateAdjustmentAmount || booking.pricing?.breakdown?.rateAdjustmentAmount || 0);
+  const adjustment = booking.rateAdjustment || breakdown.rateAdjustment || null;
+  const baseGrandTotal = Number(booking.baseGrandTotal || breakdown.baseGrandTotal || grandTotal || 0);
+  const adjustmentAmount = Number(booking.rateAdjustmentAmount || breakdown.rateAdjustmentAmount || 0);
   const isLabour = booking.serviceType === 'porter_labour_service' || booking.serviceType === 'labour' || booking.serviceType === 'labour-service';
   const scheduledValue = getBookingScheduledDate(booking);
   const scheduledLabel = formatBookingDate(booking);
@@ -171,6 +172,18 @@ export default function BookingDetailPage() {
   const inventoryGroups = buildInventoryGroups(selectedItems, freeAllowanceItems, buildCatalogGroupLookup(catalogSections));
   const itemSummary = getItemSummary(selectedItems);
   const extraItemCount = Math.max(0, itemSummary.totalQuantity - freeAllowanceItems.length);
+  const itemsExtraCharge = Number(booking.itemsExtraCharge || breakdown.itemsExtraCharge || booking.pricing?.itemTotal || 0);
+  const allowanceDeduction = Math.max(0, itemSummary.totalAmount - itemsExtraCharge);
+  const baseMovePrice = Number(breakdown.basePrice || 0);
+  const distanceCharge = Number(booking.distanceCharge || breakdown.distanceCharge || 0);
+  const floorTotalCharge = Number(booking.floorTotalCharge || breakdown.floorTotalCharge || 0);
+  const employeeTotal = Number(booking.employeeTotal || breakdown.employeeTotal || 0);
+  const truckTotal = Number(booking.truckTotal || breakdown.truckTotal || 0);
+  const serviceCharge = Number(booking.manualQuote || booking.pricing?.serviceCharge || 0);
+  const addOnTotal = Number(booking.addOnTotal || booking.pricing?.addOnTotal || addonRows.reduce((sum, item) => sum + Number(item.total || 0), 0));
+  const sundayHike = Number(booking.sundayHike || breakdown.sundayHike || 0);
+  const rawFinalTotal = Number(breakdown.unroundedGrandTotal || grandTotal || 0);
+  const finalRoundingAdjustment = Number(breakdown.finalRoundingAdjustment ?? Math.max(0, grandTotal - rawFinalTotal));
   const isCompleted = booking.status === 'completed';
   const isFinal = ['completed', 'cancelled'].includes(booking.status);
 
@@ -329,11 +342,22 @@ export default function BookingDetailPage() {
               </div>
             ) : selectedItems.length > 0 ? (
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-4">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   <DetailMetric label="Selected items" value={`${itemSummary.totalQuantity} unit(s)`} />
                   <DetailMetric label="Free allowance" value={`${freeAllowanceItems.length} unit(s)`} />
                   <DetailMetric label="Extra items" value={`${extraItemCount} unit(s)`} />
+                  <DetailMetric label="Total item price" value={formatCurrency(itemSummary.totalAmount)} />
+                  <DetailMetric label="Allowance discount" value={`-${formatCurrency(allowanceDeduction)}`} />
+                  <DetailMetric label="Net item quote" value={formatCurrency(itemsExtraCharge)} />
                   <DetailMetric label="Size mix" value={itemSummary.sizeLabel} />
+                </div>
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/55 p-3">
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Item allowance calculation</div>
+                  <div className="space-y-1.5">
+                    <AddonCalcRow label="Selected item value" value={formatCurrency(itemSummary.totalAmount)} />
+                    <AddonCalcRow label={`${freeAllowanceItems.length} free unit allowance`} value={`-${formatCurrency(allowanceDeduction)}`} />
+                    <AddonCalcRow label="Net extra item charge" value={formatCurrency(itemsExtraCharge)} />
+                  </div>
                 </div>
                 <div className="max-h-[26rem] overflow-y-auto overscroll-contain rounded-3xl border border-sky-100 bg-sky-50/35 p-3 pr-2 sm:max-h-[30rem]">
                   <div className="space-y-4">
@@ -485,17 +509,69 @@ export default function BookingDetailPage() {
             </h3>
             
             <div className="flex flex-col gap-3 text-xs text-left">
+              {/* Move charge */}
+              <div className="rounded-xl border border-sky-100 bg-sky-50/50 p-3">
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-sky-600">Move charge breakdown</div>
+                <div className="space-y-1.5">
+                  <AddonCalcRow label="Base price" value={formatCurrency(baseMovePrice)} />
+                  <AddonCalcRow label={`Distance charge${booking.distanceKm ? ` (${Number(booking.distanceKm).toFixed(1)} km)` : ''}`} value={formatCurrency(distanceCharge)} />
+                  <AddonCalcRow label="Floor / lift charge" value={formatCurrency(floorTotalCharge)} />
+                  {truckTotal > 0 && <AddonCalcRow label="Truck charge" value={formatCurrency(truckTotal)} />}
+                  {employeeTotal > 0 && <AddonCalcRow label="Labour charge" value={formatCurrency(employeeTotal)} />}
+                  <AddonCalcRow label="Base move total" value={formatCurrency(serviceCharge)} />
+                </div>
+              </div>
+
+              {!isLabour && (
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/45 p-3">
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Item quote breakdown</div>
+                  <div className="space-y-1.5">
+                    <AddonCalcRow label="Total item price" value={formatCurrency(itemSummary.totalAmount)} />
+                    <AddonCalcRow label="Free allowance deduction" value={`-${formatCurrency(allowanceDeduction)}`} />
+                    <AddonCalcRow label="Net item charge" value={formatCurrency(itemsExtraCharge)} />
+                  </div>
+                </div>
+              )}
+
               {/* Addons */}
               <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
                 <span>Add-on Total:</span>
-                <span className="font-mono text-text-primary font-semibold">{formatCurrency(booking.addOnTotal || 0)}</span>
+                <span className="font-mono text-text-primary font-semibold">{formatCurrency(addOnTotal)}</span>
               </div>
               
               {/* Manual Quote */}
               <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
                 <span>Base Move Charge:</span>
-                <span className="font-mono text-text-primary font-semibold">{formatCurrency(booking.manualQuote || 0)}</span>
+                <span className="font-mono text-text-primary font-semibold">{formatCurrency(serviceCharge)}</span>
               </div>
+
+              {!isLabour && (
+                <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                  <span>Net Item Charge:</span>
+                  <span className="font-mono text-text-primary font-semibold">{formatCurrency(itemsExtraCharge)}</span>
+                </div>
+              )}
+
+              {sundayHike > 0 && (
+                <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                  <span>Sunday Increment:</span>
+                  <span className="font-mono text-text-primary font-semibold">{formatCurrency(sundayHike)}</span>
+                </div>
+              )}
+
+              {rawFinalTotal !== grandTotal && (
+                <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                  <span>Actual Total Before Round:</span>
+                  <span className="font-mono text-text-primary font-semibold">{formatCurrency(rawFinalTotal)}</span>
+                </div>
+              )}
+
+              {finalRoundingAdjustment > 0 && (
+                <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
+                  <span>Final Round Figure:</span>
+                  <span className="font-mono text-text-primary font-semibold">+{formatCurrency(finalRoundingAdjustment)}</span>
+                </div>
+              )}
 
               <div className="flex justify-between items-center text-text-secondary border-b border-bg-border/40 pb-2.5">
                 <span>Original Total:</span>

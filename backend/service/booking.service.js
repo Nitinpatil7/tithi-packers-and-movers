@@ -180,14 +180,14 @@ const applyRateAdjustment = (amount = 0, rule = {}) => {
 const roundToFriendlyPrice = (amount = 0) => {
   const value = Math.max(0, Math.round(toNumber(amount)));
   if (!value) return 0;
-  const lowerBase = Math.max(0, Math.floor(value / 50) * 50);
-  const candidates = [];
-  for (let base = Math.max(0, lowerBase - 100); base <= lowerBase + 150; base += 50) {
-    candidates.push(base + 49, base + 99);
-  }
-  return candidates
-    .filter((price) => price > 0)
-    .sort((a, b) => Math.abs(a - value) - Math.abs(b - value) || a - b)[0];
+  if (value % 10 === 0) return Math.max(9, value - 1);
+  return Math.ceil(value / 10) * 10 - 1;
+};
+
+const roundFinalPrice = (amount = 0) => {
+  const value = Math.max(0, Math.round(toNumber(amount)));
+  if (!value) return 0;
+  return Math.ceil(value / 10) * 10;
 };
 
 const addonLineTotal = (addon, baseAmount = 0) => {
@@ -314,6 +314,8 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
   const discount = toNumber(previous.discount);
   const tax = toNumber(previous.tax);
   const adjustedPricing = applyRateAdjustment(subtotal + sundayHike - discount + tax, rule || {});
+  const unroundedGrandTotal = adjustedPricing.grandTotal;
+  const finalTotal = roundFinalPrice(unroundedGrandTotal);
   const pricing = normalizeSubmittedPricing({
     currency: previous.currency || rule?.currency || "INR",
     itemTotal: itemBreakdown.charge,
@@ -321,7 +323,7 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
     serviceCharge,
     discount,
     tax,
-    totalAmount: adjustedPricing.grandTotal,
+    totalAmount: finalTotal,
     breakdown: {
       ...previousBreakdown,
       basePrice,
@@ -349,6 +351,8 @@ const recomputeBookingPricing = async (booking, submittedItems, submittedAddons,
       baseGrandTotal: adjustedPricing.baseGrandTotal,
       rateAdjustmentAmount: adjustedPricing.rateAdjustmentAmount,
       rateAdjustment: adjustedPricing.rateAdjustment,
+      unroundedGrandTotal,
+      finalRoundingAdjustment: finalTotal - unroundedGrandTotal,
     },
   }, calculatedBy);
   return { items, selectedAddons, pricing };

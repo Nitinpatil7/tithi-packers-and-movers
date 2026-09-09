@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, User } from 'lucide-react';
 import { useCheckMobile, useVerifyOTP } from '@hooks/useAuth';
@@ -20,6 +20,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
   const [confirmingBooking, setConfirmingBooking] = useState(false);
   const sendingOtpRef = useRef(false);
   const verifyingOtpRef = useRef(false);
+  const lastAutoVerifyOtpRef = useRef('');
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
   const checkMobileMutation = useCheckMobile();
   const verifyOTPMutation = useVerifyOTP();
@@ -57,6 +58,7 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
       setOtpSent(true);
       setTimer(response?.data?.resendAfterSeconds || DEFAULT_RESEND_SECONDS);
       setOtpValues(['', '', '', '', '', '']);
+      lastAutoVerifyOtpRef.current = '';
       toast.success('A new OTP has been sent. The previous OTP is now invalid.');
       window.setTimeout(() => otpRefs[0]?.current?.focus(), 100);
     } catch (error) {
@@ -66,9 +68,9 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
     }
   };
 
-  const verifyOtp = async () => {
+  const verifyOtp = useCallback(async (otpOverride) => {
     if (verifyingOtpRef.current || verifyBusy) return;
-    const otp = otpValues.join('');
+    const otp = otpOverride || otpValues.join('');
     if (otp.length !== 6) return toast.error('Please enter the complete 6-digit OTP code.');
     verifyingOtpRef.current = true;
     let response;
@@ -78,12 +80,14 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
       setShake(true);
       window.setTimeout(() => setShake(false), 500);
       setOtpValues(['', '', '', '', '', '']);
+      lastAutoVerifyOtpRef.current = '';
       otpRefs[0]?.current?.focus();
       toast.error(error.message || 'Invalid OTP code.');
       verifyingOtpRef.current = false;
       return;
     }
     if (!response.success) {
+      lastAutoVerifyOtpRef.current = '';
       verifyingOtpRef.current = false;
       return;
     }
@@ -94,14 +98,39 @@ export default function OTPStep({ onSubmit, onBack, initialData = {} }) {
       verifyingOtpRef.current = false;
       setConfirmingBooking(false);
     }
-  };
+  }, [email, mobile, name, onSubmit, otpValues, verifyBusy, verifyOTPMutation]);
+
+  useEffect(() => {
+    if (!otpSent || verifyBusy) return undefined;
+    const otp = otpValues.join('');
+    if (otp.length !== 6 || otpValues.some((digit) => digit.length !== 1)) return undefined;
+    if (lastAutoVerifyOtpRef.current === otp) return undefined;
+    lastAutoVerifyOtpRef.current = otp;
+    const timeout = window.setTimeout(() => verifyOtp(otp), 80);
+    return () => window.clearTimeout(timeout);
+  }, [otpSent, otpValues, verifyBusy, verifyOtp]);
 
   const handleOtpChange = (value, index) => {
-    if (Number.isNaN(Number(value))) return;
+    const digits = String(value || '').replace(/\D/g, '');
+    if (!digits) {
+      const next = [...otpValues];
+      next[index] = '';
+      setOtpValues(next);
+      return;
+    }
+    if (digits.length > 1) {
+      const next = [...otpValues];
+      digits.slice(0, 6 - index).split('').forEach((digit, offset) => {
+        next[index + offset] = digit;
+      });
+      setOtpValues(next);
+      otpRefs[Math.min(index + digits.length, 5)]?.current?.focus();
+      return;
+    }
     const next = [...otpValues];
-    next[index] = value;
+    next[index] = digits;
     setOtpValues(next);
-    if (value && index < 5) otpRefs[index + 1].current?.focus();
+    if (index < 5) otpRefs[index + 1].current?.focus();
   };
 
   const handleOtpPaste = (event) => {

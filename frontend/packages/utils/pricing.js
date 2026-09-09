@@ -196,14 +196,14 @@ const addonQuantity = (service = {}) => Math.max(1, toNumber(service.quantity, 1
 export function roundToFriendlyPrice(amount = 0) {
   const value = Math.max(0, Math.round(toNumber(amount)));
   if (!value) return 0;
-  const lowerBase = Math.max(0, Math.floor(value / 50) * 50);
-  const candidates = [];
-  for (let base = Math.max(0, lowerBase - 100); base <= lowerBase + 150; base += 50) {
-    candidates.push(base + 49, base + 99);
-  }
-  return candidates
-    .filter((price) => price > 0)
-    .sort((a, b) => Math.abs(a - value) - Math.abs(b - value) || a - b)[0];
+  if (value % 10 === 0) return Math.max(9, value - 1);
+  return Math.ceil(value / 10) * 10 - 1;
+}
+
+export function roundFinalPrice(amount = 0) {
+  const value = Math.max(0, Math.round(toNumber(amount)));
+  if (!value) return 0;
+  return Math.ceil(value / 10) * 10;
 }
 
 export function calculateAddOnLineTotal(service = {}, baseAmount = 0) {
@@ -290,7 +290,8 @@ export function calculateBookingPrice(bookingData = {}) {
     ? toNumber(lockedPricing.sundayHike)
     : isSundayCalendarDate(dateValue) ? Math.round(subtotal * 0.05) : 0;
   const adjustedPricing = applyRateAdjustment(subtotal + sundayHike, rule);
-  const grandTotal = adjustedPricing.grandTotal;
+  const unroundedGrandTotal = adjustedPricing.grandTotal;
+  const grandTotal = roundFinalPrice(unroundedGrandTotal);
   return {
     basePrice,
     itemsExtraCharge,
@@ -321,6 +322,8 @@ export function calculateBookingPrice(bookingData = {}) {
       baseGrandTotal: adjustedPricing.baseGrandTotal,
       rateAdjustmentAmount: adjustedPricing.rateAdjustmentAmount,
       rateAdjustment: adjustedPricing.rateAdjustment,
+      unroundedGrandTotal,
+      finalRoundingAdjustment: grandTotal - unroundedGrandTotal,
     },
   };
 }

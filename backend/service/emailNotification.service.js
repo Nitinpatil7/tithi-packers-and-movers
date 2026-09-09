@@ -119,16 +119,7 @@ const bookingValues = (booking = {}) => ({
   totalPrice: formatCurrency(booking.pricing?.totalAmount || 0),
 });
 
-const customerRecipient = (booking = {}) => normalizeRecipients([booking.customer?.email]);
-
-const resolveRecipients = (booking, settings, recipientMode) => {
-  if (recipientMode === "customer") return customerRecipient(booking);
-  if (recipientMode === "settings_and_customer") {
-    return normalizeRecipients([
-      ...normalizeRecipients(settings.recipients),
-      ...customerRecipient(booking),
-    ]);
-  }
+const resolveRecipients = (_booking, settings) => {
   return normalizeRecipients(settings.recipients);
 };
 
@@ -219,7 +210,7 @@ const sendBookingEmailWithPdf = async (booking, {
 
 const sendBookingConfirmationEmail = async (booking, { source = "website" } = {}) => sendBookingEmailWithPdf(booking, {
   source,
-  recipientMode: "settings_and_customer",
+  recipientMode: "settings",
   logLabel: "Booking confirmation email",
 });
 
@@ -231,7 +222,7 @@ const sendBookingUpdateEmail = async (booking, { source = "website" } = {}) => {
   ].filter(Boolean).join(" - ");
   return sendBookingEmailWithPdf(booking, {
     source,
-    recipientMode: "settings_and_customer",
+    recipientMode: "settings",
     subjectOverride: `Booking Update - ID: {{bookingId}}${customerParts ? ` - ${customerParts}` : ""}`,
     titleOverride: "Booking Update",
     logLabel: "Booking update email",
