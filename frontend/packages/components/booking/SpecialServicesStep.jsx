@@ -281,10 +281,10 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
 
   if (singleSelect) {
     return (
-      <article className={`${sizeClass} flex h-auto min-w-0 flex-col items-center gap-2 overflow-y-visible rounded-2xl border ${paddingClass} transition-colors ${activeClass}`}>
+      <article className={`${sizeClass} flex h-auto min-w-0 flex-col items-center overflow-y-visible rounded-2xl border ${paddingClass} transition-colors ${activeClass}`}>
         {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className="packing-addon-icon h-full w-full" sizes="(max-width: 640px) 42vw, 12rem" /></span>}
         <div className="flex shrink-0 justify-center px-1 pt-8 sm:pt-0">
-          <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center gap-1.5 rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Select'}</button>
+          <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Select'}</button>
         </div>
       </article>
     );
