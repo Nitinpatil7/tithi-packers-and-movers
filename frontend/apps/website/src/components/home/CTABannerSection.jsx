@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Phone, MessageCircle } from 'lucide-react';
@@ -12,11 +12,16 @@ import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 const MotionLink = motion(Link);
 
 export default function CTABannerSection() {
+  const [hydrated, setHydrated] = useState(false);
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
   const { data: site = {} } = useSiteSetting();
-  const phone = site.phone || '';
-  const whatsapp = site.whatsappNumber || '';
+  const phone = hydrated ? site.phone || '' : '';
+  const whatsapp = hydrated ? site.whatsappNumber || '' : '';
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <section className="cta-section section-texture-warm relative overflow-hidden py-12 md:py-24">

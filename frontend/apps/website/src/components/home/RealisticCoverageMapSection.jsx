@@ -269,8 +269,9 @@ function TestimonialHoverCard({ node, position, onClose }) {
 }
 
 export default function RealisticCoverageMapSection() {
+  const [hydrated, setHydrated] = useState(false);
   const { data } = usePublicTestimonials({});
-  const testimonials = useMemo(() => (Array.isArray(data) ? data : []), [data]);
+  const testimonials = useMemo(() => (hydrated && Array.isArray(data) ? data : []), [data, hydrated]);
   const coverage = useMemo(() => buildCoverage(testimonials), [testimonials]);
   const meta = META[coverage.mode] || META.surat;
   const Icon = meta.icon;
@@ -288,6 +289,10 @@ export default function RealisticCoverageMapSection() {
     () => (coverage.nodes.length ? coverage.nodes : [{ ...SURAT_HUB, mode: 'surat', state: 'Gujarat' }]),
     [coverage.nodes]
   );
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const hideCard = () => {
     activeNodeRef.current = null;

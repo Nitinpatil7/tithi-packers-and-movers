@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -21,15 +21,17 @@ const SERVICE_ICONS = {
 const SERVICE_ICON_SCALE = {
   local: 'scale-[1.06]',
   intercity: 'scale-[1.06]',
-  labour: 'scale-[1.06]',
+  labour: 'scale-[0.92]',
 };
 
 export default function HeroSection() {
+  const [hydrated, setHydrated] = useState(false);
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS.en;
   const { data: site = {} } = useSiteSetting();
   const { data: testimonialData = [] } = usePublicTestimonials({});
-  const testimonials = Array.isArray(testimonialData) ? testimonialData : [];
+  const testimonials = hydrated && Array.isArray(testimonialData) ? testimonialData : [];
+  const stableSite = hydrated ? site : {};
   const averageRating = testimonials.length
     ? (
         testimonials.reduce((sum, item) => sum + Number(item.rating || 0), 0) /
@@ -39,11 +41,15 @@ export default function HeroSection() {
   const verifiedReviewCount = testimonials.length + 50;
 
   const stats = [
-    { value: site.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
-    { value: site.stats?.citiesCovered ?? 0, suffix: '+', label: t.statCities || 'Cities Served', icon: MapPinned },
-    { value: site.stats?.yearsExperience ?? 0, suffix: '+', label: t.statYears || 'Years Trust', icon: ShieldCheck },
-    { value: site.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Support', icon: Headphones },
+    { value: stableSite.stats?.successfulMoves ?? 0, suffix: '+', label: t.statHappyMoves || 'Happy Moves', icon: House },
+    { value: stableSite.stats?.citiesCovered ?? 0, suffix: '+', label: t.statCities || 'Cities Served', icon: MapPinned },
+    { value: stableSite.stats?.yearsExperience ?? 0, suffix: '+', label: t.statYears || 'Years Trust', icon: ShieldCheck },
+    { value: stableSite.stats?.customerSatisfaction ?? 0, suffix: '%', label: t.statSupport || 'Support', icon: Headphones },
   ];
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const services = [
     { key: 'local', serviceType: 'local_shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE' },

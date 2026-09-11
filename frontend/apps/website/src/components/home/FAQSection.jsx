@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown, HelpCircle } from 'lucide-react';
@@ -11,14 +11,16 @@ import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
 export default function FAQSection() {
   const [openId, setOpenId] = useState(null);
+  const [hydrated, setHydrated] = useState(false);
   const { language } = useLanguageStore();
   const t = PAGE_TRANSLATIONS[language] || PAGE_TRANSLATIONS['en'];
   const { data: apiFaqs = [], isLoading, isError } = useFaqs();
   const { data: openFaqDetail } = useFaqDetail(openId, Boolean(openId));
   const { data: site = {} } = useSiteSetting();
-  const phone = site.phone || '';
+  const phone = hydrated ? site.phone || '' : '';
 
-  const faqs = !isError && Array.isArray(apiFaqs) ? apiFaqs : [];
+  const faqs = hydrated && !isError && Array.isArray(apiFaqs) ? apiFaqs : [];
+  const showLoading = !hydrated || isLoading;
   const trustItems = [
     '100% trusted transport',
     'Verified moving crew',
@@ -30,6 +32,10 @@ export default function FAQSection() {
   const toggleFAQ = (id) => {
     setOpenId(openId === id ? null : id);
   };
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <section id="faq" className="faq-section dotted-light-bg py-20 md:py-32 relative overflow-hidden">
@@ -79,15 +85,15 @@ export default function FAQSection() {
 
         {/* FAQs Accordion */}
         <div className="flex flex-col gap-3">
-          {isLoading && [0, 1, 2].map((item) => (
+          {showLoading && [0, 1, 2].map((item) => (
             <div key={item} className="h-24 animate-pulse rounded-2xl border border-orange-100 bg-white/80" />
           ))}
-          {!isLoading && faqs.length === 0 && (
+          {!showLoading && faqs.length === 0 && (
             <div className="rounded-2xl border border-orange-100 bg-white/85 p-8 text-center text-sm font-medium text-text-secondary shadow-card">
               FAQs are being updated. Please check back shortly.
             </div>
           )}
-          {!isLoading && faqs.map((faq, idx) => {
+          {!showLoading && faqs.map((faq, idx) => {
             const isOpen = openId === faq._id;
             const displayedFaq = isOpen && openFaqDetail?._id === faq._id ? openFaqDetail : faq;
 
