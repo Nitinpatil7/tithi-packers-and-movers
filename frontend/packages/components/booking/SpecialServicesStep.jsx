@@ -273,11 +273,11 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
   const iconOverflowClass = featured || singleSelect ? 'overflow-visible' : 'overflow-hidden';
   const buttonClass = singleSelect
     ? active
-      ? 'border-primary bg-primary px-4 py-1 text-lg font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
-      : 'border-primary/20 bg-bg-white px-6 py-1 text-lg font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm'
+      ? 'border-primary bg-primary px-4 py-1 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
+      : 'border-primary/20 bg-bg-white px-6 py-1 text-sm font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm'
     : active
-      ? 'border-primary bg-primary px-4 py-1 text-lg font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
-      : 'border-primary/20 bg-bg-white px-4 py-1 text-lg font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm';
+      ? 'border-primary bg-primary px-4 py-1 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
+      : 'border-primary/20 bg-bg-white px-4 py-1 text-sm font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm';
 
   if (singleSelect) {
     return (
