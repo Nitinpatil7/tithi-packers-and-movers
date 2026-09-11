@@ -21,7 +21,7 @@ const SERVICE_ICONS = {
 const SERVICE_ICON_SCALE = {
   local: 'scale-[1.06]',
   intercity: 'scale-[1.06]',
-  labour: 'scale-[0.92]',
+  labour: 'scale-[1.04]',
 };
 
 export default function HeroSection() {
@@ -186,7 +186,7 @@ export default function HeroSection() {
         width={620}
         height={360}
         sizes="(min-width: 768px) 520px, 82vw"
-        className="hero-mobile-front-truck pointer-events-none absolute bottom-[-8%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-56 sm:right-[-10%] sm:max-w-[500px] md:-bottom-52 md:max-w-[520px] lg:hidden"
+        className="hero-mobile-front-truck pointer-events-none absolute bottom-[-10%] right-[-10%] z-50 w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-96 sm:right-[-10%] sm:max-w-[500px] md:-bottom-54 md:max-w-[520px] lg:hidden"
       />
     </section>
   );
