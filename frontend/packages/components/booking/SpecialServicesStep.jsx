@@ -31,6 +31,7 @@ function AddonIcon({ icon, priority = false, className = 'h-12 w-12', sizes = '4
       loading={priority ? undefined : 'eager'}
       decoding="async"
       sizes={sizes}
+      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
       className={`${className} rounded-lg object-contain dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : null;
@@ -228,9 +229,9 @@ export default function SpecialServicesStep({ onSubmit, onBack, initialData = {}
   return <div className="flex min-h-[calc(100svh-18rem)] min-w-0 flex-col gap-4 pb-24 text-left sm:min-h-[calc(100svh-20rem)] sm:gap-5 sm:pb-4"><header className="flex min-w-0 items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft/40 text-primary dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]"><Sparkles className="h-6 w-6" /></span><div className="min-w-0"><h3 className="text-2xl font-semibold text-text-primary">Add-on Services</h3></div></header>
     <section className="mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col rounded-3xl border border-sky-100 bg-bg-white p-2.5 shadow-card sm:p-3">
       {isLoading ? <div className="grid min-h-52 flex-1 place-items-center rounded-2xl border border-bg-border"><Spinner size="md" /></div> : isError ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><p className="text-sm font-semibold text-red-600">Could not load add-on services.</p><button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-primary">Try again</button></div> : addons.length === 0 ? <div className="flex min-h-52 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-bg-border px-5 text-center"><Sparkles className="h-9 w-9 text-primary/50" /><h4 className="mt-3 text-base font-semibold text-text-primary">No add-on service available</h4><p className="mt-1 text-sm text-text-secondary">There are no add-ons for your selected items. You can continue.</p></div> : <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
-        {packingAddons.length > 0 && <div className="min-w-0">
+        {packingAddons.length > 0 && <div className="h-auto min-w-0 overflow-y-visible">
           <h4 className="mb-2 text-lg font-semibold text-text-primary">Packing Option</h4>
-          <div ref={packingScrollerRef} className="scrollbar-none -mx-1 flex min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:pr-1">
+          <div ref={packingScrollerRef} className="scrollbar-none -mx-1 flex h-auto min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto overflow-y-visible overscroll-x-contain px-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:pr-1">
             {packingAddons.map((addon, index) => <AddonCard key={addon._id} addon={addon} active={isSelected(addon)} onToggle={toggleAddon} priority={featuredAddons.length === 0 && index < 3} getSnapshot={addonSnapshot} singleSelect />)}
           </div>
           {packingPages > 1 && <div className="mt-0.5 flex justify-center gap-1.5 sm:hidden">{Array.from({ length: packingPages }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${packingPage === index ? 'w-5 bg-primary' : 'w-1.5 bg-bg-border'}`} />)}</div>}
@@ -256,9 +257,9 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
   const sizeClass = featured
     ? 'min-h-[9.5rem] w-[min(86vw,24rem)] max-w-none shrink-0 snap-center sm:w-[min(72vw,28rem)] md:w-[min(58vw,30rem)] lg:w-[min(48vw,32rem)]'
     : singleSelect
-      ? 'min-h-[9rem] w-[44vw] max-w-[12rem] shrink-0 snap-start sm:min-h-[9.25rem] sm:w-full sm:max-w-none'
+      ? 'w-[44vw] max-w-[12rem] shrink-0 snap-start sm:w-full sm:max-w-none'
       : 'min-h-32';
-  const paddingClass = singleSelect ? 'p-1.5 sm:p-2.5' : featured ? 'p-3 sm:p-3.5' : 'p-2.5 sm:p-4';
+  const paddingClass = singleSelect ? 'px-1 py-1.5 sm:px-2 sm:py-2.5' : featured ? 'p-3 sm:p-3.5' : 'p-2.5 sm:p-4';
   const activeClass = active
     ? singleSelect
       ? 'border-primary bg-primary-soft/30 shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-2 ring-primary/20'
@@ -267,20 +268,31 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
   const iconWrapClass = featured
     ? 'h-24 w-28 p-1 sm:w-32'
     : singleSelect
-      ? 'h-[5.6rem] w-full p-1 sm:h-24'
+      ? 'h-[9.5rem] w-full p-0.5 sm:h-48'
       : 'h-14 w-14 sm:h-12 sm:w-12';
   const iconOverflowClass = featured || singleSelect ? 'overflow-visible' : 'overflow-hidden';
   const buttonClass = singleSelect
     ? active
-      ? 'border-primary bg-primary px-3.5 py-2 text-xs font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
-      : 'border-primary/20 bg-bg-white px-3.5 py-2 text-xs font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm'
+      ? 'border-primary bg-primary px-4 py-1 text-lg font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
+      : 'border-primary/20 bg-bg-white px-6 py-1 text-lg font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm'
     : active
-      ? 'border-bg-border bg-bg-muted px-3 py-1.5 text-text-primary shadow-sm transition'
-      : 'border-primary/20 bg-bg-white px-3 py-1.5 text-primary transition hover:border-primary/30 hover:shadow-sm';
+      ? 'border-primary bg-primary px-4 py-1 text-lg font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
+      : 'border-primary/20 bg-bg-white px-4 py-1 text-lg font-semibold text-primary transition-all duration-200 hover:scale-[1.03] hover:border-primary/40 hover:bg-primary-soft/30 active:scale-[0.97] sm:text-sm';
+
+  if (singleSelect) {
+    return (
+      <article className={`${sizeClass} flex h-auto min-w-0 flex-col items-center gap-2 overflow-y-visible rounded-2xl border ${paddingClass} transition-colors ${activeClass}`}>
+        {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className="packing-addon-icon h-full w-full" sizes="(max-width: 640px) 42vw, 12rem" /></span>}
+        <div className="flex shrink-0 justify-center px-1 pt-7">
+          <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center gap-1.5 rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Select'}</button>
+        </div>
+      </article>
+    );
+  }
 
   return (
-    <article className={`${sizeClass} flex min-w-0 flex-col justify-between rounded-2xl border ${paddingClass} transition-colors ${activeClass}`}>
-      <div className="min-w-0">
+    <article className={`${sizeClass} flex h-auto min-w-0 flex-col ${singleSelect ? 'justify-start gap-2 overflow-y-visible' : 'justify-between'} rounded-2xl border ${paddingClass} transition-colors ${activeClass}`}>
+      <div className={`min-w-0 ${singleSelect ? 'shrink-0' : ''}`}>
         <div className={`flex min-w-0 gap-2 ${featured ? 'items-center' : singleSelect ? 'flex-col items-start' : 'items-start justify-between'}`}>
           <div className={`flex min-w-0 items-center gap-3 ${featured ? 'flex-1' : singleSelect ? 'w-full flex-col gap-1.5 text-center' : ''}`}>
             {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className={featured ? 'h-full w-full' : singleSelect ? 'h-full w-full' : 'h-14 w-14 sm:h-12 sm:w-12'} sizes={featured ? '(max-width: 640px) 7rem, 8rem' : singleSelect ? '(max-width: 640px) 42vw, 12rem' : '56px'} /></span>}
@@ -290,7 +302,7 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
         {addon.description && !singleSelect && <p className="mt-1 line-clamp-2 text-xs font-normal leading-5 text-text-secondary">{addon.description}</p>}
         {!singleSelect && <strong className="mt-2 block font-mono text-sm font-black text-primary">{formatCurrency(snapshot.total)}</strong>}
       </div>
-      <div className={`flex border-t border-bg-border/60 ${singleSelect ? 'mt-1.5 justify-center px-1 pt-2' : 'mt-2.5 justify-end pt-2'}`}>
+      <div className={`flex ${singleSelect ? 'shrink-0 justify-center px-1' : 'mt-2.5 justify-end border-t border-bg-border/60 pt-2'}`}>
         <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center gap-1.5 rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : singleSelect ? 'Select' : 'Add service'}</button>
       </div>
     </article>

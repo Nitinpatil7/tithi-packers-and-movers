@@ -1319,6 +1319,15 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
+.packing-addon-icon {
+  display: block !important;
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
 /* Light Glassmorphism */
 .glass {
   background: var(--glass-bg);
