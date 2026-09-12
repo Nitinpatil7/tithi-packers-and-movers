@@ -282,7 +282,7 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
   if (singleSelect) {
     return (
       <article className={`${sizeClass} relative flex h-fit min-w-0 flex-col items-center gap-2 pt-8 sm:py-0 overflow-hidden rounded-2xl border ${paddingClass} transition-colors ${activeClass} sm:gap-3 lg:gap-2`}>
-        <span className="absolute right-4 top-2 z-10 max-w-full rounded-full border border-primary/10 bg-bg-white/95 px-4 py-1.5 sm:px-4  sm:py-2 text-center font-mono text-[15px] font-black leading-none text-primary shadow-sm sm:text-sm">{formatCurrency(snapshot.total)}</span>
+        <span className="absolute right-4 top-2 z-10 max-w-full rounded-full border border-primary/10 bg-bg-white/95 px-2 py-1 sm:px-4  sm:py-2 text-center font-mono text-[12px] font-black leading-none text-primary shadow-sm sm:text-sm">{formatCurrency(snapshot.total)}</span>
         {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className="packing-addon-icon  h-full w-full" sizes="(max-width: 640px) 42vw, 12rem" /></span>}
         <div className="flex shrink-0 justify-center px-1">
           <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Select'}</button>
