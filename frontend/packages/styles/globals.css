@@ -1321,7 +1321,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .packing-addon-icon {
   display: block !important;
-  width: auto !important;
+  width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
   max-height: 100% !important;

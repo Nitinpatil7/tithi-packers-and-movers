@@ -259,7 +259,7 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
     : singleSelect
       ? 'w-[44vw] max-w-[12rem] shrink-0 snap-start sm:w-full sm:max-w-none'
       : 'min-h-32';
-  const paddingClass = singleSelect ? 'px-1 py-1.5 sm:px-2 sm:py-2.5' : featured ? 'p-3 sm:p-3.5' : 'p-2.5 sm:p-4';
+  const paddingClass = singleSelect ? 'px-1 py-1.5 sm:px-2 sm:py-2 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-2' : featured ? 'p-3 sm:p-3.5' : 'p-2.5 sm:p-4';
   const activeClass = active
     ? singleSelect
       ? 'border-primary bg-primary-soft/30 shadow-[0_14px_30px_rgba(15,23,42,0.08)] ring-2 ring-primary/20'
@@ -268,9 +268,9 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
   const iconWrapClass = featured
     ? 'h-24 w-28 p-1 sm:w-32'
     : singleSelect
-      ? 'h-[9.5rem] w-full p-0.5 sm:h-48'
+      ? 'h-32 w-full max-w-32 p-0.5 sm:h-40 sm:max-w-40 md:h-44 md:max-w-44 lg:h-32 lg:max-w-32 xl:h-36 xl:max-w-36 2xl:h-40 2xl:max-w-40'
       : 'h-14 w-14 sm:h-12 sm:w-12';
-  const iconOverflowClass = featured || singleSelect ? 'overflow-visible' : 'overflow-hidden';
+  const iconOverflowClass = featured ? 'overflow-visible' : 'overflow-hidden';
   const buttonClass = singleSelect
     ? active
       ? 'border-primary bg-primary px-4 py-1 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(14,165,233,0.24)] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-sm'
@@ -281,9 +281,10 @@ function AddonCard({ addon, active, onToggle, priority = false, featured = false
 
   if (singleSelect) {
     return (
-      <article className={`${sizeClass} flex h-auto min-w-0 flex-col items-center gap-8 overflow-y-visible rounded-2xl border ${paddingClass} transition-colors ${activeClass} sm:gap-10`}>
-        {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className="packing-addon-icon h-full w-full" sizes="(max-width: 640px) 42vw, 12rem" /></span>}
-        <div className="flex shrink-0 justify-center px-1 ">
+      <article className={`${sizeClass} relative flex h-fit min-w-0 flex-col items-center gap-2 pt-8 sm:py-0 overflow-hidden rounded-2xl border ${paddingClass} transition-colors ${activeClass} sm:gap-3 lg:gap-2`}>
+        <span className="absolute right-4 top-2 z-10 max-w-full rounded-full border border-primary/10 bg-bg-white/95 px-4 py-1.5 sm:px-4  sm:py-2 text-center font-mono text-[15px] font-black leading-none text-primary shadow-sm sm:text-sm">{formatCurrency(snapshot.total)}</span>
+        {addon.icon && <span className={`${iconWrapClass} grid shrink-0 place-items-center ${iconOverflowClass} rounded-lg bg-primary-soft/30 dark:shadow-[0_10px_18px_rgba(0,0,0,0.22)]`}><AddonIcon icon={addon.icon} priority={priority} className="packing-addon-icon  h-full w-full" sizes="(max-width: 640px) 42vw, 12rem" /></span>}
+        <div className="flex shrink-0 justify-center px-1">
           <button type="button" onClick={() => onToggle(addon)} className={`inline-flex max-w-full shrink-0 transform-gpu items-center rounded-lg border font-semibold ${buttonClass}`}>{active && <Check className="h-3.5 w-3.5" />}{active ? 'Selected' : 'Select'}</button>
         </div>
       </article>
