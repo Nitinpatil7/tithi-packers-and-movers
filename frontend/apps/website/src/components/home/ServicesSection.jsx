@@ -116,7 +116,7 @@ export default function ServicesSection() {
         </motion.div>
 
         <motion.div
-          className="mt-12 grid items-center gap-8 overflow-hidden rounded-[28px] border border-sky-100 bg-white/72 px-5 py-8 shadow-[0_24px_70px_rgba(3,105,161,.13)] dark:border-sky-300/20 dark:bg-sky-400/10 sm:mt-14 sm:px-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(360px,1.18fr)] lg:gap-4 lg:px-10 lg:py-10"
+          className="mt-12 grid items-center gap-8 px-5 py-6 sm:mt-14 sm:px-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(360px,1.18fr)] lg:gap-4 lg:px-10 lg:py-8"
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
@@ -135,16 +135,62 @@ export default function ServicesSection() {
 
           <div className="services-truck-wrap relative flex min-w-0 items-center justify-center">
             <Image
-              src="/front_truck.png"
+              src="/front_truck_v2.png"
               alt="Tithi Packers and Movers truck"
               width={900}
               height={520}
               sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 92vw"
-              className="services-truck-image h-auto w-full max-w-[760px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
+              className="services-truck-image h-auto w-full max-w-[760px] object-contain"
             />
           </div>
         </motion.div>
       </div>
+
+      <style jsx>{`
+        :global(.services-truck-image) {
+          -webkit-mask-image:
+            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+            linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+          mask-image:
+            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+            linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+          -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+        }
+
+        :global(.dark .services-truck-image) {
+          -webkit-mask-image:
+            linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%),
+            linear-gradient(180deg, transparent 0%, #000 28%, #000 78%, transparent 100%);
+          mask-image:
+            linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%),
+            linear-gradient(180deg, transparent 0%, #000 28%, #000 78%, transparent 100%);
+        }
+
+        @media (max-width: 639px) {
+          :global(.services-truck-image) {
+            -webkit-mask-image:
+              linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+            mask-image:
+              linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+          }
+
+          :global(.dark .services-truck-image) {
+            -webkit-mask-image:
+              linear-gradient(90deg, transparent 0%, #000 20%, #000 80%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 26%, #000 78%, transparent 100%);
+            mask-image:
+              linear-gradient(90deg, transparent 0%, #000 20%, #000 80%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 26%, #000 78%, transparent 100%);
+          }
+        }
+      `}</style>
     </section>
   );
 }
@@ -158,7 +204,7 @@ function ServiceCard({ service, title, variants }) {
     <motion.article variants={variants} className="h-full">
       <Link
         href={service.path}
-        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-t-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25"
+        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25"
       >
         <span className="service-image-frame block w-full overflow-hidden rounded-t-lg bg-white p-1 dark:bg-bg-white">
           <Image
@@ -172,7 +218,7 @@ function ServiceCard({ service, title, variants }) {
         </span>
 
         <span className="flex flex-1 flex-col items-center px-1.5 pb-3 pt-2 sm:px-3 sm:pb-5 sm:pt-3 lg:px-5">
-          <span className="service-card-title block max-w-full text-[10px] font-black uppercase leading-tight sm:text-xs md:text-sm lg:text-base">
+          <span className="service-card-title flex min-h-[2.5em] max-w-full flex-wrap items-center justify-center gap-x-1 text-[10px] font-black uppercase leading-tight sm:text-xs md:text-sm lg:text-base">
             <span className="text-primary">{blueTitle}</span>{' '}
             <span className="text-orange-500">{orangeTitle}</span>
           </span>
@@ -182,7 +228,7 @@ function ServiceCard({ service, title, variants }) {
             <span className="block font-medium">{service.description}</span>
           </span>
 
-          <span className="service-book-now mt-2 inline-flex items-center justify-center gap-1 rounded-full bg-orange-500 px-2 py-1.5 text-[8px] font-black uppercase tracking-wide text-white shadow-[0_6px_14px_rgba(249,115,22,.28)] transition-all duration-200 hover:bg-orange-600 sm:mt-3 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm">
+          <span className="service-book-now mt-auto inline-flex items-center justify-center gap-1 rounded-full bg-orange-500 px-2 py-1.5 text-[8px] font-black uppercase tracking-wide text-white shadow-[0_6px_14px_rgba(249,115,22,.28)] transition-all duration-200 hover:bg-orange-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm">
             Book Now
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
           </span>
