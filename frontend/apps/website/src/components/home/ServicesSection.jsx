@@ -1,10 +1,17 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Truck, Navigation, Users, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Truck } from 'lucide-react';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
+
+const SERVICE_IMAGES = {
+  local: '/local.png',
+  intercity: '/intercity.png',
+  labour: '/labour.png',
+};
 
 export default function ServicesSection() {
   const { data: site = {} } = useSiteSetting();
@@ -19,275 +26,168 @@ export default function ServicesSection() {
     {
       id: 'local',
       title: 'Local Shifting',
-      description: 'Home or office relocation within Surat. Same-day shifting, flexible schedules with expert packers.',
-      icon: Truck,
-      color: '#0EA5E9',
-      softBg: '#E0F2FE',
+      eyebrow: 'Within Your City',
+      description: 'Fast • Safe • Hassle-Free',
+      image: SERVICE_IMAGES.local,
       path: '/book/local-shifting',
-      features: ['Same-day available', 'Trained crew', 'Floor-to-floor service'],
+      labelKey: 'local_shifting',
     },
     {
       id: 'intercity',
       title: 'Intercity Moving',
-      description: 'Seamless shifting from Surat to anywhere in India. Full container or economical part-loads with GPS tracking.',
-      icon: Navigation,
-      color: '#0284C7',
-      softBg: '#BAE6FD',
+      eyebrow: 'Across India',
+      description: 'Your Belongings, Our Care',
+      image: SERVICE_IMAGES.intercity,
       path: '/book/intercity-moving',
-      features: ['Pan-India routes', 'GPS tracking', 'Cargo insurance'],
+      labelKey: 'intercity_moving',
     },
     {
       id: 'labour',
       title: 'Labour & Vehicle',
-      description: 'Expert workers with optional vehicle support for lifting, loading, unloading, or arranging heavy items.',
-      icon: Users,
-      color: '#38BDF8',
-      softBg: '#E0F2FE',
+      eyebrow: 'On Demand',
+      description: 'Skilled People • Modern Vehicles',
+      image: SERVICE_IMAGES.labour,
       path: '/book/labour-service',
-      features: ['1-5 workers', 'Hourly pricing', 'Quick deployment'],
+      labelKey: 'porter_labour_service',
     },
   ];
-  const serviceTitleById = {
-    local: stableSite.serviceLabels?.local_shifting,
-    intercity: stableSite.serviceLabels?.intercity_moving,
-    labour: stableSite.serviceLabels?.porter_labour_service,
+
+  const serviceTitleByKey = {
+    local_shifting: stableSite.serviceLabels?.local_shifting,
+    intercity_moving: stableSite.serviceLabels?.intercity_moving,
+    porter_labour_service: stableSite.serviceLabels?.porter_labour_service,
   };
-  const [activeServiceId, setActiveServiceId] = useState('local');
-  const [mobileServiceIndex, setMobileServiceIndex] = useState(0);
-  const mobileTrackRef = useRef(null);
-  const mobileScrollFrame = useRef(null);
-  const activeService = services.find((service) => service.id === activeServiceId) || services[0];
-  const ActiveIcon = activeService.icon;
-
-  const updateMobileServiceIndex = useCallback(() => {
-    const track = mobileTrackRef.current;
-    if (!track) return;
-    const cards = Array.from(track.children);
-    const center = track.scrollLeft + track.clientWidth / 2;
-    const nearest = cards.reduce((best, card, index) => {
-      const cardCenter = card.offsetLeft + card.clientWidth / 2;
-      const distance = Math.abs(center - cardCenter);
-      return distance < best.distance ? { index, distance } : best;
-    }, { index: 0, distance: Number.POSITIVE_INFINITY });
-    setMobileServiceIndex((current) => (current === nearest.index ? current : nearest.index));
-  }, []);
-
-  const handleMobileServiceScroll = useCallback(() => {
-    if (mobileScrollFrame.current) return;
-    mobileScrollFrame.current = window.requestAnimationFrame(() => {
-      mobileScrollFrame.current = null;
-      updateMobileServiceIndex();
-    });
-  }, [updateMobileServiceIndex]);
-
-  useEffect(() => () => {
-    if (mobileScrollFrame.current) window.cancelAnimationFrame(mobileScrollFrame.current);
-  }, []);
 
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.1 } },
+    visible: { transition: { staggerChildren: 0.08 } },
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 28 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring', stiffness: 80, damping: 15 },
+      transition: { type: 'spring', stiffness: 92, damping: 18 },
     },
   };
 
   return (
-    <section id="services" className="relative z-10 overflow-x-clip overflow-y-visible bg-hero-gradient pt-28 pb-14 md:pt-28 md:pb-24">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
+    <section id="services" className="relative z-10 overflow-x-clip overflow-y-visible bg-hero-gradient py-14 sm:py-16 lg:py-20">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-        {/* Section Header */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          className="flex flex-col items-center text-center mb-10 gap-3 md:mb-12"
+          className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           <span className="section-label text-[13px]">
-            <Truck className="w-3.5 h-3.5" />
+            <Truck className="h-3.5 w-3.5" />
             Our Services
           </span>
-          <h2 className="text-display-md md:text-display-lg font-black text-text-primary">
+          <h2 className="text-display-md font-black leading-[1.08] text-text-primary md:text-display-lg">
             Everything You Need to{' '}
-            <span className="gradient-text">
-              Move Hassle-Free
-            </span>
+            <span className="gradient-text">Move Hassle-Free</span>
           </h2>
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
             Local, intercity, or Labour & Vehicle - three specialized services tailored to exactly what you need.
           </p>
         </motion.div>
 
-        {/* Services discovery */}
         <motion.div
-          className="hidden grid-cols-[0.86fr_1.14fr] gap-6 md:grid"
+          className="mx-auto mt-8 grid max-w-5xl grid-cols-3 items-stretch gap-2 sm:gap-4 lg:mt-9 lg:gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
+          viewport={{ once: true, margin: '-80px' }}
         >
-          <div className="flex flex-col gap-3">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              const isActive = activeService.id === service.id;
-              return (
-                <motion.button
-                  key={service.id}
-                  type="button"
-                  variants={cardVariants}
-                  onMouseEnter={() => setActiveServiceId(service.id)}
-                  onFocus={() => setActiveServiceId(service.id)}
-                  onClick={() => setActiveServiceId(service.id)}
-                  className={`service-hover-card group rounded-3xl border p-4 text-left shadow-card transition-all duration-300 will-change-transform ${isActive ? 'border-sky-300 bg-white shadow-[0_24px_56px_rgba(3,105,161,.16)]' : 'border-sky-100 bg-white/82 hover:border-sky-300 hover:bg-white'}`}
-                  whileHover={{ y: -6, rotateX: 1.4, rotateY: -1.8 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                >
-                  <div className="relative z-10 flex items-center gap-4">
-                    <span className="icon-surface h-14 w-14 rounded-2xl" data-active={isActive ? 'true' : undefined}>
-                      <Icon className="h-7 w-7" strokeWidth={1.8} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-orange-500">0{index + 1}</span>
-                      <span className="mt-1 block text-lg font-black text-text-primary transition-colors group-hover:text-sky-900 dark:group-hover:text-text-primary">
-                        {serviceTitleById[service.id] || service.title}
-                      </span>
-                      <span className="mt-1 line-clamp-2 block text-sm font-medium leading-6 text-text-secondary dark:text-text-primary">
-                        {service.description}
-                      </span>
-                    </span>
-                    <ArrowRight className="h-5 w-5 shrink-0 text-primary transition-transform duration-300 group-hover:translate-x-1" />
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-
-          <motion.div
-            key={activeService.id}
-            initial={{ opacity: 0, x: 24, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="services-detail-card relative overflow-visible rounded-[32px] border border-sky-100 bg-white p-7 shadow-[0_28px_80px_rgba(3,105,161,.16)]"
-          >
-            <div className="absolute inset-0 services-panel-route opacity-90" />
-            <div className="relative z-10 grid grid-cols-[0.95fr_1.05fr] items-center gap-6">
-              <div>
-                <span className="services-active-badge inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary ring-1 ring-sky-100">
-                  <ActiveIcon className="h-3.5 w-3.5" />
-                  Active service
-                </span>
-                <h3 className="mt-5 text-3xl font-black leading-tight text-text-primary">
-                  {serviceTitleById[activeService.id] || activeService.title}
-                </h3>
-                <p className="mt-4 text-base font-medium leading-7 text-text-secondary dark:text-text-primary">
-                  {activeService.description}
-                </p>
-                <div className="mt-6 flex flex-col gap-2">
-                  {activeService.features.map((feat, index) => (
-                    <motion.div
-                      key={feat}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.06, duration: 0.25 }}
-                      className="services-feature-pill service-feature-chip android-stable-feature-pill flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-bold"
-                    >
-                      <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
-                      {feat}
-                    </motion.div>
-                  ))}
-                </div>
-                <Link
-                  href={activeService.path}
-                  className="btn-sky group/btn mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black"
-                >
-                  Book Service
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                </Link>
-              </div>
-
-              <div className="relative grid min-h-[300px] place-items-center">
-                <motion.div
-                  className="services-orbit absolute h-64 w-64 rounded-full border border-dashed border-orange-300/70"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-                />
-                <motion.div
-                  className="services-icon-aura absolute h-44 w-44 rounded-full bg-sky-100/80"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                <div className="icon-surface relative h-32 w-32 rounded-[28px]" data-active="true">
-                  <ActiveIcon className="h-14 w-14 text-sky-100" strokeWidth={1.6} />
-                </div>
-                <div className="services-fast-quote absolute bottom-4 right-0 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-orange-600 shadow-card">
-                  Fast quote
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          {services.map((service) => (
+            <ServiceCard
+              key={service.id}
+              service={service}
+              title={serviceTitleByKey[service.labelKey] || service.title}
+              variants={cardVariants}
+            />
+          ))}
         </motion.div>
 
-        <div className="md:hidden">
-          <div className="scroll-hint-fade relative -mx-4">
-            <div ref={mobileTrackRef} onScroll={handleMobileServiceScroll} className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <Link key={service.id} href={service.path} className="block w-[88vw] max-w-[430px] shrink-0 snap-center">
-                  <motion.div
-                    className="service-hover-card group flex h-auto flex-col justify-between rounded-3xl border border-sky-100 bg-white p-6 shadow-[0_22px_56px_rgba(3,105,161,.13)] will-change-transform"
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: '-60px' }}
-                    transition={{ delay: index * 0.08, duration: 0.45 }}
-                    whileTap={{ scale: 0.985, y: -3 }}
-                  >
-                    <div className="relative z-10">
-                      <div className="flex items-start justify-between">
-                        <div className="icon-surface h-14 w-14 rounded-2xl" data-active="true">
-                          <Icon className="h-7 w-7" strokeWidth={1.8} />
-                        </div>
-                        <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 ring-1 ring-orange-100 dark:bg-orange-400/15 dark:text-orange-200 dark:ring-orange-300/20">0{index + 1}</span>
-                      </div>
-                      <h3 className="mt-5 text-xl font-black text-text-primary">{serviceTitleById[service.id] || service.title}</h3>
-                      <p className="mt-3 text-sm font-medium leading-7 text-text-secondary dark:text-text-primary">{service.description}</p>
-                      <div className="mt-5 flex flex-col gap-2">
-                        {service.features.map((feat) => (
-                          <span key={feat} className="service-feature-chip android-stable-feature-pill rounded-2xl px-3 py-2 text-xs font-bold">
-                            {feat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <span className="relative z-10 mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-primary">
-                      Book Service
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </motion.div>
-                </Link>
-              );
-            })}
-            </div>
+        <motion.div
+          className="mt-12 grid items-center gap-8 overflow-hidden rounded-[28px] border border-sky-100 bg-white/72 px-5 py-8 shadow-[0_24px_70px_rgba(3,105,161,.13)] dark:border-sky-300/20 dark:bg-sky-400/10 sm:mt-14 sm:px-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(360px,1.18fr)] lg:gap-4 lg:px-10 lg:py-10"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="min-w-0 text-center lg:text-left">
+            <h3 className="text-3xl font-black leading-[1.08] text-text-primary sm:text-4xl lg:text-5xl">
+              Everything You Need to{' '}
+              <span className="gradient-text block sm:inline">Move Hassle-Free</span>
+            </h3>
+            <span className="mx-auto mt-4 block h-1.5 w-24 rounded-full bg-orange-500 lg:mx-0" />
+            <p className="mx-auto mt-5 max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary lg:mx-0 lg:max-w-md">
+              Local, intercity, or Labour & Vehicle - three specialized services tailored to exactly what you need.
+            </p>
           </div>
-          <div className="mt-2 flex justify-center gap-2" aria-label="Service slide progress">
-            {services.map((service, index) => (
-              <span key={service.id} className={`h-2 rounded-full transition-all duration-300 ${index === mobileServiceIndex ? 'w-8 bg-primary' : 'w-2 bg-sky-200'}`} />
-            ))}
+
+          <div className="services-truck-wrap relative flex min-w-0 items-center justify-center">
+            <Image
+              src="/front_truck.png"
+              alt="Tithi Packers and Movers truck"
+              width={900}
+              height={520}
+              sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 92vw"
+              className="services-truck-image h-auto w-full max-w-[760px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
+            />
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
+function ServiceCard({ service, title, variants }) {
+  const titleWords = title.split(' ');
+  const orangeTitle = titleWords.pop() || title;
+  const blueTitle = titleWords.join(' ') || title;
+
+  return (
+    <motion.article variants={variants} className="h-full">
+      <Link
+        href={service.path}
+        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-t-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25"
+      >
+        <span className="service-image-frame block w-full overflow-hidden rounded-t-lg bg-white p-1 dark:bg-bg-white">
+          <Image
+            src={service.image}
+            alt=""
+            width={240}
+            height={240}
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 30vw, 33vw"
+            className="service-card-image aspect-square w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </span>
+
+        <span className="flex flex-1 flex-col items-center px-1.5 pb-3 pt-2 sm:px-3 sm:pb-5 sm:pt-3 lg:px-5">
+          <span className="service-card-title block max-w-full text-[10px] font-black uppercase leading-tight sm:text-xs md:text-sm lg:text-base">
+            <span className="text-primary">{blueTitle}</span>{' '}
+            <span className="text-orange-500">{orangeTitle}</span>
+          </span>
+
+          <span className="mt-1 block min-h-[42px] text-[9px] font-bold leading-4 text-text-secondary dark:text-text-primary sm:min-h-[52px] sm:text-xs sm:leading-6 md:text-sm lg:min-h-[46px]">
+            <span className="block">{service.eyebrow}</span>
+            <span className="block font-medium">{service.description}</span>
+          </span>
+
+          <span className="service-book-now mt-2 inline-flex items-center justify-center gap-1 rounded-full bg-orange-500 px-2 py-1.5 text-[8px] font-black uppercase tracking-wide text-white shadow-[0_6px_14px_rgba(249,115,22,.28)] transition-all duration-200 hover:bg-orange-600 sm:mt-3 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm">
+            Book Now
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
+          </span>
+        </span>
+      </Link>
+    </motion.article>
+  );
+}

@@ -12,18 +12,6 @@ import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 import { usePublicTestimonials } from '@tithi/hooks/useTestimonials';
 import { useLanguageStore } from '@tithi/store/languageStore';
 
-const SERVICE_ICONS = {
-  local: '/local.png',
-  intercity: '/intercity.png',
-  labour: '/labour.png',
-};
-
-const SERVICE_ICON_SCALE = {
-  local: 'scale-[1.06]',
-  intercity: 'scale-[1.06]',
-  labour: 'scale-[1.06]',
-};
-
 export default function HeroSection() {
   const [hydrated, setHydrated] = useState(false);
   const { language } = useLanguageStore();
@@ -50,12 +38,6 @@ export default function HeroSection() {
   useEffect(() => {
     setHydrated(true);
   }, []);
-
-  const services = [
-    { key: 'local', serviceType: 'local_shifting', path: '/book/local-shifting', color: '#0EA5E9', bg: '#E0F2FE' },
-    { key: 'intercity', serviceType: 'intercity_moving', path: '/book/intercity-moving', color: '#0284C7', bg: '#BAE6FD' },
-    { key: 'labour', serviceType: 'porter_labour_service', path: '/book/labour-service', color: '#38BDF8', bg: '#E0F2FE' },
-  ];
 
   const trustBadges = [
     { text: t.badgeLicensed || 'Licensed & Insured', icon: ShieldCheck },
@@ -172,51 +154,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-[60] mt-8 w-full px-4 sm:mt-10 sm:px-6 lg:z-20 lg:mt-12 lg:px-8">
-        <div className="mx-auto grid max-w-5xl grid-cols-3 items-stretch gap-3 sm:gap-5 lg:gap-6">
-          {services.map((service) => (
-            <HeroServiceCard key={service.key} service={service} />
-          ))}
-        </div>
-      </div>
-
-      <Image
-        src="/front_truck.png"
-        alt=""
-        width={620}
-        height={360}
-        sizes="(min-width: 768px) 520px, 82vw"
-        className="hero-mobile-front-truck pointer-events-none absolute bottom-[-10%] right-[-10%] z-50 h-auto w-[82vw] max-w-[390px] object-contain brightness-[0.9] contrast-[1.12] saturate-[1.12] drop-shadow-[0_24px_34px_rgba(15,23,42,0.28)] sm:-bottom-80 sm:right-[-10%] sm:max-w-[500px] md:-bottom-44 md:w-[68vw] md:max-w-[520px] lg:hidden"
-      />
     </section>
-  );
-}
-
-function HeroServiceCard({ service }) {
-  const iconSrc = SERVICE_ICONS[service.key];
-
-  return (
-    <Link
-      href={service.path}
-      className="group h-full min-w-0 outline-none"
-    >
-      <div className="hero-service-card grid h-full min-h-[160px] cursor-pointer place-items-center px-2 py-3 text-center sm:min-h-[200px] sm:px-3 sm:py-4 xl:min-h-[240px]">
-        <div
-          className="android-stable-hero-icon grid h-full min-h-[144px] w-full place-items-center p-0 sm:min-h-[176px] xl:min-h-[216px]"
-          style={{ color: service.color }}
-        >
-          <span className="grid h-full w-full place-items-center">
-            <Image
-              src={iconSrc}
-              alt=""
-              width={180}
-              height={180}
-              sizes="(min-width: 1280px) 11rem, (min-width: 768px) 10rem, 7rem"
-              className={`${SERVICE_ICON_SCALE[service.key] || ''} h-full max-h-[144px] w-full object-contain object-center transition-transform duration-300 ease-out group-hover:scale-110 sm:max-h-[176px] xl:max-h-[216px]`}
-            />
-          </span>
-        </div>
-      </div>
-    </Link>
   );
 }
