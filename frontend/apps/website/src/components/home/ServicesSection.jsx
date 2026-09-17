@@ -77,9 +77,9 @@ export default function ServicesSection() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
         <motion.div
-          className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center"
+          className="order-1 mx-auto flex max-w-4xl flex-col items-center gap-3 text-center lg:hidden"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -90,16 +90,16 @@ export default function ServicesSection() {
             Our Services
           </span>
           <h2 className="text-display-md font-black leading-[1.08] text-text-primary md:text-display-lg">
-            Everything You Need to{' '}
-            <span className="gradient-text">Move Hassle-Free</span>
+            Safe Moves for a
+            <span className="gradient-text">Better Tomorrow</span>
           </h2>
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
-            Local, intercity, or Labour & Vehicle - three specialized services tailored to exactly what you need.
+            Reliable • Affordable • Pan India Service
           </p>
         </motion.div>
 
         <motion.div
-          className="mx-auto mt-8 grid max-w-5xl grid-cols-3 items-stretch gap-2 sm:gap-4 lg:mt-9 lg:gap-6"
+          className="order-2 mx-auto mt-8 grid max-w-5xl grid-cols-3 items-stretch gap-2 sm:gap-4 lg:order-2 lg:mt-8 lg:max-w-6xl lg:gap-6 xl:max-w-7xl"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -116,14 +116,14 @@ export default function ServicesSection() {
         </motion.div>
 
         <motion.div
-          className="mt-12 grid items-center gap-8 px-5 py-6 sm:mt-14 sm:px-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(360px,1.18fr)] lg:gap-4 lg:px-10 lg:py-8"
+          className="order-3 mt-12 grid items-center gap-8 px-5 py-6 sm:mt-14 sm:px-8 lg:order-3 lg:mt-12 lg:min-h-[410px] lg:grid-cols-[minmax(320px,0.78fr)_minmax(0,1.22fr)] lg:gap-10 lg:px-0 lg:py-0 xl:min-h-[460px] xl:grid-cols-[minmax(420px,0.78fr)_minmax(0,1.22fr)]"
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="min-w-0 text-center lg:text-left">
-            <h3 className="text-3xl font-black leading-[1.08] text-text-primary sm:text-4xl lg:text-5xl">
+          <div className="min-w-0 text-center lg:pl-2 lg:text-left xl:pl-0">
+            <h3 className="text-3xl font-black leading-[1.08] text-text-primary sm:text-4xl lg:text-5xl xl:text-[3.35rem]">
               Everything You Need to{' '}
               <span className="gradient-text block sm:inline">Move Hassle-Free</span>
             </h3>
@@ -133,14 +133,14 @@ export default function ServicesSection() {
             </p>
           </div>
 
-          <div className="services-truck-wrap relative flex min-w-0 items-center justify-center">
+          <div className="services-truck-wrap group relative flex min-w-0 items-center justify-center lg:min-h-[370px] lg:justify-end xl:min-h-[430px]">
             <Image
               src="/front_truck_v2.png"
               alt="Tithi Packers and Movers truck"
               width={900}
               height={520}
               sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 92vw"
-              className="services-truck-image h-auto w-full max-w-[760px] object-contain"
+              className="services-truck-image h-auto w-full max-w-[760px] object-contain transition-transform duration-300 lg:max-w-[820px] lg:group-hover:scale-[1.015] xl:max-w-[900px]"
             />
           </div>
         </motion.div>
@@ -204,26 +204,27 @@ function ServiceCard({ service, title, variants }) {
     <motion.article variants={variants} className="h-full">
       <Link
         href={service.path}
-        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25"
+        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25 lg:rounded-xl lg:shadow-[0_16px_36px_rgba(3,105,161,.10)]"
       >
-        <span className="service-image-frame block w-full overflow-hidden rounded-t-lg bg-white p-1 dark:bg-bg-white">
+        <span className="service-image-frame block w-full overflow-hidden rounded-t-lg bg-white p-1 dark:bg-bg-white lg:h-40 xl:h-44">
           <Image
             src={service.image}
             alt=""
             width={240}
             height={240}
+            loading="eager"
             sizes="(min-width: 1024px) 320px, (min-width: 640px) 30vw, 33vw"
-            className="service-card-image aspect-square w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
+            className="service-card-image aspect-square w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105 lg:h-full lg:aspect-auto"
           />
         </span>
 
-        <span className="flex flex-1 flex-col items-center px-1.5 pb-3 pt-2 sm:px-3 sm:pb-5 sm:pt-3 lg:px-5">
+        <span className="flex flex-1 flex-col items-center px-1.5 pb-3 pt-2 sm:px-3 sm:pb-5 sm:pt-3 lg:px-4 lg:pb-4">
           <span className="service-card-title flex min-h-[2.5em] max-w-full flex-wrap items-center justify-center gap-x-1 text-[10px] font-black uppercase leading-tight sm:text-xs md:text-sm lg:text-base">
             <span className="text-primary">{blueTitle}</span>{' '}
             <span className="text-orange-500">{orangeTitle}</span>
           </span>
 
-          <span className="mt-1 block min-h-[42px] text-[9px] font-bold leading-4 text-text-secondary dark:text-text-primary sm:min-h-[52px] sm:text-xs sm:leading-6 md:text-sm lg:min-h-[46px]">
+          <span className="mt-1 block min-h-[42px] text-[9px] font-bold leading-4 text-text-secondary dark:text-text-primary sm:min-h-[52px] sm:text-xs sm:leading-6 md:text-sm lg:min-h-[44px]">
             <span className="block">{service.eyebrow}</span>
             <span className="block font-medium">{service.description}</span>
           </span>

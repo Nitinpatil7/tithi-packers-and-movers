@@ -29,3 +29,6 @@ Thumbs.db
 # local Codex/app metadata
 .agents/
 .codex/
+
+
+frontend/apps/website/.chrome-verify-edge/

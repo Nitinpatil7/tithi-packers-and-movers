@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
+import { Menu, X, ChevronDown, Sun, Moon, Monitor, Phone } from 'lucide-react';
 import { useThemeStore } from '@tithi/store/themeStore';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
 import { cn } from '@tithi/utils/utils';
@@ -26,6 +26,7 @@ export default function Navbar({ minimal = false }) {
   const logoSrc = resolveSiteLogoUrl(site.logoUrl, site.updatedAt || site._id);
   const displayLogoSrc = logoFailed ? '' : logoSrc;
   const companyName = site.companyName || 'Tithi Packers and Movers';
+  const phone = site.phone || '';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -208,6 +209,16 @@ export default function Navbar({ minimal = false }) {
                 </div>
               </div>
             </div>
+
+            {phone && (
+              <a
+                href={`tel:${phone}`}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-sky-100 bg-white/85 px-4 py-2 text-sm font-black text-text-primary shadow-[0_10px_24px_rgba(3,105,161,.10)] transition-all hover:border-sky-300 hover:text-primary dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-white dark:hover:border-sky-300/45"
+              >
+                <Phone className="h-4 w-4 text-primary" />
+                {phone}
+              </a>
+            )}
 
             <Link
               href="/book/local-shifting"

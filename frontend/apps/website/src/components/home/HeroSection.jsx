@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Clock, Headphones, House, MapPinned, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Headphones, Heart, House, MapPinned, ShieldCheck, Star, Truck, Users } from 'lucide-react';
 import AnimatedCounter from '@tithi/ui/AnimatedCounter';
 import StarRating from '@tithi/ui/StarRating';
 import { PAGE_TRANSLATIONS } from '@/data/translations';
@@ -45,6 +45,18 @@ export default function HeroSection() {
     { text: t.badge2HrQuote || '2-Hour Quote', icon: Clock },
   ];
 
+  const heroFloatingCards = [
+    { text: 'Local & Intercity Moves', icon: House },
+    { text: 'Professional Team', icon: Users },
+    { text: 'Safe & Secure Handling', icon: ShieldCheck },
+  ];
+
+  const heroTrustRow = [
+    { text: 'On-Time Delivery', icon: Truck },
+    { text: 'Your Belongings, Our Responsibility', icon: Heart },
+    { text: 'Trusted Across Gujarat & Beyond', icon: Star },
+  ];
+
   const containerVariants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.1 } },
@@ -60,13 +72,14 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-20 sm:pt-24 sm:pb-20 lg:min-h-[86svh] lg:pt-28 lg:pb-20">
+    <section className="hero-scene-section relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-18 lg:h-screen lg:min-h-[720px] lg:overflow-hidden lg:pt-[92px] lg:pb-0">
+      <div className="hero-scene-bg absolute inset-0 pointer-events-none" />
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
-      <div className="relative z-20 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)] lg:gap-10 lg:px-8">
+      <div className="relative z-20 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 sm:px-6 lg:h-[calc(100vh-92px)] lg:min-h-[628px] lg:grid-cols-[minmax(560px,0.88fr)_minmax(0,1.12fr)] lg:items-start lg:gap-0 lg:px-8 lg:pt-14 xl:pt-16">
         <motion.div
-          className="flex max-w-3xl flex-col items-center gap-4 text-center lg:items-start lg:text-left"
+          className="relative z-20 flex max-w-3xl flex-col items-center gap-4 text-center lg:max-w-[650px] lg:items-start lg:gap-3 lg:text-left"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -78,22 +91,22 @@ export default function HeroSection() {
             </span>
           </motion.div>
 
+          <motion.h1
+            variants={itemVariants}
+            className="max-w-full text-3xl font-black leading-[1.02] tracking-tight text-text-primary sm:text-5xl md:text-6xl lg:text-[4.05rem] xl:text-[4.45rem]"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            <span className="block whitespace-nowrap">{t.heroTitle1 || 'Trusted Packers &'}</span>
+            <span className="gradient-text block whitespace-nowrap">{t.heroTitle2 || 'Movers in Surat'}</span>
+          </motion.h1>
+
           <motion.div variants={itemVariants} className="flex items-center gap-3">
             <StarRating rating={averageRating} size="sm" />
             <span className="text-sm font-bold text-text-primary">{averageRating}</span>
-            <span className="text-sm text-text-secondary">{verifiedReviewCount} {t.verifiedReviews || 'verified reviews'}</span>
+            <span className="text-sm text-text-secondary dark:text-text-primary">{verifiedReviewCount} {t.verifiedReviews || 'verified reviews'}</span>
           </motion.div>
 
-          <motion.h1
-            variants={itemVariants}
-            className="max-w-full text-3xl font-black leading-[1.05] tracking-tight text-text-primary sm:text-5xl md:text-6xl xl:text-7xl"
-            style={{ fontFamily: 'var(--font-heading)' }}
-          >
-            {t.heroTitle1 || 'Trusted Packers & '}
-            <span className="gradient-text block sm:inline">{t.heroTitle2 || 'Movers in Surat'}</span>
-          </motion.h1>
-
-          <motion.p variants={itemVariants} className="w-full max-w-[300px] text-base font-medium leading-7 text-text-secondary sm:max-w-2xl md:text-lg">
+          <motion.p variants={itemVariants} className="w-full max-w-[300px] text-base font-medium leading-7 text-text-secondary sm:max-w-2xl md:text-lg lg:max-w-[560px] lg:text-base lg:leading-7">
             {t.heroSubheadline || (
               <>
                 Book your local or intercity move in <span className="font-bold text-primary">2 minutes</span>. Transparent pricing, zero hidden charges, and professional support across India.
@@ -103,7 +116,7 @@ export default function HeroSection() {
 
           <motion.div variants={itemVariants} className="flex w-full max-w-[270px] flex-wrap justify-center gap-2 sm:max-w-none sm:gap-2.5 lg:justify-start">
             {trustBadges.map(({ text, icon: Icon }) => (
-              <div key={text} className="flex items-center gap-1 rounded-full border border-bg-border bg-white px-2 py-1.5 text-[10px] font-semibold text-text-secondary shadow-xs sm:gap-1.5 sm:px-3 sm:text-sm">
+              <div key={text} className="flex items-center gap-1 rounded-full border border-bg-border bg-white/90 px-2 py-1.5 text-[10px] font-semibold text-text-secondary shadow-xs dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-text-primary sm:gap-1.5 sm:px-3 sm:text-sm">
                 <Icon className="h-3.5 w-3.5 text-primary" />
                 {text}
               </div>
@@ -112,22 +125,22 @@ export default function HeroSection() {
 
           <motion.div variants={itemVariants} className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
             <Link href="/book/local-shifting" className="w-full sm:w-auto">
-              <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto">
+              <button className="btn-orange flex w-full items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-base font-bold tracking-wide sm:w-auto lg:px-8">
                 {t.btnQuote || 'Get Free Quote'}
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
             <Link href="/my-bookings" className="w-full sm:w-auto">
-              <button className="w-full rounded-2xl border-2 border-bg-border bg-white px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/30 hover:text-primary sm:w-auto">
+              <button className="w-full rounded-2xl border-2 border-primary/40 bg-white/90 px-7 py-3.5 text-base font-bold text-text-primary shadow-xs transition-all hover:border-primary/70 hover:text-primary dark:bg-sky-400/10 dark:text-white sm:w-auto lg:px-8">
                 {t.btnTrack || 'Track My Booking'}
               </button>
             </Link>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[480px]">
+          <motion.div variants={itemVariants} className="grid w-full max-w-[520px] grid-cols-2 gap-2 border-t border-bg-border pt-3 sm:gap-3 lg:max-w-[560px] lg:grid-cols-4 lg:gap-2 lg:pt-2">
             {stats.map((stat) => (
-              <div key={stat.label} className="group flex h-[82px] min-w-0 items-center gap-3 rounded-2xl bg-white/80 px-3 py-3 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99] sm:h-[96px] sm:px-4 lg:h-[92px]">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12">
+              <div key={stat.label} className="group flex h-[82px] min-w-0 items-center gap-3 rounded-2xl bg-white/80 px-3 py-3 text-left ring-1 ring-sky-100/80 transition-all duration-300 hover:-translate-y-0.5 hover:ring-sky-300 active:scale-[.99] dark:bg-sky-400/10 dark:ring-sky-300/20 sm:h-[96px] sm:px-4 lg:h-[80px] lg:px-3">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-all duration-300 group-hover:bg-sky-900 group-hover:text-sky-200 group-hover:shadow-[0_12px_24px_rgba(3,105,161,.20)] sm:h-12 sm:w-12 lg:h-10 lg:w-10">
                   {React.createElement(stat.icon, { className: 'h-5 w-5 sm:h-6 sm:w-6', strokeWidth: 1.8 })}
                 </div>
                 <div className="min-w-0">
@@ -141,19 +154,111 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        <div className="pointer-events-none relative hidden min-h-[360px] lg:block">
+        <div className="pointer-events-none absolute inset-y-0 z-10 hidden w-[63vw] overflow-hidden lg:right-[calc((100vw-100%)/-2)] lg:block">
+          <div className="hero-image-edge-wash absolute inset-y-0 left-0 z-20 w-[64%]" />
+          <div className="hero-image-soft-wash absolute inset-y-0 left-[28%] z-20 w-[34%]" />
           <Image
             src="/truck.png"
             alt="Tithi Packers and Movers truck"
             width={920}
             height={660}
             priority
-            sizes="(min-width: 1280px) 560px, 46vw"
-            className="absolute -bottom-38 right-[-12%] z-10 w-[118%] max-w-[660px] object-contain drop-shadow-[0_24px_34px_rgba(15,23,42,0.22)]"
+            loading="eager"
+            unoptimized
+            sizes="63vw"
+            className="hero-truck-art absolute inset-0 z-10 h-full w-full max-w-none object-cover object-right"
           />
+          <div className="absolute right-8 top-[18%] z-30 flex w-48 flex-col gap-3 xl:right-12">
+            {heroFloatingCards.map(({ text, icon: Icon }) => (
+              <div key={text} className="ml-auto flex w-fit max-w-[180px] items-center gap-2 rounded-xl border border-sky-100 bg-white/90 px-3 py-2 text-[11px] font-black leading-tight text-text-primary shadow-[0_12px_28px_rgba(3,105,161,.12)] backdrop-blur-md dark:border-sky-300/20 dark:bg-sky-950/72 dark:text-white">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary dark:bg-sky-300/15 dark:text-sky-200">
+                  <Icon className="h-4 w-4" />
+                </span>
+                {text}
+              </div>
+            ))}
+          </div>
+          <p className="absolute right-[31%] top-[29%] z-30 hidden rotate-[-9deg] text-right text-2xl font-black leading-tight text-primary/90 [font-family:cursive] xl:block">
+            Safe Moves<br />Brighter Tomorrows
+          </p>
+          <div className="absolute bottom-8 right-10 z-30 flex items-center justify-end gap-7 text-primary xl:right-16">
+            {heroTrustRow.map(({ text, icon: Icon }) => (
+              <div key={text} className="flex max-w-[210px] items-center gap-2 text-sm font-bold text-text-secondary dark:text-text-primary">
+                <Icon className="h-6 w-6 shrink-0 text-primary" strokeWidth={1.8} />
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
+      <style jsx>{`
+        :global(.hero-scene-section) {
+          background:
+            linear-gradient(105deg, #effaff 0%, #edf9ff 34%, #d8f1ff 68%, #bce8fb 100%);
+        }
+
+        :global(.dark .hero-scene-section) {
+          background:
+            linear-gradient(105deg, #06101d 0%, #071a2d 38%, #09233a 68%, #082c43 100%);
+        }
+
+        .hero-scene-bg {
+          background:
+            radial-gradient(circle at 80% 8%, rgba(186, 230, 253, 0.72), transparent 42%),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.45), transparent 58%);
+        }
+
+        :global(.dark) .hero-scene-bg {
+          background:
+            radial-gradient(circle at 80% 8%, rgba(14, 116, 144, 0.32), transparent 42%),
+            linear-gradient(90deg, rgba(2, 6, 23, 0.45), transparent 58%);
+        }
+
+        .hero-image-edge-wash {
+          background:
+            linear-gradient(90deg, #effaff 0%, rgba(239, 250, 255, 0.98) 24%, rgba(239, 250, 255, 0.76) 48%, rgba(239, 250, 255, 0) 100%);
+        }
+
+        :global(.dark) .hero-image-edge-wash {
+          background:
+            linear-gradient(90deg, #06101d 0%, rgba(6, 16, 29, 0.98) 28%, rgba(6, 16, 29, 0.72) 56%, rgba(6, 16, 29, 0) 100%);
+        }
+
+        .hero-image-soft-wash {
+          background:
+            linear-gradient(90deg, rgba(239, 250, 255, 0.52), rgba(239, 250, 255, 0));
+        }
+
+        :global(.dark) .hero-image-soft-wash {
+          background:
+            linear-gradient(90deg, rgba(6, 16, 29, 0.62), rgba(6, 16, 29, 0));
+        }
+
+        :global(.hero-truck-art) {
+          -webkit-mask-image:
+            linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.08) 14%, rgba(0, 0, 0, 0.42) 34%, rgba(0, 0, 0, 0.86) 52%, #000 66%, #000 100%),
+            linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+          mask-image:
+            linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.08) 14%, rgba(0, 0, 0, 0.42) 34%, rgba(0, 0, 0, 0.86) 52%, #000 66%, #000 100%),
+            linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+          -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+        }
+
+        :global(.dark .hero-truck-art) {
+          -webkit-mask-image:
+            linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.06) 18%, rgba(0, 0, 0, 0.36) 38%, rgba(0, 0, 0, 0.82) 58%, #000 72%, #000 100%),
+            linear-gradient(180deg, transparent 0%, #000 13%, #000 84%, transparent 100%);
+          mask-image:
+            linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.06) 18%, rgba(0, 0, 0, 0.36) 38%, rgba(0, 0, 0, 0.82) 58%, #000 72%, #000 100%),
+            linear-gradient(180deg, transparent 0%, #000 13%, #000 84%, transparent 100%);
+        }
+      `}</style>
     </section>
   );
 }
