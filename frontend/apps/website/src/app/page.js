@@ -28,28 +28,44 @@ export default function Home() {
       <ServicesSection />
 
       {/* 3. HowItWorksSection */}
-      <HowItWorksSection />
+      <div className="home-deferred-section">
+        <HowItWorksSection />
+      </div>
 
       {/* 4. WhyChooseUsSection */}
-      <WhyChooseUsSection />
+      <div className="home-deferred-section">
+        <WhyChooseUsSection />
+      </div>
 
       {/* 5. BasePricePackagesSection */}
-      <BasePricePackagesSection />
+      <div className="home-deferred-section">
+        <BasePricePackagesSection />
+      </div>
 
       {/* 6. ServiceDetailSection */}
-      <ServiceDetailSection />
+      <div className="home-deferred-section">
+        <ServiceDetailSection />
+      </div>
 
       {/* 7. TestimonialsSection */}
-      <TestimonialsSection />
+      <div className="home-deferred-section">
+        <TestimonialsSection />
+      </div>
 
       {/* 8. CoverageMapSection */}
-      <CoverageMapSection />
+      <div className="home-deferred-section">
+        <CoverageMapSection />
+      </div>
 
       {/* 9. FAQSection */}
-      <FAQSection />
+      <div className="home-deferred-section">
+        <FAQSection />
+      </div>
 
       {/* 10. CTABannerSection */}
-      <CTABannerSection />
+      <div className="home-deferred-section">
+        <CTABannerSection />
+      </div>
     </div>
   );
 }

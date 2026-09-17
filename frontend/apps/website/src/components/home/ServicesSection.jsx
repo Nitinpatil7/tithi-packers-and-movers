@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowRight, Truck } from 'lucide-react';
 import { useSiteSetting } from '@tithi/hooks/useSiteSetting';
 
@@ -58,32 +57,14 @@ export default function ServicesSection() {
     porter_labour_service: stableSite.serviceLabels?.porter_labour_service,
   };
 
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08 } },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 92, damping: 18 },
-    },
-  };
-
   return (
     <section id="services" className="relative z-10 overflow-x-clip overflow-y-visible bg-hero-gradient py-14 sm:py-16 lg:py-20">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bg-border to-transparent" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="order-1 mx-auto flex max-w-4xl flex-col items-center gap-3 text-center lg:hidden"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <div
+          className="order-1 mx-auto flex max-w-4xl flex-col items-center gap-3 text-center"
         >
           <span className="section-label text-[13px]">
             <Truck className="h-3.5 w-3.5" />
@@ -96,31 +77,22 @@ export default function ServicesSection() {
           <p className="max-w-xl text-base font-medium leading-7 text-text-secondary dark:text-text-primary md:text-lg">
             Reliable • Affordable • Pan India Service
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           className="order-2 mx-auto mt-8 grid max-w-5xl grid-cols-3 items-stretch gap-2 sm:gap-4 lg:order-2 lg:mt-8 lg:max-w-6xl lg:gap-6 xl:max-w-7xl"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
         >
           {services.map((service) => (
             <ServiceCard
               key={service.id}
               service={service}
               title={serviceTitleByKey[service.labelKey] || service.title}
-              variants={cardVariants}
             />
           ))}
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="order-3 mt-12 grid items-center gap-8 px-5 py-6 sm:mt-14 sm:px-8 lg:order-3 lg:mt-12 lg:min-h-[410px] lg:grid-cols-[minmax(320px,0.78fr)_minmax(0,1.22fr)] lg:gap-10 lg:px-0 lg:py-0 xl:min-h-[460px] xl:grid-cols-[minmax(420px,0.78fr)_minmax(0,1.22fr)]"
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        <div
+          className="order-3 mt-8 grid items-center gap-6 px-5 py-6 sm:mt-10 sm:px-8 lg:order-3 lg:mt-8 lg:min-h-[410px] lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)] lg:gap-4 lg:px-0 lg:py-0 xl:min-h-[460px] xl:grid-cols-[minmax(440px,0.92fr)_minmax(0,1.08fr)] xl:gap-6"
         >
           <div className="min-w-0 text-center lg:pl-2 lg:text-left xl:pl-0">
             <h3 className="text-3xl font-black leading-[1.08] text-text-primary sm:text-4xl lg:text-5xl xl:text-[3.35rem]">
@@ -133,78 +105,40 @@ export default function ServicesSection() {
             </p>
           </div>
 
-          <div className="services-truck-wrap group relative flex min-w-0 items-center justify-center lg:min-h-[370px] lg:justify-end xl:min-h-[430px]">
+          <div className="services-truck-wrap group relative flex min-w-0 items-center justify-center lg:min-h-[370px] lg:justify-start xl:min-h-[430px]">
             <Image
               src="/front_truck_v2.png"
               alt="Tithi Packers and Movers truck"
               width={900}
               height={520}
               sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 92vw"
-              className="services-truck-image h-auto w-full max-w-[760px] object-contain transition-transform duration-300 lg:max-w-[820px] lg:group-hover:scale-[1.015] xl:max-w-[900px]"
+              loading="lazy"
+              className="services-truck-image h-auto w-full max-w-[760px] object-contain lg:max-w-[820px] xl:max-w-[900px]"
             />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <style jsx>{`
         :global(.services-truck-image) {
-          -webkit-mask-image:
-            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-          mask-image:
-            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-          -webkit-mask-composite: source-in;
-          mask-composite: intersect;
-          -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-          -webkit-mask-size: 100% 100%;
-          mask-size: 100% 100%;
-        }
-
-        :global(.dark .services-truck-image) {
-          -webkit-mask-image:
-            linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 28%, #000 78%, transparent 100%);
-          mask-image:
-            linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 28%, #000 78%, transparent 100%);
-        }
-
-        @media (max-width: 639px) {
-          :global(.services-truck-image) {
-            -webkit-mask-image:
-              linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-            mask-image:
-              linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-          }
-
-          :global(.dark .services-truck-image) {
-            -webkit-mask-image:
-              linear-gradient(90deg, transparent 0%, #000 20%, #000 80%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 26%, #000 78%, transparent 100%);
-            mask-image:
-              linear-gradient(90deg, transparent 0%, #000 20%, #000 80%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 26%, #000 78%, transparent 100%);
-          }
+          transform: translateZ(0);
+          will-change: auto;
         }
       `}</style>
     </section>
   );
 }
 
-function ServiceCard({ service, title, variants }) {
+function ServiceCard({ service, title }) {
   const titleWords = title.split(' ');
   const orangeTitle = titleWords.pop() || title;
   const blueTitle = titleWords.join(' ') || title;
 
   return (
-    <motion.article variants={variants} className="h-full">
+    <article className="h-full">
       <Link
         href={service.path}
-        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-sky-100 bg-white/86 text-center shadow-[0_18px_48px_rgba(3,105,161,.12)] outline-none transition duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_24px_64px_rgba(3,105,161,.18)] focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25 lg:rounded-xl lg:shadow-[0_16px_36px_rgba(3,105,161,.10)]"
+        className="service-card-link group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-sky-100 bg-white/86 text-center shadow-[0_14px_34px_rgba(3,105,161,.10)] outline-none transition-colors duration-200 hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 dark:border-sky-300/20 dark:bg-sky-400/10 dark:hover:border-sky-300/45 dark:focus-visible:ring-sky-300/25 lg:rounded-xl"
       >
         <span className="service-image-frame block w-full overflow-hidden rounded-t-lg bg-white p-1 dark:bg-bg-white lg:h-40 xl:h-44">
           <Image
@@ -212,9 +146,9 @@ function ServiceCard({ service, title, variants }) {
             alt=""
             width={240}
             height={240}
-            loading="eager"
+            loading="lazy"
             sizes="(min-width: 1024px) 320px, (min-width: 640px) 30vw, 33vw"
-            className="service-card-image aspect-square w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105 lg:h-full lg:aspect-auto"
+            className="service-card-image aspect-square w-full rounded-md object-cover lg:h-full lg:aspect-auto"
           />
         </span>
 
@@ -229,12 +163,12 @@ function ServiceCard({ service, title, variants }) {
             <span className="block font-medium">{service.description}</span>
           </span>
 
-          <span className="service-book-now mt-auto inline-flex items-center justify-center gap-1 rounded-full bg-orange-500 px-2 py-1.5 text-[8px] font-black uppercase tracking-wide text-white shadow-[0_6px_14px_rgba(249,115,22,.28)] transition-all duration-200 hover:bg-orange-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm">
+          <span className="service-book-now mt-auto inline-flex items-center justify-center gap-1 rounded-full bg-orange-500 px-2 py-1.5 text-[8px] font-black uppercase tracking-wide text-white shadow-[0_6px_14px_rgba(249,115,22,.24)] transition-colors duration-200 hover:bg-orange-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm">
             Book Now
-            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
+            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </span>
         </span>
       </Link>
-    </motion.article>
+    </article>
   );
 }

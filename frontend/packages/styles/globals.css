@@ -1365,6 +1365,17 @@ input:focus, select:focus, textarea:focus {
   background-size: 24px 24px;
 }
 
+.home-deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+@supports not (content-visibility: auto) {
+  .home-deferred-section {
+    contain: layout paint;
+  }
+}
+
 /* Animations */
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.15; transform: scale(1); }
