@@ -57,7 +57,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="hero-scene-section relative z-20 overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-18 lg:h-screen lg:min-h-[720px] lg:overflow-hidden lg:pt-[92px] lg:pb-0">
+    <section className="hero-scene-section relative z-20 min-h-[100svh] overflow-x-clip overflow-y-visible bg-hero-gradient pt-24 pb-16 sm:pt-24 sm:pb-18 lg:h-screen lg:min-h-[720px] lg:overflow-hidden lg:pt-[92px] lg:pb-0">
       <div className="hero-scene-bg absolute inset-0 pointer-events-none" />
       <div className="absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent pointer-events-none" />
       <div className="absolute inset-0 pattern-dots opacity-60 pointer-events-none" />
