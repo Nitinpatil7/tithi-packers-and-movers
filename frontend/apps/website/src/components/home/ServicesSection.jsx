@@ -105,15 +105,15 @@ export default function ServicesSection() {
             </p>
           </div>
 
-          <div className="services-truck-wrap group relative flex min-w-0 items-center justify-center lg:min-h-[370px] lg:justify-start xl:min-h-[430px]">
+          <div className="services-truck-wrap group relative -mx-9 flex items-center justify-center overflow-hidden pt-3 sm:mx-0 sm:w-auto lg:min-h-[370px] lg:justify-start lg:overflow-visible lg:pt-0 xl:min-h-[430px]">
             <Image
               src="/front_truck_v2.png"
               alt="Tithi Packers and Movers truck"
               width={900}
               height={520}
-              sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 92vw"
+              sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 100vw"
               loading="lazy"
-              className="services-truck-image h-auto w-full max-w-[760px] object-contain lg:max-w-[820px] xl:max-w-[900px]"
+              className="services-truck-image h-auto w-full max-w-none object-cover sm:max-w-[760px] sm:object-contain lg:max-w-[820px] xl:max-w-[900px]"
             />
           </div>
         </div>
@@ -123,6 +123,59 @@ export default function ServicesSection() {
         :global(.services-truck-image) {
           transform: translateZ(0);
           will-change: auto;
+        }
+
+        .services-truck-wrap::before,
+        .services-truck-wrap::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          z-index: 2;
+          width: 20%;
+          pointer-events: none;
+        }
+
+        .services-truck-wrap::before {
+          left: 0;
+          background: linear-gradient(90deg, #effaff 0%, rgba(239, 250, 255, 0.78) 48%, rgba(239, 250, 255, 0) 100%);
+        }
+
+        .services-truck-wrap::after {
+          right: 0;
+          background: linear-gradient(270deg, #dff5ff 0%, rgba(223, 245, 255, 0.74) 48%, rgba(223, 245, 255, 0) 100%);
+        }
+
+        :global(.dark) .services-truck-wrap::before {
+          background: linear-gradient(90deg, #06101d 0%, rgba(6, 16, 29, 0.78) 48%, rgba(6, 16, 29, 0) 100%);
+        }
+
+        :global(.dark) .services-truck-wrap::after {
+          background: linear-gradient(270deg, #082c43 0%, rgba(8, 44, 67, 0.68) 46%, rgba(8, 44, 67, 0) 100%);
+        }
+
+        @media (max-width: 639px) {
+          :global(.services-truck-image) {
+            -webkit-mask-image:
+              linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
+            mask-image:
+              linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
+            -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+          }
+        }
+
+        @media (min-width: 640px) {
+          .services-truck-wrap::before,
+          .services-truck-wrap::after {
+            display: none;
+          }
         }
       `}</style>
     </section>
