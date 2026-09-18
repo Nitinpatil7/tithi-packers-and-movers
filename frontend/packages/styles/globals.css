@@ -1365,6 +1365,34 @@ input:focus, select:focus, textarea:focus {
   background-size: 24px 24px;
 }
 
+.services-truck-image {
+  transform: translateZ(0);
+  will-change: auto;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, #000 12%, #000 84%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 7%, #000 82%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #000 12%, #000 84%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 7%, #000 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@media (max-width: 639px) {
+  .services-truck-image {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
+    mask-image:
+      linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
+  }
+}
+
 .home-deferred-section {
   content-visibility: auto;
   contain-intrinsic-size: auto 720px;

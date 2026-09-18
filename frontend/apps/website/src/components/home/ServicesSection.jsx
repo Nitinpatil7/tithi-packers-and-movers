@@ -92,9 +92,9 @@ export default function ServicesSection() {
         </div>
 
         <div
-          className="order-3 mt-8 grid items-center gap-6 px-5 py-6 sm:mt-10 sm:px-8 lg:order-3 lg:mt-8 lg:min-h-[410px] lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)] lg:gap-4 lg:px-0 lg:py-0 xl:min-h-[460px] xl:grid-cols-[minmax(440px,0.92fr)_minmax(0,1.08fr)] xl:gap-6"
+          className="order-3 mt-8 grid items-center gap-6 px-5 py-6 sm:mt-10 sm:px-8 lg:relative lg:isolate lg:order-3 lg:mt-8 lg:min-h-[410px] lg:grid-cols-[minmax(360px,0.78fr)_minmax(0,1.22fr)] lg:gap-0 lg:px-0 lg:py-0 xl:min-h-[460px] xl:grid-cols-[minmax(440px,0.78fr)_minmax(0,1.22fr)]"
         >
-          <div className="min-w-0 text-center lg:pl-2 lg:text-left xl:pl-0">
+          <div className="relative z-10 min-w-0 text-center lg:col-start-1 lg:row-start-1 lg:pl-2 lg:text-left xl:pl-0">
             <h3 className="text-3xl font-black leading-[1.08] text-text-primary sm:text-4xl lg:text-5xl xl:text-[3.35rem]">
               Everything You Need to{' '}
               <span className="gradient-text block sm:inline">Move Hassle-Free</span>
@@ -105,26 +105,21 @@ export default function ServicesSection() {
             </p>
           </div>
 
-          <div className="services-truck-wrap group relative -mx-9 flex items-center justify-center overflow-hidden pt-3 sm:mx-0 sm:w-auto lg:min-h-[370px] lg:justify-start lg:overflow-visible lg:pt-0 xl:min-h-[430px]">
+          <div className="services-truck-wrap group relative -mx-9 flex items-center justify-center overflow-hidden pt-3 sm:mx-0 sm:w-auto lg:z-0 lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:-mx-[calc(50vw_-_50%)] lg:min-h-[410px] lg:justify-end lg:overflow-hidden lg:pt-0 xl:min-h-[470px]">
             <Image
               src="/front_truck_v2.png"
               alt="Tithi Packers and Movers truck"
               width={900}
               height={520}
-              sizes="(min-width: 1280px) 650px, (min-width: 1024px) 54vw, 100vw"
+              sizes="100vw"
               loading="lazy"
-              className="services-truck-image h-auto w-full max-w-none object-cover sm:max-w-[760px] sm:object-contain lg:max-w-[820px] xl:max-w-[900px]"
+              className="services-truck-image h-auto w-full max-w-none object-cover sm:max-w-[760px] sm:object-contain lg:w-[68vw] lg:max-w-none xl:w-[66vw]"
             />
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        :global(.services-truck-image) {
-          transform: translateZ(0);
-          will-change: auto;
-        }
-
         .services-truck-wrap::before,
         .services-truck-wrap::after {
           content: '';
@@ -146,6 +141,11 @@ export default function ServicesSection() {
           background: linear-gradient(270deg, #dff5ff 0%, rgba(223, 245, 255, 0.74) 48%, rgba(223, 245, 255, 0) 100%);
         }
 
+        .services-truck-wrap::after {
+          top: -6%;
+          bottom: -10%;
+        }
+
         :global(.dark) .services-truck-wrap::before {
           background: linear-gradient(90deg, #06101d 0%, rgba(6, 16, 29, 0.78) 48%, rgba(6, 16, 29, 0) 100%);
         }
@@ -154,27 +154,21 @@ export default function ServicesSection() {
           background: linear-gradient(270deg, #082c43 0%, rgba(8, 44, 67, 0.68) 46%, rgba(8, 44, 67, 0) 100%);
         }
 
-        @media (max-width: 639px) {
-          :global(.services-truck-image) {
-            -webkit-mask-image:
-              linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
-            mask-image:
-              linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 9%, #000 90%, transparent 100%);
-            -webkit-mask-composite: source-in;
-            mask-composite: intersect;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-          }
-        }
-
         @media (min-width: 640px) {
           .services-truck-wrap::before,
           .services-truck-wrap::after {
-            display: none;
+            width: 16%;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .services-truck-wrap::before {
+            width: 30%;
+          }
+
+          .services-truck-wrap::after {
+            width: 20%;
+            background: linear-gradient(270deg, #dff5ff 0%, rgba(223, 245, 255, 0.9) 34%, rgba(223, 245, 255, 0) 100%);
           }
         }
       `}</style>
