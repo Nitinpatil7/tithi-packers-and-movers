@@ -5,6 +5,7 @@ const ItemGroup = require("../schema/ItemGroup.model");
 const ItemSize = require("../schema/ItemSize.model");
 const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 
 const slugify = (value) => String(value || "").trim().toLowerCase()
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -116,7 +117,7 @@ const publicItemShape = (item) => ({
   sizes: (item.sizes || []).filter(activeVariant).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
 });
 
-const getCatalog = async (query = {}, publicOnly = false) => {
+const loadCatalog = async (query = {}, publicOnly = false) => {
   const sectionFilter = {};
   if (query.sectionId || query.categoryId) sectionFilter._id = query.sectionId || query.categoryId;
   if (query.section) sectionFilter.name = exactText(query.section);
@@ -168,6 +169,11 @@ const getCatalog = async (query = {}, publicOnly = false) => {
   })).filter((section) => !publicOnly || section.groups.length);
 };
 
+const getCatalog = async (query = {}, publicOnly = false) => {
+  if (!publicOnly) return loadCatalog(query, publicOnly);
+  return withPublicCache("catalog", query, () => loadCatalog(query, publicOnly));
+};
+
 const createItem = async (payload) => {
   const normalized = await normalizeItemPayload(payload);
   if (normalized.sortOrder === undefined) {
@@ -176,6 +182,8 @@ const createItem = async (payload) => {
   }
   const item = await Item.create(normalized);
   notifyContentChange("catalog", "item:create", { id: item._id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return item;
 };
 const updateItem = async (id, payload) => {
@@ -184,12 +192,16 @@ const updateItem = async (id, payload) => {
   const item = await Item.findByIdAndUpdate(id, { $set: await normalizeItemPayload(payload, current) },
     { new: true, runValidators: true });
   notifyContentChange("catalog", "item:update", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return item;
 };
 const deleteItem = async (id) => {
   const item = await Item.findByIdAndUpdate(id, { $set: { isActive: false } }, { new: true });
   if (!item) throw new ApiError(404, "Item not found");
   notifyContentChange("catalog", "item:delete", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return item;
 };
 const reorderItems = async (groupId, orderedIds = []) => {
@@ -202,6 +214,8 @@ const reorderItems = async (groupId, orderedIds = []) => {
     updateOne: { filter: { _id: id, groupId: group._id }, update: { $set: { sortOrder: index } } },
   })));
   notifyContentChange("catalog", "items:reorder", { groupId });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return getItems({ groupId: group._id });
 };
 
@@ -215,6 +229,8 @@ const createSection = async (payload) => {
   const last = await ItemCategory.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
   const section = await ItemCategory.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1, icon: cleanIcon(payload.icon), key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "section:create", { id: section._id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return section;
 };
 const updateSection = async (id, payload) => {
@@ -239,6 +255,8 @@ const updateSection = async (id, payload) => {
     Object.keys(itemUpdate).length ? Item.updateMany({ categoryId: id }, { $set: itemUpdate }) : null,
   ].filter(Boolean));
   notifyContentChange("catalog", "section:update", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return section;
 };
 const deleteSection = async (id) => {
@@ -249,6 +267,8 @@ const deleteSection = async (id) => {
     Item.updateMany({ categoryId: id }, { $set: { isActive: false } }),
   ]);
   notifyContentChange("catalog", "section:delete", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return section;
 };
 
@@ -267,6 +287,8 @@ const createGroup = async (payload) => {
   const group = await ItemGroup.create({ ...payload, icon: cleanIcon(payload.icon), categoryId: section._id, section: section.name,
     sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1, key: slugify(payload.key || payload.name) });
   notifyContentChange("catalog", "group:create", { id: group._id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return group;
 };
 const updateGroup = async (id, payload) => {
@@ -285,6 +307,8 @@ const updateGroup = async (id, payload) => {
   if (update.icon !== undefined && update.icon !== current.icon) itemUpdate.icon = update.icon;
   await Item.updateMany({ groupId: id }, { $set: itemUpdate });
   notifyContentChange("catalog", "group:update", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return group;
 };
 const deleteGroup = async (id) => {
@@ -292,6 +316,8 @@ const deleteGroup = async (id) => {
   if (!group) throw new ApiError(404, "Group not found");
   await Item.updateMany({ groupId: id }, { $set: { isActive: false } });
   notifyContentChange("catalog", "group:delete", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return group;
 };
 const reorderGroups = async (sectionId, orderedIds = []) => {
@@ -304,6 +330,8 @@ const reorderGroups = async (sectionId, orderedIds = []) => {
     updateOne: { filter: { _id: id, categoryId: section._id }, update: { $set: { sortOrder: index } } },
   })));
   notifyContentChange("catalog", "groups:reorder", { sectionId });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return getGroups({ sectionId: section._id });
 };
 
@@ -317,6 +345,8 @@ const createSize = async (payload) => {
   const size = await ItemSize.create({ ...payload,
     key: String(payload.key || payload.label || "").trim().toUpperCase() });
   notifyContentChange("catalog", "size:create", { id: size._id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return size;
 };
 const updateSize = async (id, payload) => {
@@ -330,6 +360,8 @@ const updateSize = async (id, payload) => {
     "sizes.$[variant].label": size.label,
   } }, { arrayFilters: [{ "variant.sizeId": id }] });
   notifyContentChange("catalog", "size:update", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return size;
 };
 const deleteSize = async (id) => {
@@ -338,6 +370,8 @@ const deleteSize = async (id) => {
   await Item.updateMany({ "sizes.sizeId": id }, { $set: { "sizes.$[variant].isActive": false } },
     { arrayFilters: [{ "variant.sizeId": id }] });
   notifyContentChange("catalog", "size:delete", { id });
+  await invalidatePublicCache("catalog");
+  await invalidatePublicCache("addon-available");
   return size;
 };
 

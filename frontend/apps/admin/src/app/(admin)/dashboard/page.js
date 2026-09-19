@@ -5,7 +5,6 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { 
   CalendarDays, 
-  CheckCircle, 
   Award, 
   Activity,
   AlertTriangle,
@@ -85,7 +84,7 @@ export default function DashboardPage() {
           ) : (
             <>
               <StatCard
-                title="Today's Scheduled"
+                title="Today's Schedule"
                 value={todayScheduledBookings.length}
                 icon={CalendarDays}
                 color="primary"
@@ -97,15 +96,15 @@ export default function DashboardPage() {
                 color="intercity"
               />
               <StatCard
-                title="Confirmed Shifts"
+                title="Confirmed"
                 value={stats?.confirmedBookings || 0}
                 icon={Award}
                 color="local"
               />
               <StatCard
-                title="Completed Bookings"
-                value={stats?.completedThisMonth || 0}
-                icon={CheckCircle}
+                title="Pending"
+                value={stats?.pendingBookings || 0}
+                icon={AlertTriangle}
                 color="labour"
               />
             </>

@@ -75,10 +75,23 @@ export default function RootLayout({ children }) {
         {/* Never load Google with a placeholder key: its SDK corrupts inputs
             with a repeating error image when authentication fails. */}
         {hasUsableGoogleMapsKey && (
-          <script
-            src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&libraries=places&language=en&loading=async`}
-            async
-          />
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.gm_authFailure = function () {
+                    window.__tithiGoogleMapsError = new Error('Google Maps authentication failed.');
+                    window.dispatchEvent(new Event('tithi:google-maps-error'));
+                  };
+                `,
+              }}
+            />
+            <script
+              id="tithi-google-maps-sdk"
+              src={`https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsKey)}&libraries=places&language=en&loading=async`}
+              async
+            />
+          </>
         )}
       </head>
       <body className="bg-bg-page text-text-primary min-h-screen flex flex-col justify-between">

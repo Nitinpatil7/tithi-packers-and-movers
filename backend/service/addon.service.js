@@ -4,6 +4,7 @@ const Item = require("../schema/Item.model");
 const ItemGroup = require("../schema/ItemGroup.model");
 const ItemCategory = require("../schema/ItemCategory.model");
 const ApiError = require("../utility/apierror");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 
 const SERVICE_TYPES = ["local_shifting", "intercity_moving"];
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -62,6 +63,7 @@ const createAddOn = async (payload) => {
     normalized.sortOrder = Number(last?.sortOrder ?? -1) + 1;
   }
   const addOn = await AddOnService.create(normalized);
+  await invalidatePublicCache("addon-available");
   return populated(AddOnService.findById(addOn._id));
 };
 const getAllAddOnsForAdmin = (query = {}) => {
@@ -80,11 +82,13 @@ const updateAddOn = async (id, payload) => {
   const addOn = await populated(AddOnService.findByIdAndUpdate(id,
     { $set: await normalizeTriggers(payload) }, { new: true, runValidators: true }));
   if (!addOn) throw new ApiError(404, "Add-on service not found");
+  await invalidatePublicCache("addon-available");
   return addOn;
 };
 const deleteAddOn = async (id) => {
   const addOn = await AddOnService.findByIdAndUpdate(id, { $set: { isActive: false } }, { new: true });
   if (!addOn) throw new ApiError(404, "Add-on service not found");
+  await invalidatePublicCache("addon-available");
   return addOn;
 };
 
@@ -159,7 +163,7 @@ const getTriggerItems = async (query = {}) => {
   return [...groups.values()];
 };
 
-const getAvailableAddOns = async (query = {}) => {
+const getAvailableAddOns = async (query = {}) => withPublicCache("addon-available", query, async () => {
   if (!SERVICE_TYPES.includes(query.serviceType)) {
     throw new ApiError(400, "serviceType must be local_shifting or intercity_moving");
   }
@@ -213,7 +217,7 @@ const getAvailableAddOns = async (query = {}) => {
       matchedTriggerItemIds: matchedItems.map((item) => item._id),
     };
   });
-};
+});
 
 const reorderAddOns = async (orderedIds = [], group = "all") => {
   const ids = orderedIds.map(String).filter(Boolean);
@@ -228,6 +232,7 @@ const reorderAddOns = async (orderedIds = [], group = "all") => {
   await AddOnService.bulkWrite(ids.map((id, index) => ({
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
   })));
+  await invalidatePublicCache("addon-available");
   return getAllAddOnsForAdmin({});
 };
 

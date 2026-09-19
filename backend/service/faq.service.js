@@ -1,15 +1,17 @@
 const FAQ = require("../schema/Faq.model");
 const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 
 const createFAQ = async (payload) => {
   const last = await FAQ.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
   const faq = await FAQ.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1 });
   notifyContentChange("faq", "faq:create", { id: faq._id });
+  await invalidatePublicCache("faq");
   return faq;
 };
 
-const getAllFAQs = async (query = {}) => {
+const getAllFAQs = async (query = {}) => withPublicCache("faq", query, async () => {
   const filter = {};
 
   if (query.category) {
@@ -25,7 +27,7 @@ const getAllFAQs = async (query = {}) => {
   });
 
   return faqs;
-};
+});
 
 const getFAQById = async (faqId) => {
   const faq = await FAQ.findById(faqId);
@@ -53,6 +55,7 @@ const updateFAQ = async (faqId, payload) => {
   }
 
   notifyContentChange("faq", "faq:delete", { id: faqId });
+  await invalidatePublicCache("faq");
   return faq;
 };
 
@@ -70,6 +73,8 @@ const deleteFAQ = async (faqId) => {
     throw new ApiError(404, "FAQ not found");
   }
 
+  notifyContentChange("faq", "faq:delete", { id: faqId });
+  await invalidatePublicCache("faq");
   return faq;
 };
 
@@ -82,6 +87,7 @@ const reorderFAQs = async (orderedIds = []) => {
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
   })));
   notifyContentChange("faq", "faq:reorder");
+  await invalidatePublicCache("faq");
   return FAQ.find({ isActive: true }).sort({ sortOrder: 1, createdAt: 1 });
 };
 

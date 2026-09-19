@@ -1,6 +1,7 @@
 const BookingPricingRule = require("../schema/BookingPricingRule.model");
 const ApiError = require("../utility/apierror");
 const { service_types, SERVICE_TYPE_VALUES } = require("../constants/serviceTypes");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 
 const SIZE_KEYS = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -217,15 +218,16 @@ const mergeRulePayload = (existing, payload) => {
   return merged;
 };
 
-const getPublicRules = (query = {}) => {
+const getPublicRules = (query = {}) => withPublicCache("booking-pricing-rules", query, () => {
   const filter = { isActive: true };
   if (query.serviceType) filter.serviceType = query.serviceType;
   return BookingPricingRule.find(filter).sort({ sortOrder: 1, serviceType: 1 }).lean();
-};
+});
 
 const getPublicRuleByService = async (serviceType) => {
   if (!SERVICE_TYPE_VALUES.includes(serviceType)) throw new ApiError(400, "Invalid serviceType");
-  const rule = await BookingPricingRule.findOne({ serviceType, isActive: true }).lean();
+  const rule = await withPublicCache("booking-pricing-rule", { serviceType }, () =>
+    BookingPricingRule.findOne({ serviceType, isActive: true }).lean());
   if (!rule) throw new ApiError(404, "Booking pricing rule not found");
   return rule;
 };
@@ -249,10 +251,15 @@ const createRule = async (payload) => {
   if (!normalized.serviceType) throw new ApiError(400, "serviceType is required");
   const existing = await BookingPricingRule.findOne({ serviceType: normalized.serviceType });
   if (existing) throw new ApiError(409, "Pricing rule already exists for this serviceType");
-  return BookingPricingRule.create({
+  const rule = await BookingPricingRule.create({
     ...DEFAULTS_BY_SERVICE[normalized.serviceType],
     ...normalized,
   });
+  await Promise.all([
+    invalidatePublicCache("booking-pricing-rules"),
+    invalidatePublicCache("booking-pricing-rule"),
+  ]);
+  return rule;
 };
 
 const createDefaultRules = async () => {
@@ -263,6 +270,10 @@ const createDefaultRules = async () => {
       created.push(await BookingPricingRule.create(DEFAULTS_BY_SERVICE[serviceType]));
     }
   }
+  if (created.length) await Promise.all([
+    invalidatePublicCache("booking-pricing-rules"),
+    invalidatePublicCache("booking-pricing-rule"),
+  ]);
   return created;
 };
 
@@ -272,7 +283,12 @@ const updateRule = async (id, payload) => {
   const normalized = normalizePayload(mergeRulePayload(existing, payload));
   if (normalized.serviceType) delete normalized.serviceType;
   Object.assign(existing, normalized);
-  return existing.save();
+  const rule = await existing.save();
+  await Promise.all([
+    invalidatePublicCache("booking-pricing-rules"),
+    invalidatePublicCache("booking-pricing-rule"),
+  ]);
+  return rule;
 };
 
 const deleteRule = async (id) => {
@@ -282,6 +298,10 @@ const deleteRule = async (id) => {
     { new: true },
   );
   if (!rule) throw new ApiError(404, "Booking pricing rule not found");
+  await Promise.all([
+    invalidatePublicCache("booking-pricing-rules"),
+    invalidatePublicCache("booking-pricing-rule"),
+  ]);
   return rule;
 };
 

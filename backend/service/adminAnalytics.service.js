@@ -88,7 +88,7 @@ const getDashboard = async (params = {}) => {
           totalBookings: { $sum: 1 },
           todayBookings: { $sum: { $cond: [{ $gte: ["$createdAt", todayStart] }, 1, 0] } },
           pendingBookings: { $sum: { $cond: [{ $in: ["$status", ["pending", "quote_sent"]] }, 1, 0] } },
-          inProgressBookings: { $sum: { $cond: [{ $in: ["$status", ["confirmed", "in_progress"]] }, 1, 0] } },
+          inProgressBookings: { $sum: { $cond: [{ $in: ["$status", ["confirmed", "completed"]] }, 1, 0] } },
           completedBookings: { $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] } },
         },
       },

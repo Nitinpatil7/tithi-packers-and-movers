@@ -1,5 +1,6 @@
 const branch = require("../schema/Branch.model");
 const apierror = require("../utility/apierror");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 
 const createbranch = async (payload) => {
   if (payload.isMainBranch) {
@@ -8,16 +9,17 @@ const createbranch = async (payload) => {
 
   const last = await branch.findOne({}).sort({ sortOrder: -1, createdAt: -1 }).select("sortOrder");
   const newbranch = await branch.create({ ...payload, sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1 });
+  await invalidatePublicCache("branch");
   return newbranch;
 };
 
-const getallbranch = async () => {
+const getallbranch = async () => withPublicCache("branch", {}, async () => {
   const branches = await branch.find({ isActive: true }).sort({
     sortOrder: 1,
     createdAt: 1,
   });
   return branches;
-};
+});
 
 const getbranchbyid = async (id) => {
   const newbranch = await branch.findById(id);
@@ -65,6 +67,7 @@ const updatebranch = async (id, payload) => {
       runValidators: true,
     },
   );
+  await invalidatePublicCache("branch");
   return updatebranch;
 };
 
@@ -78,6 +81,7 @@ const deletebranch = async(id)=>{
 
     existbranch.isActive = false;
     await existbranch.save();
+    await invalidatePublicCache("branch");
 
     return existbranch;
 }

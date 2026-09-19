@@ -11,6 +11,9 @@ import BookingActionBar from './BookingActionBar';
 const configuredMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 const hasUsableMapsKey = Boolean(configuredMapsKey && !configuredMapsKey.includes('PLACEHOLDER'));
 const debugMaps = process.env.NEXT_PUBLIC_DEBUG_MAPS === 'true';
+const GOOGLE_MAPS_SCRIPT_ID = 'tithi-google-maps-sdk';
+const GOOGLE_MAPS_READY_EVENT = 'tithi:google-maps-ready';
+const GOOGLE_MAPS_ERROR_EVENT = 'tithi:google-maps-error';
 
 const SURAT_CENTER = { lat: 21.1702, lng: 72.8311 };
 const SURAT_SERVICE_RADIUS_KM = 50;
@@ -27,6 +30,123 @@ function debugMapLog(message, meta) {
 
 function reportMapIssue(message, meta) {
   if (debugMaps) console.error(message, meta);
+}
+
+function dispatchMapsEvent(name) {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(name));
+}
+
+function markMapsError(error) {
+  window.__tithiGoogleMapsError = error;
+  dispatchMapsEvent(GOOGLE_MAPS_ERROR_EVENT);
+}
+
+function isGoogleMapsAuthErrorText(text = '') {
+  return /can't load google maps correctly|do you own this website/i.test(text);
+}
+
+function detectGoogleMapsAuthError(root) {
+  if (typeof window === 'undefined') return false;
+  const searchRoot = root || document;
+  const errorNode = searchRoot.querySelector?.('.gm-err-container, .gm-err-title, .gm-err-message');
+  const errorText = errorNode?.textContent || searchRoot.textContent || '';
+  if (!errorNode && !isGoogleMapsAuthErrorText(errorText)) return false;
+  markMapsError(new Error('Google Maps authentication failed.'));
+  return true;
+}
+
+function googleMapsScriptUrl() {
+  const params = new URLSearchParams({
+    key: configuredMapsKey || '',
+    libraries: 'places',
+    language: 'en',
+    loading: 'async',
+  });
+  return `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+}
+
+function hasGoogleMapsReady(requirePlaces = false) {
+  if (window.__tithiGoogleMapsError) return false;
+  const maps = window.google?.maps;
+  if (!maps?.Map || !maps?.Geocoder) return false;
+  if (requirePlaces && !maps.places?.Autocomplete) return false;
+  return true;
+}
+
+function installGoogleMapsAuthHandler() {
+  const previousAuthFailure = window.gm_authFailure;
+  if (window.__tithiGoogleMapsAuthHandlerInstalled) return;
+  window.__tithiGoogleMapsAuthHandlerInstalled = true;
+  window.gm_authFailure = () => {
+    previousAuthFailure?.();
+    markMapsError(new Error('Google Maps authentication failed.'));
+  };
+}
+
+function ensureGoogleMapsLoaded({ requirePlaces = false, timeoutMs = 25000 } = {}) {
+  if (!hasUsableMapsKey) return Promise.reject(new Error('Google Maps key is not configured.'));
+  if (typeof window === 'undefined') return Promise.reject(new Error('Google Maps can only load in the browser.'));
+  if (window.__tithiGoogleMapsError) return Promise.reject(window.__tithiGoogleMapsError);
+  if (hasGoogleMapsReady(requirePlaces)) return Promise.resolve();
+
+  installGoogleMapsAuthHandler();
+
+  let script = document.getElementById(GOOGLE_MAPS_SCRIPT_ID)
+    || document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+
+  if (!script) {
+    script = document.createElement('script');
+    script.id = GOOGLE_MAPS_SCRIPT_ID;
+    script.src = googleMapsScriptUrl();
+    script.async = true;
+    script.defer = true;
+    script.onerror = () => markMapsError(new Error('Google Maps script failed to load.'));
+    document.head.appendChild(script);
+  } else if (!script.id) {
+    script.id = GOOGLE_MAPS_SCRIPT_ID;
+  }
+
+  return new Promise((resolve, reject) => {
+    const startedAt = Date.now();
+    let timer = null;
+
+    const cleanup = () => {
+      window.removeEventListener(GOOGLE_MAPS_READY_EVENT, check);
+      window.removeEventListener(GOOGLE_MAPS_ERROR_EVENT, fail);
+      script.removeEventListener('load', check);
+      script.removeEventListener('error', fail);
+      if (timer) window.clearInterval(timer);
+    };
+
+    const fail = () => {
+      cleanup();
+      reject(window.__tithiGoogleMapsError || new Error('Google Maps failed to load.'));
+    };
+
+    function check() {
+      if (hasGoogleMapsReady(requirePlaces)) {
+        cleanup();
+        dispatchMapsEvent(GOOGLE_MAPS_READY_EVENT);
+        resolve();
+        return;
+      }
+      if (window.__tithiGoogleMapsError) {
+        fail();
+        return;
+      }
+      if (Date.now() - startedAt >= timeoutMs) {
+        window.__tithiGoogleMapsError = new Error('Google Maps timed out while loading.');
+        fail();
+      }
+    }
+
+    window.addEventListener(GOOGLE_MAPS_READY_EVENT, check);
+    window.addEventListener(GOOGLE_MAPS_ERROR_EVENT, fail);
+    script.addEventListener('load', check);
+    script.addEventListener('error', fail);
+    timer = window.setInterval(check, 150);
+    check();
+  });
 }
 
 const toLatLngLiteral = (location) => {
@@ -345,7 +465,6 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
 
   useEffect(() => {
     if (!open) return undefined;
-    let attempts = 0;
     let cancelled = false;
     let cancelAutoLocate = null;
     const snapshot = openSnapshotRef.current;
@@ -492,12 +611,9 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
 
     const initialise = () => {
       if (cancelled || mapInstanceRef.current || !mapRef.current) return;
-        if (!window.google?.maps?.Map) {
-          attempts += 1;
-        if (attempts >= 40) {
-          reportMapIssue('[MapPicker] Maps JavaScript API did not become ready. Check Maps JavaScript API, billing, network access, and key restrictions.', { attempts });
-          setError('Google Maps is taking too long to load. Please check the Maps API key or internet connection.');
-        }
+      if (!window.google?.maps?.Map) {
+        reportMapIssue('[MapPicker] Maps JavaScript API is unavailable after loader completion.', {});
+        setError('Google Maps is not available. Please check the Maps API key, billing, or allowed website domain.');
         return;
       }
 
@@ -543,6 +659,15 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
         window.google?.maps?.event?.trigger(map, 'resize');
         map.setCenter(startLatLng);
       }, 0);
+      window.setTimeout(() => {
+        if (cancelled || !mapRef.current) return;
+        if (detectGoogleMapsAuthError(mapRef.current)) {
+          setMapReady(false);
+          setAddress('');
+          setPlaceForAddress(null);
+          setError('Google Maps is not available. Please check the Maps API key, billing, or allowed website domain.');
+        }
+      }, 1200);
       reverseGeocode(startLatLng);
       centerFromTypedArea(map);
       if (!snapshot.latLng && !startAddress && navigator.geolocation) {
@@ -570,18 +695,21 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
       }
     };
 
-    initialise();
-    const timer = window.setInterval(() => {
-      initialise();
-      if (mapInstanceRef.current || attempts > 40) window.clearInterval(timer);
-    }, 250);
+    ensureGoogleMapsLoaded({ timeoutMs: 30000 })
+      .then(() => {
+        if (!cancelled) initialise();
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        reportMapIssue('[MapPicker] Maps JavaScript API did not become ready.', { error: error.message });
+        setError('Google Maps is not available. Please check the Maps API key, billing, or allowed website domain.');
+      });
 
     return () => {
       cancelled = true;
       geocodeRequestRef.current += 1;
       reverseGeocodeRef.current = null;
       if (idleGeocodeTimerRef.current) window.clearTimeout(idleGeocodeTimerRef.current);
-      window.clearInterval(timer);
       cancelAutoLocate?.();
       if (mapInstanceRef.current) window.google?.maps?.event?.clearInstanceListeners(mapInstanceRef.current);
       mapInstanceRef.current = null;
@@ -788,14 +916,12 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
       setMapsState('error');
       return undefined;
     }
-    let attempts = 0;
     let cancelled = false;
 
     const initialise = () => {
-      if (cancelled || autocompleteRef.current) return;
-      if (!window.google?.maps?.places) {
-        attempts += 1;
-        if (attempts >= 40) setMapsState('error');
+      if (cancelled || autocompleteRef.current || !inputRef.current) return;
+      if (!window.google?.maps?.places?.Autocomplete) {
+        setMapsState('error');
         return;
       }
 
@@ -818,15 +944,19 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
       setMapsState('ready');
     };
 
-    initialise();
-    const timer = window.setInterval(() => {
-      initialise();
-      if (autocompleteRef.current || attempts >= 40) window.clearInterval(timer);
-    }, 250);
+    setMapsState('loading');
+    ensureGoogleMapsLoaded({ requirePlaces: true, timeoutMs: 30000 })
+      .then(() => {
+        if (!cancelled) initialise();
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        reportMapIssue('[PlacesAddressBlock] Google Places autocomplete did not become ready.', { error: error.message });
+        setMapsState('error');
+      });
 
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
       if (autocompleteRef.current) window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
       autocompleteRef.current = null;
     };
@@ -843,7 +973,8 @@ function PlacesAddressBlock({ title, icon, role, serviceType, value, onChange, o
     const observer = new MutationObserver(() => {
       const hasGoogleError = input.classList.contains('gm-err-autocomplete')
         || input.style.backgroundImage.includes('icon_error.png')
-        || input.placeholder === 'Oops! Something went wrong.';
+        || input.placeholder === 'Oops! Something went wrong.'
+        || detectGoogleMapsAuthError();
       if (hasGoogleError) {
         input.classList.remove('gm-err-autocomplete');
         input.style.removeProperty('background-image');

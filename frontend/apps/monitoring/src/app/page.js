@@ -391,12 +391,8 @@ async function checkEndpointsInBatches(batchSize = 4, onBatch) {
 export default function MonitoringPage() {
   const [results, setResults] = useState([]);
   const [snapshot, setSnapshot] = useState(null);
-  const [availabilityHistory, setAvailabilityHistory] = useState(() =>
-    readStoredJson(HISTORY_STORAGE_KEY, []),
-  );
-  const [eventLogs, setEventLogs] = useState(() =>
-    readStoredJson(LOG_STORAGE_KEY, []),
-  );
+  const [availabilityHistory, setAvailabilityHistory] = useState([]);
+  const [eventLogs, setEventLogs] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [socketState, setSocketState] = useState("connecting");
   const [socketMessage, setSocketMessage] = useState(
@@ -405,6 +401,11 @@ export default function MonitoringPage() {
   const [lastRun, setLastRun] = useState("");
   const [socketRef, setSocketRef] = useState(null);
   const latestResultsRef = useRef([]);
+
+  useEffect(() => {
+    setAvailabilityHistory(readStoredJson(HISTORY_STORAGE_KEY, []));
+    setEventLogs(readStoredJson(LOG_STORAGE_KEY, []));
+  }, []);
 
   const recordSnapshot = (nextResults, generatedAt, source, payload = {}) => {
     const stableTime = generatedAt || new Date().toISOString();

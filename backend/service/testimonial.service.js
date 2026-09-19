@@ -3,6 +3,7 @@ const Testimonial = require("../schema/Testimonial.model")
 const Booking = require("../schema/Booking.model");
 const ApiError = require("../utility/apierror");
 const { notifyContentChange } = require("../utility/contentEvents");
+const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
 const inAppNotificationService = require("./inAppNotification.service");
 const { uploadFeedbackImage } = require("./iconUpload.service");
 
@@ -18,6 +19,7 @@ const createTestimonial = async (payload = {}) => {
     sortOrder: payload.sortOrder ?? Number(last?.sortOrder ?? -1) + 1,
   });
   notifyContentChange("testimonial", "testimonial:create", { id: testimonial._id });
+  await invalidatePublicCache("testimonial");
   return testimonial;
 };
 
@@ -54,7 +56,7 @@ const submitPublicFeedback = async (payload = {}) => {
   return testimonial;
 };
 
-const getPublicTestimonials = async (query = {}) => {
+const getPublicTestimonials = async (query = {}) => withPublicCache("testimonial", query, async () => {
   const filter = {
     status: "active",
   };
@@ -73,7 +75,7 @@ const getPublicTestimonials = async (query = {}) => {
   });
 
   return testimonials;
-};
+});
 
 const getAllTestimonialsForAdmin = async (query = {}) => {
   const filter = {};
@@ -197,6 +199,7 @@ const updateTestimonial = async (testimonialId, payload) => {
   }
 
   notifyContentChange("testimonial", "testimonial:delete", { id: testimonialId });
+  await invalidatePublicCache("testimonial");
   return testimonial;
 };
 
@@ -209,6 +212,7 @@ const reorderTestimonials = async (orderedIds = []) => {
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
   })));
   notifyContentChange("testimonial", "testimonial:reorder");
+  await invalidatePublicCache("testimonial");
   return getAllTestimonialsForAdmin({});
 };
 
@@ -226,6 +230,8 @@ const deleteTestimonial = async (testimonialId) => {
     throw new ApiError(404, "Testimonial not found");
   }
 
+  notifyContentChange("testimonial", "testimonial:delete", { id: testimonialId });
+  await invalidatePublicCache("testimonial");
   return testimonial;
 };
 
