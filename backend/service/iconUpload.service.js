@@ -18,6 +18,8 @@ try {
 
 const COMPLETION_PROOF_MAX_BYTES = 300 * 1024;
 const FEEDBACK_IMAGE_MAX_BYTES = 950 * 1024;
+const ICON_MAX_BYTES = 120 * 1024;
+const SITE_LOGO_MAX_BYTES = 180 * 1024;
 
 const extensionFor = (file) => {
   const originalExtension = path.extname(file.originalname || "").toLowerCase();
@@ -78,6 +80,34 @@ const compressCompletionProofImage = async (file) => compressImageToWebp(file, {
   baseName: "completion-proof",
 });
 
+const shouldCompressRasterImage = (file) => file?.mimetype !== "image/svg+xml";
+
+const compressIconImage = async (file) => {
+  if (!file) return file;
+  if (!shouldCompressRasterImage(file)) return file;
+  return compressImageToWebp(file, {
+    maxBytes: ICON_MAX_BYTES,
+    startWidth: 512,
+    minWidth: 160,
+    startQuality: 82,
+    minQuality: 58,
+    baseName: "icon",
+  });
+};
+
+const compressSiteLogoImage = async (file) => {
+  if (!file) return file;
+  if (!shouldCompressRasterImage(file)) return file;
+  return compressImageToWebp(file, {
+    maxBytes: SITE_LOGO_MAX_BYTES,
+    startWidth: 1200,
+    minWidth: 360,
+    startQuality: 82,
+    minQuality: 58,
+    baseName: "site-logo",
+  });
+};
+
 const fileFromDataUrl = (dataUrl, baseName = "feedback") => {
   const match = String(dataUrl || "").match(/^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/i);
   if (!match) throw new ApiError(400, "Image must be a valid image upload");
@@ -122,12 +152,14 @@ const uploadImage = async (file, { folder = "icons", missingMessage = "Please se
 };
 
 const uploadIcon = async (file) => {
-  const result = await uploadImage(file, { folder: "icons", errorLabel: "Icon" });
+  const compressed = await compressIconImage(file);
+  const result = await uploadImage(compressed, { folder: "icons", errorLabel: "Icon" });
   return { icon: result.icon };
 };
 
 const uploadSiteLogo = async (file) => {
-  const result = await uploadImage(file, {
+  const compressed = await compressSiteLogoImage(file);
+  const result = await uploadImage(compressed, {
     folder: "site-logos",
     missingMessage: "Please select a logo image to upload",
     errorLabel: "Logo",

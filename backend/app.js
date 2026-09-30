@@ -4,9 +4,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const compression = require("compression");
 
 const errormiddlewere = require("./middlewere/error.middlewere");
 const requestlogger = require("../backend/middlewere/requestlogger.middlewere");
+const usageMetrics = require("../backend/middlewere/usageMetrics.middlewere");
 const healthroute = require("../backend/routes/health.routes");
 const notfoundmiddlewere = require("./middlewere/notfound.middlewere");
 const requestidmiddlewere = require("./middlewere/requestid.middlewere");
@@ -29,6 +31,7 @@ const bookingPricingRuleRoutes = require("./routes/bookingPricingRule.routes");
 const adminAuthRoutes = require("./routes/adminAuth.routes");
 const adminAnalyticsRoutes = require("./routes/adminAnalytics.routes");
 const emailNotificationRoutes = require("./routes/emailNotification.routes");
+const analyticsTrackRoutes = require("./routes/analyticsTrack.routes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -61,10 +64,12 @@ app.use(cors({
 }))
 
 app.use(helmet());
+app.use(compression({ threshold: 1024 }));
 app.use(express.json({ limit: requestBodyLimit }));
 app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
 app.use(cookieParser());
 app.use(requestidmiddlewere);
+app.use(usageMetrics);
 app.use(requestlogger);
 app.use(
     "/logo",
@@ -109,6 +114,7 @@ app.use("/api/booking-pricing-rules", bookingPricingRuleRoutes);
 app.use("/api/admin-auth", adminAuthRoutes);
 app.use("/api/admin-analytics", adminAnalyticsRoutes);
 app.use("/api/email-notifications", emailNotificationRoutes);
+app.use("/api/analytics-track", analyticsTrackRoutes);
 
 app.use("/api/v1/health", healthroute);
 app.use(notfoundmiddlewere)

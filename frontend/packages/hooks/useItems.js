@@ -17,6 +17,8 @@ export const useItemCatalog = (filters = {}, options = {}) => useQuery({
   queryFn: () => api.getItemCatalog(filters),
   staleTime: ITEM_CATALOG_STALE_TIME,
   gcTime: ITEM_CATALOG_GC_TIME,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   retry: 1,
   ...options,
 });
@@ -25,6 +27,8 @@ export const useItemSections = (filters = {}) => useQuery({
   queryFn: () => api.getItemSections(filters),
   staleTime: ITEM_CATALOG_STALE_TIME,
   gcTime: ITEM_CATALOG_GC_TIME,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   retry: 1,
 });
 export const usePrefetchItemCatalog = () => {

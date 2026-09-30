@@ -123,6 +123,56 @@ const resolveRecipients = (_booking, settings) => {
   return normalizeRecipients(settings.recipients);
 };
 
+const getNotificationRecipients = async () => {
+  const settings = await getSettings();
+  if (settings.isActive === false) return [];
+  return normalizeRecipients(settings.recipients);
+};
+
+const sendOperationalEmail = async ({
+  subject,
+  html,
+  text,
+  attachments = [],
+  logLabel = "Operational email",
+} = {}) => {
+  const recipients = await getNotificationRecipients();
+  if (recipients.length === 0) {
+    logger.info(`${logLabel} skipped because no recipients are configured`);
+    return null;
+  }
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(`${logLabel} skipped because RESEND_API_KEY is not configured`);
+    return null;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const result = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || "Tithi Packers and Movers <onboarding@resend.dev>",
+    to: recipients,
+    subject,
+    html,
+    text: text || stripHtml(html),
+    ...(attachments.length ? { attachments } : {}),
+  });
+
+  if (result?.error) {
+    logger.error(`${logLabel} rejected by Resend`, {
+      recipientCount: recipients.length,
+      error: result.error.message || result.error,
+    });
+    throw new Error(result.error.message || `Resend rejected ${logLabel.toLowerCase()}`);
+  }
+
+  logger.info(`${logLabel} sent`, {
+    recipientCount: recipients.length,
+    resendId: result?.data?.id,
+    attachmentCount: attachments.length,
+  });
+
+  return { result, recipients };
+};
+
 const sendBookingEmailWithPdf = async (booking, {
   source = "website",
   recipientMode = "settings",
@@ -233,6 +283,8 @@ module.exports = {
   DEFAULT_EMAIL_TEMPLATE,
   getSettings,
   updateSettings,
+  getNotificationRecipients,
+  sendOperationalEmail,
   sendBookingConfirmationEmail,
   sendBookingUpdateEmail,
 };

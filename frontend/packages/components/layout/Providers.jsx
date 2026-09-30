@@ -86,6 +86,11 @@ export default function Providers({ children }) {
         if (event?.target === 'catalog') {
           queryClient.invalidateQueries({ queryKey: ['items'] });
           queryClient.invalidateQueries({ queryKey: ['admin', 'items'] });
+          queryClient.invalidateQueries({ queryKey: ['addons', 'available'] });
+        }
+        if (event?.target === 'addon') {
+          queryClient.invalidateQueries({ queryKey: ['addons', 'available'] });
+          queryClient.invalidateQueries({ queryKey: ['admin', 'addons'] });
         }
         if (event?.target === 'faq') {
           queryClient.invalidateQueries({ queryKey: ['faqs'] });
@@ -114,6 +119,58 @@ export default function Providers({ children }) {
       socket?.disconnect();
     };
   }, [queryClient]);
+
+  useEffect(() => {
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+    if (!apiUrl || typeof window === 'undefined') return undefined;
+
+    const sendEvent = (payload) => {
+      const body = JSON.stringify({
+        ...payload,
+        path: window.location.pathname,
+        referrer: document.referrer || '',
+        userAgent: navigator.userAgent || '',
+      });
+      const url = `${apiUrl}/api/analytics-track`;
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: 'application/json' });
+        if (navigator.sendBeacon(url, blob)) return;
+      }
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+    };
+
+    const pageViewKey = `tithi:last-page-view:${window.location.pathname}`;
+    let lastPageView = 0;
+    try {
+      lastPageView = Number(sessionStorage.getItem(pageViewKey) || 0);
+    } catch {
+      // Browsers can block storage; analytics should never block rendering.
+      lastPageView = 0;
+    }
+    if (Date.now() - lastPageView > 2000) {
+      try {
+        sessionStorage.setItem(pageViewKey, String(Date.now()));
+      } catch {
+        // Ignore storage failures and still send the page-view event.
+      }
+      sendEvent({ type: 'page_view' });
+    }
+
+    const handleClick = (event) => {
+      const target = event.target?.closest?.('a,button,[role="button"]');
+      if (!target) return;
+      const label = target.getAttribute('aria-label') || target.textContent || target.getAttribute('href') || 'click';
+      sendEvent({ type: 'click', label: label.trim().replace(/\s+/g, ' ').slice(0, 120) });
+    };
+
+    document.addEventListener('click', handleClick, { capture: true, passive: true });
+    return () => document.removeEventListener('click', handleClick, { capture: true });
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

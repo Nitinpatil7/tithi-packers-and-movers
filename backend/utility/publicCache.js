@@ -1,7 +1,7 @@
 const { getRedisClient } = require("../config/redis");
 const logger = require("./logger");
 
-const PUBLIC_CACHE_TTL_SECONDS = 300;
+const PUBLIC_CACHE_TTL_SECONDS = 30 * 60;
 const PUBLIC_CACHE_PREFIX = "public";
 
 const stableValue = (value) => {

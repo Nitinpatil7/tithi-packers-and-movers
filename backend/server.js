@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const { bootstrapDefaultAdmin } = require("./service/adminAuth.service");
 const attachMonitoringSocket = require("./utility/monitoringSocket");
 const { startNotificationWorker } = require("./queue/notification.queue");
+const { startOperationalMonitoring } = require("./service/operationalMonitoring.service");
 const logger = require("./utility/logger");
 
 const PORT = process.env.PORT || 5000;
@@ -19,6 +20,7 @@ const startServer = async () => {
     const server = http.createServer(app);
     attachMonitoringSocket(server, app, PORT);
     startNotificationWorker();
+    startOperationalMonitoring();
 
     server.listen(PORT , ()=>{
         logger.info("Server listening", { port: PORT, environment: process.env.NODE_ENV || "development" });

@@ -5,8 +5,10 @@ export const useSiteSetting = () =>
   useQuery({
     queryKey: ["site-setting"],
     queryFn: getSiteSetting,
-    staleTime: 0,
-    refetchOnMount: "always",
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 1,
   });
 export function useUpdateSiteSetting() {

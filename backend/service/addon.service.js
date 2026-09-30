@@ -5,6 +5,7 @@ const ItemGroup = require("../schema/ItemGroup.model");
 const ItemCategory = require("../schema/ItemCategory.model");
 const ApiError = require("../utility/apierror");
 const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
+const { notifyContentChange } = require("../utility/contentEvents");
 
 const SERVICE_TYPES = ["local_shifting", "intercity_moving"];
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -64,6 +65,7 @@ const createAddOn = async (payload) => {
   }
   const addOn = await AddOnService.create(normalized);
   await invalidatePublicCache("addon-available");
+  notifyContentChange("addon", "addon:create", { id: addOn._id });
   return populated(AddOnService.findById(addOn._id));
 };
 const getAllAddOnsForAdmin = (query = {}) => {
@@ -83,12 +85,14 @@ const updateAddOn = async (id, payload) => {
     { $set: await normalizeTriggers(payload) }, { new: true, runValidators: true }));
   if (!addOn) throw new ApiError(404, "Add-on service not found");
   await invalidatePublicCache("addon-available");
+  notifyContentChange("addon", "addon:update", { id });
   return addOn;
 };
 const deleteAddOn = async (id) => {
   const addOn = await AddOnService.findByIdAndUpdate(id, { $set: { isActive: false } }, { new: true });
   if (!addOn) throw new ApiError(404, "Add-on service not found");
   await invalidatePublicCache("addon-available");
+  notifyContentChange("addon", "addon:delete", { id });
   return addOn;
 };
 
@@ -233,6 +237,7 @@ const reorderAddOns = async (orderedIds = [], group = "all") => {
     updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index } } },
   })));
   await invalidatePublicCache("addon-available");
+  notifyContentChange("addon", "addon:reorder", { group });
   return getAllAddOnsForAdmin({});
 };
 
