@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 const IORedis = require("ioredis");
 const { Server } = require("socket.io");
-const { setContentEmitter } = require("./contentEvents");
+const { setContentEmitter, setPricingEmitter } = require("./contentEvents");
 const { setAdminBookingEmitter } = require("./bookingEvents");
 const bookingService = require("../service/booking.service");
 const { getRedisUrl } = require("../config/redis");
-
-const CHECK_INTERVAL_MS = 5000;
 
 const baseEndpoints = [
   {
@@ -245,7 +243,7 @@ const buildSnapshot = async (port) => {
 
   return {
     generatedAt: new Date().toISOString(),
-    intervalMs: CHECK_INTERVAL_MS,
+    refreshMode: "manual",
     baseUrl,
     database:
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
@@ -279,7 +277,6 @@ const attachMonitoringSocket = (httpServer, app, port) => {
   const namespace = io.of("/monitoring");
   const contentNamespace = io.of("/content");
   const adminNamespace = io.of("/admin");
-  let latestSnapshot = null;
 
   const emitAdminSummary = async () => {
     const summary = await bookingService.getRealtimeSummary();
@@ -289,6 +286,10 @@ const attachMonitoringSocket = (httpServer, app, port) => {
 
   setContentEmitter((payload) => {
     contentNamespace.emit("content:changed", payload);
+  });
+
+  setPricingEmitter((payload) => {
+    contentNamespace.emit("pricing:updated", payload);
   });
 
   contentNamespace.on("connection", (socket) => {
@@ -322,39 +323,25 @@ const attachMonitoringSocket = (httpServer, app, port) => {
     });
   });
 
-  const emitSnapshot = async () => {
-    latestSnapshot = await buildSnapshot(port);
-    namespace.emit("monitoring:snapshot", latestSnapshot);
+  const buildAndStoreSnapshot = async () => {
+    return buildSnapshot(port);
   };
 
   namespace.on("connection", (socket) => {
     socket.emit("monitoring:connected", {
       message: "Monitoring socket connected",
-      intervalMs: CHECK_INTERVAL_MS,
+      refreshMode: "manual",
       generatedAt: new Date().toISOString(),
     });
 
-    if (latestSnapshot) socket.emit("monitoring:snapshot", latestSnapshot);
-    else
-      emitSnapshot().catch((error) =>
-        socket.emit("monitoring:error", { message: error.message }),
-      );
-
     socket.on("monitoring:run", () => {
-      emitSnapshot().catch((error) =>
-        socket.emit("monitoring:error", { message: error.message }),
+      buildAndStoreSnapshot()
+        .then((snapshot) => socket.emit("monitoring:snapshot", snapshot))
+        .catch((error) =>
+          socket.emit("monitoring:error", { message: error.message }),
       );
     });
   });
-
-  setInterval(() => {
-    emitSnapshot().catch((error) => {
-      namespace.emit("monitoring:error", {
-        message: error.message,
-        generatedAt: new Date().toISOString(),
-      });
-    });
-  }, CHECK_INTERVAL_MS);
 };
 
 module.exports = attachMonitoringSocket;

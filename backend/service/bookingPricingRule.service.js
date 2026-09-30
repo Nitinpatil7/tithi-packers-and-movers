@@ -2,6 +2,7 @@ const BookingPricingRule = require("../schema/BookingPricingRule.model");
 const ApiError = require("../utility/apierror");
 const { service_types, SERVICE_TYPE_VALUES } = require("../constants/serviceTypes");
 const { invalidatePublicCache, withPublicCache } = require("../utility/publicCache");
+const { notifyPricingUpdated } = require("../utility/contentEvents");
 
 const SIZE_KEYS = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -259,6 +260,7 @@ const createRule = async (payload) => {
     invalidatePublicCache("booking-pricing-rules"),
     invalidatePublicCache("booking-pricing-rule"),
   ]);
+  notifyPricingUpdated({ action: "pricing-rule:create", id: rule._id });
   return rule;
 };
 
@@ -274,6 +276,10 @@ const createDefaultRules = async () => {
     invalidatePublicCache("booking-pricing-rules"),
     invalidatePublicCache("booking-pricing-rule"),
   ]);
+  if (created.length) notifyPricingUpdated({
+    action: "pricing-rule:create-defaults",
+    ids: created.map((rule) => rule._id),
+  });
   return created;
 };
 
@@ -288,6 +294,7 @@ const updateRule = async (id, payload) => {
     invalidatePublicCache("booking-pricing-rules"),
     invalidatePublicCache("booking-pricing-rule"),
   ]);
+  notifyPricingUpdated({ action: "pricing-rule:update", id: rule._id });
   return rule;
 };
 

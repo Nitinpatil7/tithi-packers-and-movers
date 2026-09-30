@@ -98,6 +98,11 @@ export default function Providers({ children }) {
           queryClient.invalidateQueries({ queryKey: ['site-setting'] });
         }
       });
+      socket.on('pricing:updated', () => {
+        queryClient.invalidateQueries({ queryKey: ['booking-pricing-rules'] });
+        queryClient.invalidateQueries({ queryKey: ['booking-pricing-rule'] });
+        queryClient.invalidateQueries({ queryKey: ['admin', 'booking-pricing-rules'] });
+      });
     };
     const start = () => { void connectRealtime(); };
     let idleId;

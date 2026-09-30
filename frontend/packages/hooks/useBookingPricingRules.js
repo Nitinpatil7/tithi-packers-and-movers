@@ -9,18 +9,18 @@ export const usePublicPricingRule = (serviceType) => useQuery({
   queryFn: () => api.getPublicPricingRule(serviceType),
   enabled: Boolean(serviceType),
   placeholderData: keepPreviousData,
-  staleTime: 5 * 1000,
-  refetchInterval: 15 * 1000,
-  refetchOnWindowFocus: true,
+  staleTime: Infinity,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 });
 
 export const usePublicPricingRules = (filters = {}) => useQuery({
   queryKey: ['booking-pricing-rules', 'public', filters],
   queryFn: () => api.getPublicPricingRules(filters),
   placeholderData: keepPreviousData,
-  staleTime: 5 * 1000,
-  refetchInterval: 15 * 1000,
-  refetchOnWindowFocus: true,
+  staleTime: Infinity,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 });
 
 export const useAdminPricingRules = (filters = {}) => useQuery({

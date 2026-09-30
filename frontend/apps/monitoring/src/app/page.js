@@ -28,7 +28,7 @@ import {
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const SOCKET_URL = API_URL || undefined;
 const TRACKING_PROBE_MOBILE = (process.env.NEXT_PUBLIC_MONITORING_TRACKING_PROBE_MOBILE || "").replace(/\D/g, "");
-const AUTO_REFRESH_MS = 5000;
+const HISTORY_SNAPSHOT_SECONDS = 5;
 const HISTORY_STORAGE_KEY = "tithi-monitoring-availability-history";
 const LOG_STORAGE_KEY = "tithi-monitoring-event-logs";
 const MAX_HISTORY_ITEMS = 96;
@@ -313,7 +313,7 @@ function calculateAvailabilityStats(history) {
     ? Math.round(((totalChecks - failedChecks) / totalChecks) * 10000) / 100
     : 0;
   const downtimeSnapshots = history.filter((item) => item.failed > 0).length;
-  const intervalSeconds = AUTO_REFRESH_MS / 1000;
+  const intervalSeconds = HISTORY_SNAPSHOT_SECONDS;
 
   return {
     totalSnapshots,
@@ -511,26 +511,6 @@ export default function MonitoringPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (socketState === "connected" || socketState === "connecting") return undefined;
-    let cancelled = false;
-    const runFallback = async () => {
-      const checks = await checkEndpointsInBatches(4, (partial) => {
-        if (!cancelled) setResults(partial);
-      });
-      if (cancelled) return;
-      setResults(checks);
-      recordSnapshot(checks, new Date().toISOString(), "browser fallback");
-      setLastRun(new Date().toLocaleString());
-    };
-    runFallback();
-    const timer = setInterval(runFallback, AUTO_REFRESH_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [socketState]);
-
   const resultMap = useMemo(
     () => new Map(results.map((item) => [item.path, item])),
     [results],
@@ -616,9 +596,8 @@ export default function MonitoringPage() {
                 Monitoring Command Center
               </h1>
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-slate-300">
-                Socket.IO updates every 5 seconds with endpoint health, average
-                latency, database state, server memory, and protected route
-                reachability.
+                Manual refresh checks endpoint health, average latency,
+                database state, server memory, and protected route reachability.
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
@@ -718,8 +697,8 @@ export default function MonitoringPage() {
                 }
               />
               <HealthRow
-                label="Refresh cycle"
-                value={`${AUTO_REFRESH_MS / 1000} sec`}
+                label="Refresh mode"
+                value="Manual"
               />
               <HealthRow
                 label="Protected checks"
@@ -864,7 +843,7 @@ export default function MonitoringPage() {
                 <h2 className="font-black text-white">API Response Timing</h2>
               </div>
               <span className="font-mono text-xs font-semibold text-cyan-200">
-                AUTO REFRESH / 5S
+                MANUAL REFRESH
               </span>
             </div>
             <div className="divide-y divide-cyan-300/10">
