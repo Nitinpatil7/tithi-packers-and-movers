@@ -175,6 +175,7 @@ export default function AdminItemsPage() {
                   </span>
                   <button onClick={() => setExpandedGroups((value) => ({ ...value, [group._id]: !open }))} className="flex min-w-0 items-center gap-3 text-left">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-sky-600 ring-1 ring-sky-100">{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</span>
+                    {group.icon && <CatalogIconPreview icon={group.icon} className="h-9 w-9 shrink-0" />}
                     <span><strong className="block text-sm text-slate-900">{group.name}</strong><span className="text-xs font-semibold text-slate-400">{itemRecords.length} items</span></span>
                   </button>
                 </div>

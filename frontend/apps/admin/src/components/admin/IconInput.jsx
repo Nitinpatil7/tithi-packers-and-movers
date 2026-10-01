@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export function IconPreview({ icon, className = 'h-12 w-12' }) {
   return icon ? (
-    <Image
+    <img
       src={icon}
       alt=""
       width={64}
