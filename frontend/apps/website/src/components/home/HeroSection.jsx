@@ -151,6 +151,7 @@ export default function HeroSection() {
             sizes="58vw"
             className="hero-truck-art absolute inset-0 z-10 h-full w-full max-w-none object-cover object-right"
           />
+          <div className="absolute inset-x-0 top-0 z-20 h-[10%] bg-gradient-to-b from-[#bce8fb]/95 via-[#bce8fb]/55 to-transparent dark:from-[#082c43]/95 dark:via-[#082c43]/55" />
           <div className="absolute right-8 top-[13%] z-30 flex w-56 flex-col gap-3 xl:right-12">
             {heroFloatingCards.map(({ text, icon: Icon }) => (
               <div key={text} className="ml-auto flex h-14 w-56 items-center justify-start gap-3 rounded-xl border border-sky-100 bg-white/95 px-4 text-[11px] font-black leading-tight text-text-primary shadow-[0_10px_24px_rgba(3,105,161,.10)] dark:border-sky-300/20 dark:bg-sky-950/90 dark:text-white">
