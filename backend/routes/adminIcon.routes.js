@@ -10,8 +10,8 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 500 * 1024, files: 1 },
   fileFilter(req, file, callback) {
-    if (!["image/png", "image/jpeg"].includes(file.mimetype)) {
-      return callback(new ApiError(400, "Icon must be a PNG or JPEG image"));
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.mimetype)) {
+      return callback(new ApiError(400, "Icon must be a PNG, JPEG, or WebP image"));
     }
     return callback(null, true);
   },

@@ -29,8 +29,8 @@ export default function IconInput({ value, onChange, uploadIcon, label = 'Icon i
   const uploadFile = async (file) => {
     setUploadError('');
     if (!file) return;
-    if (!['image/png', 'image/jpeg'].includes(file.type)) {
-      setUploadError('Icon must be a PNG or JPEG image.');
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setUploadError('Icon must be a PNG, JPEG, or WebP image.');
       return;
     }
     if (file.size > 500 * 1024) {
@@ -55,7 +55,7 @@ export default function IconInput({ value, onChange, uploadIcon, label = 'Icon i
 
   const pasteIcon = async (event) => {
     const items = Array.from(event.clipboardData?.items || []);
-    const imageItem = items.find((item) => item.kind === 'file' && ['image/png', 'image/jpeg'].includes(item.type));
+    const imageItem = items.find((item) => item.kind === 'file' && ['image/png', 'image/jpeg', 'image/webp'].includes(item.type));
     const imageFile = imageItem?.getAsFile();
     if (imageFile) {
       event.preventDefault();
@@ -92,11 +92,12 @@ export default function IconInput({ value, onChange, uploadIcon, label = 'Icon i
             <div className="relative">
               <ImageIcon className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input value={value || ''} onChange={(event) => { setUploadError(''); onChange(event.target.value); }} className="admin-field bg-white pl-12" placeholder="Paste image URL here, or paste an image" />
+              {value && <IconPreview icon={value} className="mt-3 h-14 w-14" />}
             </div>
             <label className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-bold text-sky-700 shadow-sm hover:bg-sky-50 dark:bg-slate-900 dark:text-sky-200 ${uploadIcon.isPending ? 'pointer-events-none opacity-60' : ''}`}>
               <ImageIcon className="h-4 w-4" />
               {uploadIcon.isPending ? 'Uploading...' : 'Choose file'}
-              <input type="file" accept="image/png,image/jpeg" onChange={chooseFile} className="sr-only" disabled={uploadIcon.isPending} />
+              <input type="file" accept="image/png,image/jpeg,image/webp" onChange={chooseFile} className="sr-only" disabled={uploadIcon.isPending} />
             </label>
           </div>
         )}

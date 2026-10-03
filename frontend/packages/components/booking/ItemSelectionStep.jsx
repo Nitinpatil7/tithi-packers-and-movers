@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronRight, Minus, Package, Plus, Search, Send, ShieldCheck, ShoppingCart, Trash2, X } from 'lucide-react';
 import Spinner from '@ui/Spinner';
@@ -81,17 +80,15 @@ const groupSelectedItems = (items = []) => {
   return [...sectionsMap.values()].map((section) => ({ ...section, groups: [...section.groups.values()] }));
 };
 
-function CatalogIcon({ icon, alt = '', className = 'h-5 w-5', priority = false, sizes = '48px' }) {
+function CatalogIcon({ icon, alt = '', className = 'h-5 w-5', priority = false }) {
   return icon ? (
-    <Image
+    <img
       src={icon}
       alt={alt}
       width={48}
       height={48}
-      priority={priority}
-      loading={priority ? undefined : 'eager'}
+      loading={priority ? 'eager' : 'lazy'}
       decoding="async"
-      sizes={sizes}
       className={`${className} rounded-lg object-cover dark:drop-shadow-[0_10px_18px_rgba(0,0,0,0.32)]`}
     />
   ) : (
