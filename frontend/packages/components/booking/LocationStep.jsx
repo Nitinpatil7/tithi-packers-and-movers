@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Clock, Crosshair, Layers, Loader2, Map as MapIcon, MapPin, Truck, Users, X } from 'lucide-react';
 import { cn } from '@utils/utils';
 import { useBookingStore } from '@tithi/store/bookingStore';
@@ -427,6 +428,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const openSnapshotRef = useRef({ latLng: null, address: '' });
   const wasOpenRef = useRef(false);
   const idleGeocodeTimerRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
   const initialValueLat = initialValue?.lat;
   const initialValueLng = initialValue?.lng;
   const initialValueAddress = initialValue?.address;
@@ -446,6 +448,10 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
   const [loadingAddress, setLoadingAddress] = useState(false);
   const [locating, setLocating] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
@@ -716,7 +722,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     };
   }, [open, role, serviceType]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const confirm = () => {
     const readable = cleanReadableAddress(address);
@@ -765,10 +771,10 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
     );
   };
 
-  return (
-    <div className="booking-map-picker-modal fixed inset-0 z-[2147483000] flex items-start justify-center overflow-y-auto bg-slate-950/60 p-0 py-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="booking-map-picker-shell flex w-full max-w-5xl flex-col overflow-visible rounded-t-3xl border border-bg-border bg-bg-white shadow-2xl sm:h-[82vh] sm:overflow-hidden sm:rounded-3xl">
-        <div className="flex items-start justify-between gap-3 border-b border-bg-border p-4 sm:p-5">
+  return createPortal(
+    <div className="booking-map-picker-modal fixed inset-0 z-[2147483647] flex items-stretch justify-center overflow-y-auto bg-slate-950/70 p-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="booking-map-picker-shell flex max-h-[calc(100svh-1rem)] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-bg-border bg-bg-white shadow-2xl sm:max-h-[calc(100svh-2rem)]">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-bg-border p-4 sm:p-5">
           <div>
             <h3 className="text-base font-black text-text-primary">{title || 'Choose location from map'}</h3>
             <p className="mt-1 text-xs font-semibold text-text-secondary">Pan the map until the fixed pin is on the exact location, then confirm it.</p>
@@ -777,7 +783,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="relative h-[44svh] min-h-[240px] flex-none bg-bg-section sm:min-h-[380px] sm:flex-1">
+        <div className="relative min-h-[260px] flex-1 bg-bg-section">
           <div ref={mapRef} className={cn('absolute inset-0 transition-opacity duration-200', mapReady ? 'opacity-100' : 'opacity-0')} />
           {!mapReady && (
             <div className="absolute inset-0 z-10 grid place-items-center bg-bg-section">
@@ -797,7 +803,7 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
             Use my current location
           </button>
         </div>
-        <div className="booking-map-picker-footer border-t border-bg-border px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:p-5">
+        <div className="booking-map-picker-footer shrink-0 overflow-y-auto border-t border-bg-border px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:p-5">
           <div className="relative">
             <input
               readOnly
@@ -820,7 +826,8 @@ function MapPickerModal({ open, title, role, serviceType, initialValue, onClose,
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
